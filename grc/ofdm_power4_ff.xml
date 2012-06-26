@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>Power 4</name>
+  <key>ofdm_power4_ff</key>
+  <category>OFDM</category>
+  <import>import ofdm.ofdm_swig</import>
+  <make>ofdm.ofdm_swig.power4_ff()</make>
+
+  <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>float</type>
+  </source>
+</block>

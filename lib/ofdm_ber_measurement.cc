@@ -3,7 +3,7 @@
 #endif
 
 #include <gr_sync_block.h>
-#include "ofdm_ber_measurement.h"
+#include <ofdm_ber_measurement.h>
 #include <gr_io_signature.h>
 
 #include <iostream>

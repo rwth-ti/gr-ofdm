@@ -17,6 +17,7 @@
 #include "ofdm_autocorrelator.h"
 #include "ofdm_autocorrelator_stage1.h"
 #include "ofdm_autocorrelator_stage2.h"
+#include "ofdm_ber_measurement.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -42,3 +43,6 @@ GR_SWIG_BLOCK_MAGIC(ofdm,autocorrelator_stage1);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,autocorrelator_stage2);
 %include "ofdm_autocorrelator_stage2.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,ber_measurement);
+%include "ofdm_ber_measurement.h"

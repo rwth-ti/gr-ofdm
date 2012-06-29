@@ -30,6 +30,7 @@ install(FILES
     ofdm_autocorrelator.h
     ofdm_autocorrelator_stage1.h
     ofdm_autocorrelator_stage2.h
+    ofdm_ber_measurement.h
     gr_block_fwd.h
     DESTINATION include/ofdm
 )

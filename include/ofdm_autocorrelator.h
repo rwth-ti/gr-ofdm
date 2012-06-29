@@ -6,12 +6,13 @@
 
 #include <ofdm_api.h>
 #include "gr_block_fwd.h"// forward declarations
-#include <gr_block.h>
+#include <gr_hier_block2.h>
 
 class ofdm_autocorrelator;
 typedef boost::shared_ptr<ofdm_autocorrelator>
   ofdm_autocorrelator_sptr;
 
+// OFDM_API is to be added here
 OFDM_API ofdm_autocorrelator_sptr
 ofdm_make_autocorrelator( int lag, int n_samples );
 

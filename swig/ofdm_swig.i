@@ -29,6 +29,8 @@
 #include "ofdm_constellation_sample_filter.h"
 //#include "ofdm_CTF_MSE_enhancer.h"
 #include "ofdm_cyclic_prefixer.h"
+#include "ofdm_dominiks_sync_01.h"
+#include "ofdm_dynamic_trigger_ib.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -90,3 +92,9 @@ GR_SWIG_BLOCK_MAGIC(ofdm,constellation_sample_filter);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cyclic_prefixer);
 %include "ofdm_cyclic_prefixer.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,dominiks_sync_01);
+%include "ofdm_dominiks_sync_01.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,dynamic_trigger_ib);
+%include "ofdm_dynamic_trigger_ib.h"

@@ -42,6 +42,8 @@ add_library(gnuradio-ofdm SHARED
     ofdm_imgtransfer_sink.cc
     ofdm_constellation_sample_filter.cc
 #    ofdm_CTF_MSE_enhancer.cc
+    ofdm_dominiks_sync_01.cc
+    ofdm_dynamic_trigger_ib.cc
     ofdm_cyclic_prefixer.cc
     util_random.cc
     util_endian.cc

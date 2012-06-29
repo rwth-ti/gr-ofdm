@@ -41,6 +41,8 @@ install(FILES
     ofdm_imgtransfer_sink.h
     ofdm_constellation_sample_filter.h
 #    ofdm_CTF_MSE_enhancer.h
+    ofdm_dominiks_sync_01.h
+    ofdm_dynamic_trigger_ib.h
     ofdm_cyclic_prefixer.h
     util_random.h
     util_bmp.h

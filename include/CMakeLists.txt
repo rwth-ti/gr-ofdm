@@ -35,6 +35,14 @@ install(FILES
     ofdm_channel_equalizer.h
     ofdm_channel_estimator_01.h
     ofdm_channel_estimator_02.h
+    ofdm_coded_bpsk_soft_decoder.h
+    ofdm_compat_read_ber_from_imgxfer.h
+    ofdm_complex_to_arg.h
+    ofdm_imgtransfer_sink.h
+    util_random.h
+    util_bmp.h
+    util_endian.h
+    util_ipc.h
     gr_block_fwd.h
     DESTINATION include/ofdm
 )

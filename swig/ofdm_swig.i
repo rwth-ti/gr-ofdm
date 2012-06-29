@@ -22,6 +22,10 @@
 #include "ofdm_channel_equalizer.h"
 #include "ofdm_channel_estimator_01.h"
 #include "ofdm_channel_estimator_02.h"
+#include "ofdm_coded_bpsk_soft_decoder.h"
+#include "ofdm_compat_read_ber_from_imgxfer.h"
+#include "ofdm_complex_to_arg.h"
+#include "ofdm_imgtransfer_sink.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -62,3 +66,15 @@ GR_SWIG_BLOCK_MAGIC(ofdm,channel_estimator_01);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,channel_estimator_02);
 %include "ofdm_channel_estimator_02.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,coded_bpsk_soft_decoder);
+%include "ofdm_coded_bpsk_soft_decoder.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,compat_read_ber_from_imgxfer);
+%include "ofdm_compat_read_ber_from_imgxfer.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,complex_to_arg);
+%include "ofdm_complex_to_arg.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_sink);
+%include "ofdm_imgtransfer_sink.h"

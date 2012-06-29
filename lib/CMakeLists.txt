@@ -36,6 +36,14 @@ add_library(gnuradio-ofdm SHARED
     ofdm_channel_equalizer.cc
     ofdm_channel_estimator_01.cc
     ofdm_channel_estimator_02.cc
+    ofdm_coded_bpsk_soft_decoder.cc
+    ofdm_compat_read_ber_from_imgxfer.cc
+    ofdm_complex_to_arg.cc
+    ofdm_imgtransfer_sink.cc
+    util_random.cc
+    util_endian.cc
+    util_bmp.cc
+    util_ipc.cc
 )
 target_link_libraries(gnuradio-ofdm ${Boost_LIBRARIES} ${GRUEL_LIBRARIES} ${GNURADIO_CORE_LIBRARIES})
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")

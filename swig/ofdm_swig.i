@@ -26,6 +26,9 @@
 #include "ofdm_compat_read_ber_from_imgxfer.h"
 #include "ofdm_complex_to_arg.h"
 #include "ofdm_imgtransfer_sink.h"
+#include "ofdm_constellation_sample_filter.h"
+//#include "ofdm_CTF_MSE_enhancer.h"
+#include "ofdm_cyclic_prefixer.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -78,3 +81,12 @@ GR_SWIG_BLOCK_MAGIC(ofdm,complex_to_arg);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_sink);
 %include "ofdm_imgtransfer_sink.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,constellation_sample_filter);
+%include "ofdm_constellation_sample_filter.h"
+
+//GR_SWIG_BLOCK_MAGIC(ofdm,CTF_MSE_enhancer);
+//%include "ofdm_CTF_MSE_enhancer.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,cyclic_prefixer);
+%include "ofdm_cyclic_prefixer.h"

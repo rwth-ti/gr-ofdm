@@ -40,6 +40,9 @@ add_library(gnuradio-ofdm SHARED
     ofdm_compat_read_ber_from_imgxfer.cc
     ofdm_complex_to_arg.cc
     ofdm_imgtransfer_sink.cc
+    ofdm_constellation_sample_filter.cc
+#    ofdm_CTF_MSE_enhancer.cc
+    ofdm_cyclic_prefixer.cc
     util_random.cc
     util_endian.cc
     util_bmp.cc

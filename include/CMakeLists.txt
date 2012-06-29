@@ -39,6 +39,9 @@ install(FILES
     ofdm_compat_read_ber_from_imgxfer.h
     ofdm_complex_to_arg.h
     ofdm_imgtransfer_sink.h
+    ofdm_constellation_sample_filter.h
+#    ofdm_CTF_MSE_enhancer.h
+    ofdm_cyclic_prefixer.h
     util_random.h
     util_bmp.h
     util_endian.h

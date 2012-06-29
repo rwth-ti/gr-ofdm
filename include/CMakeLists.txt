@@ -32,6 +32,9 @@ install(FILES
     ofdm_autocorrelator_stage2.h
     ofdm_ber_measurement.h
     ofdm_bit_position_dependent_BER.h
+    ofdm_channel_equalizer.h
+    ofdm_channel_estimator_01.h
+    ofdm_channel_estimator_02.h
     gr_block_fwd.h
     DESTINATION include/ofdm
 )

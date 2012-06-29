@@ -33,6 +33,9 @@ add_library(gnuradio-ofdm SHARED
     ofdm_autocorrelator_stage2.cc
     ofdm_ber_measurement.cc
     ofdm_bit_position_dependent_BER.cc
+    ofdm_channel_equalizer.cc
+    ofdm_channel_estimator_01.cc
+    ofdm_channel_estimator_02.cc
 )
 target_link_libraries(gnuradio-ofdm ${Boost_LIBRARIES} ${GRUEL_LIBRARIES} ${GNURADIO_CORE_LIBRARIES})
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")

@@ -19,6 +19,9 @@
 #include "ofdm_autocorrelator_stage2.h"
 #include "ofdm_ber_measurement.h"
 #include "ofdm_bit_position_dependent_BER.h"
+#include "ofdm_channel_equalizer.h"
+#include "ofdm_channel_estimator_01.h"
+#include "ofdm_channel_estimator_02.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -50,3 +53,12 @@ GR_SWIG_BLOCK_MAGIC(ofdm,ber_measurement);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,bit_position_dependent_BER);
 %include "ofdm_bit_position_dependent_BER.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer);
+%include "ofdm_channel_equalizer.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_estimator_01);
+%include "ofdm_channel_estimator_01.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_estimator_02);
+%include "ofdm_channel_estimator_02.h"

@@ -45,6 +45,9 @@ add_library(gnuradio-ofdm SHARED
     ofdm_dominiks_sync_01.cc
     ofdm_dynamic_trigger_ib.cc
     ofdm_cyclic_prefixer.cc
+    ofdm_extract_block_from_frame.cc
+    #    ofdm_find_cir_shift.cc
+    ofdm_frame_mux.cc
     util_random.cc
     util_endian.cc
     util_bmp.cc

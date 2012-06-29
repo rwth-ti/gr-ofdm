@@ -44,6 +44,9 @@ install(FILES
     ofdm_dominiks_sync_01.h
     ofdm_dynamic_trigger_ib.h
     ofdm_cyclic_prefixer.h
+    ofdm_extract_block_from_frame.h
+    #    ofdm_find_cir_shift.h
+    ofdm_frame_mux.h
     util_random.h
     util_bmp.h
     util_endian.h

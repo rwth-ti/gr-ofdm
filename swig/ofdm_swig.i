@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 
 #define OFDM_API
+#define __attribute__(x)
 
 %include "gnuradio.i"			// the common stuff
 
@@ -31,6 +32,9 @@
 #include "ofdm_cyclic_prefixer.h"
 #include "ofdm_dominiks_sync_01.h"
 #include "ofdm_dynamic_trigger_ib.h"
+#include "ofdm_extract_block_from_frame.h"
+//#include "ofdm_find_cir_shift.h"
+#include "ofdm_frame_mux.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -98,3 +102,12 @@ GR_SWIG_BLOCK_MAGIC(ofdm,dominiks_sync_01);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,dynamic_trigger_ib);
 %include "ofdm_dynamic_trigger_ib.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,extract_block_from_frame);
+%include "ofdm_extract_block_from_frame.h"
+
+//GR_SWIG_BLOCK_MAGIC(ofdm,find_cir_shift);
+//%include "ofdm_find_cir_shift.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,frame_mux);
+%include "ofdm_frame_mux.h"

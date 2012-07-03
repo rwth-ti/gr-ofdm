@@ -35,6 +35,11 @@
 #include "ofdm_extract_block_from_frame.h"
 //#include "ofdm_find_cir_shift.h"
 #include "ofdm_frame_mux.h"
+#include "ofdm_frequency_shift_vcc.h"
+#include "ofdm_generic_mapper_bcv.h"
+#include "ofdm_gate_ff.h"
+#include "ofdm_get_zeros.h"
+#include "ofdm_generic_demapper_vcb.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -111,3 +116,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,extract_block_from_frame);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,frame_mux);
 %include "ofdm_frame_mux.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,frequency_shift_vcc);
+%include "ofdm_frequency_shift_vcc.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,generic_mapper_bcv);
+%include "ofdm_generic_mapper_bcv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,gate_ff);
+%include "ofdm_gate_ff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,generic_demapper_vcb)
+%include "ofdm_generic_demapper_vcb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,get_zeros);
+%include "ofdm_get_zeros.h"

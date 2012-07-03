@@ -46,7 +46,14 @@ install(FILES
     ofdm_cyclic_prefixer.h
     ofdm_extract_block_from_frame.h
     #    ofdm_find_cir_shift.h
+    ofdm_frequency_shift_vcc.h
+    ofdm_generic_mapper_bcv.h
+    ofdm_gate_ff.h
     ofdm_frame_mux.h
+    ofdmi_fast_math.h
+    ofdmi_mod.h
+    ofdm_generic_demapper_vcb.h
+    ofdm_get_zeros.h
     util_random.h
     util_bmp.h
     util_endian.h

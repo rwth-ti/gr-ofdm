@@ -48,6 +48,12 @@ add_library(gnuradio-ofdm SHARED
     ofdm_extract_block_from_frame.cc
     #    ofdm_find_cir_shift.cc
     ofdm_frame_mux.cc
+    ofdm_frequency_shift_vcc.cc
+    ofdm_generic_mapper_bcv.cc
+    ofdm_gate_ff.cc
+    ofdm_generic_demapper_vcb.cc
+    ofdm_get_zeros.cc
+    ofdmi_mod.cc
     util_random.cc
     util_endian.cc
     util_bmp.cc

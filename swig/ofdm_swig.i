@@ -42,6 +42,15 @@
 #include "ofdm_generic_demapper_vcb.h"
 #include "ofdm_imgtransfer_src.h"
 #include "ofdm_imgtransfer_testkanal.h"
+#include "ofdm_interp_cir_set_noncir_to_zero.h"
+#include "ofdm_limit_vff.h"
+#include "ofdm_lms_fir_ff.h"
+#include "ofdm_lms_phase_tracking.h"
+#include "ofdm_LMS_phase_tracking2.h"
+#include "ofdm_LMS_phase_tracking3.h"
+#include "ofdm_LS_estimator_straight_slope.h"
+#include "ofdm_mean_squared_error.h"
+#include "ofdm_mm_frequency_estimator.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -139,3 +148,30 @@ GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_src)
 
 GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_testkanal);
 %include "ofdm_imgtransfer_testkanal.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,interp_cir_set_noncir_to_zero);
+%include "ofdm_interp_cir_set_noncir_to_zero.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,limit_vff);
+%include "ofdm_limit_vff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,lms_fir_ff);
+%include "ofdm_lms_fir_ff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,lms_phase_tracking);
+%include "ofdm_lms_phase_tracking.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,LMS_phase_tracking2);
+%include "ofdm_LMS_phase_tracking2.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,LMS_phase_tracking3);
+%include "ofdm_LMS_phase_tracking3.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,LS_estimator_straight_slope);
+%include "ofdm_LS_estimator_straight_slope.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,mean_squared_error);
+%include "ofdm_mean_squared_error.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,mm_frequency_estimator);
+%include "ofdm_mm_frequency_estimator.h"

@@ -56,6 +56,16 @@ install(FILES
     ofdm_get_zeros.h
     ofdm_imgtransfer_src.h
     ofdm_imgtransfer_testkanal.h
+    ofdm_interp_cir_set_noncir_to_zero.h
+    ofdm_limit_vff.h
+    ofdm_lms_fir_ff.h
+    ofdm_lms_phase_tracking.h
+    ofdm_LMS_phase_tracking2.h
+    ofdm_LMS_phase_tracking3.h
+    ofdmi_tictoc.hpp
+    ofdm_LS_estimator_straight_slope.h
+    ofdm_mean_squared_error.h
+    ofdm_mm_frequency_estimator.h
     util_random.h
     util_bmp.h
     util_endian.h

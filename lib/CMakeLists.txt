@@ -55,6 +55,15 @@ add_library(gnuradio-ofdm SHARED
     ofdm_get_zeros.cc
     ofdm_imgtransfer_src.cc
     ofdm_imgtransfer_testkanal.cc
+    ofdm_interp_cir_set_noncir_to_zero.cc
+    ofdm_limit_vff.cc
+    ofdm_lms_fir_ff.cc
+    ofdm_lms_phase_tracking.cc
+    ofdm_LMS_phase_tracking2.cc
+    ofdm_LMS_phase_tracking3.cc
+    ofdm_LS_estimator_straight_slope.cc
+    ofdm_mean_squared_error.cc
+    ofdm_mm_frequency_estimator.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

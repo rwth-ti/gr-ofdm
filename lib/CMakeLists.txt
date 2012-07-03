@@ -75,6 +75,11 @@ add_library(gnuradio-ofdm SHARED
     ofdm_peak_resync_bb.cc
     ofdm_pilot_subcarrier_inserter.cc
     ofdm_postprocess_CTF_estimate.cc
+    ofdm_reassemble_ofdm_frame.cc
+    ofdm_reference_data_source_ib.cc
+    ofdm_repetition_encoder_sb.cc
+    ofdm_repetition_decoder_bs.cc
+    ofdm_scatterplot_sink.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

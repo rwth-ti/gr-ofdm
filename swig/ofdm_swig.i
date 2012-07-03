@@ -62,6 +62,11 @@
 #include "ofdm_peak_resync_bb.h"
 #include "ofdm_pilot_subcarrier_inserter.h"
 #include "ofdm_postprocess_CTF_estimate.h"
+#include "ofdm_reassemble_ofdm_frame.h"
+#include "ofdm_reference_data_source_ib.h"
+#include "ofdm_repetition_decoder_bs.h"
+#include "ofdm_repetition_encoder_sb.h"
+#include "ofdm_scatterplot_sink.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -219,3 +224,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,pilot_subcarrier_inserter);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,postprocess_CTF_estimate);
 %include "ofdm_postprocess_CTF_estimate.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,reassemble_ofdm_frame);
+%include "ofdm_reassemble_ofdm_frame.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,reference_data_source_ib);
+%include "ofdm_reference_data_source_ib.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,repetition_decoder_bs);
+%include "ofdm_repetition_decoder_bs.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,repetition_encoder_sb);
+%include "ofdm_repetition_encoder_sb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,scatterplot_sink);
+%include "ofdm_scatterplot_sink.h"

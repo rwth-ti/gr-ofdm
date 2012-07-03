@@ -77,6 +77,11 @@ install(FILES
     ofdm_peak_resync_bb.h
     ofdm_pilot_subcarrier_inserter.h
     ofdm_postprocess_CTF_estimate.h
+    ofdm_reassemble_ofdm_frame.h
+    ofdm_reference_data_source_ib.h
+    ofdm_repetition_decoder_bs.h
+    ofdm_repetition_encoder_sb.h
+    ofdm_scatterplot_sink.h
     util_random.h
     util_bmp.h
     util_endian.h

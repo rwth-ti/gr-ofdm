@@ -53,6 +53,8 @@ add_library(gnuradio-ofdm SHARED
     ofdm_gate_ff.cc
     ofdm_generic_demapper_vcb.cc
     ofdm_get_zeros.cc
+    ofdm_imgtransfer_src.cc
+    ofdm_imgtransfer_testkanal.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

@@ -40,6 +40,8 @@
 #include "ofdm_gate_ff.h"
 #include "ofdm_get_zeros.h"
 #include "ofdm_generic_demapper_vcb.h"
+#include "ofdm_imgtransfer_src.h"
+#include "ofdm_imgtransfer_testkanal.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -131,3 +133,9 @@ GR_SWIG_BLOCK_MAGIC(ofdm,generic_demapper_vcb)
 
 GR_SWIG_BLOCK_MAGIC(ofdm,get_zeros);
 %include "ofdm_get_zeros.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_src)
+%include "ofdm_imgtransfer_src.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_testkanal);
+%include "ofdm_imgtransfer_testkanal.h"

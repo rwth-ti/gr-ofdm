@@ -54,6 +54,8 @@ install(FILES
     ofdmi_mod.h
     ofdm_generic_demapper_vcb.h
     ofdm_get_zeros.h
+    ofdm_imgtransfer_src.h
+    ofdm_imgtransfer_testkanal.h
     util_random.h
     util_bmp.h
     util_endian.h

@@ -70,6 +70,11 @@ add_library(gnuradio-ofdm SHARED
     ofdm_multiply_const_ccf.cc
     ofdm_normalize_vcc.cc
     ofdm_noise_nulling.cc
+    ofdm_peak_detector2_fb.cc
+    #ofdm_peak_detector_fb.cc
+    ofdm_peak_resync_bb.cc
+    ofdm_pilot_subcarrier_inserter.cc
+    ofdm_postprocess_CTF_estimate.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

@@ -72,6 +72,11 @@ install(FILES
     ofdm_multiply_const_ccf.h
     ofdm_noise_nulling.h
     ofdm_normalize_vcc.h
+    #    ofdm_peak_detector_fb.h
+    ofdm_peak_detector2_fb.h
+    ofdm_peak_resync_bb.h
+    ofdm_pilot_subcarrier_inserter.h
+    ofdm_postprocess_CTF_estimate.h
     util_random.h
     util_bmp.h
     util_endian.h

@@ -57,6 +57,11 @@
 #include "ofdm_multiply_const_ccf.h"
 #include "ofdm_noise_nulling.h"
 #include "ofdm_normalize_vcc.h"
+//#include "ofdm_peak_detector_fb.h"
+#include "ofdm_peak_detector2_fb.h"
+#include "ofdm_peak_resync_bb.h"
+#include "ofdm_pilot_subcarrier_inserter.h"
+#include "ofdm_postprocess_CTF_estimate.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -199,3 +204,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,noise_nulling);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,normalize_vcc);
 %include "ofdm_normalize_vcc.h"
+
+//GR_SWIG_BLOCK_MAGIC(ofdm,peak_detector_fb);
+//%include "ofdm_peak_detector_fb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,peak_detector2_fb);
+%include "ofdm_peak_detector2_fb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,peak_resync_bb);
+%include "ofdm_peak_resync_bb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,pilot_subcarrier_inserter);
+%include "ofdm_pilot_subcarrier_inserter.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,postprocess_CTF_estimate);
+%include "ofdm_postprocess_CTF_estimate.h"

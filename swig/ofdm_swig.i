@@ -51,6 +51,12 @@
 #include "ofdm_LS_estimator_straight_slope.h"
 #include "ofdm_mean_squared_error.h"
 #include "ofdm_mm_frequency_estimator.h"
+#include "ofdm_moms_cc.h"
+#include "ofdm_moms_ff.h"
+#include "ofdm_multiply_const_vcc.h"
+#include "ofdm_multiply_const_ccf.h"
+#include "ofdm_noise_nulling.h"
+#include "ofdm_normalize_vcc.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -175,3 +181,21 @@ GR_SWIG_BLOCK_MAGIC(ofdm,mean_squared_error);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,mm_frequency_estimator);
 %include "ofdm_mm_frequency_estimator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,moms_cc);
+%include "ofdm_moms_cc.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,moms_ff);
+%include "ofdm_moms_ff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,multiply_const_vcc);
+%include "ofdm_multiply_const_vcc.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,multiply_const_ccf);
+%include "ofdm_multiply_const_ccf.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,noise_nulling);
+%include "ofdm_noise_nulling.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,normalize_vcc);
+%include "ofdm_normalize_vcc.h"

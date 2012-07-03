@@ -64,6 +64,12 @@ add_library(gnuradio-ofdm SHARED
     ofdm_LS_estimator_straight_slope.cc
     ofdm_mean_squared_error.cc
     ofdm_mm_frequency_estimator.cc
+    ofdm_moms_cc.cc
+    ofdm_moms_ff.cc
+    ofdm_multiply_const_vcc.cc
+    ofdm_multiply_const_ccf.cc
+    ofdm_normalize_vcc.cc
+    ofdm_noise_nulling.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

@@ -66,6 +66,12 @@ install(FILES
     ofdm_LS_estimator_straight_slope.h
     ofdm_mean_squared_error.h
     ofdm_mm_frequency_estimator.h
+    ofdm_moms_cc.h
+    ofdm_moms_ff.h
+    ofdm_multiply_const_vcc.h
+    ofdm_multiply_const_ccf.h
+    ofdm_noise_nulling.h
+    ofdm_normalize_vcc.h
     util_random.h
     util_bmp.h
     util_endian.h

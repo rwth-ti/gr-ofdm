@@ -67,6 +67,11 @@
 #include "ofdm_repetition_decoder_bs.h"
 #include "ofdm_repetition_encoder_sb.h"
 #include "ofdm_scatterplot_sink.h"
+#include "ofdm_schmidl_cfo_estimator.h"
+#include "ofdm_schmidl_tm_rec_stage1.h"
+#include "ofdm_schmidl_tm_rec_stage2.h"
+//#include "ofdm_schmidl_tm_s1.h"
+//#include "ofdm_schmidl_tm_s2.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -239,3 +244,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,repetition_encoder_sb);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,scatterplot_sink);
 %include "ofdm_scatterplot_sink.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_cfo_estimator);
+%include "ofdm_schmidl_cfo_estimator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_rec_stage1);
+%include "ofdm_schmidl_tm_rec_stage1.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_rec_stage2);
+%include "ofdm_schmidl_tm_rec_stage2.h"
+
+//GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_s1);
+//&%include "ofdm_schmidl_tm_s1.h"
+
+//GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_s2);
+//%include "ofdm_schmidl_tm_s2.h"

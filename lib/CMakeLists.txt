@@ -80,6 +80,11 @@ add_library(gnuradio-ofdm SHARED
     ofdm_repetition_encoder_sb.cc
     ofdm_repetition_decoder_bs.cc
     ofdm_scatterplot_sink.cc
+    ofdm_schmidl_cfo_estimator.cc
+    ofdm_schmidl_tm_rec_stage1.cc
+    ofdm_schmidl_tm_rec_stage2.cc
+    #    ofdm_schmidl_tm_s1.cc
+    #    ofdm_schmidl_tm_s2.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

@@ -82,6 +82,11 @@ install(FILES
     ofdm_repetition_decoder_bs.h
     ofdm_repetition_encoder_sb.h
     ofdm_scatterplot_sink.h
+    ofdm_schmidl_cfo_estimator.h
+    ofdm_schmidl_tm_rec_stage1.h
+    ofdm_schmidl_tm_rec_stage2.h
+    #    ofdm_schmidl_tm_s1.h
+    #ofdm_schmidl_tm_s2.h
     util_random.h
     util_bmp.h
     util_endian.h

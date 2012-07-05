@@ -85,6 +85,10 @@ add_library(gnuradio-ofdm SHARED
     ofdm_schmidl_tm_rec_stage2.cc
     #    ofdm_schmidl_tm_s1.cc
     #    ofdm_schmidl_tm_s2.cc
+    ofdm_sc_snr_estimator.cc
+    ofdm_sinr_estimator2.cc
+    ofdm_sinr_estimator.cc
+    ofdm_sinr_interpolator.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

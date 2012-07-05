@@ -72,6 +72,10 @@
 #include "ofdm_schmidl_tm_rec_stage2.h"
 //#include "ofdm_schmidl_tm_s1.h"
 //#include "ofdm_schmidl_tm_s2.h"
+#include "ofdm_sc_snr_estimator.h"
+#include "ofdm_sinr_estimator2.h"
+#include "ofdm_sinr_estimator.h"
+#include "ofdm_sinr_interpolator.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -259,3 +263,15 @@ GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_rec_stage2);
 
 //GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_s2);
 //%include "ofdm_schmidl_tm_s2.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,sc_snr_estimator);
+%include "ofdm_sc_snr_estimator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,sinr_estimator2);
+%include "ofdm_sinr_estimator2.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,sinr_estimator);
+%include "ofdm_sinr_estimator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,sinr_interpolator);
+%include "ofdm_sinr_interpolator.h"

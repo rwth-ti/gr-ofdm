@@ -87,6 +87,10 @@ install(FILES
     ofdm_schmidl_tm_rec_stage2.h
     #    ofdm_schmidl_tm_s1.h
     #ofdm_schmidl_tm_s2.h
+    ofdm_sc_snr_estimator.h
+    ofdm_sinr_estimator2.h
+    ofdm_sinr_estimator.h
+    ofdm_sinr_interpolator.h
     util_random.h
     util_bmp.h
     util_endian.h

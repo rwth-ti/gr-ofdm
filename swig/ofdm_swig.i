@@ -81,6 +81,11 @@
 #include "ofdm_static_mux_v.h"
 #include "ofdm_static_mux_c.h"
 #include "ofdm_sqrt_vff.h"
+#include "ofdm_stream_controlled_mux.h"
+#include "ofdm_stream_controlled_mux_b.h"
+#include "ofdm_suppress_erasure_decision.h"
+#include "ofdm_throughput_measure.h"
+#include "ofdm_trigger_surveillance.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -295,3 +300,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,static_mux_v);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,sqrt_vff);
 %include "ofdm_sqrt_vff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,stream_controlled_mux);
+%include "ofdm_stream_controlled_mux.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,stream_controlled_mux_b);
+%include "ofdm_stream_controlled_mux_b.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,suppress_erasure_decision);
+%include "ofdm_suppress_erasure_decision.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,throughput_measure);
+%include "ofdm_throughput_measure.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,trigger_surveillance);
+%include "ofdm_trigger_surveillance.h"

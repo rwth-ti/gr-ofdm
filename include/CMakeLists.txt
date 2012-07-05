@@ -96,6 +96,11 @@ install(FILES
     ofdm_static_mux_c.h
     ofdm_static_mux_v.h
     ofdm_sqrt_vff.h
+    ofdm_stream_controlled_mux.h
+    ofdm_stream_controlled_mux_b.h
+    ofdm_suppress_erasure_decision.h
+    ofdm_throughput_measure.h
+    ofdm_trigger_surveillance.h
     util_random.h
     util_bmp.h
     util_endian.h

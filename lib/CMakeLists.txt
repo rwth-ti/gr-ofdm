@@ -94,6 +94,11 @@ add_library(gnuradio-ofdm SHARED
     ofdm_static_mux_v.cc
     ofdm_static_mux_c.cc
     ofdm_sqrt_vff.cc
+    ofdm_stream_controlled_mux.cc
+    ofdm_stream_controlled_mux_b.cc
+    ofdm_suppress_erasure_decision.cc
+    ofdm_throughput_measure.cc
+    ofdm_trigger_surveillance.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

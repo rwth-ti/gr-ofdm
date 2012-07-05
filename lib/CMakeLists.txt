@@ -99,6 +99,12 @@ add_library(gnuradio-ofdm SHARED
     ofdm_suppress_erasure_decision.cc
     ofdm_throughput_measure.cc
     ofdm_trigger_surveillance.cc
+    ofdm_vector_element.cc
+    ofdm_vector_mask.cc
+    ofdm_vector_padding.cc
+    ofdm_vector_sampler.cc
+    ofdm_vector_sum_vcc.cc
+    ofdm_vector_sum_vff.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

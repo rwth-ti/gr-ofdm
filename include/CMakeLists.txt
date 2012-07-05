@@ -101,6 +101,12 @@ install(FILES
     ofdm_suppress_erasure_decision.h
     ofdm_throughput_measure.h
     ofdm_trigger_surveillance.h
+    ofdm_vector_element.h
+    ofdm_vector_mask.h
+    ofdm_vector_padding.h
+    ofdm_vector_sampler.h
+    ofdm_vector_sum_vcc.h
+    ofdm_vector_sum_vff.h
     util_random.h
     util_bmp.h
     util_endian.h

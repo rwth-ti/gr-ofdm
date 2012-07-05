@@ -86,6 +86,12 @@
 #include "ofdm_suppress_erasure_decision.h"
 #include "ofdm_throughput_measure.h"
 #include "ofdm_trigger_surveillance.h"
+#include "ofdm_vector_element.h"
+#include "ofdm_vector_mask.h"
+#include "ofdm_vector_padding.h"
+#include "ofdm_vector_sampler.h"
+#include "ofdm_vector_sum_vcc.h"
+#include "ofdm_vector_sum_vff.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -315,3 +321,21 @@ GR_SWIG_BLOCK_MAGIC(ofdm,throughput_measure);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,trigger_surveillance);
 %include "ofdm_trigger_surveillance.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_element);
+%include "ofdm_vector_element.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_mask);
+%include "ofdm_vector_mask.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_padding);
+%include "ofdm_vector_padding.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_sampler);
+%include "ofdm_vector_sampler.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_sum_vcc);
+%include "ofdm_vector_sum_vcc.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,vector_sum_vff);
+%include "ofdm_vector_sum_vff.h"

@@ -91,6 +91,11 @@ install(FILES
     ofdm_sinr_estimator2.h
     ofdm_sinr_estimator.h
     ofdm_sinr_interpolator.h
+    ofdm_skip.h
+    ofdm_snr_estimator.h
+    ofdm_static_mux_c.h
+    ofdm_static_mux_v.h
+    ofdm_sqrt_vff.h
     util_random.h
     util_bmp.h
     util_endian.h

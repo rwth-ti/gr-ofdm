@@ -76,6 +76,11 @@
 #include "ofdm_sinr_estimator2.h"
 #include "ofdm_sinr_estimator.h"
 #include "ofdm_sinr_interpolator.h"
+#include "ofdm_skip.h"
+#include "ofdm_snr_estimator.h"
+#include "ofdm_static_mux_v.h"
+#include "ofdm_static_mux_c.h"
+#include "ofdm_sqrt_vff.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -275,3 +280,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,sinr_estimator);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,sinr_interpolator);
 %include "ofdm_sinr_interpolator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,skip);
+%include "ofdm_skip.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,snr_estimator);
+%include "ofdm_snr_estimator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,static_mux_c);
+%include "ofdm_static_mux_c.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,static_mux_v);
+%include "ofdm_static_mux_v.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,sqrt_vff);
+%include "ofdm_sqrt_vff.h"

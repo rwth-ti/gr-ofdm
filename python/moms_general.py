@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr
-from ofdm import moms_ff
+from ofdm.ofdm_swig import moms_ff
 
 
 ################################################################################

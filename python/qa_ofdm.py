@@ -21,7 +21,7 @@
 #
 
 from gnuradio import gr, gr_unittest
-import ofdm.ofdm_swig
+import ofdm.ofdm_swig as ofdm
 
 class qa_ofdm (gr_unittest.TestCase):
 
@@ -35,7 +35,7 @@ class qa_ofdm (gr_unittest.TestCase):
         src_data = (-3, 4, -5.5, 2, 3)
         expected_result = (-27, 64, -166.375, 8, 27)
         src = gr.vector_source_f (src_data)
-        sqr = ofdm.ofdm_swig.cube_ff ()
+        sqr = ofdm.cube_ff ()
         dst = gr.vector_sink_f ()
         self.tb.connect (src, sqr)
         self.tb.connect (sqr, dst)
@@ -50,7 +50,7 @@ class qa_ofdm (gr_unittest.TestCase):
         src_data = (-3, 4, -5.5, 2, 3)
         expected_result = (81, 256, 915.0625, 16, 81)
         src = gr.vector_source_f (src_data)
-        sqr = ofdm.ofdm_swig.power4_ff ()
+        sqr = ofdm.power4_ff ()
         dst = gr.vector_sink_f ()
         self.tb.connect (src, sqr)
         self.tb.connect (sqr, dst)

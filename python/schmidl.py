@@ -3,16 +3,17 @@
 from numpy import concatenate, conjugate, arange
 from delaylines import delayline_cc
 from gnuradio import gr
-from ofdm import peak_resync_bb #gate_ff
-from ofdm import  vector_sum_vff
-from ofdm import frequency_shift_vcc, cyclic_prefixer, schmidl_cfo_estimator
-from ofdm import vector_sampler, complex_to_arg
-from ofdm import sc_snr_estimator
-from ofdm import vector_sum_vcc, limit_vff
-import numpy, math, ofdm
+from ofdm.ofdm_swig import peak_resync_bb #gate_ff
+from ofdm.ofdm_swig import  vector_sum_vff
+from ofdm.ofdm_swig import frequency_shift_vcc, cyclic_prefixer, schmidl_cfo_estimator
+from ofdm.ofdm_swig import vector_sampler, complex_to_arg
+from ofdm.ofdm_swig import sc_snr_estimator
+from ofdm.ofdm_swig import vector_sum_vcc, limit_vff
+import numpy, math
+import ofdm.ofdm_swig as ofdm
 
-from ofdm import accumulator_cc,accumulator_ff
-from ofdm import schmidl_tm_rec_stage1,schmidl_tm_rec_stage2
+from ofdm.ofdm_swig import accumulator_cc,accumulator_ff
+from ofdm.ofdm_swig import schmidl_tm_rec_stage1,schmidl_tm_rec_stage2
 
 from gnuradio.gr import delay
 

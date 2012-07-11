@@ -41,12 +41,12 @@ add_library(gnuradio-ofdm SHARED
     ofdm_complex_to_arg.cc
     ofdm_imgtransfer_sink.cc
     ofdm_constellation_sample_filter.cc
-#    ofdm_CTF_MSE_enhancer.cc
+#   ofdm_CTF_MSE_enhancer.cc
     ofdm_dominiks_sync_01.cc
     ofdm_dynamic_trigger_ib.cc
     ofdm_cyclic_prefixer.cc
     ofdm_extract_block_from_frame.cc
-    #    ofdm_find_cir_shift.cc
+#   ofdm_find_cir_shift.cc
     ofdm_frame_mux.cc
     ofdm_frequency_shift_vcc.cc
     ofdm_generic_mapper_bcv.cc
@@ -71,7 +71,7 @@ add_library(gnuradio-ofdm SHARED
     ofdm_normalize_vcc.cc
     ofdm_noise_nulling.cc
     ofdm_peak_detector2_fb.cc
-    #ofdm_peak_detector_fb.cc
+#   ofdm_peak_detector_fb.cc
     ofdm_peak_resync_bb.cc
     ofdm_pilot_subcarrier_inserter.cc
     ofdm_postprocess_CTF_estimate.cc
@@ -83,8 +83,8 @@ add_library(gnuradio-ofdm SHARED
     ofdm_schmidl_cfo_estimator.cc
     ofdm_schmidl_tm_rec_stage1.cc
     ofdm_schmidl_tm_rec_stage2.cc
-    #    ofdm_schmidl_tm_s1.cc
-    #    ofdm_schmidl_tm_s2.cc
+#   ofdm_schmidl_tm_s1.cc
+#   ofdm_schmidl_tm_s2.cc
     ofdm_sc_snr_estimator.cc
     ofdm_sinr_estimator2.cc
     ofdm_sinr_estimator.cc
@@ -105,6 +105,10 @@ add_library(gnuradio-ofdm SHARED
     ofdm_vector_sampler.cc
     ofdm_vector_sum_vcc.cc
     ofdm_vector_sum_vff.cc
+    ofdm_bernoulli_bit_src.cc
+    ofdm_complex_white_noise.cc
+    ofdmi_shared_generator.cc
+    ofdm_symbol_random_src.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc
@@ -144,7 +148,3 @@ GR_ADD_TEST(qa_ofdm_power4_ff qa_ofdm_power4_ff)
 add_executable(qa_ofdm_new_ff qa_ofdm_new_ff.cc)
 target_link_libraries(qa_ofdm_new_ff gnuradio-ofdm ${Boost_LIBRARIES})
 GR_ADD_TEST(qa_ofdm_new_ff qa_ofdm_new_ff)
-
-#add_executable(qa_ofdm_accumulator_cc qa_ofdm_accumulator_cc.cc)
-#target_link_libraries(qa_ofdm_accumulator_cc gnuradio-ofdm ${Boost_LIBRARIES})
-#GR_ADD_TEST(qa_ofdm_accumulator_cc qa_ofdm_accumulator_cc)

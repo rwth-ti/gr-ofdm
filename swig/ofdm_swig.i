@@ -92,6 +92,9 @@
 #include "ofdm_vector_sampler.h"
 #include "ofdm_vector_sum_vcc.h"
 #include "ofdm_vector_sum_vff.h"
+#include "ofdm_bernoulli_bit_src.h"
+#include "ofdm_complex_white_noise.h"
+#include "ofdm_symbol_random_src.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
@@ -339,3 +342,12 @@ GR_SWIG_BLOCK_MAGIC(ofdm,vector_sum_vcc);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,vector_sum_vff);
 %include "ofdm_vector_sum_vff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,bernoulli_bit_src);
+%include "ofdm_bernoulli_bit_src.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,complex_white_noise);
+%include "ofdm_complex_white_noise.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,symbol_random_src);
+%include "ofdm_symbol_random_src.h"

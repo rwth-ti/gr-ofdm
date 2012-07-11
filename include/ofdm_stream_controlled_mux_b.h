@@ -13,7 +13,7 @@ OFDM_API ofdm_stream_controlled_mux_b_sptr ofdm_make_stream_controlled_mux_b();
  * \brief Input stream controls multiplexing
  *
  * For each item on input 1, one item from a selected input is multiplexed
- * in the output. Items in 1 should be in range (0,#mux_ports-1).
+ * in the output. Items in 1 should be in range (0,number of mux_ports-1).
  */
 class OFDM_API ofdm_stream_controlled_mux_b : public gr_block
 {

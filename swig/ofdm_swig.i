@@ -97,14 +97,6 @@
 #include "ofdm_symbol_random_src.h"
 %}
 
-//%{
-//#define SWIG_FILE_WITH_INIT
-//%}
-//%include "numpy.i"
-//%init %{
-//    import_array();
-//%}
-
 GR_SWIG_BLOCK_MAGIC(ofdm,cube_ff);
 %include "ofdm_cube_ff.h"
 

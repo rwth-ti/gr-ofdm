@@ -40,12 +40,12 @@ install(FILES
     ofdm_complex_to_arg.h
     ofdm_imgtransfer_sink.h
     ofdm_constellation_sample_filter.h
-#   ofdm_CTF_MSE_enhancer.h
+    ofdm_CTF_MSE_enhancer.h
     ofdm_dominiks_sync_01.h
     ofdm_dynamic_trigger_ib.h
     ofdm_cyclic_prefixer.h
     ofdm_extract_block_from_frame.h
-#   ofdm_find_cir_shift.h
+    ofdm_find_cir_shift.h
     ofdm_frequency_shift_vcc.h
     ofdm_generic_mapper_bcv.h
     ofdm_gate_ff.h
@@ -72,7 +72,6 @@ install(FILES
     ofdm_multiply_const_ccf.h
     ofdm_noise_nulling.h
     ofdm_normalize_vcc.h
-#   ofdm_peak_detector_fb.h
     ofdm_peak_detector2_fb.h
     ofdm_peak_resync_bb.h
     ofdm_pilot_subcarrier_inserter.h
@@ -85,8 +84,6 @@ install(FILES
     ofdm_schmidl_cfo_estimator.h
     ofdm_schmidl_tm_rec_stage1.h
     ofdm_schmidl_tm_rec_stage2.h
-#   ofdm_schmidl_tm_s1.h
-#   ofdm_schmidl_tm_s2.h
     ofdm_sc_snr_estimator.h
     ofdm_sinr_estimator2.h
     ofdm_sinr_estimator.h

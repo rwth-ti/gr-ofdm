@@ -28,12 +28,12 @@
 #include "ofdm_complex_to_arg.h"
 #include "ofdm_imgtransfer_sink.h"
 #include "ofdm_constellation_sample_filter.h"
-//#include "ofdm_CTF_MSE_enhancer.h"
+#include "ofdm_CTF_MSE_enhancer.h"
 #include "ofdm_cyclic_prefixer.h"
 #include "ofdm_dominiks_sync_01.h"
 #include "ofdm_dynamic_trigger_ib.h"
 #include "ofdm_extract_block_from_frame.h"
-//#include "ofdm_find_cir_shift.h"
+#include "ofdm_find_cir_shift.h"
 #include "ofdm_frame_mux.h"
 #include "ofdm_frequency_shift_vcc.h"
 #include "ofdm_generic_mapper_bcv.h"
@@ -57,7 +57,6 @@
 #include "ofdm_multiply_const_ccf.h"
 #include "ofdm_noise_nulling.h"
 #include "ofdm_normalize_vcc.h"
-//#include "ofdm_peak_detector_fb.h"
 #include "ofdm_peak_detector2_fb.h"
 #include "ofdm_peak_resync_bb.h"
 #include "ofdm_pilot_subcarrier_inserter.h"
@@ -70,8 +69,6 @@
 #include "ofdm_schmidl_cfo_estimator.h"
 #include "ofdm_schmidl_tm_rec_stage1.h"
 #include "ofdm_schmidl_tm_rec_stage2.h"
-//#include "ofdm_schmidl_tm_s1.h"
-//#include "ofdm_schmidl_tm_s2.h"
 #include "ofdm_sc_snr_estimator.h"
 #include "ofdm_sinr_estimator2.h"
 #include "ofdm_sinr_estimator.h"
@@ -151,8 +148,8 @@ GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_sink);
 GR_SWIG_BLOCK_MAGIC(ofdm,constellation_sample_filter);
 %include "ofdm_constellation_sample_filter.h"
 
-//GR_SWIG_BLOCK_MAGIC(ofdm,CTF_MSE_enhancer);
-//%include "ofdm_CTF_MSE_enhancer.h"
+GR_SWIG_BLOCK_MAGIC(ofdm,CTF_MSE_enhancer);
+%include "ofdm_CTF_MSE_enhancer.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,cyclic_prefixer);
 %include "ofdm_cyclic_prefixer.h"
@@ -166,8 +163,8 @@ GR_SWIG_BLOCK_MAGIC(ofdm,dynamic_trigger_ib);
 GR_SWIG_BLOCK_MAGIC(ofdm,extract_block_from_frame);
 %include "ofdm_extract_block_from_frame.h"
 
-//GR_SWIG_BLOCK_MAGIC(ofdm,find_cir_shift);
-//%include "ofdm_find_cir_shift.h"
+GR_SWIG_BLOCK_MAGIC(ofdm,find_cir_shift);
+%include "ofdm_find_cir_shift.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,frame_mux);
 %include "ofdm_frame_mux.h"
@@ -238,9 +235,6 @@ GR_SWIG_BLOCK_MAGIC(ofdm,noise_nulling);
 GR_SWIG_BLOCK_MAGIC(ofdm,normalize_vcc);
 %include "ofdm_normalize_vcc.h"
 
-//GR_SWIG_BLOCK_MAGIC(ofdm,peak_detector_fb);
-//%include "ofdm_peak_detector_fb.h"
-
 GR_SWIG_BLOCK_MAGIC(ofdm,peak_detector2_fb);
 %include "ofdm_peak_detector2_fb.h"
 
@@ -276,12 +270,6 @@ GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_rec_stage1);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_rec_stage2);
 %include "ofdm_schmidl_tm_rec_stage2.h"
-
-//GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_s1);
-//&%include "ofdm_schmidl_tm_s1.h"
-
-//GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_tm_s2);
-//%include "ofdm_schmidl_tm_s2.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,sc_snr_estimator);
 %include "ofdm_sc_snr_estimator.h"

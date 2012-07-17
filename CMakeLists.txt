@@ -22,7 +22,6 @@
 # Project setup
 ########################################################################
 cmake_minimum_required(VERSION 2.6)
-#just edit the next line to put the name of the project
 project(gr-ofdm CXX C)
 enable_testing()
 
@@ -93,6 +92,15 @@ endif()
 
 if(NOT GNURADIO_CORE_FOUND)
     message(FATAL_ERROR "GnuRadio Core required to compile gr-ofdm")
+endif()
+
+########################################################################
+# Find OFDM specific build dependencies
+########################################################################
+find_package(NumPy REQUIRED)
+
+if(NOT NumPy_FOUND)
+    message(FATAL_ERROR "NumPy required for Python codes")
 endif()
 
 ########################################################################

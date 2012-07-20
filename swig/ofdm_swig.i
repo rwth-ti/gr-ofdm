@@ -13,7 +13,7 @@
 #include "ofdm_template_ff.h"
 #include "ofdm_accumulator_cc.h"
 #include "ofdm_accumulator_ff.h"
-#include "ofdm_autocorrelator.h"
+#include "ofdm_autocorrelator0.h"
 #include "ofdm_autocorrelator_stage1.h"
 #include "ofdm_autocorrelator_stage2.h"
 #include "ofdm_ber_measurement.h"
@@ -90,6 +90,7 @@
 #include "ofdm_bernoulli_bit_src.h"
 #include "ofdm_complex_white_noise.h"
 #include "ofdm_symbol_random_src.h"
+#include "ofdm_itpp_tdl_channel.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,template_ff);
@@ -101,8 +102,8 @@ GR_SWIG_BLOCK_MAGIC(ofdm,accumulator_cc);
 GR_SWIG_BLOCK_MAGIC(ofdm,accumulator_ff);
 %include "ofdm_accumulator_ff.h"
 
-GR_SWIG_BLOCK_MAGIC(ofdm,autocorrelator);
-#include "ofdm_autocorrelator.h"
+GR_SWIG_BLOCK_MAGIC(ofdm,autocorrelator0);
+#include "ofdm_autocorrelator0.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,autocorrelator_stage1);
 %include "ofdm_autocorrelator_stage1.h"
@@ -331,3 +332,6 @@ GR_SWIG_BLOCK_MAGIC(ofdm,complex_white_noise);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,symbol_random_src);
 %include "ofdm_symbol_random_src.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,itpp_tdl_channel);
+%include "ofdm_itpp_tdl_channel.h"

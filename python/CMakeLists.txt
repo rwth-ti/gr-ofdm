@@ -90,3 +90,4 @@ GR_ADD_TEST(qa_vector_element ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/q
 GR_ADD_TEST(qa_vector_sum ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_vector_sum.py)
 GR_ADD_TEST(qa_CTF_MSE_enhancer ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_CTF_MSE_enhancer.py)
 GR_ADD_TEST(qa_find_cir_shift ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_find_cir_shift.py)
+GR_ADD_TEST(qa_autocorrelator ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_autocorrelator.py)

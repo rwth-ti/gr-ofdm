@@ -25,7 +25,7 @@ install(FILES
     ofdm_new_ff.h
     ofdm_accumulator_cc.h
     ofdm_accumulator_ff.h
-    ofdm_autocorrelator.h
+    ofdm_autocorrelator0.h
     ofdm_autocorrelator_stage1.h
     ofdm_autocorrelator_stage2.h
     ofdm_ber_measurement.h
@@ -106,6 +106,7 @@ install(FILES
     ofdm_complex_white_noise.h
     ofdmi_shared_generator.h
     ofdm_symbol_random_src.h
+    ofdm_itpp_tdl_channel.h
     util_random.h
     util_bmp.h
     util_endian.h

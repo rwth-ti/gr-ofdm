@@ -26,7 +26,7 @@ add_library(gnuradio-ofdm SHARED
     ofdm_template_ff.cc 
     ofdm_accumulator_cc.cc 
     ofdm_accumulator_ff.cc
-    ofdm_autocorrelator.cc
+    ofdm_autocorrelator0.cc
     ofdm_autocorrelator_stage1.cc
     ofdm_autocorrelator_stage2.cc
     ofdm_ber_measurement.cc
@@ -104,6 +104,7 @@ add_library(gnuradio-ofdm SHARED
     ofdm_complex_white_noise.cc
     ofdmi_shared_generator.cc
     ofdm_symbol_random_src.cc
+    ofdm_itpp_tdl_channel.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

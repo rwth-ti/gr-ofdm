@@ -18,8 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    ofdm_cube_ff.xml
-    ofdm_power4_ff.xml
-    ofdm_new_ff.xml
+    ofdm_template_ff.xml
     DESTINATION share/gnuradio/grc/blocks
 )

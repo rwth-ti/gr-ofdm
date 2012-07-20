@@ -21,8 +21,6 @@ include(GrPython)
 
 GR_PYTHON_INSTALL(
     PROGRAMS
-    ofdm_cube.py
-    ofdm_power4.py
-    ofdm_new.py
+#   ofdm_template.py
     DESTINATION bin
 )

@@ -19,13 +19,13 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef INCLUDED_OFDM_NEW_FF_H
-#define INCLUDED_OFDM_NEW_FF_H
+#ifndef INCLUDED_OFDM_TEMPLATE_FF_H
+#define INCLUDED_OFDM_TEMPLATE_FF_H
 
 #include <ofdm_api.h>
 #include <gr_block.h>
 
-class ofdm_new_ff;
+class ofdm_template_ff;
 
 /*
  * We use boost::shared_ptr's instead of raw pointers for all access
@@ -38,7 +38,7 @@ class ofdm_new_ff;
  *
  * As a convention, the _sptr suffix indicates a boost::shared_ptr
  */
-typedef boost::shared_ptr<ofdm_new_ff> ofdm_new_ff_sptr;
+typedef boost::shared_ptr<ofdm_template_ff> ofdm_template_ff_sptr;
 
 /*!
  * \brief Return a shared_ptr to a new instance of howto_square_ff.
@@ -47,7 +47,7 @@ typedef boost::shared_ptr<ofdm_new_ff> ofdm_new_ff_sptr;
  * constructor is private.  howto_make_square_ff is the public
  * interface for creating new instances.
  */
-OFDM_API ofdm_new_ff_sptr ofdm_make_new_ff ();
+OFDM_API ofdm_template_ff_sptr ofdm_make_template_ff ();
 
 /*!
  * \brief square a stream of floats.
@@ -55,21 +55,21 @@ OFDM_API ofdm_new_ff_sptr ofdm_make_new_ff ();
  *
  * \sa howto_square2_ff for a version that subclasses gr_sync_block.
  */
-class OFDM_API ofdm_new_ff : public gr_block
+class OFDM_API ofdm_template_ff : public gr_block
 {
 private:
   // The friend declaration allows howto_make_square_ff to
   // access the private constructor.
 
-  friend OFDM_API ofdm_new_ff_sptr ofdm_make_new_ff ();
+  friend OFDM_API ofdm_template_ff_sptr ofdm_make_template_ff ();
 
   /*!
    * \brief square a stream of floats.
    */
-  ofdm_new_ff ();  	// private constructor
+  ofdm_template_ff ();  	// private constructor
 
  public:
-  ~ofdm_new_ff ();	// public destructor
+  ~ofdm_template_ff ();	// public destructor
 
   // Where all the action really happens
 
@@ -79,4 +79,4 @@ private:
 		    gr_vector_void_star &output_items);
 };
 
-#endif /* INCLUDED_OFDM_NEW_FF_H */
+#endif /* INCLUDED_OFDM_TEMPLATE_FF_H */

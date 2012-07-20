@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>New</name>
-  <key>ofdm_new_ff</key>
+  <name>Template</name>
+  <key>ofdm_template_ff</key>
   <category>OFDM</category>
   <import>import ofdm.ofdm_swig</import>
-  <make>ofdm.ofdm_swig.new_ff()</make>
+  <make>ofdm.ofdm_swig.template_ff()</make>
 
   <sink>
     <name>in</name>

@@ -29,17 +29,17 @@
 #include "config.h"
 #endif
 
-#include <ofdm_cube_ff.h>
+#include <ofdm_template_ff.h>
 #include <gr_io_signature.h>
 
 /*
  * Create a new instance of howto_square_ff and return
  * a boost shared_ptr.  This is effectively the public constructor.
  */
-ofdm_cube_ff_sptr
-ofdm_make_cube_ff ()
+ofdm_template_ff_sptr
+ofdm_make_template_ff ()
 {
-  return gnuradio::get_initial_sptr(new ofdm_cube_ff ());
+  return gnuradio::get_initial_sptr(new ofdm_template_ff ());
 }
 
 /*
@@ -59,8 +59,8 @@ static const int MAX_OUT = 1;	// maximum number of output streams
 /*
  * The private constructor
  */
-ofdm_cube_ff::ofdm_cube_ff ()
-  : gr_block ("cube_ff",
+ofdm_template_ff::ofdm_template_ff ()
+  : gr_block ("template_ff",
 	      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (float)),
 	      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float)))
 {
@@ -70,13 +70,13 @@ ofdm_cube_ff::ofdm_cube_ff ()
 /*
  * Our virtual destructor.
  */
-ofdm_cube_ff::~ofdm_cube_ff ()
+ofdm_template_ff::~ofdm_template_ff ()
 {
   // nothing else required in this example
 }
 
 int
-ofdm_cube_ff::general_work (int noutput_items,
+ofdm_template_ff::general_work (int noutput_items,
 			       gr_vector_int &ninput_items,
 			       gr_vector_const_void_star &input_items,
 			       gr_vector_void_star &output_items)
@@ -85,7 +85,7 @@ ofdm_cube_ff::general_work (int noutput_items,
   float *out = (float *) output_items[0];
 
   for (int i = 0; i < noutput_items; i++){
-    out[i] = in[i] * in[i] * in[i];
+    out[i] = in[i] * in[i] ;
   }
 
   // Tell runtime system how many input items we consumed on

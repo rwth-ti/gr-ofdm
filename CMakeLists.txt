@@ -97,11 +97,6 @@ endif()
 ########################################################################
 # Find OFDM specific build dependencies
 ########################################################################
-find_package(NumPy REQUIRED)
-
-if(NOT NumPy_FOUND)
-    message(FATAL_ERROR "NumPy required for Python codes")
-endif()
 
 ########################################################################
 # Setup the include and linker paths

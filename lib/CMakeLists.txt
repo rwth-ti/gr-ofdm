@@ -23,9 +23,7 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 add_library(gnuradio-ofdm SHARED 
-    ofdm_cube_ff.cc 
-    ofdm_power4_ff.cc 
-    ofdm_new_ff.cc 
+    ofdm_template_ff.cc 
     ofdm_accumulator_cc.cc 
     ofdm_accumulator_ff.cc
     ofdm_autocorrelator.cc
@@ -134,14 +132,6 @@ set(GR_TEST_TARGET_DEPS gnuradio-ofdm)
 #turn each test cpp file into an executable with an int main() function
 add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
-add_executable(qa_ofdm_cube_ff qa_ofdm_cube_ff.cc)
-target_link_libraries(qa_ofdm_cube_ff gnuradio-ofdm ${Boost_LIBRARIES})
-GR_ADD_TEST(qa_ofdm_cube_ff qa_ofdm_cube_ff)
-
-add_executable(qa_ofdm_power4_ff qa_ofdm_power4_ff.cc)
-target_link_libraries(qa_ofdm_power4_ff gnuradio-ofdm ${Boost_LIBRARIES})
-GR_ADD_TEST(qa_ofdm_power4_ff qa_ofdm_power4_ff)
-
-add_executable(qa_ofdm_new_ff qa_ofdm_new_ff.cc)
-target_link_libraries(qa_ofdm_new_ff gnuradio-ofdm ${Boost_LIBRARIES})
-GR_ADD_TEST(qa_ofdm_new_ff qa_ofdm_new_ff)
+add_executable(qa_ofdm_template_ff qa_ofdm_template_ff.cc)
+target_link_libraries(qa_ofdm_template_ff gnuradio-ofdm ${Boost_LIBRARIES})
+GR_ADD_TEST(qa_ofdm_template_ff qa_ofdm_template_ff)

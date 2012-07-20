@@ -22,8 +22,6 @@
 ########################################################################
 install(FILES
     ofdm_api.h
-    ofdm_cube_ff.h
-    ofdm_power4_ff.h
     ofdm_new_ff.h
     ofdm_accumulator_cc.h
     ofdm_accumulator_ff.h

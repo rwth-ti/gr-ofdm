@@ -3,7 +3,7 @@
 
 #include <ofdm_api.h>
 #include "gr_block_fwd.h" // forward declarations --specific
-#include <gr_block.h>
+#include <gr_sync_block.h>
 
 class ofdm_accumulator_cc;
 typedef boost::shared_ptr<ofdm_accumulator_cc> ofdm_accumulator_cc_sptr;

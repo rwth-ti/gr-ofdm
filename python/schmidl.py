@@ -378,7 +378,7 @@ class coarse_frequency_offset_estimator(gr.hier_block2):
     self.connect(sampler,splitter)
 
     ## Conjugate first half block
-    conj = gr.conjugate_cc(vlen/2)
+    conj = gr.conjugate_cc()
     self.connect(splitter,conj)
 
     ## Vector multiplication of both half blocks

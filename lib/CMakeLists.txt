@@ -111,7 +111,11 @@ add_library(gnuradio-ofdm SHARED
     util_bmp.cc
     util_ipc.cc
 )
-target_link_libraries(gnuradio-ofdm ${Boost_LIBRARIES} ${GRUEL_LIBRARIES} ${GNURADIO_CORE_LIBRARIES})
+target_link_libraries(gnuradio-ofdm 
+    ${Boost_LIBRARIES}
+    ${GRUEL_LIBRARIES}
+    ${GNURADIO_CORE_LIBRARIES}
+    ${ITPP_LIBRARIES})
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")
 
 ########################################################################

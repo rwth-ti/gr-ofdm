@@ -22,7 +22,7 @@
 ########################################################################
 install(FILES
     ofdm_api.h
-    ofdm_new_ff.h
+    ofdm_template_ff.h
     ofdm_accumulator_cc.h
     ofdm_accumulator_ff.h
     ofdm_autocorrelator0.h

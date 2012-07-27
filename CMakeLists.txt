@@ -97,11 +97,17 @@ endif()
 ########################################################################
 # Find OFDM specific build dependencies
 ########################################################################
-#find_package(NumPy REQUIRED)
+INCLUDE(FindPackageMessage)
+find_package(NumPy REQUIRED) 
+find_package(ITPP REQUIRED)
 
-#if(NOT NumPy_FOUND)
-#    message(FATAL_ERROR "NumPy required for Python codes")
-#endif()
+if(NOT NUMPY_FOUND)
+    message(FATAL_ERROR "NumPy required to run gr-ofdm")
+endif()
+
+if(NOT ITPP_FOUND)
+    message(FATAL_ERROR "IT++ required for to build gr-ofdm")
+endif()
 
 ########################################################################
 # Setup the include and linker paths
@@ -112,6 +118,7 @@ include_directories(
     ${GRUEL_INCLUDE_DIRS}
     ${GNURADIO_CORE_INCLUDE_DIRS}
     ${GNURADIO_CORE_INCLUDE_DIRS}/gruel/swig
+    ${ITPP_INCLUDE_DIR}/itpp
 )
 
 link_directories(

@@ -377,18 +377,14 @@ class coarse_frequency_offset_estimator(gr.hier_block2):
     splitter = gr.vector_to_streams(gr.sizeof_gr_complex*vlen/2,2)
     self.connect(sampler,splitter)
 
-    ## Conjugate first half block
-    conj = gr.conjugate_cc()
-    self.connect(splitter,conj)
-
-    ## Vector multiplication of both half blocks
-    vmult = gr.multiply_vcc(vlen/2)
-    self.connect(conj,vmult)
-    self.connect((splitter,1),(vmult,1))
+    ## Multiply 2nd sub-part with conjugate of 1st sub-part
+    conj_mult = gr.multiply_conjugate_cc(vlen/2)
+    self.connect((splitter,1),(conj_mult,0))
+    self.connect((splitter,0),(conj_mult,1))
 
     ## Sum of Products
     psum = vector_sum_vcc(vlen/2)
-    self.connect(vmult,psum)
+    self.connect((conj_mult,0),psum)
 
     ## Complex to Angle
     angle = complex_to_arg()

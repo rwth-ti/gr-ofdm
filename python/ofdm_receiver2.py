@@ -10,6 +10,7 @@ import ofdm.ofdm_swig as ofdm
 import numpy
 import os
 
+from autocorrelator import autocorrelator
 from station_configuration import station_configuration
 
 
@@ -57,8 +58,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     
     ## Compute autocorrelations for S&C preamble
     ## and cyclic prefix
-    sc_metric = ofdm.autocorrelator( fft_length/2, fft_length/2 )
-    gi_metric = ofdm.autocorrelator( fft_length, cp_length )
+    sc_metric = autocorrelator( fft_length/2, fft_length/2 )
+    gi_metric = autocorrelator( fft_length, cp_length )
     
     self.connect( rx_input, sc_metric )
     self.connect( rx_input, gi_metric )

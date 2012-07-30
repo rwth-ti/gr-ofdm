@@ -74,7 +74,9 @@ class OFDM_API ofdm_itpp_tdl_channel : public gr_sync_block
 {
 private:
 
-  ofdm_itpp_tdl_channel( const dvec & avg_power_db, const ivec & delay_prof,
+    friend OFDM_API ofdm_itpp_tdl_channel_sptr
+        ofdm_itpp_make_tdl_channel( const dvec & avg_power_db,  const ivec & delay_prof, bool calc_impulse_response);
+    ofdm_itpp_tdl_channel( const dvec & avg_power_db, const ivec & delay_prof,
     bool calc_impulse_response );
 
   dvec   d_avg_power_db;

@@ -1,6 +1,3 @@
-
-/* $Id: ofdm_itpp_tdl_channel.cc 923 2009-04-21 14:03:45Z auras $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

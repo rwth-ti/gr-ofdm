@@ -31,6 +31,7 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
+    autocorrelator.py
     channel.py
     common_options.py
     configparse.py
@@ -47,6 +48,7 @@ GR_PYTHON_INSTALL(
     schmidl.py
     snr_estimator.py
     station_configuration.py
+    test_channel_estimator.py
     vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm
 )
@@ -91,3 +93,4 @@ GR_ADD_TEST(qa_vector_sum ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_ve
 GR_ADD_TEST(qa_CTF_MSE_enhancer ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_CTF_MSE_enhancer.py)
 GR_ADD_TEST(qa_find_cir_shift ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_find_cir_shift.py)
 GR_ADD_TEST(qa_autocorrelator ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_autocorrelator.py)
+GR_ADD_TEST(qa_dominiks_sync_01 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_dominiks_sync_01.py)

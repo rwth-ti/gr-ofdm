@@ -18,6 +18,7 @@ from time import strftime,gmtime
 
 from snr_estimator import milans_snr_estimator, milans_sinr_sc_estimator, milans_sinr_sc_estimator2, milans_sinr_sc_estimator3
 
+
 from station_configuration import *
 from transmit_path import power_deallocator, ber_reference_source
 import common_options
@@ -1194,9 +1195,10 @@ class static_rx_control (gr.hier_block2):
 
     gr.hier_block2.__init__(self,"static_rx_control",
       gr.io_signature (1,1,gr.sizeof_short),
-      gr.io_signaturev(3,-1,[gr.sizeof_short,        # ID
+      gr.io_signaturev(4,5,[gr.sizeof_short,        # ID
                              gr.sizeof_char*dsubc,   # Bit Map
                              gr.sizeof_float*dsubc,  # Power map
+                             gr.sizeof_short,        # ID from bitcount src
                              gr.sizeof_int]))        # Bitcount stream
 
     self.cur_port = 3
@@ -1211,6 +1213,7 @@ class static_rx_control (gr.hier_block2):
     bitmap_out = (self,1)
     powmap_out = (self,2)
 
+    bitcount_id_out = (self,3)
 
 
     ## ID "filter"
@@ -1258,15 +1261,19 @@ class static_rx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 1
+    self.cur_port += 2
 
     smm = numpy.array(self.control.static_mod_map)
     sam = numpy.array(self.control.static_ass_map)
 
-    bitcount = sum(smm[sam == uid])*config.frame_data_blocks
+    bitcount = int(sum(smm[sam == uid]))*config.frame_data_blocks
 
     bc_src = gr.vector_source_i([bitcount],True)
-    self.connect(bc_src,(self,port))
+    self.connect(bc_src,(self,port+1))
+    
+    id = [1]
+    id_through = gr.vector_source_s(id,True)
+    self.connect(id_through,(self,port))
 
     print "static rx control: bitcount for ", uid," is ",bitcount
 

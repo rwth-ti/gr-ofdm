@@ -14,7 +14,6 @@ from station_configuration import *
 import common_options
 import math, copy
 import numpy
-import ofdm
 
 from ofdm.ofdm_swig import repetition_encoder_sb
 from ofdm.ofdm_swig import stream_controlled_mux_b
@@ -104,7 +103,8 @@ class transmit_path(gr.hier_block2):
     id_src = (ctrl,0)
     mux_src = (ctrl,1)
     map_src = (ctrl,2)
-    pa_src = (ctrl,3)
+    if options.debug:
+      pa_src = (ctrl,5)
 
 
     if options.log:
@@ -518,7 +518,6 @@ class corba_tx_control (gr.hier_block2):
     id_out = (self,0)
     mux_out = (self,1)
     bitmap_out = (self,2)
-    bitcount_id_out = (self,3)
 
     self.cur_port = 3
 
@@ -580,9 +579,9 @@ class static_control ():
     self.static_id = 1
     self.static_idmod_map = [1] * dsubc
     self.static_idpow_map = [1.] * dsubc
-    self.static_ass_map = concatenate([[1]*(dsubc/2),[0]*(dsubc/2)])
-    self.static_mod_map = concatenate([[2]*(dsubc/2),[0]*(dsubc/2)])
-    self.static_pow_map = concatenate([[1.]*(dsubc/2),[0.]*(dsubc/2)])
+    self.static_ass_map = [1]*(dsubc/2) + [0]*(dsubc/2)
+    self.static_mod_map = [2]*(dsubc/2) + [0]*(dsubc/2)
+    self.static_pow_map = [1.]*(dsubc/2) + [0.]*(dsubc/2)
 
 
     self.mux_stream = [0]*(frame_id_blocks*dsubc)
@@ -591,20 +590,16 @@ class static_control ():
         if self.static_ass_map[j] != 0:
           self.mux_stream.extend([self.static_ass_map[j]]*self.static_mod_map[j])
 
-    self.mod_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
-                                   [self.static_mod_map]*frame_data_blocks])
-    self.mod_stream = concatenate(self.mod_stream)
+    self.mod_stream = self.static_idmod_map*frame_id_blocks + \
+                      self.static_mod_map*frame_data_blocks
 
     # reduced, demapper can handle reuse count
-    self.rmod_stream = concatenate([self.static_idmod_map,
-                                    self.static_mod_map])
+    self.rmod_stream = self.static_idmod_map + self.static_mod_map
 
     self.rc_stream = [frame_id_blocks,frame_data_blocks]
 
-    self.pow_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
-                                    [self.static_pow_map]*frame_data_blocks])
-    self.pow_stream = list( concatenate(self.pow_stream) )
-
+    self.pow_stream = self.static_idmod_map*frame_id_blocks + \
+                      self.static_pow_map*frame_data_blocks
 
 class static_tx_control (gr.hier_block2):
   def __init__(self, options):
@@ -613,11 +608,12 @@ class static_tx_control (gr.hier_block2):
 
     gr.hier_block2.__init__(self, "static_tx_control",
       gr.io_signature (0,0,0),
-      gr.io_signaturev(4,-1,[gr.sizeof_short,         # ID
+      gr.io_signaturev(6,6,[gr.sizeof_short,         # ID
                              gr.sizeof_short,         # Multiplex control stream
                              gr.sizeof_char*dsubc,    # Bit Map
-                             gr.sizeof_float*dsubc,   # Power Map
-                             gr.sizeof_int ]))        # Bit count per frame
+                             gr.sizeof_short,         # ID from bitcount src
+                             gr.sizeof_int,           # Bit count per frame
+                             gr.sizeof_float*dsubc])) # Power Map
 
     self.control = ctrl = static_control(dsubc,config.frame_id_blocks,
                                   config.frame_data_blocks,options)
@@ -625,10 +621,9 @@ class static_tx_control (gr.hier_block2):
     id_out = (self,0)
     mux_out = (self,1)
     bitmap_out = (self,2)
-    powmap_out = (self,3)
+    powmap_out = (self,5)
 
-    self.cur_port = 4
-
+    self.cur_port = 3
 
     ## ID Source (root)
     id_src = self._id_source = gr.vector_source_s([ctrl.static_id],True)
@@ -643,7 +638,6 @@ class static_tx_control (gr.hier_block2):
     ## Map Source
     map_src = gr.vector_source_b(ctrl.rmod_stream, True, dsubc)
     self.connect(map_src,bitmap_out)
-
 
     ## Power Allocation Source
     pa_src = gr.vector_source_f(ctrl.pow_stream,True,dsubc)
@@ -663,14 +657,17 @@ class static_tx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 1
-
+    self.cur_port += 2
+    
     smm = numpy.array(self.control.static_mod_map)
     sam = numpy.array(self.control.static_ass_map)
-
-    bitcount = sum(smm[sam == uid])*config.frame_data_blocks
+    bitcount = int(sum(smm[sam == uid]))*config.frame_data_blocks
 
     bc_src = gr.vector_source_i([bitcount],True)
-    self.connect(bc_src,(self,port))
+    self.connect(bc_src,(self,port+1))
+    
+    id = [1]
+    id_through = gr.vector_source_s(id,True)
+    self.connect(id_through,(self,port))
 
     return port

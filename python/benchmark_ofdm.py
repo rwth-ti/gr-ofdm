@@ -29,7 +29,6 @@ from station_configuration import station_configuration
 
 from math import log10
 
-
 import sys
 import os
 
@@ -142,21 +141,9 @@ class ofdm_benchmark (gr.top_block):
     
     config = self.config = station_configuration()
     
-    self.enable_info_tx("info_tx", "pa_user")
-#    if not options.no_cheat:
-#      self.txpath.enable_channel_cheating("channelcheat")
-    self.txpath.enable_txpower_adjust("txpower")
-    self.txpath.publish_txpower("txpower_info")
-    #self.enable_txfreq_adjust("txfreq")
-    
-    
 
     if options.imgxfer:
       self.rxpath.setup_imgtransfer_sink()
-    
-    if not options.no_decoding:
-      self.rxpath.publish_rx_performance_measure()
-      
     
 
       # capture transmitter's stream to disk
@@ -709,7 +696,6 @@ def main():
       tx.txpath._control._id_source.ready()
     except:
       pass
-  
   except KeyboardInterrupt:
     runtime.stop()
     # somewhat messy hack

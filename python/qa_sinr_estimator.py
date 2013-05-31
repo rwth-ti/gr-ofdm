@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest, eng_notation
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import numpy
 from snr_estimator import milans_sinr_sc_estimator, milans_sinr_sc_estimator2, milans_sinr_sc_estimator3
 

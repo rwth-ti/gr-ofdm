@@ -54,6 +54,7 @@ add_library(gnuradio-ofdm SHARED
     ofdm_imgtransfer_src.cc
     ofdm_imgtransfer_testkanal.cc
     ofdm_interp_cir_set_noncir_to_zero.cc
+    ofdm_itpp_tdl_channel.cc
     ofdm_limit_vff.cc
     ofdm_lms_fir_ff.cc
     ofdm_lms_phase_tracking.cc
@@ -104,7 +105,6 @@ add_library(gnuradio-ofdm SHARED
     ofdm_complex_white_noise.cc
     ofdmi_shared_generator.cc
     ofdm_symbol_random_src.cc
-    ofdm_itpp_tdl_channel.cc
     ofdmi_mod.cc
     util_random.cc
     util_endian.cc

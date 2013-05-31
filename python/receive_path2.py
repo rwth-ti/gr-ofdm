@@ -5,14 +5,14 @@ from gnuradio import eng_notation
 from gnuradio import gr, window
 from gr_tools import log_to_file, terminate_stream
 
-from ofdm.ofdm_swig import normalize_vcc, lms_phase_tracking,vector_sum_vcc
-from ofdm.ofdm_swig import generic_demapper_vcb, vector_mask, vector_sampler
-from ofdm.ofdm_swig import skip, channel_estimator_02, scatterplot_sink
-from ofdm.ofdm_swig import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm.ofdm_swig import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
+from ofdm_swig import normalize_vcc, lms_phase_tracking,vector_sum_vcc
+from ofdm_swig import generic_demapper_vcb, vector_mask, vector_sampler
+from ofdm_swig import skip, channel_estimator_02, scatterplot_sink
+from ofdm_swig import trigger_surveillance, ber_measurement, vector_sum_vff
+from ofdm_swig import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
 from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 
 from time import strftime,gmtime
 
@@ -32,7 +32,7 @@ import numpy
 
 from random import seed,randint
 
-from ofdm.ofdm_swig import repetition_decoder_bs
+from ofdm_swig import repetition_decoder_bs
 from gnuradio.gr import delay
 
 from transmit_path import static_control

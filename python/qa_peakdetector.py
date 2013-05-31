@@ -21,8 +21,8 @@
 #
 
 from gnuradio import gr, gr_unittest
-from ofdm.ofdm_swig import peak_detector2_fb
-import ofdm.ofdm_swig as ofdm
+from ofdm_swig import peak_detector2_fb
+import ofdm_swig as ofdm
 
 import numpy, random
 

@@ -1,5 +1,5 @@
 from gnuradio import gr
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 
 class autocorrelator ( gr.hier_block2 ):
   def __init__( self, lag, n_samples ):

@@ -198,10 +198,12 @@ ofdm_itpp_tdl_channel::work(
 }
 
 
-void
+cvec
 ofdm_itpp_tdl_channel ::
-  calc_frequency_response( cvec & frequency_response, int fft_size )
+  calc_frequency_response( int fft_size )
 {
+
+  cvec  frequency_response;
   itpp::Array< itpp::cvec > channel_coeff;
   const int no_samples = 1;
 
@@ -222,7 +224,17 @@ ofdm_itpp_tdl_channel ::
   {
     frequency_response[i] = freq_resp(0)[i];
   }
+  return frequency_response;
 }
+
+/*cvec
+ofdm_itpp_tdl_channel ::
+  set_vector(int vlen)
+{
+	cvec vout;
+	vout.resize(vlen,0);
+	return vout;
+}*/
 
 
 void
@@ -601,7 +613,7 @@ ofdm_itpp_tdl_channel::get_sampling_time() const
 
 
 ofdm_itpp_tdl_channel_sptr
-ofdm_itpp_make_tdl_channel( const dvec & avg_power_db,
+ofdm_make_itpp_tdl_channel( const dvec & avg_power_db,
   const ivec & delay_prof, bool calc_impulse_response )
 {
   return ofdm_itpp_tdl_channel::create( avg_power_db, delay_prof,

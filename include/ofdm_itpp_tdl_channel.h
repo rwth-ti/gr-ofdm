@@ -16,7 +16,7 @@ typedef std::vector< int >    ivec;
 typedef std::vector< std::complex< double > > cvec;
 
 OFDM_API ofdm_itpp_tdl_channel_sptr
-ofdm_itpp_make_tdl_channel( const dvec & avg_power_db = dvec(),
+ofdm_make_itpp_tdl_channel( const dvec & avg_power_db = dvec(),
   const ivec & delay_prof = ivec(), bool calc_impulse_response = false );
 
 namespace itpp
@@ -166,7 +166,8 @@ public:
    * @param[out] frequency_response Vector that will hold frequency response
    * @param[in] fft_size FFT size
    */
-  void calc_frequency_response( cvec &frequency_response, int fft_size );
+  cvec calc_frequency_response(int fft_size );
+  //cvec set_vector(int vlen);
 
   /*! Calculate impulse response
    *

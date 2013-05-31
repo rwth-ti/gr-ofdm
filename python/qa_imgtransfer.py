@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 from random import random, randint
 
 class my_top_block (gr.top_block):

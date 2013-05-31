@@ -6,7 +6,7 @@ from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 from gr_tools import log_to_file,terminate_stream
 
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import numpy
 import os
 

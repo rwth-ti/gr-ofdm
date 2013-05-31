@@ -21,7 +21,7 @@
 # 
 
 from gnuradio import gr, gr_unittest, eng_notation
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import os
 
 import sys, numpy, random, math, cmath

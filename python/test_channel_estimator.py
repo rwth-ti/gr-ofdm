@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 #import itpp
 import numpy
 from preambles import schmidl_ifo_designer, morellimengali_designer
@@ -355,23 +355,25 @@ class static_fading_channel ( gr.hier_block2 ):
 
     channel = ofdm.itpp_tdl_channel( [0]*no_taps, range(no_taps) ) #dummy  values
     channel.set_channel_profile_exponential( no_taps )
-    channel.set_fading_type( itpp.Static )
+    channel.set_fading_type( ofdm.Static )
 
     #channel.global_rng_reset( 9 )
 
     if have_LOS:
       LOS_rel_power = numpy.zeros( channel.taps() )
+      print LOS_rel_power
       LOS_rel_doppler = numpy.zeros( channel.taps() )
       LOS_rel_power[0] = 10**(LOS_power/10.0)
       channel.set_LOS( LOS_rel_power, LOS_rel_doppler )
 
-    assert( channel.get_fading_type() == itpp.Static )
+    assert( channel.get_fading_type() == ofdm.Static )
     assert( channel.taps() == no_taps )
 
     self.connect( self, channel, self )
 
-    freq_resp = itpp.cvec()
-    channel.calc_frequency_response( freq_resp, vlen )
+    #freq_resp = numpy.zeros(vlen)
+    #print freq_resp
+    freq_resp = channel.calc_frequency_response( vlen )
     self.freq_resp = concatenate([ freq_resp[len(freq_resp)/2:len(freq_resp)],
                                    freq_resp[0:len(freq_resp)/2] ]) # shift
 
@@ -380,10 +382,10 @@ class static_fading_channel ( gr.hier_block2 ):
 
   def reset(self):
     # sets init flag to false -> next sample generation triggers reset
-    self.channel.set_fading_type( itpp.Static )
+    self.channel.set_fading_type( ofdm.Static )
 
-    freq_resp = itpp.cvec()
-    self.channel.calc_frequency_response( freq_resp, self.vlen )
+    #freq_resp = numpy.zeros( self.vlen)
+    freq_resp = self.channel.calc_frequency_response(self.vlen )
     self.freq_resp = concatenate([ freq_resp[len(freq_resp)/2:len(freq_resp)],
                                    freq_resp[0:len(freq_resp)/2] ]) # shift
 
@@ -615,9 +617,10 @@ class mse_simulator_av_snr( gr.hier_block2 ):
     assert( len(self.freq_resp) == vlen )
 
     ############################################################################
-    # select channel estimator to be tested her
-   # self.uut = channel_estimator_003( vlen, cp_len )
-    self.uut = snr_estimator_001( vlen)
+    # select channel estimator to be tested herls
+    #self.uut = channel_estimator_001( vlen )
+    self.uut = channel_estimator_003( vlen, cp_len)
+    #self.uut = snr_estimator_001( vlen)
     ############################################################################
 
     block = self.uut.preamble_td
@@ -1545,6 +1548,7 @@ class test_channel_estimator:
 
 if __name__ == '__main__':
   t = test_channel_estimator()
+  #t.start_ber_sim()
   t.start_nmse_av_snr()
 
 

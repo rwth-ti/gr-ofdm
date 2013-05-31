@@ -41,6 +41,7 @@
 #include "ofdm_imgtransfer_src.h"
 #include "ofdm_imgtransfer_testkanal.h"
 #include "ofdm_interp_cir_set_noncir_to_zero.h"
+#include "ofdm_itpp_tdl_channel.h"
 #include "ofdm_limit_vff.h"
 #include "ofdm_lms_fir_ff.h"
 #include "ofdm_lms_phase_tracking.h"
@@ -90,7 +91,6 @@
 #include "ofdm_bernoulli_bit_src.h"
 #include "ofdm_complex_white_noise.h"
 #include "ofdm_symbol_random_src.h"
-#include "ofdm_itpp_tdl_channel.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,template_ff);
@@ -185,6 +185,9 @@ GR_SWIG_BLOCK_MAGIC(ofdm,imgtransfer_testkanal);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,interp_cir_set_noncir_to_zero);
 %include "ofdm_interp_cir_set_noncir_to_zero.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,itpp_tdl_channel);
+%include "ofdm_itpp_tdl_channel.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,limit_vff);
 %include "ofdm_limit_vff.h"
@@ -332,6 +335,3 @@ GR_SWIG_BLOCK_MAGIC(ofdm,complex_white_noise);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,symbol_random_src);
 %include "ofdm_symbol_random_src.h"
-
-GR_SWIG_BLOCK_MAGIC(ofdm,itpp_tdl_channel);
-%include "ofdm_itpp_tdl_channel.h"

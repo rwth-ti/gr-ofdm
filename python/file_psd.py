@@ -2,7 +2,7 @@
 
 from gnuradio import gr
 from optparse import OptionParser
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import math
 
 def add_options(normal,expert):

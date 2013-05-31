@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest, eng_notation
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import numpy
 from preambles import morellimengali_designer, schmidl_ifo_designer
 from random import randint

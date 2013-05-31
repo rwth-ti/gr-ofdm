@@ -29,7 +29,7 @@ from math import pi, log10, sqrt, log
 import numpy
 import random
 
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 import numpy, scipy
 
 from gr_tools import log_to_file

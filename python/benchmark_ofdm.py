@@ -34,7 +34,7 @@ import os
 
 from transmit_path import transmit_path
 from receive_path2 import receive_path
-from ofdm.ofdm_swig import throughput_measure, vector_sampler
+from ofdm_swig import throughput_measure, vector_sampler
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
@@ -43,7 +43,7 @@ import fusb_options
 
 import CosNaming
 
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 
 #from channel import time_variant_rayleigh_channel
 from numpy import sqrt, sum, concatenate

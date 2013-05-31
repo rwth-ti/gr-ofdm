@@ -4,10 +4,10 @@ from gnuradio import eng_notation
 from gnuradio import gr
 from gr_tools import log_to_file,unpack_array
 from numpy import concatenate
-import ofdm.ofdm_swig as ofdm
-from ofdm.ofdm_swig import generic_mapper_bcv, cyclic_prefixer, vector_padding
-from ofdm.ofdm_swig import sqrt_vff
-from ofdm.ofdm_swig import stream_controlled_mux, reference_data_source_ib
+import ofdm_swig as ofdm
+from ofdm_swig import generic_mapper_bcv, cyclic_prefixer, vector_padding
+from ofdm_swig import sqrt_vff
+from ofdm_swig import stream_controlled_mux, reference_data_source_ib
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
 from station_configuration import *
@@ -15,8 +15,8 @@ import common_options
 import math, copy
 import numpy
 
-from ofdm.ofdm_swig import repetition_encoder_sb
-from ofdm.ofdm_swig import stream_controlled_mux_b
+from ofdm_swig import repetition_encoder_sb
+from ofdm_swig import stream_controlled_mux_b
 
 from random import seed,randint, getrandbits
 

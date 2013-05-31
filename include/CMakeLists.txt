@@ -55,6 +55,7 @@ install(FILES
     ofdm_imgtransfer_src.h
     ofdm_imgtransfer_testkanal.h
     ofdm_interp_cir_set_noncir_to_zero.h
+    ofdm_itpp_tdl_channel.h
     ofdm_limit_vff.h
     ofdm_lms_fir_ff.h
     ofdm_lms_phase_tracking.h
@@ -106,7 +107,6 @@ install(FILES
     ofdm_complex_white_noise.h
     ofdmi_shared_generator.h
     ofdm_symbol_random_src.h
-    ofdm_itpp_tdl_channel.h
     util_random.h
     util_bmp.h
     util_endian.h

@@ -21,7 +21,7 @@
 #
 
 from gnuradio import gr, gr_unittest
-import ofdm.ofdm_swig as ofdm
+import ofdm_swig as ofdm
 
 class qa_ofdm (gr_unittest.TestCase):
 

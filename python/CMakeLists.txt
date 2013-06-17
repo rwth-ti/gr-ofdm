@@ -25,6 +25,13 @@ if(NOT PYTHONINTERP_FOUND)
     return()
 endif()
 
+ADD_CUSTOM_COMMAND(OUTPUT corba_stubs/ofdm_ti_idl.py  corba_stubs/__init__.py  corba_stubs/ofdm_ti/__init__.py  corba_stubs/ofdm_ti__POA/__init__.py
+    				COMMAND omniidl -bpython -Wbpackage=corba_stubs -C${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/tao_skeleton/ofdm_ti.idl
+					)
+ADD_CUSTOM_TARGET(CompileIdl ALL
+    DEPENDS  corba_stubs/ofdm_ti_idl.py  corba_stubs/__init__.py  corba_stubs/ofdm_ti/__init__.py  corba_stubs/ofdm_ti__POA/__init__.py 
+)
+
 ########################################################################
 # Install python sources
 ########################################################################

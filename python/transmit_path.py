@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from corba_servants import *
 from gnuradio import eng_notation
 from gnuradio import gr
 from gr_tools import log_to_file,unpack_array
@@ -15,8 +16,10 @@ import common_options
 import math, copy
 import numpy
 
-from ofdm_swig import repetition_encoder_sb
-from ofdm_swig import stream_controlled_mux_b
+from ofdm_swig import corba_multiplex_src_ss,corba_bitcount_src_si
+from ofdm_swig import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
+from ofdm_swig import repetition_encoder_sb, corba_bitmap_src
+from ofdm_swig import corba_power_allocator, stream_controlled_mux_b
 
 from random import seed,randint, getrandbits
 
@@ -103,8 +106,7 @@ class transmit_path(gr.hier_block2):
     id_src = (ctrl,0)
     mux_src = (ctrl,1)
     map_src = (ctrl,2)
-    if options.debug:
-      pa_src = (ctrl,5)
+    pa_src = (ctrl,3)
 
 
     if options.log:
@@ -296,7 +298,7 @@ class transmit_path(gr.hier_block2):
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
     
-    self.rms = max(0.0, min(ampl, 32767.0))
+    self.rms = max(0.0, min(ampl, 1.0))
 
     scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
     self._amplification = scaled_ampl
@@ -372,8 +374,8 @@ class transmit_path(gr.hier_block2):
                       help="set transmitter digital rms amplitude: 0"+
                            " <= AMPL < 32768 [default=%default]")
     expert.add_option("", "--cheat", action="store_true",
-		      default=False,
-		      help="Enable channel cheating")
+              default=False,
+              help="Enable channel cheating")
     normal.add_option(
       "", "--img", type="string", 
       default="ratatouille.bmp",
@@ -518,6 +520,7 @@ class corba_tx_control (gr.hier_block2):
     id_out = (self,0)
     mux_out = (self,1)
     bitmap_out = (self,2)
+    bitcount_id_out = (self,3)
 
     self.cur_port = 3
 
@@ -579,9 +582,9 @@ class static_control ():
     self.static_id = 1
     self.static_idmod_map = [1] * dsubc
     self.static_idpow_map = [1.] * dsubc
-    self.static_ass_map = [1]*(dsubc/2) + [0]*(dsubc/2)
-    self.static_mod_map = [2]*(dsubc/2) + [0]*(dsubc/2)
-    self.static_pow_map = [1.]*(dsubc/2) + [0.]*(dsubc/2)
+    self.static_ass_map = concatenate([[1]*(dsubc/2),[0]*(dsubc/2)])
+    self.static_mod_map = concatenate([[2]*(dsubc/2),[0]*(dsubc/2)])
+    self.static_pow_map = concatenate([[1.]*(dsubc/2),[0.]*(dsubc/2)])
 
 
     self.mux_stream = [0]*(frame_id_blocks*dsubc)
@@ -590,16 +593,20 @@ class static_control ():
         if self.static_ass_map[j] != 0:
           self.mux_stream.extend([self.static_ass_map[j]]*self.static_mod_map[j])
 
-    self.mod_stream = self.static_idmod_map*frame_id_blocks + \
-                      self.static_mod_map*frame_data_blocks
+    self.mod_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
+                                   [self.static_mod_map]*frame_data_blocks])
+    self.mod_stream = concatenate(self.mod_stream)
 
     # reduced, demapper can handle reuse count
-    self.rmod_stream = self.static_idmod_map + self.static_mod_map
+    self.rmod_stream = concatenate([self.static_idmod_map,
+                                    self.static_mod_map])
 
     self.rc_stream = [frame_id_blocks,frame_data_blocks]
 
-    self.pow_stream = self.static_idmod_map*frame_id_blocks + \
-                      self.static_pow_map*frame_data_blocks
+    self.pow_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
+                                    [self.static_pow_map]*frame_data_blocks])
+    self.pow_stream = list( concatenate(self.pow_stream) )
+
 
 class static_tx_control (gr.hier_block2):
   def __init__(self, options):
@@ -608,12 +615,11 @@ class static_tx_control (gr.hier_block2):
 
     gr.hier_block2.__init__(self, "static_tx_control",
       gr.io_signature (0,0,0),
-      gr.io_signaturev(6,6,[gr.sizeof_short,         # ID
+      gr.io_signaturev(4,-1,[gr.sizeof_short,         # ID
                              gr.sizeof_short,         # Multiplex control stream
                              gr.sizeof_char*dsubc,    # Bit Map
-                             gr.sizeof_short,         # ID from bitcount src
-                             gr.sizeof_int,           # Bit count per frame
-                             gr.sizeof_float*dsubc])) # Power Map
+                             gr.sizeof_float*dsubc,   # Power Map
+                             gr.sizeof_int ]))        # Bit count per frame
 
     self.control = ctrl = static_control(dsubc,config.frame_id_blocks,
                                   config.frame_data_blocks,options)
@@ -621,9 +627,10 @@ class static_tx_control (gr.hier_block2):
     id_out = (self,0)
     mux_out = (self,1)
     bitmap_out = (self,2)
-    powmap_out = (self,5)
+    powmap_out = (self,3)
 
-    self.cur_port = 3
+    self.cur_port = 4
+
 
     ## ID Source (root)
     id_src = self._id_source = gr.vector_source_s([ctrl.static_id],True)
@@ -638,6 +645,7 @@ class static_tx_control (gr.hier_block2):
     ## Map Source
     map_src = gr.vector_source_b(ctrl.rmod_stream, True, dsubc)
     self.connect(map_src,bitmap_out)
+
 
     ## Power Allocation Source
     pa_src = gr.vector_source_f(ctrl.pow_stream,True,dsubc)
@@ -657,17 +665,14 @@ class static_tx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 2
-    
+    self.cur_port += 1
+
     smm = numpy.array(self.control.static_mod_map)
     sam = numpy.array(self.control.static_ass_map)
-    bitcount = int(sum(smm[sam == uid]))*config.frame_data_blocks
+
+    bitcount = sum(smm[sam == uid])*config.frame_data_blocks
 
     bc_src = gr.vector_source_i([bitcount],True)
-    self.connect(bc_src,(self,port+1))
-    
-    id = [1]
-    id_through = gr.vector_source_s(id,True)
-    self.connect(id_through,(self,port))
+    self.connect(bc_src,(self,port))
 
     return port

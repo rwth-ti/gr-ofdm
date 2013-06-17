@@ -18,6 +18,19 @@
 # Boston, MA 02110-1301, USA.
 
 include(GrPython)
+add_subdirectory(data)
+if (NOT EXISTS  ${CMAKE_CURRENT_BINARY_DIR}/data/256qam_pipe)
+
+
+ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/data/256qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/128qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/64qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/32qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/16qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/8psk_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/qpsk_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/bpsk_pipe
+    				COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && /bin/sh  ${CMAKE_CURRENT_SOURCE_DIR}/create_fifos
+					)
+ADD_CUSTOM_TARGET(MakeFifo ALL
+   DEPENDS  ${CMAKE_CURRENT_SOURCE_DIR}/data/256qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/128qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/64qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/32qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/16qam_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/8psk_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/qpsk_pipe ${CMAKE_CURRENT_SOURCE_DIR}/data/bpsk_pipe
+)
+
+endif()
+
 
 GR_PYTHON_INSTALL(
     PROGRAMS

@@ -63,10 +63,13 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Boost required to compile gr-ofdm")
 endif()
 
+#set(Boost_USE_MULTITHREADED ON)
+#FIND_PACKAGE(Boost COMPONENTS filesystem program_options thread serialization REQUIRED)
 ########################################################################
 # Install directories
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
+include(GrSetupQt4)
 set(GR_RUNTIME_DIR      bin)
 set(GR_LIBRARY_DIR      lib${LIB_SUFFIX})
 set(GR_INCLUDE_DIR      include)
@@ -100,6 +103,11 @@ endif()
 INCLUDE(FindPackageMessage)
 find_package(NumPy REQUIRED) 
 find_package(ITPP REQUIRED)
+find_package(TAO REQUIRED)
+find_package(ACE REQUIRED)
+find_package(Qwt REQUIRED)
+find_package(GL REQUIRED)
+#find_package(TAO_UTILS REQUIRED) 
 
 if(NOT NUMPY_FOUND)
     message(FATAL_ERROR "NumPy required to run gr-ofdm")
@@ -109,22 +117,40 @@ if(NOT ITPP_FOUND)
     message(FATAL_ERROR "IT++ required for to build gr-ofdm")
 endif()
 
+if(NOT TAO_FOUND)
+    message(FATAL_ERROR "TAO required to compile TAO")
+endif()
+
 ########################################################################
 # Setup the include and linker paths
 ########################################################################
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_BINARY_DIR}
     ${Boost_INCLUDE_DIRS}
     ${GRUEL_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}
     ${GNURADIO_CORE_INCLUDE_DIRS}
     ${GNURADIO_CORE_INCLUDE_DIRS}/gruel/swig
     ${ITPP_INCLUDE_DIR}/itpp
+    ${TAO_INCLUDE_DIR}/tao
+    ${TAO_INCLUDE_DIR}/orbsvc
+    ${ACE_INCLUDE_DIR}/ace
+    ${ACE_INCLUDE_DIR}
+    ${QWT_INCLUDE_DIRS}
+    ${QT_INCLUDE_DIRS}
+    ${gl_INCLUDE_DIR}
+    ${glu_INCLUDE_DIR}
+    #${TAO_UTILS_INCLUDEDIR}/tao
+    #${TAO_COSNAMING_INCLUDEDIR}/orbsvc
 )
 
 link_directories(
     ${Boost_LIBRARY_DIRS}
     ${GRUEL_LIBRARY_DIRS}
     ${GNURADIO_CORE_LIBRARY_DIRS}
+    #${TAO_LIBRARIES}
+    #${ACE_LIBRARIES}
 )
 
 # Set component parameters
@@ -146,6 +172,7 @@ add_custom_target(uninstall
 ########################################################################
 # Add subdirectories
 ########################################################################
+add_subdirectory(tao_skeleton)
 add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(swig)
@@ -153,3 +180,6 @@ add_subdirectory(python)
 add_subdirectory(grc)
 add_subdirectory(apps)
 add_subdirectory(docs)
+add_subdirectory(qt)
+
+

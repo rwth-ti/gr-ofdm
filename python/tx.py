@@ -32,15 +32,14 @@ from corba_servants import corba_data_buffer_servant
 from corba_servants import *
 
 try:
-  from gnuradio import usrp
-  from gnuradio import usrp2
+  from gnuradio import uhd
 except:
   pass
 
 import sys
 
 from transmit_path import transmit_path
-from ofdm import throughput_measure
+#from ofdm import throughput_measure
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 
@@ -52,8 +51,8 @@ import CosNaming
 from corba_stubs import ofdm_ti,ofdm_ti__POA
 from corba_servants import general_corba_servant
 
-import ofdm
-import itpp
+import ofdm_swig as ofdm
+#import itpp
 
 #from channel import time_variant_rayleigh_channel
 from numpy import sqrt
@@ -281,10 +280,10 @@ class ofdm_tx (gr.top_block):
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
     
-    self.rms = max(0.0, min(ampl, 32767.0))
+    self.rms = max(0.0, min(ampl, 1))
 
     if self._options.usrp2:
-        ampl=ampl/32767.0
+        ampl=ampl/1
     scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
@@ -336,25 +335,35 @@ class ofdm_tx (gr.top_block):
       self._interp = 100e6 / self._bandwidth / self._interpolation
       self.u.set_interp(int(self._interp))
     else:
-      self.u = usrp.sink_s(which=self._which, 
-                           fusb_block_size=self._fusb_block_size,
-                           fusb_nblocks=self._fusb_nblocks ,
-                           fpga_filename="std_1rxhb_1txhb.rbf")
-      self.uc = gr.complex_to_interleaved_short()
-      self.connect( self.uc, self.u )
-      self.dst = self.uc
-      print "USRP serial number is %s" % ( self.u.serial_number() )
-    
-      print "Using new USRP1 tx chain with halfband filters on FPGA"
+      #self.u = usrp.sink_s(which=self._which, 
+                          # fusb_block_size=self._fusb_block_size,
+                           #fusb_nblocks=self._fusb_nblocks ,
+                           #fpga_filename="std_1rxhb_1txhb.rbf")
       
-      self._interp = self.u.dac_rate() / self._bandwidth / self._interpolation
-      self.u.set_interp_rate(int(self._interp))
+      self.u = uhd.usrp_sink(device_addr="", stream_args=uhd.stream_args('fc32'))
+      
+      #self.uc = gr.complex_to_interleaved_short()
+      #self.connect( self.uc, self.u )
+      self.dst = self.u
+      #print "USRP serial number is %s" % ( self.u.serial_number() ) 
+      print "USRP used: ", ( self.u.get_usrp_info().get("mboard_id").split(" ")[0])
+      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))  
+      print "TX Daughterboard used: ", ( self.u.get_usrp_info().get("tx_id").split(" ")[0].split(",")[0])
+      
+      dboard_serial = self.u.get_usrp_info().get("tx_serial")    
+      if dboard_serial == "":   
+                dboard_serial = "no serial"
+      print "TX Daughterboard serial number is: ", dboard_serial
+      
+      self._interp = 128e6/ self._bandwidth / self._interpolation
+      #self.u.set_interp_rate(int(self._interp))
+      self.u.set_samp_rate(self._bandwidth*self._interpolation)
       
       # determine the daughterboard subdevice we're using
-      if self._tx_subdev_spec is None:
-          self._tx_subdev_spec = usrp.pick_tx_subdevice(self.u)
-      self.u.set_mux(usrp.determine_tx_mux_value(self.u, self._tx_subdev_spec))
-      self.subdev = usrp.selected_subdev(self.u, self._tx_subdev_spec)
+      #if self._tx_subdev_spec is None:
+       #   self._tx_subdev_spec = usrp.pick_tx_subdevice(self.u)
+      #self.u.set_mux(usrp.determine_tx_mux_value(self.u, self._tx_subdev_spec))
+      #self.subdev = usrp.selected_subdev(self.u, self._tx_subdev_spec)
       
     
     print "FPGA interpolation",self._interp
@@ -370,15 +379,15 @@ class ofdm_tx (gr.top_block):
     if self._options.usrp2:
       self.set_gain(0.3) # ??????????????????????????????
     else:
-      self.set_gain(self.subdev.gain_range()[1])
+      self.set_gain(1)
 
     print "Starte Strahlenwaffe mit maximaler Leistung"
     print "And now, young jedi, you will die !!!"
 
 #    self.u.enable_detailed_profiling()
 
-    if not self._options.usrp2:
-      self.subdev.set_enable(True)
+    #if not self._options.usrp2:
+      #self.subdev.set_enable(True)
 
   def set_freq(self, target_freq):
     """
@@ -395,7 +404,8 @@ class ofdm_tx (gr.top_block):
     if self._options.usrp2:
       r = self.u.set_center_freq(target_freq)
     else:
-      r = self.u.tune(self.subdev.which(), self.subdev, target_freq)
+      #r = self.u.tune(self.subdev.which(), self.subdev, target_freq)
+      r = self.u.set_center_freq(target_freq, 0)
     if r:
         return True
 
@@ -409,16 +419,28 @@ class ofdm_tx (gr.top_block):
     self.freq_off_src.set_frequency(norm_freq)
     print "Frequency offset changed to", freqoff    
 
-  def set_gain(self, gain):
+  def set_gain(self, gain=None):
     """
     Sets the analog gain in the USRP
     """
     self.gain = gain
-    if self._options.usrp2:
-      self.u.set_gain(gain)
-    else:
-      self.subdev.set_gain(gain)
+    #if self._options.usrp2:
+    #  self.u.set_gain(gain)
+   # else:
+     # self.subdev.set_gain(gain)      
+    if gain is None:
+            # if no gain was specified, use the mid-point in dB
+            g = self.u.get_gain_range()
+            print "GAIN RANGE: ", g
+            gain = float(g.start()+g.stop())/2
+            print "\nNo gain specified."
+            print "Setting gain to %f (from [%f, %f])" % \
+                (gain, g.start(), g.stop())
+        
+    self.u.set_gain(gain, 0)
+    return gain
 
+  '''
   def set_auto_tr(self, enable):
     """
     Turns on auto transmit/receive of USRP daughterboard (if exits; else ignored)
@@ -431,6 +453,7 @@ class ofdm_tx (gr.top_block):
   def __del__(self):
     if hasattr(self, "subdev"):
       del self.subdev
+   '''
 
   def _print_verbage(self):
     """

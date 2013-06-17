@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from numpy import concatenate, log10
+from corba_servants import *
+from corba_stubs import ofdm_ti, ofdm_ti__POA
 from gnuradio import eng_notation
 from gnuradio import gr, window
 from gr_tools import log_to_file, terminate_stream
@@ -9,14 +11,17 @@ from ofdm_swig import normalize_vcc, lms_phase_tracking,vector_sum_vcc
 from ofdm_swig import generic_demapper_vcb, vector_mask, vector_sampler
 from ofdm_swig import skip, channel_estimator_02, scatterplot_sink
 from ofdm_swig import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm_swig import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
+from ofdm_swig import generic_mapper_bcv, corba_rxinfo_sink, corba_rxinfo_sink_imgxfer, dynamic_trigger_ib, snr_estimator
 from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
+from ofdm_swig import corba_power_allocator
 import ofdm_swig as ofdm
 
 from time import strftime,gmtime
 
 from snr_estimator import milans_snr_estimator, milans_sinr_sc_estimator, milans_sinr_sc_estimator2, milans_sinr_sc_estimator3
+
+from ofdm_swig import corba_bitmap_src
 
 
 from station_configuration import *
@@ -32,6 +37,8 @@ import numpy
 
 from random import seed,randint
 
+from ofdm_swig import corba_assignment_src_sv,corba_bitcount_src_si
+from ofdm_swig import corba_map_src_sv,corba_power_src_sv,corba_id_filter
 from ofdm_swig import repetition_decoder_bs
 from gnuradio.gr import delay
 
@@ -1195,10 +1202,9 @@ class static_rx_control (gr.hier_block2):
 
     gr.hier_block2.__init__(self,"static_rx_control",
       gr.io_signature (1,1,gr.sizeof_short),
-      gr.io_signaturev(4,5,[gr.sizeof_short,        # ID
+      gr.io_signaturev(3,-1,[gr.sizeof_short,        # ID
                              gr.sizeof_char*dsubc,   # Bit Map
                              gr.sizeof_float*dsubc,  # Power map
-                             gr.sizeof_short,        # ID from bitcount src
                              gr.sizeof_int]))        # Bitcount stream
 
     self.cur_port = 3
@@ -1213,7 +1219,6 @@ class static_rx_control (gr.hier_block2):
     bitmap_out = (self,1)
     powmap_out = (self,2)
 
-    bitcount_id_out = (self,3)
 
 
     ## ID "filter"
@@ -1261,19 +1266,15 @@ class static_rx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 2
+    self.cur_port += 1
 
     smm = numpy.array(self.control.static_mod_map)
     sam = numpy.array(self.control.static_ass_map)
 
-    bitcount = int(sum(smm[sam == uid]))*config.frame_data_blocks
+    bitcount = sum(smm[sam == uid])*config.frame_data_blocks
 
     bc_src = gr.vector_source_i([bitcount],True)
-    self.connect(bc_src,(self,port+1))
-    
-    id = [1]
-    id_through = gr.vector_source_s(id,True)
-    self.connect(id_through,(self,port))
+    self.connect(bc_src,(self,port))
 
     print "static rx control: bitcount for ", uid," is ",bitcount
 

@@ -91,6 +91,18 @@
 #include "ofdm_bernoulli_bit_src.h"
 #include "ofdm_complex_white_noise.h"
 #include "ofdm_symbol_random_src.h"
+#include "ofdm_corba_assignment_src_sv.h"
+#include "ofdm_corba_bitcount_src_si.h"
+#include "ofdm_corba_bitmap_src.h"
+#include "ofdm_corba_id_filter.h"
+#include "ofdm_corba_id_src_s.h"
+#include "ofdm_corba_map_src_sv.h"
+#include "ofdm_corba_multiplex_src_ss.h"
+#include "ofdm_corba_power_allocator.h"
+#include "ofdm_corba_power_src_sv.h"
+#include "ofdm_corba_rxbaseband_sink.h"
+#include "ofdm_corba_rxinfo_sink_imgxfer.h"
+#include "ofdm_corba_rxinfo_sink.h"
 %}
 
 GR_SWIG_BLOCK_MAGIC(ofdm,template_ff);
@@ -335,3 +347,39 @@ GR_SWIG_BLOCK_MAGIC(ofdm,complex_white_noise);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,symbol_random_src);
 %include "ofdm_symbol_random_src.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_assignment_src_sv);
+%include "ofdm_corba_assignment_src_sv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_bitcount_src_si);
+%include "ofdm_corba_bitcount_src_si.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_bitmap_src);
+%include "ofdm_corba_bitmap_src.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_id_filter);
+%include "ofdm_corba_id_filter.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_id_src_s);
+%include "ofdm_corba_id_src_s.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_map_src_sv);
+%include "ofdm_corba_map_src_sv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_multiplex_src_ss);
+%include "ofdm_corba_multiplex_src_ss.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_power_allocator);
+%include "ofdm_corba_power_allocator.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_power_src_sv);
+%include "ofdm_corba_power_src_sv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_rxbaseband_sink);
+%include "ofdm_corba_rxbaseband_sink.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_rxinfo_sink_imgxfer);
+%include "ofdm_corba_rxinfo_sink_imgxfer.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,corba_rxinfo_sink);
+%include "ofdm_corba_rxinfo_sink.h"

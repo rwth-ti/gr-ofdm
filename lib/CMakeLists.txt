@@ -22,6 +22,7 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
+SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED 
     ofdm_template_ff.cc 
     ofdm_accumulator_cc.cc 
@@ -110,12 +111,39 @@ add_library(gnuradio-ofdm SHARED
     util_endian.cc
     util_bmp.cc
     util_ipc.cc
+    corba_push_consumer.cc
+    corba_push_supplier.cc
+    corba_push_supplier_wrapper.cc
+    ofdm_corba_assignment_src_sv.cc
+    ofdm_corba_bitcount_src_si.cc
+    ofdm_corba_bitmap_src.cc
+    ofdm_corba_id_filter.cc
+    ofdm_corba_id_src_s.cc
+    ofdm_corba_map_src_sv.cc
+    ofdm_corba_multiplex_src_ss.cc
+    ofdm_corba_power_allocator.cc
+    ofdm_corba_power_src_sv.cc
+    ofdm_corba_rxinfo_sink.cc
+    ofdm_corba_rxinfo_sink_imgxfer.cc
+    ofdm_corba_rxbaseband_sink.cc
+    orb.cc
+    #${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a
 )
 target_link_libraries(gnuradio-ofdm 
     ${Boost_LIBRARIES}
     ${GRUEL_LIBRARIES}
     ${GNURADIO_CORE_LIBRARIES}
-    ${ITPP_LIBRARIES})
+    ${ITPP_LIBRARIES}
+    ${TAO_LIBRARIES}
+    # "-Wl,--whole-archive"
+     ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a
+    #"-Wl,--no-whole-archive"
+    )
+    
+  add_dependencies(gnuradio-ofdm tao_ofdmti)
+    message(STATUS "Boost_LIBRARIES at: ${Boost_LIBRARIES}")
+    #message(STATUS "GNURADIO_CORE_LIBRARIES at: ${GNURADIO_CORE_LIBRARIES}")
+    message(STATUS "TAO_LIBRARIES at: ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a")
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")
 
 ########################################################################

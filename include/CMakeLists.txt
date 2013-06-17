@@ -112,5 +112,20 @@ install(FILES
     util_endian.h
     util_ipc.h
     gr_block_fwd.h
+    ofdm_corba_assignment_src_sv.h
+    ofdm_corba_bitcount_src_si.h
+    ofdm_corba_bitmap_src.h
+    ofdm_corba_id_filter.h
+    ofdm_corba_id_src_s.h
+    ofdm_corba_map_src_sv.h
+    ofdm_corba_multiplex_src_ss.h
+    ofdm_corba_power_allocator.h
+    ofdm_corba_power_src_sv.h
+    ofdm_corba_rxinfo_sink.h
+    ofdm_corba_rxinfo_sink_imgxfer.h
+    ofdm_corba_rxbaseband_sink.h
+    corba_push_consumer.h 
+    corba_push_supplier.h 
+    corba_push_supplier_wrapper.h
     DESTINATION include/ofdm
 )

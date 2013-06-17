@@ -28,22 +28,30 @@ from gnuradio import optfir
 from station_configuration import station_configuration
 
 from math import log10
+from corba_servants import corba_data_buffer_servant
+from corba_servants import *
+
 
 import sys
 import os
 
 from transmit_path import transmit_path
 from receive_path2 import receive_path
-from ofdm_swig import throughput_measure, vector_sampler
+from ofdm_swig import throughput_measure, vector_sampler, corba_rxbaseband_sink
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
 
 import fusb_options
 
+from omniORB import CORBA, PortableServer
 import CosNaming
+from corba_stubs import ofdm_ti,ofdm_ti__POA
+from corba_servants import general_corba_servant
+from corba_servants import corba_data_buffer_servant,corba_push_vector_f_servant
 
 import ofdm_swig as ofdm
+#import itpp
 
 #from channel import time_variant_rayleigh_channel
 from numpy import sqrt, sum, concatenate
@@ -73,6 +81,7 @@ class ofdm_benchmark (gr.top_block):
     ##self._fusb_nblocks       = options.fusb_nblocks    # usb info for USRP
     ##self._which              = options.which_usrp
     self._bandwidth          = options.bandwidth
+    self.servants = []
     self._verbose            = options.verbose
     
     ##self._interface          = options.interface
@@ -141,9 +150,21 @@ class ofdm_benchmark (gr.top_block):
     
     config = self.config = station_configuration()
     
+    self.enable_info_tx("info_tx", "pa_user")
+#    if not options.no_cheat:
+#      self.txpath.enable_channel_cheating("channelcheat")
+    self.txpath.enable_txpower_adjust("txpower")
+    self.txpath.publish_txpower("txpower_info")
+    #self.enable_txfreq_adjust("txfreq")
+    
+    
 
     if options.imgxfer:
       self.rxpath.setup_imgtransfer_sink()
+    
+    if not options.no_decoding:
+      self.rxpath.publish_rx_performance_measure()
+      
     
 
       # capture transmitter's stream to disk
@@ -288,6 +309,7 @@ class ofdm_benchmark (gr.top_block):
     self.connect(self.filter,gr.stream_to_vector(gr.sizeof_gr_complex,fftlen),
                  decimate_rate,spectrum,mag,logdb,msg_sink)
 
+    self.servants.append(corba_data_buffer_servant("tx_spectrum",fftlen,msgq))
     
 #  def set_rms_amplitude(self, ampl):
 #    """
@@ -326,6 +348,8 @@ class ofdm_benchmark (gr.top_block):
   def publish_rx_baseband_measure(self):
     config = self.config
     vlen = config.fft_length
+    self.rx_baseband_sink = rx_sink = corba_rxbaseband_sink("alps",config.ns_ip,
+                                    config.ns_port,vlen,config.rx_station_id)
 
       # 1. frame id
       #self.connect(self.rxpath._id_decoder,(rx_sink,0))
@@ -388,6 +412,7 @@ class ofdm_benchmark (gr.top_block):
     self.connect(t,rxs_sampler,rxs_window,
                  rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate,
                  rxs_msg_sink)
+    self.servants.append(corba_data_buffer_servant("spectrum",fftlen,msgq))
 
     print "RXS trigger unique id", rxs_trigger.unique_id()
     
@@ -397,6 +422,9 @@ class ofdm_benchmark (gr.top_block):
     self.set_freqoff(val[0])
 
   def enable_freqoff_adjust(self,unique_id):
+    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
+        self.change_freqoff,
+        msg=""))
     print "Enable tx freq offset adjust"    
     
   def set_freqoff(self, freqoff):
@@ -564,6 +592,7 @@ class ofdm_benchmark (gr.top_block):
                        max_datarate=(bits/tb),
                        burst_length=config.frame_length
                        )
+    self.servants.append(general_corba_servant(str(unique_id),infotx))
     
     print "Enabled info_tx, id: %s" % (unique_id)
 
@@ -652,6 +681,51 @@ class ofdm_benchmark (gr.top_block):
 ################################################################################
 ################################################################################
 
+"""
+CORBA servant implementation of info_tx interface
+"""
+class info_tx_i(ofdm_ti__POA.info_tx):
+  def __init__(self,**kwargs):
+    self.subcarriers = kwargs['subcarriers']
+    self.fft_window = kwargs['fft_window']
+    self.cp_length = kwargs['cp_length']
+    self.carrier_freq = kwargs['carrier_freq']
+    self.symbol_time = kwargs['symbol_time']
+    self.bandwidth = kwargs['bandwidth']
+    self.subbandwidth = kwargs['subbandwidth']
+    self.max_datarate = kwargs['max_datarate']
+    self.burst_length = kwargs['burst_length']
+
+  def _get_subcarriers(self):
+    return self.subcarriers
+
+  def _get_fft_window(self):
+    return self.fft_window
+
+  def _get_cp_length(self):
+    return self.cp_length
+
+  def _get_carrier_freq(self):
+    return float(self.carrier_freq)
+
+  def _get_symbol_time(self):
+    return self.symbol_time
+
+  def _get_bandwidth(self):
+    return self.bandwidth
+
+  def _get_subbandwidth(self):
+    return self.subbandwidth
+
+  def _get_max_datarate(self):
+    return int(self.max_datarate)
+
+  def _get_burst_length(self):
+    return self.burst_length
+
+################################################################################
+################################################################################
+
 def main():
   parser = OptionParser(conflict_handler="resolve")
   expert_grp = parser.add_option_group("Expert")
@@ -683,19 +757,21 @@ def main():
     print "Enabled realtime scheduling"
 
   try:
-    #string_benchmark = runtime.dot_graph()
+    orb = CORBA.ORB_init(sys.argv,CORBA.ORB_ID)
+    string_benchmark = runtime.dot_graph()
     
-    #filetx = os.path.expanduser('~/omnilog/benchmark_ofdm.dot')
-    #filetx = os.path.expanduser('benchmark_ofdm.dot')
-    #dot_file = open(filetx,'w')
-    #dot_file.write(string_benchmark)
-    #dot_file.close()
+    filetx = os.path.expanduser('~/omnilog/benchmark_ofdm.dot')
+    filetx = os.path.expanduser('benchmark_ofdm.dot')
+    dot_file = open(filetx,'w')
+    dot_file.write(string_benchmark)
+    dot_file.close()
     
     runtime.start()
     try:
       tx.txpath._control._id_source.ready()
     except:
       pass
+    orb.run()
   except KeyboardInterrupt:
     runtime.stop()
     # somewhat messy hack

@@ -28,15 +28,15 @@ from configparse import OptionParser
 from station_configuration import station_configuration
 
 try:
-  from gnuradio import usrp
-  from gnuradio import usrp2
+  from gnuradio import uhd
 except:
   pass
 
 import sys
 
 from receive_path2 import receive_path
-from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
+#from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
+from ofdm_swig import  vector_sampler, corba_rxbaseband_sink
 from numpy import sum,concatenate
 from common_options import common_tx_rx_usrp_options
 from math import log10
@@ -300,23 +300,31 @@ class ofdm_rx (gr.top_block):
       
       print "USRP2 MAC address is %s" % ( self.u.mac_addr() )
     else:
-      self.u = usrp.source_c (which=self._which, fusb_block_size=self._fusb_block_size,
-                              fusb_nblocks=self._fusb_nblocks)
-      adc_rate = self.u.adc_rate()
+      self.u = uhd.usrp_source(device_addr="", stream_args=uhd.stream_args('fc32'))
+      
+
+      #adc_rate = self.u.adc_rate()
   
-      self._decim = int(adc_rate / self._bandwidth / self.decimation)
-      self.u.set_decim_rate(self._decim)
+      self._decim = int(64e6 / self._bandwidth / self.decimation)
+      self.u.set_samp_rate(self._bandwidth * self.decimation)
     
       # determine the daughterboard subdevice we're using
       if self._rx_subdev_spec is None:
-          self._rx_subdev_spec = usrp.pick_rx_subdevice(self.u)
-      self.subdev = usrp.selected_subdev(self.u, self._rx_subdev_spec)
+          self._rx_subdev_spec = self.u.get_subdev_spec()
+      self.u.set_subdev_spec(self._rx_subdev_spec)
   
-      self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
+      #self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
   
-      print "Using RX D'Board: %s" % (self.subdev.side_and_name())
+      #print "Using RX D'Board: %s" % (self.subdev.side_and_name())
+      print "USRP used: ", ( self.u.get_usrp_info().get("mboard_id").split(" ")[0])
+      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))  
+      print "RX Daughterboard used: ", ( self.u.get_usrp_info().get("rx_id").split(" ")[0].split(",")[0])
       
-      print "USRP serial number is %s" % ( self.u.serial_number() )
+      dboard_serial = self.u.get_usrp_info().get("rx_serial")    
+      if dboard_serial == "":   
+                dboard_serial = "no serial"
+      print "RX Daughterboard serial number is: ", dboard_serial
+      
     
     print "FPGA decimation: %d" % (self._decim)
     
@@ -326,15 +334,15 @@ class ofdm_rx (gr.top_block):
   def _configure_usrp(self,options):
     
     if not options.usrp2 and options.show_rx_gain_range:
-      g = self.subdev.gain_range()
+      g = self.u.gain_range()
       print "Rx Gain Range: minimum = %g, maximum = %g, step size = %g" \
             % (g[0], g[1], g[2])
 
     self.set_gain(options.rx_gain)
 
-    if not options.usrp2:
+    #if not options.usrp2:
       # enable Auto Transmit/Receive switching
-      self.set_auto_tr(True) # TRUE FIXME
+      #self.set_auto_tr(True) # TRUE FIXME
 
     # Set RF frequency
     ok = self.set_freq(self._rx_freq)
@@ -357,7 +365,7 @@ class ofdm_rx (gr.top_block):
     if self._options.usrp2:
       r = self.u.set_center_freq(target_freq)
     else:
-      r = self.u.tune(self.subdev.which(), self.subdev, target_freq)
+      r = self.u.set_center_freq(target_freq, 0)
     
     if r:
       return True
@@ -375,16 +383,21 @@ class ofdm_rx (gr.top_block):
       return self.u.set_gain(gain)
     else:
       if gain is None:
-          r = self.subdev.gain_range()
-          gain = (r[0] + r[1])/2               # set gain to midpoint
-      return self.subdev.set_gain(gain)
+           g = self.u.get_gain_range()
+           gain = float(g.start()+g.stop())/2
+           print "\nNo gain specified."
+           print "Setting gain to %f (from [%f, %f])" % \
+                (gain, g.start(), g.stop())
+        
+      self.u.set_gain(gain, 0)
+      return gain
 
-  def set_auto_tr(self, enable):
-    return self.subdev.set_auto_tr(enable)
+  #def set_auto_tr(self, enable):
+   # return self.subdev.set_auto_tr(enable)
 
-  def __del__(self):
-    if hasattr(self, "subdev"):
-      del self.subdev
+  #def __del__(self):
+  #  if hasattr(self, "subdev"):
+   #   del self.subdev
 
   def add_options(normal, expert):
     """

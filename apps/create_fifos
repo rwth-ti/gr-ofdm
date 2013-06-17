@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mkfifo data/256qam_pipe
+mkfifo data/128qam_pipe
+mkfifo data/64qam_pipe
+mkfifo data/32qam_pipe
+mkfifo data/16qam_pipe
+mkfifo data/8psk_pipe
+mkfifo data/qpsk_pipe
+mkfifo data/bpsk_pipe
+

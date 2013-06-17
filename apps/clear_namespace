@@ -1,0 +1,32 @@
+#!/bin/sh
+
+nameclt unbind ofdm_ti.data1
+nameclt unbind ofdm_ti.data2
+nameclt unbind ofdm_ti.data3
+nameclt unbind ofdm_ti.data4
+nameclt unbind ofdm_ti.data5
+nameclt unbind ofdm_ti.data6
+nameclt unbind ofdm_ti.data7
+nameclt unbind ofdm_ti.data8
+nameclt unbind ofdm_ti.data9
+nameclt unbind ofdm_ti.data10
+nameclt unbind ofdm_ti.channelcheat
+nameclt unbind ofdm_ti.txpower
+nameclt unbind ofdm_ti.txpower_info
+nameclt unbind ofdm_ti.spectrum
+nameclt unbind ofdm_ti.rxgain
+nameclt unbind ofdm_ti.pa_user
+nameclt unbind ofdm_ti.ctf_display
+nameclt unbind ofdm_ti.tmwin_01
+nameclt unbind ofdm_ti.packetloss
+nameclt unbind ofdm_ti.ber
+nameclt unbind ofdm_ti.totalsnr
+nameclt unbind ofdm_ti.snr_user
+nameclt unbind ofdm_ti.snrcarrier_user
+nameclt unbind ofdm_ti.totalsnr_pa_pa_user
+nameclt unbind ofdm_ti.snr_per_carrier_pa_user
+nameclt unbind ofdm_ti.ber_pa
+nameclt unbind ofdm_ti.totalsnr_pa_pamod
+nameclt unbind ofdm_ti.totalsnr_pa
+nameclt unbind ofdm_ti.snr_per_carrier_pamod
+nameclt unbind ofdm_ti.snr_per_carrier

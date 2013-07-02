@@ -5,8 +5,7 @@
 #define INCLUDED_OFDM_LMS_PHASE_TRACKING3_H_
 
 #include <ofdm_api.h>
-#include <gr_block_fwd.h>// forward declarations
-#include <gr_sync_block.h>
+#include "gr_block_fwd.h"// forward declarations
 
 #include <vector>
 
@@ -18,21 +17,24 @@ OFDM_API ofdm_LMS_phase_tracking3_sptr
 ofdm_make_LMS_phase_tracking3( int vlen,
   std::vector< int > const & pilot_subc,
   std::vector< int > const & nondata_blocks,
-  std::vector< gr_complex > const & pilot_subcarriers);
+  std::vector< gr_complex > const & pilot_subcarriers,
+  int dc_null);
 
 /*!
 TODO: code cleanup
  */
-class OFDM_API ofdm_LMS_phase_tracking3 : public gr_sync_block
+class OFDM_API ofdm_LMS_phase_tracking3 : public gr_block
 {
 private:
 
   ofdm_LMS_phase_tracking3( int vlen,
     std::vector< int > const & pilot_subc,
     std::vector< int > const & nondata_blocks,
-    std::vector< gr_complex > const & pilot_subcarriers);
+    std::vector< gr_complex > const & pilot_subcarriers,
+    int dc_null);
 
   int  d_vlen;
+  int  d_dc_null;
 
   float d_acc_gamma;    //! gradient estimate accumulator
   float d_acc_b;        //! offset estimate accumulator
@@ -47,16 +49,25 @@ private:
   std::vector< bool >  d_is_pilot;
   std::vector< float > d_gamma_coeff;
   std::vector< float > d_acc_phase;
-  std::vector< float > d_phase_last;
+  //std::vector< float > d_phase_last;
+  int  d_need_input_h1;
+  gr_complex * d_buffer_h1;
+  //int  d_need_input_h2;
+  //gr_complex * d_buffer_h2;
   //std::vector< gr_complex const> d_ina;
+  void
+  forecast( int noutput_items,
+      gr_vector_int &ninput_items_required );
 
   void
   init_LMS_phasetracking(
       const std::vector<int> &pilot_tones,
-      const std::vector<int> &nondata_block );
+      const std::vector<int> &nondata_block,
+      int dc_nulled);
 
   inline void
-  LMS_phasetracking( gr_complex const * in, gr_complex * out );
+  //LMS_phasetracking( gr_complex const * in_1, gr_complex const * in_2, gr_complex const * inv_ctf_1, gr_complex const * inv_ctf_2,   gr_complex * out );
+  LMS_phasetracking( gr_complex const * in_1, gr_complex const * inv_ctf_1,  gr_complex * out );
 
 public:
 
@@ -64,13 +75,15 @@ public:
   create( int vlen,
     std::vector< int > const & pilot_subc,
     std::vector< int > const & nondata_blocks,
-    std::vector< gr_complex > const & pilot_subcarriers);
+    std::vector< gr_complex > const & pilot_subcarriers,
+    int dc_null);
 
-  virtual ~ofdm_LMS_phase_tracking3() {};
+  virtual ~ofdm_LMS_phase_tracking3();
 
   int
-  work(
+  general_work(
     int                         noutput_items,
+    gr_vector_int             & ninput_items,
     gr_vector_const_void_star & input_items,
     gr_vector_void_star       & output_items );
 

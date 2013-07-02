@@ -27,10 +27,10 @@ void ofdmi_make_psk(std::vector<gr_complex> &constellation, unsigned char bits)
   if(bits == 2) {
     constellation.clear();
     float x = 1.0 / sqrt(2.0);
-    constellation.push_back(gr_complex(x,x));
-    constellation.push_back(gr_complex(x,-x));
     constellation.push_back(gr_complex(-x,x));
     constellation.push_back(gr_complex(-x,-x));
+    constellation.push_back(gr_complex(x,x));
+    constellation.push_back(gr_complex(x,-x));
     return;
   }
 
@@ -595,10 +595,10 @@ ofdmi_generate_128qam_lut()
   std::vector< std::vector< std::vector< char > > > lut;
 
   lut.resize( 7 );
-  for( int i = 0; i < lut.size(); ++i )
+  for( unsigned int i = 0; i < lut.size(); ++i )
   {
     lut[i].resize( 12 );
-    for( int j = 0; j < lut[i].size(); ++j )
+    for( unsigned int j = 0; j < lut[i].size(); ++j )
     {
       lut[i][j].resize( 12, 0 );
     }
@@ -1264,10 +1264,10 @@ ofdmi_generate_32qam_lut()
   std::vector< std::vector< std::vector< char > > > lut;
 
   lut.resize( 5 );
-  for( int i = 0; i < lut.size(); ++i )
+  for( unsigned int i = 0; i < lut.size(); ++i )
   {
     lut[i].resize( 6 );
-    for( int j = 0; j < lut[i].size(); ++j )
+    for( unsigned int j = 0; j < lut[i].size(); ++j )
     {
       lut[i][j].resize( 6, 0 );
     }

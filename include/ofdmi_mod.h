@@ -92,11 +92,14 @@ public:
   virtual inline ~generic_modulation_scheme() {};
 
   inline void
-  modulate( gr_complex*& sout, const char*& din ) const;
+  modulate( gr_complex*& sout, const char*& din, bool coding) const;
 
   // hard decision
   inline void
   demodulate( const gr_complex& sym, char*& dout ) const;
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const;
 
   // soft decision
   inline void
@@ -114,9 +117,16 @@ public:
   inline bpsk_scheme() : modulation_scheme(1) {};
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
+  }
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const
+  {
+  	mod.softdemodulate(sym,dout,g,max_g,coding);
+  	++dout;
   }
 
   inline void
@@ -141,15 +151,22 @@ public:
   inline qpsk_scheme() : modulation_scheme(2) {};
 
   inline void
-  modulate( gr_complex*& sout, const char*& din ) const
+  modulate( gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
+  }
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const
+  {
+    mod.softdemodulate(sym,dout,g,max_g,coding);
+    dout += 2;
   }
 
   inline void
   demodulate( const gr_complex& sym, char*& dout ) const
   {
-    const float x_r = sym.real();
+    const float x_r = -sym.real();
     const float x_i = sym.imag();
 
     if( x_r < 0.0 )
@@ -177,9 +194,9 @@ public:
   inline m8psk_scheme() : modulation_scheme(3) {};
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
   }
 
   inline void
@@ -217,9 +234,16 @@ public:
   inline m16qam_scheme() : modulation_scheme(4) {};
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
+  }
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const
+  {
+  	mod.softdemodulate(sym,dout,g,max_g,coding);
+  	dout += 4;
   }
 
   inline void
@@ -265,9 +289,9 @@ public:
   };
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
   }
 
   inline void
@@ -312,9 +336,16 @@ public:
   inline m64qam_scheme() : modulation_scheme(6) {};
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
+  }
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const
+  {
+  	mod.softdemodulate(sym,dout,g,max_g,coding);
+  	dout += 6;
   }
 
   inline void
@@ -385,9 +416,9 @@ public:
   };
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din, bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
   }
 
   inline void
@@ -444,9 +475,16 @@ public:
   inline m256qam_scheme() : modulation_scheme(8) {};
 
   inline void
-  modulate(gr_complex*& sout, const char*& din) const
+  modulate(gr_complex*& sout, const char*& din,bool coding) const
   {
-    mod.modulate(sout,din);
+    mod.modulate(sout,din,coding);
+  }
+
+  inline void
+  softdemodulate( const gr_complex & sym, float *& dout, float g, float max_g, bool coding) const
+  {
+	mod.softdemodulate(sym,dout,g,max_g,coding);
+	dout += 8;
   }
 
   inline void
@@ -518,7 +556,7 @@ void ofdmi_64qam_decision(const std::vector<gr_complex> &dummy,
 template <int bits>
 inline void
 generic_modulation_scheme<bits>::modulate( gr_complex*& sout,
-    const char*& din ) const
+    const char*& din, bool coding ) const
 {
   unsigned int ind = 0;
   for(int b = 0; b < bits; ++b){
@@ -556,6 +594,99 @@ generic_modulation_scheme<bits>::demodulate(
   for(int b = 0; b < bits; ++b)
     *dout++ = *t++;
 }
+
+template <int bits>
+inline void
+generic_modulation_scheme<bits>::softdemodulate(
+    const gr_complex& sym, float*& dout, float g, float max_g, bool coding ) const
+{
+	const float in_r = sym.real();
+	const float in_i = -sym.imag();
+
+	float distance[3] = {0,0,0};
+	float scale[10] = {1,0.7071,0.4082,0.3162,0.2236,0.1543,0.1104,0.07669,0.055,0.0382};
+
+	if(bits==1)
+	{
+		//*dout = in_r * (-pow(g,2));
+		*dout = in_r * (-g);
+	}
+	else
+	{
+		/* distance vector */
+		if (bits==4)
+		{
+			distance[0]=2;
+		}
+		else if (bits==6)
+		{
+			distance[0]=4;
+			distance[1]=2;
+		}
+		else if (bits==8)
+		{
+			distance[0]=8;
+			distance[1]=4;
+			distance[2]=2;
+		}
+
+		/* scale the distance vector if we are using normalized data */
+		distance[0]=distance[0]*scale[bits-1];
+		distance[1]=distance[1]*scale[bits-1];
+		distance[2]=distance[2]*scale[bits-1];
+
+		int start,middle,end;
+
+		start=0;
+		middle=start+bits/2;
+		end=bits-1;
+
+		dout[start] = in_r;
+		dout[middle] = in_i;
+
+		for (int i=1;i<bits/2;i++)
+		{
+			dout[i+start]=-fabs(dout[i-1+start])+distance[i-1];
+			dout[i+middle]=-fabs(dout[i-1+middle])+distance[i-1];
+
+			dout[i-1+start] = dout[i-1+start] * g;
+			dout[i-1+middle] = dout[i-1+middle] * g;
+		}
+		dout[middle-1] = dout[middle-1] * g;
+		dout[end] = dout[end] * g;
+	}
+	
+	/* normalize outputs on maximum gain */
+
+	for (int k=0;k<bits;k++)
+		dout[k] = dout[k] / scale[bits-1] / pow(max_g,2);
+
+	/* quantize the values with 3 bits
+    
+    double max = pow(g,2);
+    int qbits = 3;
+    int step,k;
+    int steps = pow(2,qbits);
+    double stepsize = 2*max/pow(2,qbits);
+    
+    for (k=0;k<bits;k++)
+    {
+        for (step=0;step<steps;step++)
+        {
+            if(dout[k]>max)
+                dout[k]=max;
+            if(dout[k]<-max)
+                dout[k]=-max;
+            
+            if (dout[k]>=-max+step*stepsize&&dout[k]<=-max+(step+1)*stepsize)
+            {
+                dout[k] = -1+(double)step*2/(double)steps;
+                break;
+            }
+        }
+    }*/
+}
+
 
 template <int bits>
 inline void
@@ -618,20 +749,69 @@ private:
 public:
 
   inline void
-  modulate(gr_complex*& sout, const char*& din, const char& cv) const
+  modulate(gr_complex*& sout, const char*& din, const char& cv, bool coding=false) const
   {
-    switch(cv){
-      case 1: d_m1.modulate(sout,din); break;
-      case 2: d_m2.modulate(sout,din); break;
-      case 3: d_m3.modulate(sout,din); break;
-      case 4: d_m4.modulate(sout,din); break;
-      case 5: d_m5.modulate(sout,din); break;
-      case 6: d_m6.modulate(sout,din); break;
-      case 7: d_m7.modulate(sout,din); break;
-      case 8: d_m8.modulate(sout,din); break;
-      default: assert("should never get here");
-    }
+	if(coding)
+	{
+		switch(cv){
+			case 1: d_m1.modulate(sout,din,coding); break;
+			case 2: d_m2.modulate(sout,din,coding); break;
+			case 3: d_m2.modulate(sout,din,coding); break;
+			case 4: d_m4.modulate(sout,din,coding); break;
+			case 5: d_m4.modulate(sout,din,coding); break;
+			case 6: d_m6.modulate(sout,din,coding); break;
+			case 7: d_m6.modulate(sout,din,coding); break;
+			case 8: d_m6.modulate(sout,din,coding); break;
+			case 9: d_m8.modulate(sout,din,coding); break;
+			default: assert("should never get here");
+		}
+	}
+	else {
+		switch(cv){
+			case 1: d_m1.modulate(sout,din,coding); break;
+			case 2: d_m2.modulate(sout,din,coding); break;
+			case 3: d_m3.modulate(sout,din,coding); break;
+			case 4: d_m4.modulate(sout,din,coding); break;
+			case 5: d_m5.modulate(sout,din,coding); break;
+			case 6: d_m6.modulate(sout,din,coding); break;
+			case 7: d_m7.modulate(sout,din,coding); break;
+			case 8: d_m8.modulate(sout,din,coding); break;
+			default: assert("should never get here");
+		}
+	}
   }
+
+  inline void
+  softdemodulate( const gr_complex& sym, float*& dout,
+      const char& cv, float g, float max_g, bool coding=false) const
+   {
+     if(coding)
+     {
+    	 switch(cv){
+			case 1: d_m1.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 2: d_m2.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 3: d_m2.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 4: d_m4.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 5: d_m4.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 6: d_m6.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 7: d_m6.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 8: d_m6.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 9: d_m8.softdemodulate(sym,dout,g,max_g,coding); break;
+			default: assert( false && "should never get here" );
+		}
+     }
+     else
+     {
+		switch(cv){
+			case 1: d_m1.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 2: d_m2.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 4: d_m4.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 6: d_m6.softdemodulate(sym,dout,g,max_g,coding); break;
+			case 8: d_m8.softdemodulate(sym,dout,g,max_g,coding); break;
+			default: assert( false && "should never get here" );
+		}
+     }
+   }
 
   inline void
   demodulate( const gr_complex& sym, char*& dout,
@@ -651,18 +831,36 @@ public:
   }
 
   const std::vector<gr_complex>&
-  get_constellation( int bits ) const
+  get_constellation( int bits, bool coding=false ) const
   {
-    switch ( bits ) {
-      case 1: return d_m1.get_constellation();
-      case 2: return d_m2.get_constellation();
-      case 3: return d_m3.get_constellation();
-      case 4: return d_m4.get_constellation();
-      case 5: return d_m5.get_constellation();
-      case 6: return d_m6.get_constellation();
-      case 7: return d_m7.get_constellation();
-      case 8: return d_m8.get_constellation();
-      default: throw modulation_not_supported( "" );
+    if(coding)
+    {
+    	switch ( bits ) {
+			case 1: return d_m1.get_constellation();
+			case 2: return d_m2.get_constellation();
+			case 3: return d_m2.get_constellation();
+			case 4: return d_m4.get_constellation();
+			case 5: return d_m4.get_constellation();
+			case 6: return d_m6.get_constellation();
+			case 7: return d_m6.get_constellation();
+			case 8: return d_m6.get_constellation();
+			case 9: return d_m8.get_constellation();
+			default: throw modulation_not_supported( "" );
+		}
+    }
+    else
+    {
+		switch ( bits ) {
+			case 1: return d_m1.get_constellation();
+			case 2: return d_m2.get_constellation();
+			case 3: return d_m3.get_constellation();
+			case 4: return d_m4.get_constellation();
+			case 5: return d_m5.get_constellation();
+			case 6: return d_m6.get_constellation();
+			case 7: return d_m7.get_constellation();
+			case 8: return d_m8.get_constellation();
+			default: throw modulation_not_supported( "" );
+		}
     }
   }
 };

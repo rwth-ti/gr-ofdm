@@ -5,15 +5,15 @@
 #define INCLUDED_OFDM_AUTOCORRELATOR0_H_
 
 #include <ofdm_api.h>
+#include "gr_block_fwd.h"// forward declarations
 #include <gr_hier_block2.h>
 
-class OFDM_API ofdm_autocorrelator0;
+class ofdm_autocorrelator0;
 typedef boost::shared_ptr<ofdm_autocorrelator0>
   ofdm_autocorrelator0_sptr;
 
 // OFDM_API is to be added here
-OFDM_API ofdm_autocorrelator0_sptr
-OFDM_API ofdm_make_autocorrelator0( int lag, int n_samples );
+OFDM_API ofdm_autocorrelator0_sptr ofdm_make_autocorrelator0( int lag, int n_samples );
 
 class ofdm_autocorrelator_stage1;
 class ofdm_autocorrelator_stage2;
@@ -29,9 +29,9 @@ class OFDM_API ofdm_autocorrelator0 : public gr_hier_block2
 {
 private:
 
-    friend OFDM_API ofdm_autocorrelator0_sptr ofdm_make_autocorrelator0( int lag, int n_samples );
+    friend ofdm_autocorrelator0_sptr ofdm_make_autocorrelator0( int lag, int n_samples );
     
-    OFDM_API ofdm_autocorrelator0( int lag, int n_samples );
+    ofdm_autocorrelator0( int lag, int n_samples );
 
   int  d_lag;
   int  d_n_samples;

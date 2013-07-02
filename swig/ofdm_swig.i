@@ -10,6 +10,9 @@
 
 %{
 #include "ofdm_api.h"
+#include "fsm.h"
+#include "ofdm_metric_type.h"
+#include "ofdm_calc_metric.h"
 #include "ofdm_template_ff.h"
 #include "ofdm_accumulator_cc.h"
 #include "ofdm_accumulator_ff.h"
@@ -17,17 +20,28 @@
 #include "ofdm_autocorrelator_stage1.h"
 #include "ofdm_autocorrelator_stage2.h"
 #include "ofdm_ber_measurement.h"
+#include "ofdm_puncture_bb.h"
+#include "ofdm_reference_data_source_mimo_ib.h"
+#include "ofdm_viterbi_combined_fb.h"
+#include "ofdm_multiply_const_ii.h"
 #include "ofdm_bit_position_dependent_BER.h"
 #include "ofdm_channel_equalizer.h"
 #include "ofdm_channel_estimator_01.h"
 #include "ofdm_channel_estimator_02.h"
+#include "ofdm_stc_encoder.h"
+#include "ofdm_stc_decoder_rx1.h" 
+#include "ofdm_stc_decoder_rx0.h"
 #include "ofdm_coded_bpsk_soft_decoder.h"
 #include "ofdm_compat_read_ber_from_imgxfer.h"
 #include "ofdm_complex_to_arg.h"
 #include "ofdm_imgtransfer_sink.h"
 #include "ofdm_constellation_sample_filter.h"
 #include "ofdm_CTF_MSE_enhancer.h"
+#include "ofdm_channel_equalizer_mimo.h"
+#include "ofdm_channel_equalizer_mimo_2.h"
 #include "ofdm_cyclic_prefixer.h"
+#include "ofdm_depuncture_bb.h"
+#include "ofdm_depuncture_ff.h"
 #include "ofdm_dominiks_sync_01.h"
 #include "ofdm_dynamic_trigger_ib.h"
 #include "ofdm_extract_block_from_frame.h"
@@ -38,8 +52,11 @@
 #include "ofdm_gate_ff.h"
 #include "ofdm_get_zeros.h"
 #include "ofdm_generic_demapper_vcb.h"
+#include "ofdm_generic_mapper_mimo_bcv.h"
+#include "ofdm_generic_softdemapper_vcf.h"
 #include "ofdm_imgtransfer_src.h"
 #include "ofdm_imgtransfer_testkanal.h"
+#include "ofdm_int_skip.h"
 #include "ofdm_interp_cir_set_noncir_to_zero.h"
 #include "ofdm_itpp_tdl_channel.h"
 #include "ofdm_limit_vff.h"
@@ -105,6 +122,15 @@
 #include "ofdm_corba_rxinfo_sink.h"
 %}
 
+GR_SWIG_BLOCK_MAGIC(ofdm,stc_encoder);
+%include "ofdm_stc_encoder.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,stc_decoder_rx1);
+%include "ofdm_stc_decoder_rx1.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,stc_decoder_rx0);
+%include "ofdm_stc_decoder_rx0.h"
+
 GR_SWIG_BLOCK_MAGIC(ofdm,template_ff);
 %include "ofdm_template_ff.h"
 
@@ -162,6 +188,15 @@ GR_SWIG_BLOCK_MAGIC(ofdm,cyclic_prefixer);
 GR_SWIG_BLOCK_MAGIC(ofdm,dominiks_sync_01);
 %include "ofdm_dominiks_sync_01.h"
 
+GR_SWIG_BLOCK_MAGIC(ofdm,depuncture_bb);
+%include "ofdm_depuncture_bb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,depuncture_ff);
+%include "ofdm_depuncture_ff.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,multiply_const_ii);
+%include "ofdm_multiply_const_ii.h"
+
 GR_SWIG_BLOCK_MAGIC(ofdm,dynamic_trigger_ib);
 %include "ofdm_dynamic_trigger_ib.h"
 
@@ -179,6 +214,12 @@ GR_SWIG_BLOCK_MAGIC(ofdm,frequency_shift_vcc);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,generic_mapper_bcv);
 %include "ofdm_generic_mapper_bcv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,generic_mapper_mimo_bcv);
+%include "ofdm_generic_mapper_mimo_bcv.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,generic_softdemapper_vcf);
+%include "ofdm_generic_softdemapper_vcf.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,gate_ff);
 %include "ofdm_gate_ff.h"
@@ -249,6 +290,18 @@ GR_SWIG_BLOCK_MAGIC(ofdm,peak_detector2_fb);
 GR_SWIG_BLOCK_MAGIC(ofdm,peak_resync_bb);
 %include "ofdm_peak_resync_bb.h"
 
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer_mimo);
+%include "ofdm_channel_equalizer_mimo.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer_mimo_2);
+%include "ofdm_channel_equalizer_mimo_2.h"
+
+#GR_SWIG_BLOCK_MAGIC(ofdm,fsm);
+#%include "fsm.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,int_skip);
+%include "ofdm_int_skip.h"
+
 GR_SWIG_BLOCK_MAGIC(ofdm,pilot_subcarrier_inserter);
 %include "ofdm_pilot_subcarrier_inserter.h"
 
@@ -269,6 +322,15 @@ GR_SWIG_BLOCK_MAGIC(ofdm,repetition_encoder_sb);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,scatterplot_sink);
 %include "ofdm_scatterplot_sink.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,puncture_bb);
+%include "ofdm_puncture_bb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,viterbi_combined_fb);
+%include "ofdm_viterbi_combined_fb.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,reference_data_source_mimo_ib);
+%include "ofdm_reference_data_source_mimo_ib.h"
 
 GR_SWIG_BLOCK_MAGIC(ofdm,schmidl_cfo_estimator);
 %include "ofdm_schmidl_cfo_estimator.h"
@@ -383,3 +445,40 @@ GR_SWIG_BLOCK_MAGIC(ofdm,corba_rxinfo_sink_imgxfer);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,corba_rxinfo_sink);
 %include "ofdm_corba_rxinfo_sink.h"
+
+class fsm {
+private:
+  int d_I;
+  int d_S;
+  int d_O;
+  std::vector<int> d_NS;
+  std::vector<int> d_OS;
+  std::vector< std::vector<int> > d_PS;
+  std::vector< std::vector<int> > d_PI;
+  std::vector<int> d_TMi;
+  std::vector<int> d_TMl;
+  void generate_PS_PI ();
+  void generate_TM ();
+public:
+  fsm();
+  fsm(const fsm &FSM);
+  fsm(int I, int S, int O, const std::vector<int> &NS, const std::vector<int> &OS);
+  fsm(const char *name);
+  fsm(int k, int n, const std::vector<int> &G);
+  fsm(int mod_size, int ch_length);
+  fsm(int P, int M, int L);
+  fsm(const fsm &FSM1, const fsm &FSM2);
+  fsm(const fsm &FSM, int n);
+  int I () const { return d_I; }
+  int S () const { return d_S; }
+  int O () const { return d_O; }
+  const std::vector<int> & NS () const { return d_NS; }
+  const std::vector<int> & OS () const { return d_OS; }
+  // disable these accessors until we find out how to swig them
+  //const std::vector< std::vector<int> > & PS () const { return d_PS; }
+  //const std::vector< std::vector<int> > & PI () const { return d_PI; }
+  const std::vector<int> & TMi () const { return d_TMi; }
+  const std::vector<int> & TMl () const { return d_TMl; }
+  void fsm::write_trellis_svg(std::string filename ,int number_stages);
+  void fsm::write_fsm_txt(std::string filename);
+};

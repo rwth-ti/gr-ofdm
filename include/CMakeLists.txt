@@ -28,14 +28,22 @@ install(FILES
     ofdm_autocorrelator0.h
     ofdm_autocorrelator_stage1.h
     ofdm_autocorrelator_stage2.h
+    ofdm_stc_encoder.h
+    ofdm_stc_decoder_rx1.h
+    ofdm_stc_decoder_rx0.h
     ofdm_ber_measurement.h
     ofdm_bit_position_dependent_BER.h
+    ofdm_channel_equalizer_mimo.h
+    ofdm_channel_equalizer_mimo_2.h
     ofdm_channel_equalizer.h
     ofdm_channel_estimator_01.h
     ofdm_channel_estimator_02.h
     ofdm_coded_bpsk_soft_decoder.h
     ofdm_compat_read_ber_from_imgxfer.h
     ofdm_complex_to_arg.h
+    ofdm_depuncture_bb.h
+    ofdm_depuncture_ff.h
+    ofdm_multiply_const_ii.h
     ofdm_imgtransfer_sink.h
     ofdm_constellation_sample_filter.h
     ofdm_CTF_MSE_enhancer.h
@@ -44,8 +52,17 @@ install(FILES
     ofdm_cyclic_prefixer.h
     ofdm_extract_block_from_frame.h
     ofdm_find_cir_shift.h
+    fsm.h
+    base.h
+    ofdm_calc_metric.h
+    ofdm_metric_type.h
+    ofdm_puncture_bb.h
+    ofdm_viterbi_combined_fb.h
+    ofdm_reference_data_source_mimo_ib.h
     ofdm_frequency_shift_vcc.h
     ofdm_generic_mapper_bcv.h
+    ofdm_generic_mapper_mimo_bcv.h
+    ofdm_generic_softdemapper_vcf.h
     ofdm_gate_ff.h
     ofdm_frame_mux.h
     ofdmi_fast_math.h
@@ -54,6 +71,7 @@ install(FILES
     ofdm_get_zeros.h
     ofdm_imgtransfer_src.h
     ofdm_imgtransfer_testkanal.h
+    ofdm_int_skip.h
     ofdm_interp_cir_set_noncir_to_zero.h
     ofdm_itpp_tdl_channel.h
     ofdm_limit_vff.h

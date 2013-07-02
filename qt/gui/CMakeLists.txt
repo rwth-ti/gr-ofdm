@@ -181,6 +181,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC"  )
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -fPIC"  )
 
 add_dependencies(tao_ofdmti ACE boost_system)  
+
 target_link_libraries(qtgui 
 ${CMAKE_THREAD_LIBS_INIT}
  #/usr/lib/libboost_system.so
@@ -213,10 +214,13 @@ ${CMAKE_THREAD_LIBS_INIT}
     ${CMAKE_THREAD_LIBS_INIT}
      "-Wl,--whole-archive"
      ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a
+      "-Wl,--no-whole-archive"
+      
+      
     #${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a
     #/usr/lib/libTAO_AnyTypeCode.so
     #/usr/lib/libboost_system.so
-         "-Wl,--no-whole-archive"
+        
     )
     
     #SET(CMAKE_EXE_LINKER_FLAGS -static)

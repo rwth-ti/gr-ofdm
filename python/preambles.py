@@ -10,6 +10,7 @@ import numpy
 import ofdm_swig as ofdm
 from station_configuration import *
 from ofdm_swig import stream_controlled_mux,skip
+from numpy import *
 
 from ofdm_swig import static_mux_c, static_mux_v
 
@@ -19,6 +20,10 @@ class default_block_header (object):
     self.no_pilotsyms = self.no_preambles
     self.pilotsym_td = []
     self.pilotsym_fd = []
+    self.pilotsym_fd_1 = []
+    self.pilotsym_fd_2 = []
+    self.pilotsym_td_1 = []
+    self.pilotsym_td_2 = []
     self.pilotsym_pos = []
     self.pilot_tones = []
     self.pilot_tone_map = []
@@ -39,22 +44,37 @@ class default_block_header (object):
     assert(len(fd) == self.subcarriers)
 
     self.pilotsym_td.append(td)
+    self.pilotsym_td_1.append(td)
+    self.pilotsym_td_2.append(td)
     self.pilotsym_fd.append(fd)
+    self.pilotsym_fd_1.append(fd)
+    self.pilotsym_fd_2.append(fd)
     self.pilotsym_pos.append(0)
 
 
     # Known pilot block to ease estimation of CTF
-    td,fd = schmidl_ifo_designer.create(self.subcarriers, fft_length)
+    td,fd,td_1,fd_1,td_2,fd_2 = schmidl_ifo_designer.create(self.subcarriers, fft_length)
 
     assert(len(td) == fft_length)
     assert(len(fd) == self.subcarriers)
+    assert(len(td_1) == fft_length)
+    assert(len(fd_1) == self.subcarriers)
+    assert(len(td_2) == fft_length)
+    assert(len(fd_2) == self.subcarriers)
+    
 
     self.pilotsym_td.append(td)
     self.pilotsym_fd.append(fd)
+    self.pilotsym_fd_1.append(fd_1)
+    self.pilotsym_fd_2.append(fd_2)
+    self.pilotsym_td_1.append(td_1)
+    self.pilotsym_td_2.append(td_2)
     self.pilotsym_pos.append(1)
 
 
     assert(self.no_pilotsyms == len(self.pilotsym_fd))
+    assert(self.no_pilotsyms == len(self.pilotsym_fd_1))
+    assert(self.no_pilotsyms == len(self.pilotsym_fd_2))
     assert(self.no_pilotsyms == len(self.pilotsym_td))
     assert(self.no_pilotsyms == len(self.pilotsym_pos))
 
@@ -64,7 +84,8 @@ class default_block_header (object):
     # FIXME pilot subcarriers fixed to 1.0
     self.pilot_subcarriers = 8
     self.subcarriers = subc = self.pilot_subcarriers+data_subcarriers
-    self.pilot_subc_sym = [2.0 , -2.0j, -2.0 , 2.0j, 2.0 , -2.0j, -2.0 , 2.0j]
+    self.pilot_subc_sym = [2.0]*(self.pilot_subcarriers)
+
     # compute pilot subcarriers
     pilot_dist = subc/2/(self.pilot_subcarriers/2+1)
     for i in range(1,self.pilot_subcarriers/2+1):
@@ -89,7 +110,7 @@ class default_block_header (object):
       self.pilot_tone_map[shifted_pilot_tones[i]] = self.pilot_subc_sym[i]
     
     t = numpy.array( ifft( self.pilot_tone_map ) )
-    #assert( ( numpy.abs( t.imag ) < 1e-6 ).all() )
+    assert( ( numpy.abs( t.imag ) < 1e-6 ).all() )
     
 
     # compute partition map
@@ -120,7 +141,7 @@ class pilot_block_inserter(gr.hier_block2):
   """
   Multiplex pilot blocks to time domain signal.
   """
-  def __init__ (self, add_cyclic_prefix = False):
+  def __init__ (self, ant, add_cyclic_prefix = False):
 
     config = station_configuration()
     fft_length = config.fft_length
@@ -137,8 +158,19 @@ class pilot_block_inserter(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen))
 
     mux = ofdm.frame_mux( vlen, config.frame_length )
-    for x in range( config.training_data.no_pilotsyms ):
-      mux.add_preamble( config.training_data.pilotsym_td[ x ] )
+    
+    if ant==1:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_1[ x ] )
+    elif ant==2:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_2[ x ] )
+    else:
+       
+        for x in range( config.training_data.no_pilotsyms ):
+          ####print "fd", config.training_data.pilotsym_fd[ x ]
+          ####print "td", config.training_data.pilotsym_td[ x ]
+          mux.add_preamble( config.training_data.pilotsym_td[ x ] ) 
 
     self.connect( self, mux, self )
     return
@@ -231,7 +263,7 @@ class pilot_subcarrier_inserter (gr.hier_block2):
     ins = ofdm.pilot_subcarrier_inserter( subc,
         config.training_data.pilot_subc_sym,
         config.training_data.pilot_tones )
-    
+
     self.connect( self, ins, self )
     return 
   
@@ -256,6 +288,66 @@ class pilot_subcarrier_inserter (gr.hier_block2):
     
     v2s = gr.vector_to_stream(gr.sizeof_gr_complex,subc)
     pilot_src = gr.vector_source_c(config.training_data.pilot_subc_sym,True)
+
+    mux = static_mux_c(imux)
+    s2v = gr.stream_to_vector(gr.sizeof_gr_complex,total_subc)
+
+    # vector to stream, mux with pilot subcarrier symbols,
+    # reconvert to vector
+
+    self.connect(self,v2s,(mux,0))
+    self.connect(pilot_src,(mux,1))
+    self.connect(mux,s2v,self)
+
+################################################################################
+
+class pilot_subcarrier_inserter_zeroes (gr.hier_block2):
+  """
+  Inserts the pilot symbols at the pilot subcarriers. Input are the data
+  subcarriers (as vector), the output vector contains data subcarriers
+  muxed with pilot subcarriers. Extends vector size.
+  """
+  def __init__(self):
+
+    config = station_configuration()
+    subc = config.data_subcarriers
+    pilots = config.training_data.pilot_subcarriers
+    total_subc = config.subcarriers
+
+    pilot_subc_sym = [0.0] * pilots
+
+    gr.hier_block2.__init__(self,"pilot_subcarrier_inserter_zeroes",
+        gr.io_signature(1,1,gr.sizeof_gr_complex*subc),
+        gr.io_signature(1,1,gr.sizeof_gr_complex*total_subc))
+
+    ins = ofdm.pilot_subcarrier_inserter( subc,
+        pilot_subc_sym,
+        config.training_data.pilot_tones )
+
+    self.connect( self, ins, self )
+    return
+
+
+    # decompress partition map
+    partition = config.training_data.partition
+    mux_stream = []
+    next_port = 0
+    for x in partition:
+      if x > 0:
+        mux_stream.extend([next_port]*x)
+      next_port = (next_port+1) % 2
+
+    assert(len(mux_stream) == total_subc)
+    assert(sum(mux_stream) == pilots)
+
+    imux = []
+    for x in mux_stream:
+      imux.append(int(x))
+
+
+
+    v2s = gr.vector_to_stream(gr.sizeof_gr_complex,subc)
+    pilot_src = gr.vector_source_c(pilot_subc_sym,True)
 
     mux = static_mux_c(imux)
     s2v = gr.stream_to_vector(gr.sizeof_gr_complex,total_subc)
@@ -372,12 +464,21 @@ class schmidl_ifo_designer:
     
     #seq1 = [fixed_real_pn1[i] + ((1j)**(2*i+1))*fixed_real_pn1[i] for i in range(208)]/numpy.sqrt(2)
     
+    mimo_mask_1 = zeros(subcarriers,int)
+    mimo_mask_2 = zeros(subcarriers,int)
+    mimo_mask_1[0::2]=sqrt(2.0)
+    mimo_mask_2[1::2]=sqrt(2.0)
+    fd_1 = seq1*mimo_mask_1
+    fd_2 = seq1*mimo_mask_2
 
+
+    td_1 = ifft(fd_1, (fft_length-subcarriers)/2)
+    td_2 = ifft(fd_2, (fft_length-subcarriers)/2)
     # transform to time domain
     td = ifft(seq1, (fft_length-subcarriers)/2)
     fd = seq1
 
-    return (td,fd)
+    return (td,fd,td_1,fd_1,td_2,fd_2)
 
   create = staticmethod(create)
 

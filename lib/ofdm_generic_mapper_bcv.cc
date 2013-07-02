@@ -7,9 +7,6 @@
 #include <ofdm_generic_mapper_bcv.h>
 #include <string.h>
 
-
-
-
 #include <ofdmi_mod.h>
 
 #include <vector>
@@ -20,12 +17,12 @@
 #define DEBUG 0
 
 ofdm_generic_mapper_bcv_sptr
-ofdm_make_generic_mapper_bcv( int vlen )
+ofdm_make_generic_mapper_bcv( int vlen, bool coding )
 {
-  return ofdm_generic_mapper_bcv_sptr( new ofdm_generic_mapper_bcv( vlen ) );
+  return ofdm_generic_mapper_bcv_sptr( new ofdm_generic_mapper_bcv( vlen,coding ) );
 }
 
-ofdm_generic_mapper_bcv::ofdm_generic_mapper_bcv (int vlen)
+ofdm_generic_mapper_bcv::ofdm_generic_mapper_bcv (int vlen, bool coding)
 
   : gr_block("ofdm_generic_mapper_bcv",
       gr_make_io_signature3(3, 3, sizeof(char),                 // bit stream
@@ -34,6 +31,7 @@ ofdm_generic_mapper_bcv::ofdm_generic_mapper_bcv (int vlen)
       gr_make_io_signature (1, 1, sizeof(gr_complex)*vlen ) ),  // ofdm blocks
 
   d_vlen( vlen ),
+  d_coding( coding ),
   d_need_bits( 0 ),
   mod( new ofdmi_modem() ),
   d_need_bitmap( 1 ),
@@ -46,22 +44,37 @@ ofdm_generic_mapper_bcv::ofdm_generic_mapper_bcv (int vlen)
   }
 
   if(DEBUG)
-    std::cout << "[mapper " << unique_id() << "] vlen=" << vlen << std::endl;
+    std::cout << "[mapper " << unique_id() << "] vlen=" << vlen << " coding=" << d_coding << std::endl;
 
 }
 
 
 static inline int
-calc_bit_amount( const char* cv, const int& vlen )
+calc_bit_amount( const char* cv, const int& vlen, bool coding )
 {
   int bits_per_symbol = 0;
-  for(int i = 0; i < vlen; ++i) {
-    bits_per_symbol += cv[i];
+  int bits_per_mode[9] = {1,2,2,4,4,6,6,6,8};
 
-    if(cv[i] > 8)
-      throw std::out_of_range("MAPPER: More than 8 bits per symbol not supported");
-    if(cv[i] < 0)
-      throw std::out_of_range("MAPPER: Cannot allocate less than zero bits");
+  if(coding)
+  {
+	  for(int i = 0; i < vlen; ++i) {
+		if(cv[i] > 9)
+		  throw std::out_of_range("MAPPER: Mode higher than 9 not supported");
+		if(cv[i] < 0)
+		  throw std::out_of_range("MAPPER: Cannot allocate less than zero bits");
+		if(cv[i] > 0)
+			bits_per_symbol += bits_per_mode[cv[i]-1];
+	  }
+  }
+  else
+  {
+	  for(int i = 0; i < vlen; ++i) {
+		if(cv[i] > 8)
+		  throw std::out_of_range("MAPPER: More than 8 bits per symbol not supported");
+		if(cv[i] < 0)
+		  throw std::out_of_range("MAPPER: Cannot allocate less than zero bits");
+		bits_per_symbol += cv[i];
+	  }
   }
 
   return bits_per_symbol;
@@ -97,6 +110,12 @@ ofdm_generic_mapper_bcv::general_work(
   int n_trig = ninput_items[2];
   int nout = noutput_items;
 
+/*
+  std::cout << "\tn_bits = " << n_bits
+		    << "\n\tn_cv = " << n_cv
+		    << "\n\tn_trig = " << n_trig
+		    << "\n\tnout = " << nout << std::endl;
+*/
   int n_min = std::min( nout, n_trig );
 
 
@@ -112,16 +131,14 @@ ofdm_generic_mapper_bcv::general_work(
 
 
   for( int i = 0; i < n_min; ++i, ++trig ){
-
-    if( *trig == 1 ){
-
-      if( n_cv > 0 ){
-
+    if( *trig == 1 )
+    {
+      if( n_cv > 0 )
+      {
         // update bitmap buffer
         map = cv;
 
-
-        d_need_bits = calc_bit_amount( map, d_vlen );
+        d_need_bits = calc_bit_amount( map, d_vlen, d_coding );
 
         // if not enough input, won't consume trigger, therefore
         // don't consume bitmap item
@@ -130,25 +147,20 @@ ofdm_generic_mapper_bcv::general_work(
           break;
         }
 
-
         copy = true;
         d_need_bitmap = 0;
 
-
         --n_cv; cv += d_vlen;
         consume(1, 1);
-
-
 
         if(DEBUG)
           std::cout << "Consume 1 bitmap item, leave " << n_cv << " items"
                     << " and need " << d_need_bits << " bits while "
                     << n_bits << " bits left" << std::endl;
 
-
       } else {
 
-        if(DEBUG)
+//        if(DEBUG)
           std::cout << "Need bitmap flag set" << std::endl;
 
         d_need_bitmap = 1;
@@ -173,7 +185,7 @@ ofdm_generic_mapper_bcv::general_work(
 
 
     if(DEBUG)
-      std::cout << "Modulate" << std::endl;
+      std::cout << ".";
 
 
     // modulate block
@@ -184,7 +196,7 @@ ofdm_generic_mapper_bcv::general_work(
 
       }else{
 
-        mod->modulate( blk, data, map[i] );
+        mod->modulate( blk, data, map[i], d_coding );
 
       } // map[i] == 0
 

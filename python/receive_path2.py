@@ -8,13 +8,15 @@ from gnuradio import gr, window
 from gr_tools import log_to_file, terminate_stream
 
 from ofdm_swig import normalize_vcc, lms_phase_tracking,vector_sum_vcc
-from ofdm_swig import generic_demapper_vcb, vector_mask, vector_sampler
+from ofdm_swig import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
 from ofdm_swig import skip, channel_estimator_02, scatterplot_sink
 from ofdm_swig import trigger_surveillance, ber_measurement, vector_sum_vff
 from ofdm_swig import generic_mapper_bcv, corba_rxinfo_sink, corba_rxinfo_sink_imgxfer, dynamic_trigger_ib, snr_estimator
 from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
 from ofdm_swig import corba_power_allocator
+from ofdm_swig import depuncture_ff
+from ofdm_swig import multiply_const_ii
 import ofdm_swig as ofdm
 
 from time import strftime,gmtime
@@ -32,6 +34,9 @@ import copy
 import preambles
 
 from os import getenv
+import os
+
+
 
 import numpy
 
@@ -47,7 +52,11 @@ from transmit_path import static_control
 from ofdm_receiver2 import ofdm_inner_receiver
 
 std_event_channel = "GNUradio_EventChannel" #TODO: flexible
+fo=ofdm.fsm(1,2,[91,121])
+print "\t\t\t\tfo=",fo
 
+#print 'Blocked waiting for GDB attach (pid = %d)' % (os.getpid(),)
+#raw_input ('Press Enter to continue: ')
 
 class receive_path(gr.hier_block2):
   """
@@ -120,12 +129,12 @@ class receive_path(gr.hier_block2):
     ## Timing & Frequency Synchronization
     ## Channel estimation + Equalization
     ## Phase Tracking for sampling clock frequency offset correction
-    inner_receiver = ofdm_inner_receiver( options, options.log )
+    inner_receiver = self.inner_receiver = ofdm_inner_receiver( options, options.log )
     self.connect( self.input, inner_receiver )
     ofdm_blocks = ( inner_receiver, 0 )
     frame_start = ( inner_receiver, 1 )
     disp_ctf = ( inner_receiver, 2 )
-    self.inner_rx_freqoff_est = inner_receiver.freq_offset
+
 
 
     # for ID decoder
@@ -159,6 +168,7 @@ class receive_path(gr.hier_block2):
       ## ID Demapper and Decoder, soft decision
       id_dec = ofdm.coded_bpsk_soft_decoder( dsubc, used_id_bits, whitener_pn )
       self.connect( id_block, id_dec )
+      log_to_file(self,id_dec,"data/id_dec.short")
 
       ns_ip = options.nameservice_ip
       ns_port = options.nameservice_port
@@ -367,7 +377,7 @@ class receive_path(gr.hier_block2):
 
     self.connect(id_dec,ctrl)
     id_filt = (ctrl,0)
-    map_src = (ctrl,1)
+    map_src =self._map_src = (ctrl,1)
     pa_src = (ctrl,2) # doesn't exist for CORBA rx contorl
 
 
@@ -400,6 +410,18 @@ class receive_path(gr.hier_block2):
       self.connect(pda_in,(pda,0))
       self.connect(id_filt,(pda,1))
       self.connect(self.frame_data_trigger,(pda,2))
+      
+      if 0:  
+          ac_vector = [0.0+0.0j]*208
+          ac_vector[0] = (2*10**(-0.452))
+          ac_vector[3] = (10**(-0.651))
+          ac_vector[7] = (10**(-1.151))
+          csi_vector_inv=1.0/numpy.fft.fft(numpy.sqrt(ac_vector))
+          skip_pilots = skip(gr.sizeof_gr_complex*vlen,frame_length)
+          self.inv_channel = gr.multiply_const_vcc(csi_vector_inv)
+          self.connect(self.inv_channel,pda)
+          pda = self.inv_channel
+          #self.inv_channel = gr.multiply_const_vcc(numpy.fft.fftshift(csi_vector_inv))
 
     if options.log:
       log_to_file(self,pda,"data/pda_out.compl")
@@ -409,48 +431,111 @@ class receive_path(gr.hier_block2):
     ## Demodulator
     dm_trig = [0]*config.frame_data_part
     dm_trig[0] = 1
-    dm_trig[1] = 1
+    dm_trig[1] = 2
     dm_trig = gr.vector_source_b(dm_trig,True) # TODO
-    demod = self._data_demodulator = generic_demapper_vcb(dsubc)
+#    if 0:  
+#          ac_vector = [0.0+0.0j]*208
+#          ac_vector[0] = (2*10**(-0.452))
+#          ac_vector[3] = (10**(-0.651))
+#          ac_vector[7] = (10**(-1.151))
+#          csi_vector_inv=abs(numpy.fft.fft(numpy.sqrt(ac_vector)))**2
+#          dm_csi = numpy.fft.fftshift(csi_vector_inv) # TODO
+
+    dm_csi = [1]*dsubc # TODO
+    dm_csi = gr.vector_source_f(dm_csi,True)
+    ## Depuncturer
+    dp_trig = [0]*(config.frame_data_blocks/2)
+    dp_trig[0] = 1
+    dp_trig = gr.vector_source_b(dp_trig,True) # TODO
+    
+    
+            
+    if(options.coding):
+        demod = self._data_demodulator = generic_softdemapper_vcf(dsubc,options.coding)
+        if(options.ideal):
+            self.connect(dm_csi,gr.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
+        else:
+            dm_csi_filter = self.dm_csi_filter = gr.single_pole_iir_filter_ff(0.01,dsubc)
+            self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
+            #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
+        self.connect(dm_trig,(demod,3))
+    else:
+        demod = self._data_demodulator = generic_demapper_vcb(dsubc)
+        self.connect(dm_trig,(demod,2))
     self.connect(pda,demod)
     self.connect(map_src,(demod,1))
-    self.connect(dm_trig,(demod,2))
+    
+    if(options.coding):
+        ## Depuncturing
+        if not options.nopunct:
+            bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
+            bitmap_filter.skip(0)
+            depuncturing = depuncture_ff(dsubc,0)
 
-    if options.scatterplot or options.scatter_plot_before_phase_tracking:
-      scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
-      scatter_s2v = self._scatter_s2v = gr.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
-      
-      scatter_id_filt = skip(gr.sizeof_gr_complex*dsubc,config.frame_data_blocks)
-      scatter_id_filt.skip(0)
-      scatter_trig = [0]*config.frame_data_part
-      scatter_trig[0] = 1
-      scatter_trig = gr.vector_source_b(scatter_trig,True)
-      self.connect(scatter_trig,(scatter_id_filt,1))
-      self.connect(scatter_vec_elem,scatter_s2v)
-      
-      if not options.scatter_plot_before_phase_tracking:
-        print "Enabling Scatterplot for data subcarriers"
-        self.connect(pda,scatter_id_filt,scatter_vec_elem)
-      else:
-        print "Enabling Scatterplot for data before phase tracking"
-        inner_rx = inner_receiver.before_phase_tracking
-        scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
-        op = copy.copy(options)
-        op.enable_erasure_decision = False
-        new_framesampler = ofdm_frame_sampler(op)
-        self.connect( inner_rx, new_framesampler )
-        self.connect( orig_frame_start, (new_framesampler,1) )
-        new_ps_filter = pilot_subcarrier_filter()
-        new_pb_filter = pilot_block_filter()
+            frametrigger_bitmap_filter = gr.vector_source_b([1,0],True)
+            #sah = gr.sample_and_hold_ff()
+            #sah_trigger = gr.vector_source_b([1,0],True)
+            bmapsrc_stream_depuncturing = concatenate([[1]*dsubc,[2]*dsubc])
+            bsrc_depuncturing = self._bitmap_src_depuncturing = gr.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
+            
+            #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
+            self.connect(self._map_src,bitmap_filter,(depuncturing,1))
+            #bmt = gr.char_to_float()
+            #self.connect(bitmap_filter,gr.vector_to_stream(gr.sizeof_char,dsubc), bmt)
+            #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
+            
+            self.connect(dp_trig,(depuncturing,2))
+            self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
+        
+        ## Decoding
+        chunkdivisor = int(numpy.ceil(config.frame_data_blocks/5.0))
+        print "Number of chunks at Viterbi decoder: ", chunkdivisor
+        decoding = self._data_decoder = ofdm.viterbi_combined_fb(fo,dsubc,-1,-1,2,chunkdivisor,[-1,-1,-1,1,1,-1,1,1],ofdm.TRELLIS_EUCLIDEAN)
+        
+        if options.log and options.coding:
+            log_to_file(self, decoding, "data/decoded.char")
+            if not options.nopunct:
+                log_to_file(self, depuncturing, "data/vit_in.float")
+        
+        if not options.nopunct:
+            self.connect(demod,depuncturing,decoding)
+            #self.connect(sah_trigger, (sah,1))
+        else:
+            self.connect(demod,decoding)
+        self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
+    if options.scatterplot:
+      scatter_sink = ofdm.scatterplot_sink(dsubc)
+      self.connect(pda,scatter_sink)
+      self.connect(map_src,(scatter_sink,1))
+      self.connect(dm_trig,(scatter_sink,2))
+      print "Enabled scatterplot gui interface"
 
-        self.connect( (new_framesampler,1), (new_pb_filter,1) )
-        self.connect( new_framesampler, new_pb_filter,
-                     new_ps_filter, scatter_id_filt, scatter_vec_elem )
+    if options.scatter_plot_before_phase_tracking:
+      print "Enabling Scatterplot interface for data before phase tracking"
+      ofdmblocks = inner_receiver.before_phase_tracking
+      scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
+      op = copy.copy(options)
+      op.enable_erasure_decision = False
+      new_framesampler = ofdm_frame_sampler(op)
+      self.connect( ofdm_blocks, new_framesampler )
+      self.connect( orig_frame_start, (new_framesampler,1) )
+      new_ps_filter = pilot_subcarrier_filter()
+      new_pb_filter = pilot_block_filter()
+
+      self.connect( new_framesampler, new_pb_filter,
+                    new_ps_filter, scatter_sink2 )
+      self.connect( (new_framesampler,1), (new_pb_filter,1) )
+      self.connect( map_src, (scatter_sink2,1))
+      self.connect( dm_trig, (scatter_sink2,2))
+
 
     if options.log:
-      data_f = gr.char_to_float()
-      self.connect(demod,data_f)
-      log_to_file(self, data_f, "data/data_stream_out.float")
+      if(options.coding):
+          log_to_file(self, demod, "data/data_stream_out.float")
+      else:
+          data_f = gr.char_to_float()
+          self.connect(demod,data_f)
+          log_to_file(self, data_f, "data/data_stream_out.float")
 
 
 
@@ -509,8 +594,8 @@ class receive_path(gr.hier_block2):
       fftlen = 256
       my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
       rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
-      rxs_trig_vec = concatenate([[1],[0]*49])
-      rxs_trigger = gr.vector_source_b(rxs_trig_vec.tolist(),True)
+      rxs_sampler_vect = concatenate([[1],[0]*49])
+      rxs_trigger = gr.vector_source_b(rxs_sampler_vect.tolist(),True)
       rxs_window = gr.multiply_const_vcc(my_window)
       rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
       rxs_mag = gr.complex_to_mag(fftlen)
@@ -571,10 +656,10 @@ class receive_path(gr.hier_block2):
 #                                    config.ns_port,vlen,config.rx_station_id)
     if self.__dict__.has_key('_img_xfer_inprog'):
       self.rx_per_sink = rpsink = corba_rxinfo_sink_imgxfer("himalaya",config.ns_ip,
-                                    config.ns_port,vlen,vlen_sinr_sc,config.frame_data_blocks,config.rx_station_id,self.imgxfer_sink)
+                                    config.ns_port,vlen,vlen_sinr_sc,config.rx_station_id,self.imgxfer_sink)
     else:
       self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
-                                    config.ns_port,vlen,vlen_sinr_sc,config.frame_data_blocks,config.rx_station_id)
+                                    config.ns_port,vlen,vlen_sinr_sc,config.rx_station_id)
 
 #    self.rx_per_sink = rpsink = rpsink_dummy()
 
@@ -593,6 +678,7 @@ class receive_path(gr.hier_block2):
     # 2. channel transfer function
     ctf = self.filter_ctf()
     self.connect( ctf, (rpsink,1) )
+    self.connect( ctf, (rpsink,2) )
 
     # 3. BER
     ### FIXME HACK
@@ -603,15 +689,15 @@ class receive_path(gr.hier_block2):
 #      ## no sampling needed
       # 3. SNR
       if self._options.sinr_est:
-          self.connect(sinr_mst,(rpsink,2))
-          self.connect((sinr_mst,1),(rpsink,3))
+          self.connect(sinr_mst,(rpsink,3))
+          self.connect((sinr_mst,1),(rpsink,4))
 
       else:
 
           vdd = [10]*vlen_sinr_sc
 
-          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,2))
-          self.connect(snr_mst,(rpsink,3))
+          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
+          self.connect(snr_mst,(rpsink,4))
           #self.connect(snr_mst,(rpsink,2))
 
     else:
@@ -619,20 +705,26 @@ class receive_path(gr.hier_block2):
       print "Normal BER measurement"
 
       port = self._rx_control.add_mobile_station(config.rx_station_id)
-      count_src = (self._rx_control,port+1)
+      count_src = (self._rx_control,port)
       trig_src = dynamic_trigger_ib(False)
       self.connect(count_src,trig_src)
 
       ber_sampler = vector_sampler(gr.sizeof_float,1)
       self.connect(ber_mst,(ber_sampler,0))
       self.connect(trig_src,(ber_sampler,1))
+      
+      if self._options.log:
+          trig_src_float = gr.char_to_float()
+          self.connect(trig_src,trig_src_float)
+          log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
 
 
       if self._options.sinr_est:
-          self.connect(ber_sampler,(rpsink,3))
+          self.connect(ber_sampler,(rpsink,4))
           #self.connect(snr_mst,gr.null_sink(gr.sizeof_float))
-          self.connect(sinr_mst,(rpsink,2))
-          self.connect((sinr_mst,1),(rpsink,4))
+          self.connect(sinr_mst,(rpsink,3))
+          self.connect((sinr_mst,1),(rpsink,5))
+          self.connect((sinr_mst,1),(rpsink,6))
 
       else:
   #        self.connect(ber_sampler,(rpsink,2))
@@ -640,25 +732,11 @@ class receive_path(gr.hier_block2):
 
           vdd = [10]*vlen_sinr_sc
 
-          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,2))
+          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
 
-          self.connect(ber_sampler,(rpsink,3))
-          self.connect(snr_mst,(rpsink,4))
-          
-    # frequency offset
-    self.connect( self.inner_rx_freqoff_est, (rpsink,5) )
-
-    # scatterplot
-    if self._options.scatterplot:
-        scatter_s2v = self._scatter_s2v
-        if self.__dict__.has_key('_img_xfer_inprog'):
-            self.connect( scatter_s2v, (rpsink,4) )
-        else:
-            self.connect( scatter_s2v, (rpsink,6) )
-    else:
-        vdd = [0]*config.frame_data_blocks
-        self.connect(gr.vector_source_c(vdd,True,config.frame_data_blocks),(rpsink,6))
-        
+          self.connect(ber_sampler,(rpsink,4))
+          self.connect(snr_mst,(rpsink,5))
+          self.connect(snr_mst,(rpsink,6))
 
   ##############################################################################
   def setup_imgtransfer_sink(self):
@@ -714,23 +792,28 @@ class receive_path(gr.hier_block2):
     if self.measuring_ber():
       return
 
-    demod = self._data_demodulator
+    if(self._options.coding):
+        decoding = self._data_decoder
+    else:
+        demod = self._data_demodulator
 
     config = station_configuration()
 
 
     port = self._rx_control.add_mobile_station(config.rx_station_id)
-    bc_src_id = (self._rx_control,port)
-    bc_src = (self._rx_control,port+1)
+    bc_src = (self._rx_control,port)
 
     ## Data Reference Source
     dref_src = self._data_reference_source = ber_reference_source(self._options)
-    self.connect(bc_src_id,(dref_src,0))
-    self.connect(bc_src,(dref_src,1))
+    self.connect(bc_src,dref_src)
+    
 
     ## BER Measuring Tool
     ber_mst = self._ber_measuring_tool = ber_measurement(int(config.ber_window))
-    self.connect(demod,ber_mst)
+    if(self._options.coding):
+        self.connect(decoding,ber_mst)
+    else:
+        self.connect(demod,ber_mst)
     self.connect(dref_src,(ber_mst,1))
 
     self._measuring_ber = True
@@ -855,6 +938,7 @@ class receive_path(gr.hier_block2):
         snrm = self._snr_measurement = gr.nlog10_ff(10,1,0)
         self.connect(snr_est_filt,snr_estim,scsnrdb,snrm)
         self.connect((snr_estim,1),gr.null_sink(gr.sizeof_float))
+        log_to_file(self, snrm, "data/snrm.float")
 
         if self._options.log:
             log_to_file(self, self._snr_measurement, "data/milan_snr.float")
@@ -890,7 +974,7 @@ class receive_path(gr.hier_block2):
 
     def new_servant(uid):
       ## Message Sink
-      msgq = gr.msg_queue(config.frame_data_blocks*max_buffered_frames)
+      msgq = gr.msg_queue(config.frame_ *max_buffered_frames)
       msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
       self.connect(snrm,msg_sink)
       self.servants.append(corba_data_buffer_servant(uid,1,msgq))
@@ -904,6 +988,23 @@ class receive_path(gr.hier_block2):
 
   # ---------------------------------------------------------------------------#
 
+  
+  def change_estim_power(self,val):
+    self.inner_receiver.inv_estimated_CTF_mul.set_k(1.0/val[0])
+    #print "CHANGE set_k", val[0]
+    #self.set_rms_amplitude(val[0])
+
+  def enable_estim_power_adjust(self,unique_id):
+    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
+        self.change_estim_power,
+        msg="Changing estim power output rms level\n"))
+    
+  def publish_estim_power(self,unique_id):
+    def dummy_reset():
+      pass
+    self.servants.append(corba_ndata_buffer_servant(str(unique_id),
+        self.get_rms_amplitude,dummy_reset))
+    
   def filter_ctf(self):
     if self.__dict__.has_key('filtered_ctf'):
       return self.filtered_ctf
@@ -924,12 +1025,13 @@ class receive_path(gr.hier_block2):
 
     # there is only one CTF estimate (display CTF) per frame ...
 
-
+    #self.ctf_soft_dem
     psubc_filt = pilot_subcarrier_filter(complex_value=False)
     self.connect( self.ctf, psubc_filt )
 
     lp_filter = gr.single_pole_iir_filter_ff(0.1,vlen)
     self.connect( psubc_filt, lp_filter )
+    log_to_file(self,lp_filter,"data/filt_ctf.float")
 
     self.filtered_ctf = lp_filter
     return lp_filter
@@ -993,17 +1095,6 @@ class receive_path(gr.hier_block2):
     """
     self.servants.append(corba_ndata_buffer_servant(str(unique_id),
         self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
-    
-  def change_scatterplot(self,val):
-      print "set_scatterplot_subc", val[0]
-      self.set_scatterplot_subc(val[0])
-    
-  def enable_scatterplot_ctrl(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_scatterplot,msg="Change subcarrier for scatterplot"))
-    
-  def set_scatterplot_subc(self, subc):
-     return self._scatter_vec_elem.set_element(int(subc))
 
   def add_options(normal, expert):
     """
@@ -1047,6 +1138,13 @@ class receive_path(gr.hier_block2):
     normal.add_option("", "--scatter-plot-before-phase-tracking",
                       action="store_true", default=False,
                       help="Enable Scatterplot before phase tracking block")
+    normal.add_option( "", "--coding",
+                       action="store_true",
+                       default=False,
+                       help="Enable channel coding")
+    normal.add_option("", "--nopunct", action="store_true",
+              default=False,
+              help="Disable puncturing/depuncturing")
 
 
   # Make a static method to call before instantiation
@@ -1133,7 +1231,6 @@ class corba_rx_control (gr.hier_block2):
       gr.io_signature (1,1,gr.sizeof_short),
       gr.io_signaturev(2,-1,[gr.sizeof_short,        # filtered ID
                              gr.sizeof_char*dsubc,   # Bit Map
-                             gr.sizeof_short,        # ID from bitcount src
                              gr.sizeof_int]))        # Bitcount stream
 
     self.cur_port = 2
@@ -1144,23 +1241,21 @@ class corba_rx_control (gr.hier_block2):
     id_out = (self,0)
     bitmap_out = (self,1)
 
-    bitcount_id_out = (self,2)
-    
     self.ns_ip = ns_ip = options.nameservice_ip
     self.ns_port = ns_port = options.nameservice_port
     self.evchan = evchan = std_event_channel
-
+    self.coding = coding = options.coding
 
 
     ## Corrupted ID Filter
     id_filt = self._id_source = corba_id_filter(evchan,ns_ip,ns_port,10) #FIXME: avoid constant
     self.connect(id_in,id_filt,id_out)
-    #log_to_file(self, id_in, "data/id_in.char")
-    #log_to_file(self, id_filt, "data/id_filt.char")
+    log_to_file(self, id_filt, "data/id_filt.short")
 
     ## Bitmap Source
     map_src = self._bitmap_source = corba_bitmap_src(dsubc,station_id,
         evchan,ns_ip,ns_port)
+    log_to_file(self,map_src,"data/original_bitmap_src.char")
     self.connect(id_filt,map_src,bitmap_out)
 
 
@@ -1180,12 +1275,10 @@ class corba_rx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 2
+    self.cur_port += 1
 
-    bc_src = corba_bitcount_src_si(uid,self.evchan,self.ns_ip,self.ns_port)
-    self.connect(self._id_source,bc_src)
-    self.connect((bc_src,0),(self,port))
-    self.connect((bc_src,1),(self,port+1))
+    self._bc_src = bc_src = corba_bitcount_src_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
+    self.connect(self._id_source,bc_src,(self,port))
 
     self._stations[uid] = port
 

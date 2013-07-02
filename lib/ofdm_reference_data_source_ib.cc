@@ -4,107 +4,106 @@
 
 #include <gr_block.h>
 #include <gr_io_signature.h>
-#include <ofdm_reference_data_source_ib.h>
+#include "ofdm_reference_data_source_ib.h"
 
 #include <algorithm>
 #include <iostream>
 
 #define DEBUG 0
 
-ofdm_reference_data_source_ib_sptr ofdm_make_reference_data_source_ib(const std::vector<char> &ref_data)
+ofdm_reference_data_source_ib_sptr ofdm_make_reference_data_source_ib(const std::vector<int> &ref_data)
 {
-    return ofdm_reference_data_source_ib_sptr(new ofdm_reference_data_source_ib(ref_data));
+  return ofdm_reference_data_source_ib_sptr(new ofdm_reference_data_source_ib(ref_data));
 }
+
 
 void ofdm_reference_data_source_ib::forecast(int noutput_items, gr_vector_int &ninput_items_required)
 {
-    ninput_items_required[0] = 1;
-    ninput_items_required[1] = 1;
+  ninput_items_required[0] = 1;
 }
 
-ofdm_reference_data_source_ib::ofdm_reference_data_source_ib(const std::vector<char> &ref_data)
-    : gr_block("reference_data_source_ib",
-            gr_make_io_signature2 (2, 2, sizeof(short),
-                sizeof(unsigned int)),
-            gr_make_io_signature (1, 1, sizeof(char))),
-    d_ref_data(ref_data),
-    d_vec_pos(0),
-    d_produced(0),
-    d_last_id(-2)
+
+ofdm_reference_data_source_ib::ofdm_reference_data_source_ib(const std::vector<int> &ref_data)
+  : gr_block("reference_data_source_ib",
+           gr_make_io_signature (1, 1, sizeof(unsigned int)),
+           gr_make_io_signature (1, 1, sizeof(char))),
+    d_produced(0)
 {
+  // unpack byte array
+  d_ref_data.resize(ref_data.size()*8*10);
+  for(std::vector<char>::size_type i = 0; i < ref_data.size()*8; ++i){
+    std::vector<char>::size_type pos = i / 8, bpos = i % 8;
+    std::vector<char>::value_type b = ((ref_data[pos] & 0xFF) >> bpos) & 0x01;
+    d_ref_data[i] = b;
+  }
+  for(int i = 1; i < 10; ++i )
+  {
+    for( int j = 0; j < ref_data.size()*8; ++j )
+    {
+      d_ref_data[i*ref_data.size()*8 + j] = d_ref_data[j];
+    }
+  }
+
+  // FIXME: generate longer random data
+
+
+
+  d_bpos = d_ref_data.begin();
+
+
+
 }
 
 int ofdm_reference_data_source_ib::general_work(
-        int noutput_items,
-        gr_vector_int &ninput_items,
-        gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items)
+    int noutput_items,
+    gr_vector_int &ninput_items,
+    gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items)
 {
-    const short *in_id = static_cast<const short*>(input_items[0]);
-    const unsigned int *in_cnt = static_cast<const unsigned int*>(input_items[1]);
-    char *out = static_cast<char*>(output_items[0]);
+  const unsigned int *in = static_cast<const unsigned int*>(input_items[0]);
+  char *out = static_cast<char*>(output_items[0]);
+
+  if(DEBUG)
+    std::cout << "[dref.src " << unique_id() << "] entered, state "
+              << "nin=" << ninput_items[0] << " nout=" << noutput_items
+              << " d_produced=" << d_produced
+              << " in[0]=" << in[0]
+              << std::endl;
+
+  if(in[0] == 0){
+
+      std::cerr << "warning: bitcount = 0" << std::endl;
+      consume_each(1);
+      return 0;
+
+  } else if(in[0] > d_produced){
+
+    assert( in[0] <= d_ref_data.size() );
+
+    std::vector<char>::size_type p = std::min(
+        static_cast<std::vector<char>::size_type>(in[0]-d_produced),
+        static_cast<std::vector<char>::size_type>(noutput_items));
 
     if(DEBUG)
-        std::cout << "[dref.src " << unique_id() << "] entered, state "
-            << "nin=" << ninput_items[0] << " nout=" << noutput_items
-            << " d_produced=" << d_produced
-            << " in_cnt[0]=" << in_cnt[0]
-            << std::endl;
+      std::cout << "produce " << p << " items" << std::endl;
 
-    if(in_cnt[0] == 0){
+    std::copy(d_bpos, d_bpos+p, out);
+    d_bpos += p;
+    d_produced += p;
 
-        std::cerr << "warning: bitcount = 0" << std::endl;
-        consume_each(1);
-        return 0;
+    if(d_produced >= in[0]){
+      d_bpos = d_ref_data.begin();
+      d_produced = 0;
+      consume_each(1);
 
-    } else if(in_cnt[0] > d_produced){
-        //how many bits should be produced?
-        int nout = std::min(in_cnt[0]-d_produced,(unsigned int)noutput_items);
-
-        if(DEBUG)
-            std::cout << "produce " << nout << " items" << std::endl;
-
-        //copy as many bits as needed
-        for (int i = 0 ; i < nout; ++i) {
-            //reset if end of input vector reached
-            if ((unsigned int)d_vec_pos >= d_ref_data.size()) {
-                d_vec_pos = 0;
-            }
-            out[i] = d_ref_data[d_vec_pos];
-            d_vec_pos++;
-        }
-        d_produced += nout;
-
-        // if frame end reached restart counter and call consume
-        if(d_produced >= in_cnt[0]){
-            d_produced = 0;
-            consume_each(1);
-            if(DEBUG)
-                std::cout << "consume input value" << std::endl;
-            // if new ID reset input data to keep sync
-            if(d_last_id != in_id[0]) {
-                d_last_id = in_id[0];
-                d_vec_pos = 0;
-            }
-        }
-
-        return nout;
-
+      if(DEBUG)
+        std::cout << "consume input value" << std::endl;
     }
 
-    assert(false && "should never get here");
-    return -1;
+    return p;
 
-    // for unscyncronized long random sequence uncomment and comment above
-    //    for (int i = 0 ; i < noutput_items; i++)
-    //    {
-    //        if ((unsigned int)d_vec_pos >= d_ref_data.size()) {
-    //            d_vec_pos = 0;
-    //        }
-    //        out[i] = d_ref_data[d_vec_pos];
-    //        d_vec_pos++;
-    //    }
-    //
-    //    consume_each(1);
-    //    return noutput_items;
+  }
+
+  assert(false && "should never get here");
+  return -1;
 }

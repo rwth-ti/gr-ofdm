@@ -3,10 +3,12 @@
 from corba_servants import *
 from gnuradio import eng_notation
 from gnuradio import gr
-from gr_tools import log_to_file,unpack_array
+from gnuradio import trellis
+from gr_tools import log_to_file,unpack_array, terminate_stream
 from numpy import concatenate
 import ofdm_swig as ofdm
-from ofdm_swig import generic_mapper_bcv, cyclic_prefixer, vector_padding
+from ofdm_swig import generic_mapper_bcv  
+from ofdm_swig import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm_swig import sqrt_vff
 from ofdm_swig import stream_controlled_mux, reference_data_source_ib
 from preambles import default_block_header
@@ -21,10 +23,12 @@ from ofdm_swig import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
 from ofdm_swig import repetition_encoder_sb, corba_bitmap_src
 from ofdm_swig import corba_power_allocator, stream_controlled_mux_b
 
-from random import seed,randint, getrandbits
+from random import seed,randint
 
 
 std_event_channel = "GNUradio_EventChannel" #TODO: flexible
+fo=ofdm.fsm(1,2,[91,121])
+print "\t\t\t\tfo=",fo
 
 class transmit_path(gr.hier_block2):
   """
@@ -48,6 +52,7 @@ class transmit_path(gr.hier_block2):
     config.training_data       = default_block_header(config.data_subcarriers,
                                           config.fft_length,options)
     config.tx_station_id       = options.station_id
+    config.coding              = options.coding
 
     if config.tx_station_id is None:
       raise SystemError, "Station ID not set"
@@ -105,7 +110,7 @@ class transmit_path(gr.hier_block2):
 
     id_src = (ctrl,0)
     mux_src = (ctrl,1)
-    map_src = (ctrl,2)
+    map_src = self._map_src = (ctrl,2)
     pa_src = (ctrl,3)
 
 
@@ -125,10 +130,6 @@ class transmit_path(gr.hier_block2):
 
       log_to_file(self, pa_src, "data/pa_src_out.float")
 
-
-
-
-
     ## Workaround to avoid periodic structure
     seed(1)
     whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
@@ -142,7 +143,31 @@ class transmit_path(gr.hier_block2):
       self.connect(id_enc,id_enc_f)
       log_to_file(self, id_enc_f, "data/id_enc_out.float")
 
+    ## Bitmap Update Trigger
+    # TODO
+    bmaptrig_stream = concatenate([[1, 1],[0]*(config.frame_data_part-2)])
+    btrig = self._bitmap_trigger = gr.vector_source_b(bmaptrig_stream.tolist(), True)
+    
+    if options.log:
+      log_to_file(self, btrig, "data/bitmap_trig.char")
+      
+    ## Bitmap Update Trigger for puncturing
+    # TODO
+    if not options.nopunct:
+        #bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_part-2)])
+        bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_blocks/2-1)])
+        
+        btrig_puncturing = self._bitmap_trigger_puncturing = gr.vector_source_b(bmaptrig_stream_puncturing.tolist(), True)
+        bmapsrc_stream_puncturing = concatenate([[1]*dsubc,[2]*dsubc])
+        bsrc_puncturing = self._bitmap_src_puncturing = gr.vector_source_b(bmapsrc_stream_puncturing.tolist(), True, dsubc)
+        
+    if options.log and options.coding and not options.nopunct:
+      log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
 
+    ## Frame Trigger
+    # TODO
+    ftrig_stream = concatenate([[1],[0]*(config.frame_data_part-1)])
+    ftrig = self._frame_trigger = gr.vector_source_b(ftrig_stream.tolist(),True)
 
     ## Data Multiplexer
     # Input 0: control stream
@@ -157,27 +182,13 @@ class transmit_path(gr.hier_block2):
       dmux_f = gr.char_to_float()
       self.connect(dmux,dmux_f)
       log_to_file(self, dmux_f, "data/dmux_out.float")
-
-
-
-    ## Bitmap Update Trigger
-    # TODO
-    bmaptrig_stream = concatenate([[1, 1],[0]*(config.frame_data_part-2)])
-    btrig = self._bitmap_trigger = gr.vector_source_b(bmaptrig_stream.tolist(), True)
-
-
-    ## Frame Trigger
-    # TODO
-    ftrig_stream = concatenate([[1],[0]*(config.frame_data_part-1)])
-    ftrig = self._frame_trigger = gr.vector_source_b(ftrig_stream.tolist(),True)
-
-
+      
     ## Modulator
-    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers)
+    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding)
     self.connect(dmux,(mod,0))
     self.connect(map_src,(mod,1))
     self.connect(btrig,(mod,2))
-    #log_to_file(self, mod, "data/mod_out.compl")
+    mod_2 = (mod,1)
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")
@@ -210,7 +221,6 @@ class transmit_path(gr.hier_block2):
       self.connect(mod,(pa,0))
       self.connect(id_src,(pa,1))
       self.connect(ftrig,(pa,2))
-      #log_to_file(self, pa, "data/pa_out.compl")
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
@@ -253,8 +263,11 @@ class transmit_path(gr.hier_block2):
 
 
     ## Pilot blocks (preambles)
-    pblocks = self._pilot_block_inserter = pilot_block_inserter( )
+    pblocks = self._pilot_block_inserter = pilot_block_inserter(5,False)
     self.connect( ifft, pblocks )
+    
+    if options.log:
+      log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
     
     ## Cyclic Prefix
     cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
@@ -262,6 +275,9 @@ class transmit_path(gr.hier_block2):
     self.connect( pblocks, cp )
     
     lastblock = cp
+    
+    if options.log:
+      log_to_file(self, cp, "data/cp_out.compl")
 
 
     if options.cheat:
@@ -278,6 +294,9 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
+    
+    if options.log:
+      log_to_file(self, amp, "data/amp_tx_out.compl")
 
     ## Setup Output
     self.connect(amp,self)
@@ -287,6 +306,8 @@ class transmit_path(gr.hier_block2):
     # Display some information about the setup
     if config._verbose:
       self._print_verbage()
+      
+    
 
 
   def set_rms_amplitude(self, ampl):
@@ -297,14 +318,11 @@ class transmit_path(gr.hier_block2):
 
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
-    
-    self.rms = max(0.0, min(ampl, 1.0))
 
+    self.rms = max(0.0, min(ampl, 32767.0))
     scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
-
-    print "Amplitude set to: ", ampl
 
 
   def add_mobile_station(self,station_id):
@@ -324,13 +342,46 @@ class transmit_path(gr.hier_block2):
     options = self._options
     if options.imgxfer:
       ref_src = ofdm.imgtransfer_src( options.img )
-      self.connect((self._control,ctrl_port),ref_src,(dmux,port))
     else:
       ref_src = ber_reference_source(self._options)
-      self.connect((self._control,ctrl_port),(ref_src,0))
-      self.connect((self._control,ctrl_port+1),(ref_src,1))
-      self.connect(ref_src,(dmux,port))
     
+    if(options.coding):
+        ## Encoder
+        encoder = self._encoder = trellis.encoder_bb(fo,0)
+        unpack = self._unpack = gr.unpack_k_bits_bb(2)
+        
+        ## Puncturing
+        if not options.nopunct:
+            puncturing = self._puncturing = puncture_bb(options.subcarriers)
+            #sah = gr.sample_and_hold_bb()
+            #sah_trigger = gr.vector_source_b([1,0],True)
+            #decim_sah=gr.keep_one_in_n(gr.sizeof_char,2)
+            self.connect(self._bitmap_trigger_puncturing,(puncturing,2))
+            frametrigger_bitmap_filter = gr.vector_source_b([1,0],True)
+            bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*options.subcarriers,2)# skip_known_symbols(frame_length,subcarriers)
+            bitmap_filter.skip(0)
+            #self.connect(self._bitmap_src_puncturing,bitmap_filter,(puncturing,1))
+            self.connect(self._map_src,bitmap_filter,(puncturing,1))
+            self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
+            #bmt = gr.char_to_float()
+            #self.connect(bitmap_filter,gr.vector_to_stream(gr.sizeof_char,options.subcarriers), bmt)
+            #log_to_file(self, bmt, "data/bitmap_filter_tx.float")
+            
+        self.connect((self._control,ctrl_port),ref_src,encoder,unpack)
+        if not options.nopunct:
+            self.connect(unpack,puncturing,(dmux,port))
+            #self.connect(sah_trigger, (sah,1))
+        else:
+            self.connect(unpack,(dmux,port))
+    else:
+        self.connect((self._control,ctrl_port),ref_src,(dmux,port))
+    
+    if options.log and options.coding:
+        log_to_file(self, encoder, "data/encoder_out.char")
+        log_to_file(self, ref_src, "data/reference_data_src.char")
+        log_to_file(self, unpack, "data/encoder_unpacked_out.char")
+        if not options.nopunct:
+            log_to_file(self, puncturing, "data/puncturing_out.char")
 
 # ---------------------------------------------------------------------------- #
 ## Relikte der alten Zeit
@@ -350,7 +401,7 @@ class transmit_path(gr.hier_block2):
   def enable_txpower_adjust(self,unique_id):
     self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
         self.change_txpower,
-        msg=""))
+        msg="Changing tx power output rms level\n"))
 
   def publish_txpower(self,unique_id):
     def dummy_reset():
@@ -370,7 +421,7 @@ class transmit_path(gr.hier_block2):
     common_options.add(normal,expert)
 
     normal.add_option("-a", "--rms-amplitude",
-                      type="eng_float", default=8000, metavar="AMPL",
+                      type="eng_float", default=1000, metavar="AMPL",
                       help="set transmitter digital rms amplitude: 0"+
                            " <= AMPL < 32768 [default=%default]")
     expert.add_option("", "--cheat", action="store_true",
@@ -380,7 +431,12 @@ class transmit_path(gr.hier_block2):
       "", "--img", type="string", 
       default="ratatouille.bmp",
       help="The Bitmapfile which is tranferred[default=%default]")
-
+    normal.add_option("", "--coding", action="store_true",
+              default=False,
+              help="Enable channel coding")
+    normal.add_option("", "--nopunct", action="store_true",
+              default=False,
+              help="Disable puncturing/depuncturing")
     normal.add_option(
       "", "--imgxfer",
       action="store_true", default=False,
@@ -413,32 +469,23 @@ class ber_reference_source (gr.hier_block2):
   """
   def __init__(self,options):
     gr.hier_block2.__init__(self, "ber_reference_source",
-      gr.io_signature2(2,2,gr.sizeof_short,
-                       gr.sizeof_int),
+      gr.io_signature(1,1,gr.sizeof_int),
       gr.io_signature(1,1,gr.sizeof_char))
 
-    ## ID Source
-    id_src = (self,0)
     ## Bitcount Source
-    bc_src = (self,1)
+    bc_src = (self,0)
 
     ## Reference Data Source
-#    rand_file = file('random.dat','rb')
-#    rand_string = rand_file.read()
-#    rand_file.close()
-#    rand_data = [ord(rand_string[i]) for i in range(len(rand_string))]
-    seed(30214345)
-    rand_data = [chr(getrandbits(1)) for x in range(1000000)]
-    #rand_data = [chr(1), chr(1), chr(1),chr(1)] * 10000    
-            
-    ref_src = self._reference_data_source = reference_data_source_ib(rand_data)
-    self.connect(id_src,(ref_src,0))
-    self.connect(bc_src,(ref_src,1))
+    rand_file = file('random.dat','rb')
+    rand_string = rand_file.read()
+    rand_file.close()
+    data = [ord(rand_string[i]) for i in range(len(rand_string))]
+    ref_src = self._reference_data_source = reference_data_source_ib(list(data))
+    self.connect(bc_src,ref_src)
 
     ## Setup Output
     self.connect(ref_src,self)
-    
-    #log_to_file(self, ref_src, "data/ref_src.char")
+
 
 ################################################################################
 ################################################################################
@@ -514,27 +561,27 @@ class corba_tx_control (gr.hier_block2):
       gr.io_signaturev(4,-1,[gr.sizeof_short,         # ID
                              gr.sizeof_short,         # Multiplex control stream
                              gr.sizeof_char*dsubc,    # Bit Map
-                             gr.sizeof_short,         # ID from bitcount src
                              gr.sizeof_int ]))        # Bit count per frame
 
     id_out = (self,0)
     mux_out = (self,1)
     bitmap_out = (self,2)
-    bitcount_id_out = (self,3)
 
     self.cur_port = 3
 
     self.ns_ip = ns_ip = options.nameservice_ip
     self.ns_port = ns_port = options.nameservice_port
     self.evchan = evchan = std_event_channel
+    self.coding = coding = options.coding
 
 
     ## ID Source (root)
     id_src = self._id_source = corba_id_src_s(evchan,ns_ip,ns_port)
     self.connect(id_src,id_out)
 
+
     ## Multiplex Source
-    mux_src = self._multiplex_source = corba_multiplex_src_ss(evchan,ns_ip,ns_port)
+    mux_src = self._multiplex_source = corba_multiplex_src_ss(evchan,ns_ip,ns_port,coding)
     self.connect(id_src,mux_src,mux_out)
 
 
@@ -565,12 +612,12 @@ class corba_tx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 2
+    self.cur_port += 1
 
-    bc_src = corba_bitcount_src_si(uid,self.evchan,self.ns_ip,self.ns_port)
-    self.connect(self._id_source,bc_src)
-    self.connect((bc_src,0),(self,port))
-    self.connect((bc_src,1),(self,port+1))
+    bc_src = corba_bitcount_src_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
+    self.connect(self._id_source,bc_src,(self,port))
+    
+    #log_to_file(self,bc_src,'data/bitcount_src.int')
 
     return port
 

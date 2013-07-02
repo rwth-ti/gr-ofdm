@@ -32,6 +32,19 @@ add_library(gnuradio-ofdm SHARED
     ofdm_autocorrelator_stage2.cc
     ofdm_ber_measurement.cc
     ofdm_bit_position_dependent_BER.cc
+    ofdm_channel_equalizer_mimo.cc
+    ofdm_channel_equalizer_mimo_2.cc
+    fsm.cc
+    base.cc
+    ofdm_stc_encoder.cc
+    ofdm_stc_decoder_rx1.cc
+    ofdm_stc_decoder_rx0.cc
+    ofdm_puncture_bb.cc
+    ofdm_reference_data_source_mimo_ib.cc
+    ofdm_viterbi_combined_fb.cc
+    ofdm_depuncture_bb.cc
+    ofdm_depuncture_ff.cc
+    ofdm_calc_metric.cc
     ofdm_channel_equalizer.cc
     ofdm_channel_estimator_01.cc
     ofdm_channel_estimator_02.cc
@@ -39,6 +52,8 @@ add_library(gnuradio-ofdm SHARED
     ofdm_compat_read_ber_from_imgxfer.cc
     ofdm_complex_to_arg.cc
     ofdm_imgtransfer_sink.cc
+    ofdm_int_skip.cc
+    ofdm_multiply_const_ii.cc
     ofdm_constellation_sample_filter.cc
     ofdm_CTF_MSE_enhancer.cc
     ofdm_dominiks_sync_01.cc
@@ -51,6 +66,8 @@ add_library(gnuradio-ofdm SHARED
     ofdm_generic_mapper_bcv.cc
     ofdm_gate_ff.cc
     ofdm_generic_demapper_vcb.cc
+    ofdm_generic_mapper_mimo_bcv.cc
+    ofdm_generic_softdemapper_vcf.cc
     ofdm_get_zeros.cc
     ofdm_imgtransfer_src.cc
     ofdm_imgtransfer_testkanal.cc

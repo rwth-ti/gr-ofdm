@@ -434,6 +434,8 @@ class ofdm_rx (gr.top_block):
                           help="select USRP by MAC address, default is auto-select")
     normal.add_option("", "--usrp2", action="store_true", default=False,
                       help="Use USRP2 Interface")
+    expert.add_option("", "--est-preamble", type="int", default=1,
+                      help="the number of channel estimation preambles (1 or 2)")
     
     normal.add_option("", "--coding", action="store_true",
               default=False,

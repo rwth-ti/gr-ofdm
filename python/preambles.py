@@ -16,7 +16,7 @@ from ofdm_swig import static_mux_c, static_mux_v
 
 class default_block_header (object):
   def __init__(self,data_subcarriers,fft_length,options):
-    self.no_preambles = 2
+    self.no_preambles = options.est_preamble + 1
     self.no_pilotsyms = self.no_preambles
     self.pilotsym_td = []
     self.pilotsym_fd = []
@@ -65,17 +65,33 @@ class default_block_header (object):
 
     self.pilotsym_td.append(td)
     self.pilotsym_fd.append(fd)
-    self.pilotsym_fd_1.append(fd_1)
-    self.pilotsym_fd_2.append(fd_2)
-    self.pilotsym_td_1.append(td_1)
-    self.pilotsym_td_2.append(td_2)
-    self.pilotsym_pos.append(1)
+    
+    if self.no_pilotsyms == 3:
+        x_f=[0]*self.subcarriers
+        x=[0]*fft_length
+        self.pilotsym_fd_1.append(fd)
+        self.pilotsym_fd_2.append(x_f)
+        self.pilotsym_td_1.append(td)
+        self.pilotsym_td_2.append(x)
+        self.pilotsym_pos.append(1)
+        
+        self.pilotsym_fd_1.append(x_f)
+        self.pilotsym_fd_2.append(fd)
+        self.pilotsym_td_1.append(x)
+        self.pilotsym_td_2.append(td)
+        self.pilotsym_pos.append(2)
+    else:
+        self.pilotsym_fd_1.append(fd_1)
+        self.pilotsym_fd_2.append(fd_2)
+        self.pilotsym_td_1.append(td_1)
+        self.pilotsym_td_2.append(td_2)
+        self.pilotsym_pos.append(1)
 
 
-    assert(self.no_pilotsyms == len(self.pilotsym_fd))
+    #assert(self.no_pilotsyms == len(self.pilotsym_fd))
     assert(self.no_pilotsyms == len(self.pilotsym_fd_1))
     assert(self.no_pilotsyms == len(self.pilotsym_fd_2))
-    assert(self.no_pilotsyms == len(self.pilotsym_td))
+    #assert(self.no_pilotsyms == len(self.pilotsym_td))
     assert(self.no_pilotsyms == len(self.pilotsym_pos))
 
 
@@ -470,7 +486,9 @@ class schmidl_ifo_designer:
     mimo_mask_2[1::2]=sqrt(2.0)
     fd_1 = seq1*mimo_mask_1
     fd_2 = seq1*mimo_mask_2
-
+ 
+    print "fd_1: ",fd_1
+    print "fd_2: ",fd_2
 
     td_1 = ifft(fd_1, (fft_length-subcarriers)/2)
     td_2 = ifft(fd_2, (fft_length-subcarriers)/2)

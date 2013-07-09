@@ -542,6 +542,8 @@ class ofdm_tx (gr.top_block):
     normal.add_option("", "--coding", action="store_true",
               default=False,
               help="Enable channel coding")
+    expert.add_option("", "--est-preamble", type="int", default=1,
+                      help="the number of channel estimation preambles (1 or 2)");
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)

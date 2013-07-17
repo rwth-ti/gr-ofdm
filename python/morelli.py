@@ -5,8 +5,8 @@ from gnuradio import gr
 from numpy import concatenate
 from math import pi
 
-from ofdm_swig import vector_sampler ,vector_sum_vcc,complex_to_arg
-from ofdm_swig import mm_frequency_estimator
+from ofdm import vector_sampler ,vector_sum_vcc,complex_to_arg
+from ofdm import mm_frequency_estimator
 from gnuradio.gr import delay
 
 from gr_tools import log_to_file

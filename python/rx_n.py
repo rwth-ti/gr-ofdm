@@ -36,7 +36,7 @@ import sys
 
 from receive_path2 import receive_path
 from receive_path21 import receive_path as receive_path_21
-from ofdm_swig import throughput_measure, vector_sampler, corba_rxbaseband_sink
+from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
 from numpy import sum,concatenate
 from common_options import common_tx_rx_usrp_options
 from math import log10

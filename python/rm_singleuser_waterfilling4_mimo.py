@@ -152,9 +152,9 @@ class resource_manager (resource_manager_base):
       self.pa_vector = [1.0]*self.subcarriers
       self.mod_map = [2]*self.subcarriers
       self.assignment_map = [1] * self.subcarriers
-
+ 
       if self.options.usrp2:
-        self.tx_amplitude = self.scale*self.constraint
+        self.tx_amplitude = 0.2#self.scale*self.constraint
       else:
         self.tx_amplitude = self.constraint
 

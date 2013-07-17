@@ -39,6 +39,7 @@
 #include "ofdm_CTF_MSE_enhancer.h"
 #include "ofdm_channel_equalizer_mimo.h"
 #include "ofdm_channel_equalizer_mimo_2.h"
+#include "ofdm_channel_equalizer_mimo_3.h"
 #include "ofdm_cyclic_prefixer.h"
 #include "ofdm_depuncture_bb.h"
 #include "ofdm_depuncture_ff.h"
@@ -295,6 +296,9 @@ GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer_mimo);
 
 GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer_mimo_2);
 %include "ofdm_channel_equalizer_mimo_2.h"
+
+GR_SWIG_BLOCK_MAGIC(ofdm,channel_equalizer_mimo_3);
+%include "ofdm_channel_equalizer_mimo_3.h"
 
 #GR_SWIG_BLOCK_MAGIC(ofdm,fsm);
 #%include "fsm.h"

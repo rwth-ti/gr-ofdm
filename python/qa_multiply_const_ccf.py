@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import numpy
 
 class qa_multiply_const_ccf(gr_unittest.TestCase):

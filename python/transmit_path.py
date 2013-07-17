@@ -6,11 +6,11 @@ from gnuradio import gr
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
 from numpy import concatenate
-import ofdm_swig as ofdm
-from ofdm_swig import generic_mapper_bcv  
-from ofdm_swig import puncture_bb, cyclic_prefixer, vector_padding, skip
-from ofdm_swig import sqrt_vff
-from ofdm_swig import stream_controlled_mux, reference_data_source_ib
+import ofdm as ofdm
+from ofdm import generic_mapper_bcv  
+from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
+from ofdm import sqrt_vff
+from ofdm import stream_controlled_mux, reference_data_source_ib
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
 from station_configuration import *
@@ -18,10 +18,10 @@ import common_options
 import math, copy
 import numpy
 
-from ofdm_swig import corba_multiplex_src_ss,corba_bitcount_src_si
-from ofdm_swig import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
-from ofdm_swig import repetition_encoder_sb, corba_bitmap_src
-from ofdm_swig import corba_power_allocator, stream_controlled_mux_b
+from ofdm import corba_multiplex_src_ss,corba_bitcount_src_si
+from ofdm import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
+from ofdm import repetition_encoder_sb, corba_bitmap_src
+from ofdm import corba_power_allocator, stream_controlled_mux_b
 
 from random import seed,randint
 

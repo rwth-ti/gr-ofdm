@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr
-import ofdm_swig as ofdm
+import ofdm as ofdm
 #import itpp
 import numpy
 from preambles import schmidl_ifo_designer, morellimengali_designer

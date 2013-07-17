@@ -21,7 +21,7 @@
 # 
 
 from gnuradio import gr, gr_unittest
-import ofdm_swig as ofdm
+import ofdm as ofdm
 from vector_equalizer import vector_equalizer
 
 import sys, numpy, random, math

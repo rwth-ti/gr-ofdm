@@ -6,7 +6,7 @@ from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 from gr_tools import log_to_file,terminate_stream
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import numpy
 import math
 
@@ -106,10 +106,12 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( sampler_preamble, morelli_foe )
     freq_offset = morelli_foe
     
+    
     ## Adaptive LMS FIR filtering of frequency offset
     lms_fir = ofdm.lms_fir_ff( 20, 1e-3 ) # TODO: verify parameter choice
     self.connect( freq_offset, lms_fir )
     freq_offset = lms_fir
+    
     
     #log_to_file(self, lms_fir, "data/lms_fir.float")
     
@@ -308,7 +310,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
       
     
     if options.disable_phase_tracking or options.ideal:
-      terminate_stream(self, phase_tracking)
+      terminate_stream(self, phase_tracking2)
       print "Disabled phase tracking stage"
     else:
       ofdm_blocks = phase_tracking2

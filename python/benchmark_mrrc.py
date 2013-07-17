@@ -36,7 +36,7 @@ import sys
 
 from transmit_path import transmit_path
 from receive_path12 import receive_path
-from ofdm_swig import throughput_measure, vector_sampler, corba_rxbaseband_sink
+from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
@@ -49,7 +49,7 @@ from corba_stubs import ofdm_ti,ofdm_ti__POA
 from corba_servants import general_corba_servant
 from corba_servants import corba_data_buffer_servant,corba_push_vector_f_servant
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 #import itpp
 
 #from channel import time_variant_rayleigh_channel
@@ -265,14 +265,9 @@ class ofdm_benchmark (gr.top_block):
     
     tmm =gr.throttle(gr.sizeof_gr_complex,self._bandwidth)
     tmm2 =gr.throttle(gr.sizeof_gr_complex,self._bandwidth)
-    tmm_add = gr.add_cc()
-    tmm2_add = gr.add_cc()
-    self.connect( tmm, tmm_add )
-    self.connect( tmm2, (tmm_add,1) )
-    self.connect( tmm, tmm2_add )
-    self.connect( tmm2, (tmm2_add,1) )
-    self.connect( tmm_add, self.dst )
-    self.connect( tmm2_add, self.dst2 )
+    
+    self.connect( tmm, self.dst )
+    self.connect( tmm2, self.dst2 )
     self.dst = tmm
     self.dst2 = tmm2
     
@@ -559,6 +554,8 @@ class ofdm_benchmark (gr.top_block):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
+    expert.add_option("", "--est-preamble", type="int", default=1,
+                      help="the number of channel estimation preambles (1 or 2)");
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)
@@ -645,7 +642,7 @@ def main():
     orb = CORBA.ORB_init(sys.argv,CORBA.ORB_ID)
     string_benchmark = runtime.dot_graph()
     
-    dot_file = open("benchmark_mimo.dot",'w')
+    dot_file = open("benchmark_mrrc.dot",'w')
     dot_file.write(string_benchmark)
     dot_file.close()
     

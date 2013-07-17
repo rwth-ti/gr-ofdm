@@ -7,23 +7,23 @@ from gnuradio import eng_notation
 from gnuradio import gr, window
 from gr_tools import log_to_file, terminate_stream
 
-from ofdm_swig import normalize_vcc, lms_phase_tracking,vector_sum_vcc
-from ofdm_swig import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
-from ofdm_swig import skip, channel_estimator_02, scatterplot_sink
-from ofdm_swig import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm_swig import generic_mapper_bcv, corba_rxinfo_sink, corba_rxinfo_sink_imgxfer, dynamic_trigger_ib, snr_estimator
+from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
+from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
+from ofdm import skip, channel_estimator_02, scatterplot_sink
+from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
+from ofdm import generic_mapper_bcv, corba_rxinfo_sink, corba_rxinfo_sink_imgxfer, dynamic_trigger_ib, snr_estimator
 from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
-from ofdm_swig import corba_power_allocator
-from ofdm_swig import depuncture_ff
-from ofdm_swig import multiply_const_ii
-import ofdm_swig as ofdm
+from ofdm import corba_power_allocator
+from ofdm import depuncture_ff
+from ofdm import multiply_const_ii
+import ofdm as ofdm
 
 from time import strftime,gmtime
 
 from snr_estimator import milans_snr_estimator, milans_sinr_sc_estimator, milans_sinr_sc_estimator2, milans_sinr_sc_estimator3
 
-from ofdm_swig import corba_bitmap_src
+from ofdm import corba_bitmap_src
 
 
 from station_configuration import *
@@ -42,9 +42,9 @@ import numpy
 
 from random import seed,randint
 
-from ofdm_swig import corba_assignment_src_sv,corba_bitcount_src_si
-from ofdm_swig import corba_map_src_sv,corba_power_src_sv,corba_id_filter
-from ofdm_swig import repetition_decoder_bs
+from ofdm import corba_assignment_src_sv,corba_bitcount_src_si
+from ofdm import corba_map_src_sv,corba_power_src_sv,corba_id_filter
+from ofdm import repetition_decoder_bs
 from gnuradio.gr import delay
 
 from transmit_path import static_control

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest, eng_notation
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import numpy, os
 
 class qa_frame_mux(gr_unittest.TestCase):

@@ -8,28 +8,28 @@ from gr_tools import log_to_file,unpack_array, terminate_stream
 from numpy import concatenate
 
 #from ofdm import generic_mapper_mimo_bcv as generic_mapper_bcv
-from ofdm_swig import generic_mapper_bcv
-from ofdm_swig import puncture_bb, cyclic_prefixer, vector_padding, skip
-from ofdm_swig import sqrt_vff
-from ofdm_swig import stream_controlled_mux, reference_data_source_ib
+from ofdm import generic_mapper_bcv
+from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
+from ofdm import sqrt_vff
+from ofdm import stream_controlled_mux, reference_data_source_ib
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
 from station_configuration import *
 import common_options
 import math, copy
 import numpy
-import ofdm_swig as ofdm
+import ofdm as ofdm
 
-from ofdm_swig import corba_multiplex_src_ss,corba_bitcount_src_si
-from ofdm_swig import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
-from ofdm_swig import repetition_encoder_sb, corba_bitmap_src
-from ofdm_swig import corba_power_allocator, stream_controlled_mux_b
+from ofdm import corba_multiplex_src_ss,corba_bitcount_src_si
+from ofdm import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
+from ofdm import repetition_encoder_sb, corba_bitmap_src
+from ofdm import corba_power_allocator, stream_controlled_mux_b
 
 from random import seed,randint
 
 #from grc_wrapper.space_time_coder_grc import space_time_coder
 
-from ofdm_swig import stc_encoder
+from ofdm import stc_encoder
 
 std_event_channel = "GNUradio_EventChannel" #TODO: flexible
 fo=ofdm.fsm(1,2,[91,121])
@@ -58,6 +58,7 @@ class transmit_path(gr.hier_block2):
                                           config.fft_length,options)
     config.tx_station_id       = options.station_id
     config.coding              = options.coding
+    
 
     if config.tx_station_id is None:
       raise SystemError, "Station ID not set"
@@ -264,7 +265,10 @@ class transmit_path(gr.hier_block2):
     else:
       vsubc = self._virtual_subcarrier_extender = psubc
       vsubc_2 = self._virtual_subcarrier_extender_2 = psubc_2
-
+      
+    log_to_file(self, psubc, "data/psubc.compl")
+    log_to_file(self, stc, "data/stc1.compl")
+    log_to_file(self, (stc,1), "data/stc2.compl")
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")
       log_to_file(self, vsubc_2, "data/vsubc2_out.compl")
@@ -282,9 +286,9 @@ class transmit_path(gr.hier_block2):
 
 
     ## Pilot blocks (preambles)
-    pblocks = self._pilot_block_inserter = pilot_block_inserter(3, False)
+    pblocks = self._pilot_block_inserter = pilot_block_inserter(1, False)
     self.connect( ifft, pblocks )
-    pblocks_2 = self._pilot_block_inserter_2 = pilot_block_inserter( 3, False)
+    pblocks_2 = self._pilot_block_inserter_2 = pilot_block_inserter( 2, False)
     self.connect( ifft_2, pblocks_2 )
     
     if options.log:
@@ -321,9 +325,9 @@ class transmit_path(gr.hier_block2):
 
 
     ## Digital Amplifier
-    amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
+    amp = self._amplifier = ofdm.multiply_const_ccf( 1.0/math.sqrt(2) )
     self.connect( lastblock, amp )
-    amp_2 = self._amplifier_2 = ofdm.multiply_const_ccf( 1.0 )
+    amp_2 = self._amplifier_2 = ofdm.multiply_const_ccf( 1.0/math.sqrt(2) )
     self.connect( lastblock_2, amp_2 )
     self.set_rms_amplitude(rms_amp)
     
@@ -475,6 +479,8 @@ class transmit_path(gr.hier_block2):
       "", "--imgxfer",
       action="store_true", default=False,
       help="Enable IMG Transfer mode")
+    #expert.add_option("", "--est-preamble", type="int", default=1,
+                      #help="the number of channel estimation preambles (1 or 2)");
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)

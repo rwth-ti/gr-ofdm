@@ -2,7 +2,7 @@
 
 from gnuradio import gr, gr_unittest, eng_notation
 from moms import moms
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import numpy
 from snr_estimator import milans_snr_estimator
 from math import sqrt

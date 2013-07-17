@@ -35,6 +35,7 @@ install(FILES
     ofdm_bit_position_dependent_BER.h
     ofdm_channel_equalizer_mimo.h
     ofdm_channel_equalizer_mimo_2.h
+    ofdm_channel_equalizer_mimo_3.h
     ofdm_channel_equalizer.h
     ofdm_channel_estimator_01.h
     ofdm_channel_estimator_02.h

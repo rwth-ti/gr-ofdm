@@ -39,7 +39,7 @@ except:
 import sys
 
 from transmit_path import transmit_path
-from ofdm_swig import throughput_measure
+from ofdm import throughput_measure
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 
@@ -50,7 +50,7 @@ import CosNaming
 from corba_stubs import ofdm_ti,ofdm_ti__POA
 from corba_servants import general_corba_servant
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 #import itpp
 
 #from channel import time_variant_rayleigh_channel

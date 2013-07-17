@@ -7,12 +7,12 @@ from gnuradio import gr
 from cmath import exp
 from numpy import abs,concatenate
 import numpy
-import ofdm_swig as ofdm
+import ofdm as ofdm
 from station_configuration import *
-from ofdm_swig import stream_controlled_mux,skip
+from ofdm import stream_controlled_mux,skip
 from numpy import *
 
-from ofdm_swig import static_mux_c, static_mux_v
+from ofdm import static_mux_c, static_mux_v
 
 class default_block_header (object):
   def __init__(self,data_subcarriers,fft_length,options):

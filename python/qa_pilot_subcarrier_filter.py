@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr, gr_unittest
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import preambles
 from numpy import concatenate,reshape,zeros
 from station_configuration import *

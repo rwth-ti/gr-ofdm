@@ -3,7 +3,7 @@
 from gnuradio import gr, gr_unittest
 import sys
 sys.path.append('../')
-from ofdm_swig import vector_element
+from ofdm import vector_element
 
 class qa_scf (gr_unittest.TestCase):
 

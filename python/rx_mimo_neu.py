@@ -36,7 +36,7 @@ import sys
 
 from receive_path12 import receive_path as receive_path_12
 from receive_path22_neu import receive_path as receive_path_22
-from ofdm_swig import throughput_measure, vector_sampler, corba_rxbaseband_sink, multiply_const_ccf
+from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink, multiply_const_ccf
 from numpy import sum,concatenate
 from common_options import common_tx_rx_usrp_options
 from math import log10

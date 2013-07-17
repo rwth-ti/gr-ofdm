@@ -3,16 +3,16 @@
 from numpy import concatenate
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
-from ofdm_swig import frequency_shift_vcc
-from ofdm_swig import vector_sampler, peak_detector2_fb
-from ofdm_swig import vector_mask
+from ofdm import frequency_shift_vcc
+from ofdm import vector_sampler, peak_detector2_fb
+from ofdm import vector_mask
 from gnuradio.gr import delay
 from optparse import OptionParser
 import schmidl
 from gr_tools import log_to_file,terminate_stream
 from morelli import morelli_foe
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 
 
 class ofdm_receiver(gr.hier_block2):

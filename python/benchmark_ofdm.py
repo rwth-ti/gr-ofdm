@@ -37,7 +37,7 @@ import os
 
 from transmit_path import transmit_path
 from receive_path2 import receive_path
-from ofdm_swig import throughput_measure, vector_sampler, corba_rxbaseband_sink
+from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
@@ -50,7 +50,7 @@ from corba_stubs import ofdm_ti,ofdm_ti__POA
 from corba_servants import general_corba_servant
 from corba_servants import corba_data_buffer_servant,corba_push_vector_f_servant
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 #import itpp
 
 #from channel import time_variant_rayleigh_channel
@@ -663,6 +663,8 @@ class ofdm_benchmark (gr.top_block):
     expert.add_option("", "--sinr-est", action="store_true", default=False,
                       help="Enable SINR per subcarrier estimation [default=%default]")
     
+    expert.add_option("", "--est-preamble", type="int", default=1,
+                      help="the number of channel estimation preambles (1 or 2)")
     normal.add_option(
       "", "--event-rxbaseband",
       action="store_true", default=False,

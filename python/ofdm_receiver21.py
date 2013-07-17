@@ -6,7 +6,7 @@ from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 from gr_tools import log_to_file,terminate_stream
 
-import ofdm_swig as ofdm
+import ofdm as ofdm
 import numpy
 import math
 from numpy import concatenate
@@ -435,9 +435,9 @@ class ofdm_inner_receiver( gr.hier_block2 ):
         inv_preamble_fd_1 = 1. / inv_preamble_fd_1
         inv_preamble_fd_2 = 1. / inv_preamble_fd_2
         
-        dd = []
-        for i in range (total_subc/2):
-            dd.extend([i*2])
+        #dd = []
+        #for i in range (total_subc/2):
+          #  dd.extend([i*2])
             
         skip_block_1 = ofdm.int_skip(total_subc,2,0)
         skip_block_11 = ofdm.int_skip(total_subc,2,0)
@@ -490,17 +490,17 @@ class ofdm_inner_receiver( gr.hier_block2 ):
         inv_CTF_2 = ( ctf_postprocess_2, 0 )
         disp_CTF_2 = ( ctf_postprocess_2, 1 )  
     
-        disp_CTF_RX0 = gr.add_ff(total_subc)
+        #disp_CTF_RX0 = gr.add_ff(total_subc)
         
-        self.connect ( disp_CTF_1, (disp_CTF_RX0, 0) )
-        self.connect ( disp_CTF_2, (disp_CTF_RX0, 1) )
+        #self.connect ( disp_CTF_1, (disp_CTF_RX0, 0) )
+        #self.connect ( disp_CTF_2, (disp_CTF_RX0, 1) )
     
     
-        terminate_stream(self,disp_CTF_RX0)
+        #terminate_stream(self,disp_CTF_RX0)
         terminate_stream(self,inv_CTF_2)
         
-        disp_CTF_RX0 = gr.null_source(gr.sizeof_float*total_subc)
-        disp_CTF_RX1 = gr.null_source(gr.sizeof_float*total_subc)
+        disp_CTF_RX0 = disp_CTF_1
+        disp_CTF_RX1 = disp_CTF_2
         ## Channel Equalizer
         
         #log_to_file(self, ofdm_blocks, "data/vec_mask.compl")
@@ -544,7 +544,12 @@ class ofdm_inner_receiver( gr.hier_block2 ):
         
         #self.connect(phase_tracking,gr.null_sink(gr.sizeof_gr_complex*total_subc))
         
-        ofdm_blocks = phase_tracking
+        if options.disable_phase_tracking or options.ideal:
+          terminate_stream(self, phase_tracking)
+          print "Disabled phase tracking stage"
+        else:
+          ofdm_blocks = phase_tracking
+          
        
           
         '''equalizer = ofdm.channel_equalizer_mimo_2( total_subc )

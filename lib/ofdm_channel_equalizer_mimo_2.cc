@@ -95,9 +95,9 @@ general_work(
   for( ; i < nin; ++i, ofdm_blocks += d_vlen, out += d_vlen )
   {
 	//gr_complex norm = 0.5;
-	//gr_complex norm_c = 1 / sqrt(2);
+	gr_complex norm_c = 1 / sqrt(2);
 	gr_complex norm = 2.0;
-	gr_complex norm_c = sqrt(2);
+	//gr_complex norm_c = sqrt(2);
 
     // if not first frame start, advance ctf_0 ptr if enough input available
     if( frame_start[i] != 0 )

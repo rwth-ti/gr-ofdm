@@ -2,7 +2,7 @@
 
 from gnuradio import gr
 from numpy import concatenate, array, complex, sum
-import ofdm_swig as ofdm
+import ofdm as ofdm
 
 from delaylines import *
 

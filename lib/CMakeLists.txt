@@ -34,6 +34,7 @@ add_library(gnuradio-ofdm SHARED
     ofdm_bit_position_dependent_BER.cc
     ofdm_channel_equalizer_mimo.cc
     ofdm_channel_equalizer_mimo_2.cc
+    ofdm_channel_equalizer_mimo_3.cc
     fsm.cc
     base.cc
     ofdm_stc_encoder.cc

@@ -3,7 +3,7 @@
 from math import sqrt, pi
 from numpy import concatenate,conjugate,array
 from gr_tools import fft,ifft
-from gnuradio import gr
+from gnuradio import gr, blocks
 from cmath import exp
 from numpy import abs,concatenate
 import numpy
@@ -206,7 +206,7 @@ class pilot_block_inserter(gr.hier_block2):
       if add_cyclic_prefix:
         sym = concatenate( [ sym[len(sym)-cp_length:len(sym)], sym ] )
         
-      pilot_block_src.append( gr.vector_source_c( sym, True, vlen ) )
+      pilot_block_src.append( blocks.vector_source_c( sym, True, vlen ) )
       
     print "pilot block inserter, mux stream length", len(mux_stream)
     
@@ -214,7 +214,7 @@ class pilot_block_inserter(gr.hier_block2):
     for x in mux_stream:
       imux.append(int(x))
     
-#    mux_ctrl = gr.vector_source_s(mux_stream,True) #i.e. static
+#    mux_ctrl = blocks.vector_source_s(mux_stream,True) #i.e. static
 #    mux = stream_controlled_mux(gr.sizeof_gr_complex*fft_length)
     mux = static_mux_v(gr.sizeof_gr_complex*vlen, imux)
 
@@ -250,7 +250,7 @@ class pilot_block_filter(gr.hier_block2):
 
     filt = skip(gr.sizeof_gr_complex*subcarriers,frame_length)# skip_known_symbols(frame_length,subcarriers)
     for x in config.training_data.pilotsym_pos:
-      filt.skip(x)
+      filt.skip_call(x)
 
     self.connect(self,filt)
     self.connect(filt,self)
@@ -302,11 +302,11 @@ class pilot_subcarrier_inserter (gr.hier_block2):
       
 
     
-    v2s = gr.vector_to_stream(gr.sizeof_gr_complex,subc)
-    pilot_src = gr.vector_source_c(config.training_data.pilot_subc_sym,True)
+    v2s = blocks.vector_to_stream(gr.sizeof_gr_complex,subc)
+    pilot_src = blocks.vector_source_c(config.training_data.pilot_subc_sym,True)
 
     mux = static_mux_c(imux)
-    s2v = gr.stream_to_vector(gr.sizeof_gr_complex,total_subc)
+    s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,total_subc)
 
     # vector to stream, mux with pilot subcarrier symbols,
     # reconvert to vector
@@ -362,11 +362,11 @@ class pilot_subcarrier_inserter_zeroes (gr.hier_block2):
 
 
 
-    v2s = gr.vector_to_stream(gr.sizeof_gr_complex,subc)
-    pilot_src = gr.vector_source_c(pilot_subc_sym,True)
+    v2s = blocks.vector_to_stream(gr.sizeof_gr_complex,subc)
+    pilot_src = blocks.vector_source_c(pilot_subc_sym,True)
 
     mux = static_mux_c(imux)
-    s2v = gr.stream_to_vector(gr.sizeof_gr_complex,total_subc)
+    s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,total_subc)
 
     # vector to stream, mux with pilot subcarrier symbols,
     # reconvert to vector
@@ -403,14 +403,14 @@ class pilot_subcarrier_filter (gr.hier_block2):
 
     skipcarrier = skip(itemsize,subc)
     for x in config.training_data.shifted_pilot_tones:
-      skipcarrier.skip(x)
+      skipcarrier.skip_call(x)
 
     trigger = [0]*subc
     trigger[0] = 1
-    trigger_src = gr.vector_source_b(trigger,True) # FIXME static
+    trigger_src = blocks.vector_source_b(trigger,True) # FIXME static
 
-    v2s = gr.vector_to_stream(itemsize,subc)
-    s2v = gr.stream_to_vector(itemsize,data_subc)
+    v2s = blocks.vector_to_stream(itemsize,subc)
+    s2v = blocks.stream_to_vector(itemsize,data_subc)
 
     self.connect(self,v2s,skipcarrier,s2v,self)
     self.connect(trigger_src,(skipcarrier,1))

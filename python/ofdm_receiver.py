@@ -4,9 +4,9 @@ from numpy import concatenate
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
 from ofdm import frequency_shift_vcc
-from ofdm import vector_sampler, peak_detector2_fb
+from ofdm import vector_sampler, peak_detector_02_fb
 from ofdm import vector_mask
-from gnuradio.gr import delay
+from gnuradio.blocks import delay
 from optparse import OptionParser
 import schmidl
 from gr_tools import log_to_file,terminate_stream
@@ -82,7 +82,7 @@ class ofdm_receiver(gr.hier_block2):
     # peak detection
     #threshold = gr.threshold_ff(self._pd_thres_lo,self._pd_thres_hi,0)
     #muted_tm = gr.multiply_ff()
-    peak_detector = peak_detector2_fb(self._pd_lookahead, self._pd_thres)
+    peak_detector = peak_detector_02_fb(self._pd_lookahead, self._pd_thres)
     #self.connect(self.timing_metric, threshold, (muted_tm,0))
     #self.connect(self.timing_metric, (muted_tm,1))
     #self.connect(muted_tm, peak_detector)
@@ -97,7 +97,7 @@ class ofdm_receiver(gr.hier_block2):
       terminate_stream( self, peak_detector )
       trigger = [0]*(frame_length*block_length)
       trigger[ block_length-1 ] = 1
-      peak_detector = gr.vector_source_b( trigger, True )
+      peak_detector = blocks.vector_source_b( trigger, True )
       print "Bypassing timing synchronisation"
     
     
@@ -145,14 +145,14 @@ class ofdm_receiver(gr.hier_block2):
     
     if options.no_freqsync:
       terminate_stream( self, self.freq_offset )
-      self.freq_offset = gr.vector_source_f( [0.0], True )
+      self.freq_offset = blocks.vector_source_f( [0.0], True )
       print "Bypassing frequency offset estimator, offset=0.0"
       
     
     # TODO: dynamic solution
     frametrig_seq = concatenate([[1],[0]*(frame_length-1)])
     self.time_sync = peak_detector
-    self.frame_trigger = gr.vector_source_b(frametrig_seq,True)
+    self.frame_trigger = blocks.vector_source_b(frametrig_seq,True)
     self.connect(self.frame_trigger, self.frame_trigger_out)
     
 
@@ -200,7 +200,7 @@ class ofdm_receiver(gr.hier_block2):
 
 
     # TODO: dynamic solution
-    self.ofdm_symbols = gr.vector_to_stream(gr.sizeof_gr_complex*block_length,
+    self.ofdm_symbols = blocks.vector_to_stream(gr.sizeof_gr_complex*block_length,
                                             frame_length)
     self.connect(self.block_sampler,self.ofdm_symbols,self.discard_cp)
 

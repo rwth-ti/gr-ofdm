@@ -7,7 +7,7 @@ from math import pi
 
 from ofdm import vector_sampler ,vector_sum_vcc,complex_to_arg
 from ofdm import mm_frequency_estimator
-from gnuradio.gr import delay
+from gnuradio.blocks import delay
 
 from gr_tools import log_to_file
 

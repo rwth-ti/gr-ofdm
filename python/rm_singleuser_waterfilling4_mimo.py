@@ -34,7 +34,7 @@ class resource_manager (resource_manager_base):
         self.tx_amplitude = 0.3   # RMS!
         self.scale = 1/32768.  #Still experimental
     else:
-        self.tx_amplitude = 10000
+        self.tx_amplitude = 12000
 
     # self.subcarriers
     self.store_ctrl_events = False
@@ -150,8 +150,12 @@ class resource_manager (resource_manager_base):
     if self.is_reset_mode():
       print "Current mode is reset mode :)"
       self.pa_vector = [1.0]*self.subcarriers
-      self.mod_map = [2]*self.subcarriers
+      self.mod_map = [1]*self.subcarriers
       self.assignment_map = [1] * self.subcarriers
+      
+      #for i in range(100):
+        #self.mod_map [i] = 0;
+        #self.assignment_map [i] = 0;
  
       if self.options.usrp2:
         self.tx_amplitude = 0.2#self.scale*self.constraint

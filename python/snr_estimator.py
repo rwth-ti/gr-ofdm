@@ -6,8 +6,8 @@ from numpy import concatenate
 
 from gr_tools import log_to_file
 
-from ofdm import skip, vector_sum_vff, static_mux_v, sinr_interpolator, sinr_estimator, sinr_estimator2
-from gnuradio.gr import null_sink, divide_ff, add_const_vff, add_vff
+from ofdm import skip, vector_sum_vff, static_mux_v, sinr_interpolator, sinr_estimator, sinr_estimator_02
+from gnuradio.blocks import null_sink, divide_ff, add_const_vff, add_vff
 
 
 

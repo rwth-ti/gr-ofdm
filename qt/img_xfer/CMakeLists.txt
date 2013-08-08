@@ -86,7 +86,7 @@ target_link_libraries(receiver
     ${GL_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
     /usr/lib/x86_64-linux-gnu/librt.so
-    ${GRUEL_LIBRARIES}
+    #${GRUEL_LIBRARIES}
     )
     
 

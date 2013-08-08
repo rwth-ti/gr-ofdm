@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blks2, optfir
+from gnuradio import gr, blocks, filter
 from gnuradio import eng_notation
 from configparse import OptionParser
 from gnuradio import optfir

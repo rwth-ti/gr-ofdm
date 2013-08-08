@@ -20,10 +20,10 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blks2, optfir
+from gnuradio import gr, blocks, analog
 from gnuradio import eng_notation
 from configparse import OptionParser
-from gnuradio import optfir
+from gnuradio import filter
 
 from station_configuration import station_configuration
 
@@ -59,6 +59,8 @@ import numpy
 
 import copy
 
+import zmqblocks
+
 #import os
 #print 'Blocked waiting for GDB attach (pid = %d)' % (os.getpid(),)
 #raw_input ('Press Enter to continue: ')
@@ -86,9 +88,12 @@ class ofdm_benchmark (gr.top_block):
     
     ##self._interface          = options.interface
     ##self._mac_addr           = options.mac_addr
-
+    
     self._options = copy.copy( options )
-
+    
+    self.rpc_manager = zmqblocks.rpc_manager()
+    self.rpc_manager.set_reply_socket("tcp://*:6666")
+    self.rpc_manager.start_watcher()
 
     self._interpolation = 1
     
@@ -150,10 +155,29 @@ class ofdm_benchmark (gr.top_block):
     
     config = self.config = station_configuration()
     
+    bandwidth = options.bandwidth or 2e6
+    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
+    samples_per_frame = config.frame_length*config.block_length
+    tb = samples_per_frame/bandwidth
+    
+    
+    self.tx_parameters = {'carrier_frequency':0.0/1e6,'fft_size':config.fft_length, 'cp_size':config.cp_length \
+                          , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
+                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
+                          , 'frame_length':config.frame_length  \
+                          , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
+    
+    
+    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
+    
     self.enable_info_tx("info_tx", "pa_user")
 #    if not options.no_cheat:
 #      self.txpath.enable_channel_cheating("channelcheat")
-    self.txpath.enable_txpower_adjust("txpower")
+    if options.debug:
+        print "1"
+    else:
+        self.txpath.enable_txpower_adjust("txpower")
+        
     self.txpath.publish_txpower("txpower_info")
     #self.enable_txfreq_adjust("txfreq")
     
@@ -177,7 +201,7 @@ class ofdm_benchmark (gr.top_block):
     
     
     ##self.dst  = self.rxpath
-#    tmp = gr.throttle(gr.sizeof_gr_complex,1e5)
+#    tmp = blocks.throttle(gr.sizeof_gr_complex,1e5)
 #    self.connect( tmp, self.dst )
 #    self.dst = tmp
     
@@ -207,7 +231,7 @@ class ofdm_benchmark (gr.top_block):
           noise_sigma = sqrt( config.rms_amplitude**2 / snr )
           
       print " Noise St. Dev. %d" % (noise_sigma)
-      awgn_chan = gr.add_cc()
+      awgn_chan = blocks.add_cc()
       awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
       self.connect( awgn_noise_src, (awgn_chan,1) )
       self.connect( awgn_chan, self.dst )
@@ -216,23 +240,28 @@ class ofdm_benchmark (gr.top_block):
     if options.freqoff is not None:
       print "Artificial Frequency Offset: ", options.freqoff
       self.enable_freqoff_adjust("txfreqoff")
-      freq_shift = gr.multiply_cc()
+      freq_shift = blocks.multiply_cc()
       norm_freq = options.freqoff / config.fft_length
-      freq_off_src = self.freq_off_src = gr.sig_source_c(1.0, gr.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
+      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
       self.connect( freq_off_src, ( freq_shift, 1 ) )
       dst = self.dst
       self.connect( freq_shift, dst )
       self.dst = freq_shift
+    
+
+      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
+      
       
     if options.multipath:
       if options.itu_channel:
-        fad_chan = itpp.tdl_channel(  ) #[0, -7, -20], [0, 2, 6]
+        fad_chan = ofdm.itpp_tdl_channel(  ) #[0, -7, -20], [0, 2, 6]
           #fad_chan.set_norm_doppler( 1e-9 )
           #fad_chan.set_LOS( [500.,0,0] )
-        fad_chan.set_channel_profile( itpp.ITU_Pedestrian_A, 5e-8 )
-        fad_chan.set_norm_doppler( 1e-8 )
+        fad_chan.set_channel_profile( ofdm.ITU_Pedestrian_A, 1./self._bandwidth) #5e-8 )
+        #fad_chan.set_channel_profile_exponential(8) #5e-8 )
+        fad_chan.set_norm_doppler( 5e-7 )
       else:
-        fad_chan = gr.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
+        fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
         
       self.connect( fad_chan, self.dst )
       self.dst = fad_chan
@@ -246,7 +275,7 @@ class ofdm_benchmark (gr.top_block):
       if options.record:
        log_to_file( self, interp, "data/interp_out.compl" )
     
-    tmm =gr.throttle(gr.sizeof_gr_complex,1e5)
+    tmm =blocks.throttle(gr.sizeof_gr_complex,1e5)
     self.connect( tmm, self.dst )
     self.dst = tmm
     if options.force_tx_filter:
@@ -261,7 +290,8 @@ class ofdm_benchmark (gr.top_block):
     
     if options.scatterplot:
       print "Scatterplot enabled"
-      self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
+      self.rpc_manager.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+     # self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
 
     if options.cheat:
       self.txpath.enable_channel_cheating("channelcheat")
@@ -335,7 +365,9 @@ class ofdm_benchmark (gr.top_block):
 ##    print "enable_txfreq_adjust"
 
   def _setup_tx_path(self,options):
+    print "OPTIONS", options
     self.txpath = transmit_path(options)
+    self.rpc_manager.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
     
     for i in range( options.stations ):
       print "Registering mobile station with ID %d" % ( i+1 )
@@ -371,8 +403,8 @@ class ofdm_benchmark (gr.top_block):
 
     my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
-    rxs_trigger = gr.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = gr.multiply_const_vcc(my_window)
+    rxs_trigger = blocks.vector_source_b(concatenate([[1],[0]*199]),True)
+    rxs_window = blocks.multiply_const_vcc(my_window)
     rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
     rxs_mag = gr.complex_to_mag(fftlen)
     rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
@@ -398,8 +430,8 @@ class ofdm_benchmark (gr.top_block):
     fftlen = 256
     my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
-    rxs_trigger = gr.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = gr.multiply_const_vcc(my_window)
+    rxs_trigger = blocks.vector_source_b(concatenate([[1],[0]*199]),True)
+    rxs_window = blocks.multiply_const_vcc(my_window)
     rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
     rxs_mag = gr.complex_to_mag(fftlen)
     rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
@@ -595,6 +627,10 @@ class ofdm_benchmark (gr.top_block):
     self.servants.append(general_corba_servant(str(unique_id),infotx))
     
     print "Enabled info_tx, id: %s" % (unique_id)
+    
+  def get_tx_parameters(self):
+    print self.tx_parameters
+    return self.tx_parameters
 
   def add_options(normal, expert):
     """

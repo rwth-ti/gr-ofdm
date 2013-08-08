@@ -1,8 +1,6 @@
 #!/bin/sh
-export LD_LIBRARY_PATH=$PWD/../build/lib
-export PYTHONPATH=$PWD/../build/swig
-echo $PYTHONPATH
-
+export LD_LIBRARY_PATH="$PWD/../build/lib:/home/zivkovic/git/gr-zmqblocks/build/lib"
+export PYTHONPATH="$PWD/../build/swig:$PWD/../python:/home/zivkovic/git/gr-zmqblocks/build/swig:/home/zivkovic/git/gr-zmqblocks/python"
 #/usr/bin/python $1
 
 ok=yes
@@ -17,5 +15,3 @@ then
 else
   exit 1
 fi
-
-

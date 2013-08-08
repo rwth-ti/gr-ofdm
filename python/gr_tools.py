@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from gnuradio import gr
+from gnuradio import gr, blocks
+from gnuradio import fft as fft_blocks
 from numpy import concatenate, array, complex, sum
 import ofdm as ofdm
 
@@ -13,14 +14,14 @@ def ifft(subcarrier_data, virtual_subcarriers=0):
     vec = subcarrier_data
 
   data = array(vec, complex)
-  src = gr.vector_source_c(data, False)
-  dst = gr.vector_sink_c()
+  src = blocks.vector_source_c(data, False)
+  dst = blocks.vector_sink_c()
 
-  s2v = gr.stream_to_vector(gr.sizeof_gr_complex, len(data))
-  v2s = gr.vector_to_stream(gr.sizeof_gr_complex, len(data))
+  s2v = blocks.stream_to_vector(gr.sizeof_gr_complex, len(data))
+  v2s = blocks.vector_to_stream(gr.sizeof_gr_complex, len(data))
 
   # inverse, no window, blockshift on
-  ifft = gr.fft_vcc(len(data), False, [], True)
+  ifft = fft_blocks.fft_vcc(len(data), False, [], True)
 
   fg = gr.top_block()
   fg.connect(src, s2v, ifft, v2s, dst)
@@ -32,14 +33,14 @@ def ifft(subcarrier_data, virtual_subcarriers=0):
 
 def fft(data,virtual_subcarriers=0):
   data = array(data, complex)
-  src = gr.vector_source_c(data, False)
-  dst = gr.vector_sink_c()
+  src = blocks.vector_source_c(data, False)
+  dst = blocks.vector_sink_c()
 
-  s2v = gr.stream_to_vector(gr.sizeof_gr_complex, len(data))
-  v2s = gr.vector_to_stream(gr.sizeof_gr_complex, len(data))
+  s2v = blocks.stream_to_vector(gr.sizeof_gr_complex, len(data))
+  v2s = blocks.vector_to_stream(gr.sizeof_gr_complex, len(data))
 
   # inverse, no window, blockshift on
-  fft = gr.fft_vcc(len(data), True, [], True)
+  fft = fft_blocks.fft_vcc(len(data), True, [], True)
 
   fg = gr.top_block()
   fg.connect(src, s2v, fft, v2s, dst)
@@ -63,14 +64,14 @@ def ofdm_mapper(bits_per_channel, bitdata):
   
   assert( ( len( bitdata ) % bits ) == 0 )
 
-  cv_src = gr.vector_source_b(bits_per_channel,True,vlen)
-  data_src = gr.vector_source_b(bitdata)
+  cv_src = blocks.vector_source_b(bits_per_channel,True,vlen)
+  data_src = blocks.vector_source_b(bitdata)
   trigger = [0]*ofdm_blocks
   trigger[0] = 1
-  trigger = gr.vector_source_b( trigger )
+  trigger = blocks.vector_source_b( trigger )
   mapper = ofdm.generic_mapper_bcv(vlen)
-  v2s = gr.vector_to_stream(gr.sizeof_gr_complex,vlen)
-  dst = gr.vector_sink_c()
+  v2s = blocks.vector_to_stream(gr.sizeof_gr_complex,vlen)
+  dst = blocks.vector_sink_c()
 
   fg = gr.top_block()
 
@@ -88,9 +89,9 @@ def ofdm_mapper(bits_per_channel, bitdata):
  use gr_blocks to make sure that transformation is always identical
 """
 def unpack_array(arr):
-  src = gr.vector_source_b(arr)
+  src = blocks.vector_source_b(arr)
   data_p2u = gr.packed_to_unpacked_bb(1, gr.GR_LSB_FIRST)
-  dst = gr.vector_sink_b()
+  dst = blocks.vector_sink_b()
   fg = gr.top_block()
   fg.connect(src, data_p2u,dst)
   fg.run()
@@ -125,7 +126,7 @@ def log_to_file(hb,block,filename,mag=False,char_to_float=False):
     hb.connect( block, ctf )
     log_to_file( hb, ctf, filename )
   else:
-    file_log = gr.file_sink(streamsize,filename)
+    file_log = blocks.file_sink(streamsize,filename)
     hb.connect(block,file_log)
     
 class char_to_float_stream ( gr.hier_block2 ):
@@ -143,7 +144,7 @@ class char_to_float_stream ( gr.hier_block2 ):
     
 def terminate_stream(hb,block):
   streamsize = determine_streamsize(block)
-  hb.connect(block, gr.null_sink(streamsize))
+  hb.connect(block, blocks.null_sink(streamsize))
 
 """
 Calculate mean square of stream, save to file.
@@ -156,14 +157,14 @@ def ms_to_file(hb,block,filename,N=4096,delay=0,fft=False,scale=1):
   blks = [block]
 
   if fft and vlen > 1:
-    gr_fft = gr.fft_vcc(vlen,True,[],True)
+    gr_fft = fft_blocks.fft_vcc(vlen,True,[],True)
     blks.append(gr_fft)
 
   mag_sqrd = gr.complex_to_mag_squared(vlen)
   blks.append(mag_sqrd)
 
   if vlen > 1:
-    v2s = gr.vector_to_stream(gr.sizeof_float,vlen)
+    v2s = blocks.vector_to_stream(gr.sizeof_float,vlen)
     blks.append(v2s)
 
   if delay != 0:

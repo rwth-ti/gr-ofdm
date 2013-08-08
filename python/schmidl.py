@@ -7,7 +7,7 @@ from ofdm import peak_resync_bb #gate_ff
 from ofdm import  vector_sum_vff
 from ofdm import frequency_shift_vcc, cyclic_prefixer, schmidl_cfo_estimator
 from ofdm import vector_sampler, complex_to_arg
-from ofdm import sc_snr_estimator
+from ofdm import subc_snr_estimator
 from ofdm import vector_sum_vcc, limit_vff
 import numpy, math
 import ofdm as ofdm
@@ -15,7 +15,7 @@ import ofdm as ofdm
 from ofdm import accumulator_cc,accumulator_ff
 from ofdm import schmidl_tm_rec_stage1,schmidl_tm_rec_stage2
 
-from gnuradio.gr import delay
+from gnuradio.blocks import delay
 
 """
 schmidl's fine frequency offset estimator

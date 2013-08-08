@@ -20,10 +20,10 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blks2, optfir
+from gnuradio import gr, blocks
 from gnuradio import eng_notation
 from configparse import OptionParser
-from gnuradio import optfir
+from gnuradio import filter
 
 from station_configuration import station_configuration
 
@@ -196,7 +196,7 @@ class ofdm_benchmark (gr.top_block):
           noise_sigma = sqrt( config.rms_amplitude**2 / snr )
           
       print " Noise St. Dev. %d" % (noise_sigma)
-      awgn_chan = gr.add_cc()
+      awgn_chan = blocks.add_cc()
       awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
       self.connect( awgn_chan, self.dst )
       self.connect( awgn_noise_src, (awgn_chan,1) )
@@ -205,9 +205,9 @@ class ofdm_benchmark (gr.top_block):
 
 
     if options.freqoff is not None:
-      freq_shift = gr.multiply_cc()
+      freq_shift = blocks.multiply_cc()
       norm_freq = options.freqoff / config.fft_length
-      freq_off_src = gr.sig_source_c(1.0, gr.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
+      freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
       self.connect( freq_off_src, ( freq_shift, 1 ) )
       dst = self.dst
       self.connect( freq_shift, dst )
@@ -237,9 +237,9 @@ class ofdm_benchmark (gr.top_block):
       if options.record:
        log_to_file( self, interp, "data/interp_out.compl" )
     
-    tmm =gr.throttle(gr.sizeof_gr_complex,self._bandwidth)
-    tmm2 =gr.throttle(gr.sizeof_gr_complex,self._bandwidth)
-    tmm_add = gr.add_cc()
+    tmm =blocks.throttle(gr.sizeof_gr_complex,self._bandwidth)
+    tmm2 =blocks.throttle(gr.sizeof_gr_complex,self._bandwidth)
+    tmm_add = blocks.add_cc()
 
     self.connect( tmm, tmm_add )
     self.connect( tmm2, (tmm_add,1) )
@@ -250,8 +250,8 @@ class ofdm_benchmark (gr.top_block):
     self.dst2 = tmm2
    
     
-    inter = gr.interleave(gr.sizeof_gr_complex)
-    deinter = gr.deinterleave(gr.sizeof_gr_complex)
+    inter = blocks.interleave(gr.sizeof_gr_complex)
+    deinter = blocks.deinterleave(gr.sizeof_gr_complex)
     
     self.connect(inter, deinter)
     self.connect((deinter,0),self.dst)
@@ -370,7 +370,7 @@ class ofdm_benchmark (gr.top_block):
     my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
     rxs_trigger = gr.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = gr.multiply_const_vcc(my_window)
+    rxs_window = blocks.multiply_const_vcc(my_window)
     rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
     rxs_mag = gr.complex_to_mag(fftlen)
     rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
@@ -394,7 +394,7 @@ class ofdm_benchmark (gr.top_block):
     my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
     rxs_trigger = gr.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = gr.multiply_const_vcc(my_window)
+    rxs_window = blocks.multiply_const_vcc(my_window)
     rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
     rxs_mag = gr.complex_to_mag(fftlen)
     rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)

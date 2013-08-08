@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, optfir, window
+from gnuradio import gr, filter, blocks
 from gnuradio import eng_notation
 from configparse import OptionParser
 
@@ -223,7 +223,7 @@ class ofdm_rx (gr.top_block):
 
     fftlen = config.fft_length
 
-    my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
+    my_window = filter.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
     trigger_vec = concatenate([[1],[0]*199])
     rxs_trigger = gr.vector_source_b(trigger_vec.tolist(),True)
@@ -251,7 +251,7 @@ class ofdm_rx (gr.top_block):
     ## RX Spectrum
 
     fftlen = 256
-    my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
+    my_window = filter.hamming(fftlen) #.blackmanharris(fftlen)
     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
     rxs_trigger = gr.vector_source_b(concatenate([[1],[0]*199]),True)
     rxs_window = gr.multiply_const_vcc(my_window)

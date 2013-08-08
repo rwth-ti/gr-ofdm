@@ -31,9 +31,7 @@ ADD_CUSTOM_TARGET(MakeFifo ALL
 
 endif()
 
-
 GR_PYTHON_INSTALL(
     PROGRAMS
-#   ofdm_template.py
     DESTINATION bin
 )

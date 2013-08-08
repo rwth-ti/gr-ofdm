@@ -2,7 +2,8 @@
 
 from corba_servants import *
 from gnuradio import eng_notation
-from gnuradio import gr
+from gnuradio import gr, blocks
+from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
 from numpy import concatenate
@@ -21,7 +22,7 @@ import numpy
 import ofdm as ofdm
 
 from ofdm import corba_multiplex_src_ss,corba_bitcount_src_si
-from ofdm import corba_id_src_s,corba_map_src_sv,corba_power_src_sv
+from ofdm import corba_id_src,corba_map_src_sv,corba_power_src_sv
 from ofdm import repetition_encoder_sb, corba_bitmap_src
 from ofdm import corba_power_allocator, stream_controlled_mux_b
 
@@ -129,7 +130,7 @@ class transmit_path(gr.hier_block2):
       self.connect(mux_src,mux_src_f)
       log_to_file(self, mux_src_f, "data/mux_src_out.float")
 
-      map_src_s = gr.vector_to_stream(gr.sizeof_char,config.data_subcarriers)
+      map_src_s = blocks.vector_to_stream(gr.sizeof_char,config.data_subcarriers)
       map_src_f = gr.char_to_float()
       self.connect(map_src,map_src_s,map_src_f)
       ##log_to_file(self, map_src_f, "data/map_src.float")
@@ -154,7 +155,7 @@ class transmit_path(gr.hier_block2):
     #bmaptrig_stream = concatenate([[1, 2],[0]*(config.frame_data_part-7)])
     bmaptrig_stream = concatenate([[1, 1],[0]*(config.frame_data_part-2)])
     print"bmaptrig_stream = ",bmaptrig_stream
-    btrig = self._bitmap_trigger = gr.vector_source_b(bmaptrig_stream.tolist(), True)
+    btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream.tolist(), True)
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
       
@@ -164,9 +165,9 @@ class transmit_path(gr.hier_block2):
         #bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_part-2)])
         bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_blocks/2-1)])
         
-        btrig_puncturing = self._bitmap_trigger_puncturing = gr.vector_source_b(bmaptrig_stream_puncturing.tolist(), True)
+        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing.tolist(), True)
         bmapsrc_stream_puncturing = concatenate([[1]*dsubc,[2]*dsubc])
-        bsrc_puncturing = self._bitmap_src_puncturing = gr.vector_source_b(bmapsrc_stream_puncturing.tolist(), True, dsubc)
+        bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing.tolist(), True, dsubc)
         
     if options.log and options.coding and not options.nopunct:
       log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
@@ -174,7 +175,7 @@ class transmit_path(gr.hier_block2):
     ## Frame Trigger
     # TODO
     ftrig_stream = concatenate([[1],[0]*(config.frame_data_part-1)])
-    ftrig = self._frame_trigger = gr.vector_source_b(ftrig_stream.tolist(),True)
+    ftrig = self._frame_trigger = blocks.vector_source_b(ftrig_stream.tolist(),True)
 
     ## Data Multiplexer
     # Input 0: control stream
@@ -275,9 +276,9 @@ class transmit_path(gr.hier_block2):
 
     
     ## IFFT, no window, block shift
-    ifft = self._ifft = gr.fft_vcc(config.fft_length,False,[],True)
+    ifft = self._ifft = fft_blocks.fft_vcc(config.fft_length,False,[],True)
     self.connect(vsubc,ifft)
-    ifft_2 = self._ifft_2 = gr.fft_vcc(config.fft_length,False,[],True)
+    ifft_2 = self._ifft_2 = fft_blocks.fft_vcc(config.fft_length,False,[],True)
     self.connect(vsubc_2,ifft_2)
 
     if options.log:
@@ -385,24 +386,24 @@ class transmit_path(gr.hier_block2):
     
     if(options.coding):
         ## Encoder
-        encoder = self._encoder = trellis.encoder_bb(fo,0)
-        unpack = self._unpack = gr.unpack_k_bits_bb(2)
+        encoder = self._encoder = ofdm.encoder_bb(fo,0)
+        unpack = self._unpack = blocks.unpack_k_bits_bb(2)
         
         ## Puncturing
         if not options.nopunct:
             puncturing = self._puncturing = puncture_bb(options.subcarriers)
             #sah = gr.sample_and_hold_bb()
-            #sah_trigger = gr.vector_source_b([1,0],True)
+            #sah_trigger = blocks.vector_source_b([1,0],True)
             #decim_sah=gr.keep_one_in_n(gr.sizeof_char,2)
             self.connect(self._bitmap_trigger_puncturing,(puncturing,2))
-            frametrigger_bitmap_filter = gr.vector_source_b([1,0],True)
+            frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
             bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*options.subcarriers,2)# skip_known_symbols(frame_length,subcarriers)
-            bitmap_filter.skip(0)
+            bitmap_filter.skip_call(0)
             #self.connect(self._bitmap_src_puncturing,bitmap_filter,(puncturing,1))
             self.connect(self._map_src,bitmap_filter,(puncturing,1))
             self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
             #bmt = gr.char_to_float()
-            #self.connect(bitmap_filter,gr.vector_to_stream(gr.sizeof_char,options.subcarriers), bmt)
+            #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,options.subcarriers), bmt)
             #log_to_file(self, bmt, "data/bitmap_filter_tx.float")
             
         self.connect((self._control,ctrl_port),ref_src,encoder,unpack)
@@ -616,7 +617,7 @@ class corba_tx_control (gr.hier_block2):
 
 
     ## ID Source (root)
-    id_src = self._id_source = corba_id_src_s(evchan,ns_ip,ns_port)
+    id_src = self._id_source = corba_id_src(evchan,ns_ip,ns_port)
     self.connect(id_src,id_out)
 
 
@@ -718,26 +719,26 @@ class static_tx_control (gr.hier_block2):
 
 
     ## ID Source (root)
-    id_src = self._id_source = gr.vector_source_s([ctrl.static_id],True)
+    id_src = self._id_source = blocks.vector_source_s([ctrl.static_id],True)
     self.connect(id_src,id_out)
 
 
     ## Multiplex Source
-    mux_src = self._multiplex_source = gr.vector_source_s(ctrl.mux_stream,True)
+    mux_src = self._multiplex_source = blocks.vector_source_s(ctrl.mux_stream,True)
     self.connect(mux_src,mux_out)
 
 
     ## Map Source
-    map_src = gr.vector_source_b(ctrl.rmod_stream, True, dsubc)
+    map_src = blocks.vector_source_b(ctrl.rmod_stream, True, dsubc)
     self.connect(map_src,bitmap_out)
 
 
     ## Power Allocation Source
-    pa_src = gr.vector_source_f(ctrl.pow_stream,True,dsubc)
+    pa_src = blocks.vector_source_f(ctrl.pow_stream,True,dsubc)
     self.connect(pa_src,powmap_out)
 
 #    ## Map Source
-#    map_src = gr.vector_source_b(ctrl.mod_stream,True,dsubc)
+#    map_src = blocks.vector_source_b(ctrl.mod_stream,True,dsubc)
 #    self.connect(map_src,(self,2))
 
 
@@ -757,7 +758,7 @@ class static_tx_control (gr.hier_block2):
 
     bitcount = sum(smm[sam == uid])*config.frame_data_blocks
 
-    bc_src = gr.vector_source_i([bitcount],True)
+    bc_src = blocks.vector_source_i([bitcount],True)
     self.connect(bc_src,(self,port))
 
     return port

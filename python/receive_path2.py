@@ -4,7 +4,8 @@ from numpy import concatenate, log10
 from corba_servants import *
 from corba_stubs import ofdm_ti, ofdm_ti__POA
 from gnuradio import eng_notation
-from gnuradio import gr, window
+from gnuradio import gr, filter
+from gnuradio import blocks
 from gr_tools import log_to_file, terminate_stream
 
 from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
@@ -36,16 +37,17 @@ import preambles
 from os import getenv
 import os
 
-
+import zmqblocks
 
 import numpy
 
 from random import seed,randint
 
-from ofdm import corba_assignment_src_sv,corba_bitcount_src_si
+from ofdm import corba_assignment_src_sv,corba_bitcount_src_02_si #,corba_bitcount_src_si
 from ofdm import corba_map_src_sv,corba_power_src_sv,corba_id_filter
 from ofdm import repetition_decoder_bs
-from gnuradio.gr import delay
+from gnuradio.blocks import delay
+
 
 from transmit_path import static_control
 
@@ -92,6 +94,7 @@ class receive_path(gr.hier_block2):
     config.ns_ip                = options.nameservice_ip
     config.ns_port              = options.nameservice_port
     config.periodic_parts       = 8
+    config.debug                = options.debug
 
     if config.rx_station_id is None:
       raise SystemError, "station id not set"
@@ -156,7 +159,7 @@ class receive_path(gr.hier_block2):
 
       ## get ID block, with pilot subcarriers
       id_block_wps = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc, 1 )
-      idblock_trigger = gr.delay( gr.sizeof_char,
+      idblock_trigger = blocks.delay( gr.sizeof_char,
                                   config.training_data.no_preambles )
       self.connect( ofdm_blocks, id_block_wps )
       self.connect( frame_start, idblock_trigger, ( id_block_wps, 1 ) )
@@ -218,10 +221,10 @@ class receive_path(gr.hier_block2):
 #
 #    frame_sampler = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc,
 #                                              config.frame_length )
-#    self.symbol_output = gr.vector_to_stream( gr.sizeof_gr_complex * total_subc,
+#    self.symbol_output = blocks.vector_to_stream( gr.sizeof_gr_complex * total_subc,
 #                                              config.frame_length )
-#    delayed_frame_start = gr.delay( gr.sizeof_char, config.frame_length - 1 )
-#    damn_static_frame_trigger = gr.vector_source_b( ft, True )
+#    delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length - 1 )
+#    damn_static_frame_trigger = blocks.vector_source_b( ft, True )
 #
 #    if options.enable_erasure_decision:
 #      frame_gate = vector_sampler(
@@ -318,7 +321,7 @@ class receive_path(gr.hier_block2):
 
       assert( id_bfilt_trig_delay > 0 ) # else not supported
 
-      id_bfilt_trig = gr.delay( gr.sizeof_char, id_bfilt_trig_delay )
+      id_bfilt_trig = blocks.delay( gr.sizeof_char, id_bfilt_trig_delay )
 
       self.connect( ofdm_blocks, id_bfilt )
       self.connect( orig_frame_start, id_bfilt_trig, ( id_bfilt, 1 ) )
@@ -371,7 +374,7 @@ class receive_path(gr.hier_block2):
     # TODO: refactor names
     if options.debug:
       self._rx_control = ctrl = static_rx_control(options)
-      self.connect((ctrl,0),gr.null_sink(gr.sizeof_short))
+      self.connect((ctrl,0),blocks.null_sink(gr.sizeof_short))
     else:
       self._rx_control = ctrl = corba_rx_control(options)
 
@@ -418,10 +421,10 @@ class receive_path(gr.hier_block2):
           ac_vector[7] = (10**(-1.151))
           csi_vector_inv=1.0/numpy.fft.fft(numpy.sqrt(ac_vector))
           skip_pilots = skip(gr.sizeof_gr_complex*vlen,frame_length)
-          self.inv_channel = gr.multiply_const_vcc(csi_vector_inv)
+          self.inv_channel = blocks.multiply_const_vcc(csi_vector_inv)
           self.connect(self.inv_channel,pda)
           pda = self.inv_channel
-          #self.inv_channel = gr.multiply_const_vcc(numpy.fft.fftshift(csi_vector_inv))
+          #self.inv_channel = blocks.multiply_const_vcc(numpy.fft.fftshift(csi_vector_inv))
 
     if options.log:
       log_to_file(self,pda,"data/pda_out.compl")
@@ -432,7 +435,7 @@ class receive_path(gr.hier_block2):
     dm_trig = [0]*config.frame_data_part
     dm_trig[0] = 1
     dm_trig[1] = 2
-    dm_trig = gr.vector_source_b(dm_trig,True) # TODO
+    dm_trig = blocks.vector_source_b(dm_trig,True) # TODO
 #    if 0:  
 #          ac_vector = [0.0+0.0j]*208
 #          ac_vector[0] = (2*10**(-0.452))
@@ -442,20 +445,20 @@ class receive_path(gr.hier_block2):
 #          dm_csi = numpy.fft.fftshift(csi_vector_inv) # TODO
 
     dm_csi = [1]*dsubc # TODO
-    dm_csi = gr.vector_source_f(dm_csi,True)
+    dm_csi = blocks.vector_source_f(dm_csi,True)
     ## Depuncturer
     dp_trig = [0]*(config.frame_data_blocks/2)
     dp_trig[0] = 1
-    dp_trig = gr.vector_source_b(dp_trig,True) # TODO
+    dp_trig = blocks.vector_source_b(dp_trig,True) # TODO
     
     
             
     if(options.coding):
         demod = self._data_demodulator = generic_softdemapper_vcf(dsubc,options.coding)
         if(options.ideal):
-            self.connect(dm_csi,gr.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
+            self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         else:
-            dm_csi_filter = self.dm_csi_filter = gr.single_pole_iir_filter_ff(0.01,dsubc)
+            dm_csi_filter = self.dm_csi_filter = filter.single_pole_iir_filter_ff(0.01,dsubc)
             self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
             #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
         self.connect(dm_trig,(demod,3))
@@ -469,19 +472,19 @@ class receive_path(gr.hier_block2):
         ## Depuncturing
         if not options.nopunct:
             bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
-            bitmap_filter.skip(0)
+            bitmap_filter.skip_call(0)
             depuncturing = depuncture_ff(dsubc,0)
 
-            frametrigger_bitmap_filter = gr.vector_source_b([1,0],True)
+            frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
             #sah = gr.sample_and_hold_ff()
-            #sah_trigger = gr.vector_source_b([1,0],True)
+            #sah_trigger = blocks.vector_source_b([1,0],True)
             bmapsrc_stream_depuncturing = concatenate([[1]*dsubc,[2]*dsubc])
-            bsrc_depuncturing = self._bitmap_src_depuncturing = gr.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
+            bsrc_depuncturing = self._bitmap_src_depuncturing = blocks.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
             
             #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
             self.connect(self._map_src,bitmap_filter,(depuncturing,1))
             #bmt = gr.char_to_float()
-            #self.connect(bitmap_filter,gr.vector_to_stream(gr.sizeof_char,dsubc), bmt)
+            #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,dsubc), bmt)
             #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
             
             self.connect(dp_trig,(depuncturing,2))
@@ -503,30 +506,50 @@ class receive_path(gr.hier_block2):
         else:
             self.connect(demod,decoding)
         self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
-    if options.scatterplot:
-      scatter_sink = ofdm.scatterplot_sink(dsubc)
-      self.connect(pda,scatter_sink)
-      self.connect(map_src,(scatter_sink,1))
-      self.connect(dm_trig,(scatter_sink,2))
-      print "Enabled scatterplot gui interface"
+        
+    if options.scatterplot or options.scatter_plot_before_phase_tracking:
+        scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
+        scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
 
-    if options.scatter_plot_before_phase_tracking:
-      print "Enabling Scatterplot interface for data before phase tracking"
-      ofdmblocks = inner_receiver.before_phase_tracking
-      scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
-      op = copy.copy(options)
-      op.enable_erasure_decision = False
-      new_framesampler = ofdm_frame_sampler(op)
-      self.connect( ofdm_blocks, new_framesampler )
-      self.connect( orig_frame_start, (new_framesampler,1) )
-      new_ps_filter = pilot_subcarrier_filter()
-      new_pb_filter = pilot_block_filter()
-
-      self.connect( new_framesampler, new_pb_filter,
-                    new_ps_filter, scatter_sink2 )
-      self.connect( (new_framesampler,1), (new_pb_filter,1) )
-      self.connect( map_src, (scatter_sink2,1))
-      self.connect( dm_trig, (scatter_sink2,2))
+        scatter_id_filt = skip(gr.sizeof_gr_complex*dsubc,config.frame_data_blocks)
+        scatter_id_filt.skip_call(0)
+        scatter_trig = [0]*config.frame_data_part
+        scatter_trig[0] = 1
+        scatter_trig = blocks.vector_source_b(scatter_trig,True)
+        self.connect(scatter_trig,(scatter_id_filt,1))
+        self.connect(scatter_vec_elem,scatter_s2v)
+        
+        if not options.scatter_plot_before_phase_tracking:
+            print "Enabling Scatterplot for data subcarriers"
+            self.connect(pda,scatter_id_filt,scatter_vec_elem)
+            log_to_file(self, pda, "data/pda.comples")
+              # Work on this  
+              #scatter_sink = ofdm.scatterplot_sink(dsubc)
+              #self.connect(pda,scatter_sink)
+              #self.connect(map_src,(scatter_sink,1))
+              #self.connect(dm_trig,(scatter_sink,2))
+              #print "Enabled scatterplot gui interface"
+            self.zmq_probe_scatter = zmqblocks.sink_pubsub(gr.sizeof_gr_complex*config.frame_data_blocks, "tcp://*:5560")
+            self.connect(scatter_s2v, self.zmq_probe_scatter)      
+        else:
+            print "Enabling Scatterplot for data before phase tracking"
+            inner_rx = inner_receiver.before_phase_tracking
+            #scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
+            op = copy.copy(options)
+            op.enable_erasure_decision = False
+            new_framesampler = ofdm_frame_sampler(op)
+            self.connect( inner_rx, new_framesampler )
+            self.connect( orig_frame_start, (new_framesampler,1) )
+            new_ps_filter = pilot_subcarrier_filter()
+            new_pb_filter = pilot_block_filter()
+    
+            self.connect( (new_framesampler,1), (new_pb_filter,1) )
+            self.connect( new_framesampler, new_pb_filter,
+                         new_ps_filter, scatter_id_filt, scatter_vec_elem )
+            
+            #self.connect( new_ps_filter, scatter_sink2 )
+            #self.connect( map_src, (scatter_sink2,1))
+            #self.connect( dm_trig, (scatter_sink2,2))
 
 
     if options.log:
@@ -555,11 +578,11 @@ class receive_path(gr.hier_block2):
       id_mod_conj = gr.conjugate_cc(dsubc)
       self.connect( id_mod, id_mod_conj )
 
-      id_mult = gr.multiply_vcc(dsubc)
+      id_mult = blocks.multiply_vcc(dsubc)
       self.connect( id_bfilt, ( id_mult,0) )
       self.connect( id_mod_conj, ( id_mult,1) )
 
-#      id_mult_avg = gr.single_pole_iir_filter_cc(0.01,dsubc)
+#      id_mult_avg = filter.single_pole_iir_filter_cc(0.01,dsubc)
 #      self.connect( id_mult, id_mult_avg )
 
       id_phase = gr.complex_to_arg(dsubc)
@@ -570,7 +593,7 @@ class receive_path(gr.hier_block2):
       est=ofdm.LS_estimator_straight_slope(dsubc)
       self.connect(id_phase,est)
 
-      slope=gr.multiply_const_ff(1e6/2/3.14159265)
+      slope=blocks.multiply_const_ff(1e6/2/3.14159265)
       self.connect( (est,0), slope )
 
       log_to_file( self, slope, "data/slope.float" )
@@ -595,12 +618,12 @@ class receive_path(gr.hier_block2):
       my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
       rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
       rxs_sampler_vect = concatenate([[1],[0]*49])
-      rxs_trigger = gr.vector_source_b(rxs_sampler_vect.tolist(),True)
-      rxs_window = gr.multiply_const_vcc(my_window)
+      rxs_trigger = blocks.vector_source_b(rxs_sampler_vect.tolist(),True)
+      rxs_window = blocks.multiply_const_vcc(my_window)
       rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
       rxs_mag = gr.complex_to_mag(fftlen)
-      rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
-      #rxs_logdb = gr.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
+      rxs_avg = filter.single_pole_iir_filter_ff(0.01,fftlen)
+      #rxs_logdb = blocks.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
       rxs_logdb = gr.kludge_copy( gr.sizeof_float * fftlen )
       rxs_decimate_rate = gr.keep_one_in_n(gr.sizeof_float*fftlen,1)
       self.connect(rxs_trigger,(rxs_sampler,1))
@@ -620,7 +643,7 @@ class receive_path(gr.hier_block2):
 
     pda = self._power_deallocator
     map_src = (self._rx_control,1)
-    dm_trig = gr.vector_source_b([1,1,0,0,0,0,0,0,0,0],True) # TODO
+    dm_trig = blocks.vector_source_b([1,1,0,0,0,0,0,0,0,0],True) # TODO
 
     files = ["data/bpsk_pipe", "data/qpsk_pipe", "data/8psk_pipe",
              "data/16qam_pipe", "data/32qam_pipe", "data/64qam_pipe",
@@ -679,6 +702,9 @@ class receive_path(gr.hier_block2):
     ctf = self.filter_ctf()
     self.connect( ctf, (rpsink,1) )
     self.connect( ctf, (rpsink,2) )
+    
+    self.zmq_probe_ctf = zmqblocks.sink_pubsub(gr.sizeof_float*config.data_subcarriers, "tcp://*:5559")
+    self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,2) ,self.zmq_probe_ctf)
 
     # 3. BER
     ### FIXME HACK
@@ -696,8 +722,8 @@ class receive_path(gr.hier_block2):
 
           vdd = [10]*vlen_sinr_sc
 
-          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
-          self.connect(snr_mst,(rpsink,4))
+          #self.connect(blocks.vector_source_f(vdd,True),blocks.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
+          #self.connect(snr_mst,(rpsink,4))
           #self.connect(snr_mst,(rpsink,2))
 
     else:
@@ -705,13 +731,18 @@ class receive_path(gr.hier_block2):
       print "Normal BER measurement"
 
       port = self._rx_control.add_mobile_station(config.rx_station_id)
-      count_src = (self._rx_control,port)
+      
+      if config.debug:
+          count_src = (self._rx_control,port)
+      else:
+          count_src = (self._rx_control,port+1)
       trig_src = dynamic_trigger_ib(False)
       self.connect(count_src,trig_src)
 
       ber_sampler = vector_sampler(gr.sizeof_float,1)
       self.connect(ber_mst,(ber_sampler,0))
       self.connect(trig_src,(ber_sampler,1))
+      
       
       if self._options.log:
           trig_src_float = gr.char_to_float()
@@ -721,10 +752,11 @@ class receive_path(gr.hier_block2):
 
       if self._options.sinr_est:
           self.connect(ber_sampler,(rpsink,4))
-          #self.connect(snr_mst,gr.null_sink(gr.sizeof_float))
+          #self.connect(snr_mst,blocks.null_sink(gr.sizeof_float))
           self.connect(sinr_mst,(rpsink,3))
           self.connect((sinr_mst,1),(rpsink,5))
           self.connect((sinr_mst,1),(rpsink,6))
+          
 
       else:
   #        self.connect(ber_sampler,(rpsink,2))
@@ -732,11 +764,18 @@ class receive_path(gr.hier_block2):
 
           vdd = [10]*vlen_sinr_sc
 
-          self.connect(gr.vector_source_f(vdd,True),gr.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
+          self.connect(blocks.vector_source_f(vdd,True),blocks.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
 
           self.connect(ber_sampler,(rpsink,4))
           self.connect(snr_mst,(rpsink,5))
           self.connect(snr_mst,(rpsink,6))
+        
+          self.zmq_probe_ber = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5556")
+          self.connect(ber_sampler,self.zmq_probe_ber)
+      
+          self.zmq_probe_snr = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5555")
+          self.connect(snr_mst,self.zmq_probe_snr)
+          
 
   ##############################################################################
   def setup_imgtransfer_sink(self):
@@ -758,7 +797,7 @@ class receive_path(gr.hier_block2):
     #                                        False)
     #udpsink = gr.udp_sink( 1, "127.0.0.1", 0, "127.0.0.1", 45454,
     #                       UDP_PACKET_SIZE )
-    #udpsink = gr.null_sink( gr.sizeof_char )
+    #udpsink = blocks.null_sink( gr.sizeof_char )
 
     self.connect( bc_src, ( imgtransfersink, 0 ) )
     self.connect( demod,  ( imgtransfersink, 1 ) )
@@ -801,11 +840,21 @@ class receive_path(gr.hier_block2):
 
 
     port = self._rx_control.add_mobile_station(config.rx_station_id)
-    bc_src = (self._rx_control,port)
+    #bc_src = (self._rx_control,port)
+    
+    if config.debug:
+        bc_src = (self._rx_control,port)
+        bc_src_id = (self._rx_control,0)
+    else:
+        bc_src_id = (self._rx_control,port)
+        bc_src = (self._rx_control,port+1)
+        
 
     ## Data Reference Source
     dref_src = self._data_reference_source = ber_reference_source(self._options)
-    self.connect(bc_src,dref_src)
+    #self.connect(bc_src,dref_src)
+    self.connect(bc_src_id,(dref_src,0))
+    self.connect(bc_src,(dref_src,1))
     
 
     ## BER Measuring Tool
@@ -819,9 +868,12 @@ class receive_path(gr.hier_block2):
     self._measuring_ber = True
 
     if self._options.enable_ber2:
-      ber2 = ofdm.bit_position_dependent_BER( "BER2_" + strftime("%Y%m%d%H%M%S",gmtime()) )
+      ber2 = ofdm.bit_position_dependent_ber( "BER2_" + strftime("%Y%m%d%H%M%S",gmtime()) )
+      if(self._options.coding):
+        self.connect( decoding, ( ber2, 1 ) )
+      else:
+        self.connect( demod, ( ber2, 1 ) )
       self.connect( dref_src, ( ber2, 0 ) )
-      self.connect( demod, ( ber2, 1 ) )
       self.connect( bc_src, ( ber2, 2 ) )
 
     if self._options.log:
@@ -849,7 +901,7 @@ class receive_path(gr.hier_block2):
     def new_servant(uid):
       ## Message Sink
       sampler = vector_sampler(gr.sizeof_float,1)
-      trigsrc = gr.vector_source_b(concatenate([[0]*(int(dist)-1),[1]]),True)
+      trigsrc = blocks.vector_source_b(concatenate([[0]*(int(dist)-1),[1]]),True)
       msgq = gr.msg_queue(max_buffered_windows)
       msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
       self.connect(self._ber_measuring_tool,sampler,msg_sink)
@@ -899,7 +951,7 @@ class receive_path(gr.hier_block2):
 
     snr_est_filt = skip(gr.sizeof_gr_complex*vlen,frame_length)
     for x in range(1,frame_length):
-      snr_est_filt.skip(x)
+      snr_est_filt.skip_call(x)
 
     ## NOTE HACK!! first preamble is not equalized
 
@@ -918,7 +970,7 @@ class receive_path(gr.hier_block2):
         snr_est_filt_2 = skip(gr.sizeof_gr_complex*vlen,frame_length)
         for x in range(frame_length):
           if x != config.training_data.channel_estimation_pilot[0]:
-            snr_est_filt_2.skip(x)
+            snr_est_filt_2.skip_call(x)
 
         self.connect(self.symbol_output,snr_est_filt_2)
         self.connect(self.frame_trigger,(snr_est_filt_2,1))
@@ -934,11 +986,11 @@ class receive_path(gr.hier_block2):
     else:
         #snrm = self._snr_measurement = milans_snr_estimator( vlen, vlen, L )
         snr_estim = snr_estimator( vlen, L )
-        scsnrdb = gr.single_pole_iir_filter_ff(0.1)
-        snrm = self._snr_measurement = gr.nlog10_ff(10,1,0)
+        scsnrdb = filter.single_pole_iir_filter_ff(0.1)
+        snrm = self._snr_measurement = blocks.nlog10_ff(10,1,0)
         self.connect(snr_est_filt,snr_estim,scsnrdb,snrm)
-        self.connect((snr_estim,1),gr.null_sink(gr.sizeof_float))
-        log_to_file(self, snrm, "data/snrm.float")
+        self.connect((snr_estim,1),blocks.null_sink(gr.sizeof_float))
+        #log_to_file(self, snrm, "data/snrm.float")
 
         if self._options.log:
             log_to_file(self, self._snr_measurement, "data/milan_snr.float")
@@ -1018,7 +1070,7 @@ class receive_path(gr.hier_block2):
 #    keep_est_preamble = skip(gr.sizeof_float*config.subcarriers, frame_len)
 #    for i in range( frame_len ):
 #      if i != config.training_data.channel_estimation_pilot[0]:
-#        keep_est_preamble.skip(i)
+#        keep_est_preamble.skip_call(i)
 #
 #    self.connect( self.ctf, (keep_est_preamble,0) )
 #    self.connect( self.frame_trigger, (keep_est_preamble,1) )
@@ -1029,9 +1081,9 @@ class receive_path(gr.hier_block2):
     psubc_filt = pilot_subcarrier_filter(complex_value=False)
     self.connect( self.ctf, psubc_filt )
 
-    lp_filter = gr.single_pole_iir_filter_ff(0.1,vlen)
+    lp_filter = filter.single_pole_iir_filter_ff(0.1,vlen)
     self.connect( psubc_filt, lp_filter )
-    log_to_file(self,lp_filter,"data/filt_ctf.float")
+    #log_to_file(self,lp_filter,"data/filt_ctf.float")
 
     self.filtered_ctf = lp_filter
     return lp_filter
@@ -1095,6 +1147,9 @@ class receive_path(gr.hier_block2):
     """
     self.servants.append(corba_ndata_buffer_servant(str(unique_id),
         self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
+    
+  def set_scatterplot_subc(self, subc):
+     return self._scatter_vec_elem.set_element(int(subc))
 
   def add_options(normal, expert):
     """
@@ -1183,9 +1238,9 @@ class ofdm_bpsk_demodulator (gr.hier_block2):
       gr.io_signature( 1, 1, gr.sizeof_char ) )
 
     modmap = [1]*data_subcarriers
-    map_src = gr.vector_source_b(modmap,True,data_subcarriers)
+    map_src = blocks.vector_source_b(modmap,True,data_subcarriers)
 
-    trig_src = gr.vector_source_b([1],True)
+    trig_src = blocks.vector_source_b([1],True)
 
     demod = generic_demapper_vcb(data_subcarriers)
 
@@ -1204,9 +1259,9 @@ class ofdm_bpsk_modulator (gr.hier_block2):
       gr.io_signature( 1, 1, gr.sizeof_gr_complex * data_subcarriers ) )
 
     modmap = [1]*data_subcarriers
-    map_src = gr.vector_source_b(modmap,True,data_subcarriers)
+    map_src = blocks.vector_source_b(modmap,True,data_subcarriers)
 
-    trig_src = gr.vector_source_b([1],True)
+    trig_src = blocks.vector_source_b([1],True)
 
     mod = ofdm.generic_mapper_bcv(data_subcarriers)
 
@@ -1231,6 +1286,7 @@ class corba_rx_control (gr.hier_block2):
       gr.io_signature (1,1,gr.sizeof_short),
       gr.io_signaturev(2,-1,[gr.sizeof_short,        # filtered ID
                              gr.sizeof_char*dsubc,   # Bit Map
+                             gr.sizeof_short,        # ID from bitcount src
                              gr.sizeof_int]))        # Bitcount stream
 
     self.cur_port = 2
@@ -1240,6 +1296,7 @@ class corba_rx_control (gr.hier_block2):
 
     id_out = (self,0)
     bitmap_out = (self,1)
+    bitcount_id_out = (self,2)
 
     self.ns_ip = ns_ip = options.nameservice_ip
     self.ns_port = ns_port = options.nameservice_port
@@ -1250,12 +1307,12 @@ class corba_rx_control (gr.hier_block2):
     ## Corrupted ID Filter
     id_filt = self._id_source = corba_id_filter(evchan,ns_ip,ns_port,10) #FIXME: avoid constant
     self.connect(id_in,id_filt,id_out)
-    log_to_file(self, id_filt, "data/id_filt.short")
+    #log_to_file(self, id_filt, "data/id_filt.short")
 
     ## Bitmap Source
     map_src = self._bitmap_source = corba_bitmap_src(dsubc,station_id,
         evchan,ns_ip,ns_port)
-    log_to_file(self,map_src,"data/original_bitmap_src.char")
+    #log_to_file(self,map_src,"data/original_bitmap_src.char")
     self.connect(id_filt,map_src,bitmap_out)
 
 
@@ -1275,10 +1332,12 @@ class corba_rx_control (gr.hier_block2):
 
     config = station_configuration()
     port = self.cur_port
-    self.cur_port += 1
+    self.cur_port += 2
 
-    self._bc_src = bc_src = corba_bitcount_src_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
-    self.connect(self._id_source,bc_src,(self,port))
+    self._bc_src = bc_src = corba_bitcount_src_02_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
+    self.connect(self._id_source,bc_src)
+    self.connect((bc_src,0),(self,port))
+    self.connect((bc_src,1),(self,port+1))
 
     self._stations[uid] = port
 
@@ -1305,17 +1364,20 @@ class static_rx_control (gr.hier_block2):
 
     self.control = ctrl = static_control(dsubc,config.frame_id_blocks,
                                          config.frame_data_blocks,options)
+    
 
     id_in = (self,0)
 
     id_out = (self,0)
     bitmap_out = (self,1)
     powmap_out = (self,2)
+    
+    #bitcount_id_out = (self,3)
 
 
 
     ## ID "filter"
-    self.connect(id_in,gr.kludge_copy(gr.sizeof_short),id_out)
+    self.connect(id_in,blocks.keep_one_in_n(gr.sizeof_short,1),id_out)
 
 
 
@@ -1333,13 +1395,19 @@ class static_rx_control (gr.hier_block2):
       helper.append(int(x))
 
     ## Map Source
-    map_src = gr.vector_source_b(helper,True,dsubc)
+    map_src = blocks.vector_source_b(helper,True,dsubc)
     self.connect(map_src,bitmap_out)
+    
+    power_all = ctrl.pow_stream
+    print "ctrl.pow_stream", ctrl.pow_stream
 
-
-
+    power_all = [1.0 if x==0.0 else x for x in power_all]
+    print "power_all", power_all
+    
+    #[1 if x==0.0 else x for x in ctrl.pow_stream]
+    
     ## Power Allocation Source
-    pa_src = gr.vector_source_f(ctrl.pow_stream,True,dsubc)
+    pa_src = blocks.vector_source_f(power_all,True,dsubc)
     self.connect(pa_src,powmap_out)
 
 
@@ -1365,8 +1433,10 @@ class static_rx_control (gr.hier_block2):
     sam = numpy.array(self.control.static_ass_map)
 
     bitcount = sum(smm[sam == uid])*config.frame_data_blocks
+    
+    bitcount_array = numpy.array(bitcount)
 
-    bc_src = gr.vector_source_i([bitcount],True)
+    bc_src = blocks.vector_source_i([bitcount_array.tolist()],True)
     self.connect(bc_src,(self,port))
 
     print "static rx control: bitcount for ", uid," is ",bitcount
@@ -1419,10 +1489,10 @@ class ofdm_frame_sampler( gr.hier_block2 ):
 
     frame_sampler = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc,
                                               config.frame_length )
-    symbol_output = gr.vector_to_stream( gr.sizeof_gr_complex * total_subc,
+    symbol_output = blocks.vector_to_stream( gr.sizeof_gr_complex * total_subc,
                                               config.frame_length )
-    delayed_frame_start = gr.delay( gr.sizeof_char, config.frame_length - 1 )
-    damn_static_frame_trigger = gr.vector_source_b( ft, True )
+    delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length - 1 )
+    damn_static_frame_trigger = blocks.vector_source_b( ft, True )
 
     if options.enable_erasure_decision:
       self.frame_gate = vector_sampler(

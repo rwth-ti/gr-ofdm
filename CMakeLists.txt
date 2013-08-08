@@ -115,8 +115,8 @@ endif()
 INCLUDE(FindPackageMessage)
 find_package(NumPy REQUIRED) 
 find_package(ITPP REQUIRED)
-find_package(TAO REQUIRED)
-find_package(ACE REQUIRED)
+#find_package(TAO REQUIRED)
+#find_package(ACE REQUIRED)
 find_package(Qwt REQUIRED)
 find_package(GL REQUIRED)
 #find_package(TAO_UTILS REQUIRED) 
@@ -129,9 +129,9 @@ if(NOT ITPP_FOUND)
     message(FATAL_ERROR "IT++ required for to build gr-ofdm")
 endif()
 
-if(NOT TAO_FOUND)
-    message(FATAL_ERROR "TAO required to compile TAO")
-endif()
+#if(NOT TAO_FOUND)
+   # message(FATAL_ERROR "TAO required to compile TAO")
+#endif()
 
 ########################################################################
 # Setup the include and linker paths
@@ -154,10 +154,10 @@ include_directories(
     #OFDM specific paths
     
     ${ITPP_INCLUDE_DIR}/itpp
-    ${TAO_INCLUDE_DIR}/tao
-    ${TAO_INCLUDE_DIR}/orbsvc
-    ${ACE_INCLUDE_DIR}/ace
-    ${ACE_INCLUDE_DIR}
+    #${TAO_INCLUDE_DIR}/tao
+    #${TAO_INCLUDE_DIR}/orbsvc
+    #${ACE_INCLUDE_DIR}/ace
+    #${ACE_INCLUDE_DIR}
     ${QWT_INCLUDE_DIRS}
     ${QT_INCLUDE_DIRS}
     ${gl_INCLUDE_DIR}
@@ -197,7 +197,7 @@ add_custom_target(uninstall
 ########################################################################
 # Add subdirectories
 ########################################################################
-add_subdirectory(tao_skeleton)
+#add_subdirectory(tao_skeleton)
 add_subdirectory(include/ofdm)
 add_subdirectory(lib)
 add_subdirectory(swig)

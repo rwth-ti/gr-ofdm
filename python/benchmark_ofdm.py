@@ -28,8 +28,7 @@ from gnuradio import filter
 from station_configuration import station_configuration
 
 from math import log10
-from corba_servants import corba_data_buffer_servant
-from corba_servants import *
+
 
 
 import sys
@@ -37,18 +36,13 @@ import os
 
 from transmit_path import transmit_path
 from receive_path2 import receive_path
-from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
+from ofdm import throughput_measure, vector_sampler
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
 
 import fusb_options
 
-from omniORB import CORBA, PortableServer
-import CosNaming
-from corba_stubs import ofdm_ti,ofdm_ti__POA
-from corba_servants import general_corba_servant
-from corba_servants import corba_data_buffer_servant,corba_push_vector_f_servant
 
 import ofdm as ofdm
 #import itpp
@@ -90,6 +84,7 @@ class ofdm_benchmark (gr.top_block):
     ##self._mac_addr           = options.mac_addr
     
     self._options = copy.copy( options )
+    
     
     self.rpc_manager = zmqblocks.rpc_manager()
     self.rpc_manager.set_reply_socket("tcp://*:6666")
@@ -169,16 +164,8 @@ class ofdm_benchmark (gr.top_block):
     
     
     self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
-    
-    self.enable_info_tx("info_tx", "pa_user")
-#    if not options.no_cheat:
-#      self.txpath.enable_channel_cheating("channelcheat")
-    if options.debug:
-        print "1"
-    else:
-        self.txpath.enable_txpower_adjust("txpower")
         
-    self.txpath.publish_txpower("txpower_info")
+    
     #self.enable_txfreq_adjust("txfreq")
     
     
@@ -238,8 +225,8 @@ class ofdm_benchmark (gr.top_block):
       self.dst = awgn_chan
 
     if options.freqoff is not None:
-      print "Artificial Frequency Offset: ", options.freqoff
-      self.enable_freqoff_adjust("txfreqoff")
+    
+      print "Artificial Frequency Offset: ", options.freqoff    
       freq_shift = blocks.multiply_cc()
       norm_freq = options.freqoff / config.fft_length
       freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
@@ -300,17 +287,7 @@ class ofdm_benchmark (gr.top_block):
       
     print "Hit Strg^C to terminate"
 
-    if options.event_rxbaseband:
-      self.publish_rx_baseband_measure()
-      
-      
-    if options.with_old_gui:
-      self.publish_spectrum(256)
-      self.rxpath.publish_ctf("ctf_display")
-      self.rxpath.publish_ber_measurement(["ber"])
-      self.rxpath.publish_average_snr(["totalsnr"])
-      if options.sinr_est:
-        self.rxpath.publish_sinrsc("sinrsc_display")
+
       
 
 
@@ -327,19 +304,6 @@ class ofdm_benchmark (gr.top_block):
 #      log_to_file(self, self.filter, "data/tx_filter.float",mag=True)
 #      ms_to_file(self, self.filter, "data/tx_filter_power.float")
 
-  def publish_spectrum(self,fftlen):
-    spectrum = gr.fft_vcc(fftlen,True,[],True)
-    mag = gr.complex_to_mag(fftlen)
-    logdb = gr.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
-    decimate_rate = gr.keep_one_in_n(gr.sizeof_gr_complex*fftlen,10)
-
-    msgq = gr.msg_queue(10)
-    msg_sink = gr.message_sink(gr.sizeof_float*fftlen,msgq,True)
-
-    self.connect(self.filter,gr.stream_to_vector(gr.sizeof_gr_complex,fftlen),
-                 decimate_rate,spectrum,mag,logdb,msg_sink)
-
-    self.servants.append(corba_data_buffer_servant("tx_spectrum",fftlen,msgq))
     
 #  def set_rms_amplitude(self, ampl):
 #    """
@@ -376,20 +340,12 @@ class ofdm_benchmark (gr.top_block):
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)  
     
-    
-  def publish_rx_baseband_measure(self):
-    config = self.config
-    vlen = config.fft_length
-    self.rx_baseband_sink = rx_sink = corba_rxbaseband_sink("alps",config.ns_ip,
-                                    config.ns_port,vlen,config.rx_station_id)
+
 
       # 1. frame id
       #self.connect(self.rxpath._id_decoder,(rx_sink,0))
 
       # 2. channel transfer function
-    rx_bband = self.supply_rx_baseband()
-    print "Supplied"
-    self.connect( rx_bband, (rx_sink,0) )
 
 
   def supply_rx_baseband(self):
@@ -424,40 +380,10 @@ class ofdm_benchmark (gr.top_block):
 #      self.servants.append(corba_ndata_buffer_servant(str(unique_id),
 #        self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
 
-  def publish_rx_spectrum(self,fftlen):
-    ## RX Spectrum
-
-    fftlen = 256
-    my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
-    rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
-    rxs_trigger = blocks.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = blocks.multiply_const_vcc(my_window)
-    rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
-    rxs_mag = gr.complex_to_mag(fftlen)
-    rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
-    rxs_logdb = gr.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
-    rxs_decimate_rate = gr.keep_one_in_n(gr.sizeof_float*fftlen,1)
-    msgq = gr.msg_queue(5)
-    rxs_msg_sink = gr.message_sink(gr.sizeof_float*fftlen,msgq,True)
-    self.connect(rxs_trigger,(rxs_sampler,1))
-    t = self.u if self.filter is None else self.filter
-    self.connect(t,rxs_sampler,rxs_window,
-                 rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate,
-                 rxs_msg_sink)
-    self.servants.append(corba_data_buffer_servant("spectrum",fftlen,msgq))
-
-    print "RXS trigger unique id", rxs_trigger.unique_id()
-    
-    print "Publishing RX baseband under id: spectrum"
 
   def change_freqoff(self,val):
     self.set_freqoff(val[0])
-
-  def enable_freqoff_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_freqoff,
-        msg=""))
-    print "Enable tx freq offset adjust"    
+ 
     
   def set_freqoff(self, freqoff):
     """
@@ -602,31 +528,6 @@ class ofdm_benchmark (gr.top_block):
       ##print "ADC rate:        %s"    % (eng_notation.num_to_str(self.u.adc_rate()))
     print ""
 
-  def enable_info_tx(self,unique_id,userid):
-    """
-    create servant for info_tx interface and give him our specifications.
-    only fixed data should go here!
-    """
-
-    config = station_configuration()
-    carrier_freq = 0.0
-    bandwidth = self._bandwidth or 2e6
-    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
-    samples_per_frame = config.frame_length*config.block_length
-    tb = samples_per_frame/bandwidth
-    infotx = info_tx_i(subcarriers= config.data_subcarriers,
-                       fft_window=config.fft_length,
-                       cp_length=config.cp_length,
-                       carrier_freq=carrier_freq,
-                       symbol_time=config.block_length/bandwidth,
-                       bandwidth=bandwidth,
-                       subbandwidth=bandwidth/config.fft_length,
-                       max_datarate=(bits/tb),
-                       burst_length=config.frame_length
-                       )
-    self.servants.append(general_corba_servant(str(unique_id),infotx))
-    
-    print "Enabled info_tx, id: %s" % (unique_id)
     
   def get_tx_parameters(self):
     print self.tx_parameters
@@ -705,8 +606,6 @@ class ofdm_benchmark (gr.top_block):
       "", "--event-rxbaseband",
       action="store_true", default=False,
       help = "Enable RX baseband via event channel alps" )
-    normal.add_option("", "--with-old-gui", action="store_true", default=False,
-                      help="Turn of CORBA interfaces to support old GUI")
 
     normal.add_option(
       "", "--imgxfer",
@@ -716,53 +615,7 @@ class ofdm_benchmark (gr.top_block):
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)
 
-################################################################################
-################################################################################
 
-"""
-CORBA servant implementation of info_tx interface
-"""
-class info_tx_i(ofdm_ti__POA.info_tx):
-  def __init__(self,**kwargs):
-    self.subcarriers = kwargs['subcarriers']
-    self.fft_window = kwargs['fft_window']
-    self.cp_length = kwargs['cp_length']
-    self.carrier_freq = kwargs['carrier_freq']
-    self.symbol_time = kwargs['symbol_time']
-    self.bandwidth = kwargs['bandwidth']
-    self.subbandwidth = kwargs['subbandwidth']
-    self.max_datarate = kwargs['max_datarate']
-    self.burst_length = kwargs['burst_length']
-
-  def _get_subcarriers(self):
-    return self.subcarriers
-
-  def _get_fft_window(self):
-    return self.fft_window
-
-  def _get_cp_length(self):
-    return self.cp_length
-
-  def _get_carrier_freq(self):
-    return float(self.carrier_freq)
-
-  def _get_symbol_time(self):
-    return self.symbol_time
-
-  def _get_bandwidth(self):
-    return self.bandwidth
-
-  def _get_subbandwidth(self):
-    return self.subbandwidth
-
-  def _get_max_datarate(self):
-    return int(self.max_datarate)
-
-  def _get_burst_length(self):
-    return self.burst_length
-
-################################################################################
-################################################################################
 
 def main():
   parser = OptionParser(conflict_handler="resolve")
@@ -795,7 +648,7 @@ def main():
     print "Enabled realtime scheduling"
 
   try:
-    orb = CORBA.ORB_init(sys.argv,CORBA.ORB_ID)
+
     string_benchmark = runtime.dot_graph()
     
     filetx = os.path.expanduser('~/omnilog/benchmark_ofdm.dot')
@@ -804,12 +657,12 @@ def main():
     dot_file.write(string_benchmark)
     dot_file.close()
     
-    runtime.start()
+    runtime.run()
     try:
       tx.txpath._control._id_source.ready()
     except:
       pass
-    orb.run()
+
   except KeyboardInterrupt:
     runtime.stop()
     # somewhat messy hack

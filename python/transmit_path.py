@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from corba_servants import *
+
 from gnuradio import eng_notation
 from gnuradio import gr, blocks
 from gnuradio import fft as fft_blocks
@@ -19,10 +19,8 @@ import common_options
 import math, copy
 import numpy
 
-from ofdm import corba_multiplex_src_ss,corba_bitcount_src_02_si #corba_bitcount_src_si
-from ofdm import corba_id_src,corba_map_src_sv,corba_power_src_sv
-from ofdm import repetition_encoder_sb, corba_bitmap_src
-from ofdm import corba_power_allocator, stream_controlled_mux_b
+from ofdm import repetition_encoder_sb
+from ofdm import stream_controlled_mux_b
 
 from random import seed,randint, getrandbits
 
@@ -68,6 +66,7 @@ class transmit_path(gr.hier_block2):
     # digital rms amplitude sent to USRP
     rms_amp                    = options.rms_amplitude
     self._options              = copy.copy(options)
+    
 
     self.servants = [] # FIXME
 
@@ -110,9 +109,6 @@ class transmit_path(gr.hier_block2):
     if options.debug:
       self._control = ctrl = static_tx_control(options)
       print "Statix TX Control used"
-    else:
-      self._control = ctrl = corba_tx_control(options)
-      print "CORBA TX Control used"
 
     id_src = (ctrl,0)
     mux_src = (ctrl,1)
@@ -215,18 +211,6 @@ class transmit_path(gr.hier_block2):
       self.connect(mod,(pa,0))
       self.connect(pa_src,(pa,1))
 
-    else:
-
-      ## with CORBA control event channel
-      ns_ip = ctrl.ns_ip
-      ns_port = ctrl.ns_port
-      evchan = ctrl.evchan
-      pa = self._power_allocator = corba_power_allocator(dsubc, \
-          evchan, ns_ip, ns_port, True)
-
-      self.connect(mod,(pa,0))
-      self.connect(id_src,(pa,1))
-      self.connect(ftrig,(pa,2))
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
@@ -399,28 +383,11 @@ class transmit_path(gr.hier_block2):
 # ---------------------------------------------------------------------------- #
 ## Relikte der alten Zeit
 
-  def enable_channel_cheating(self,unique_id):
-    """
-    corbaname: ofdm_ti.unique_id
-    """
-    self.servants.append(corba_push_vector_c_servant(str(unique_id),
-        self.config.cp_length,
-        self._artificial_channel.set_taps,
-        msg="Changing multipath channel simulation\n"))
 
   def change_txpower(self,val):
     self.set_rms_amplitude(val[0])
 
-  def enable_txpower_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_txpower,
-        msg="Changing tx power output rms level\n"))
 
-  def publish_txpower(self,unique_id):
-    def dummy_reset():
-      pass
-    self.servants.append(corba_ndata_buffer_servant(str(unique_id),
-        self.get_rms_amplitude,dummy_reset))
 
   def get_rms_amplitude(self):
     return self.rms
@@ -602,81 +569,6 @@ class power_deallocator (common_power_allocator):
     common_power_allocator.__init__(self,subcarriers,
                                     blocks.divide_cc(subcarriers))
 
-################################################################################
-################################################################################
-
-class corba_tx_control (gr.hier_block2):
-  def __init__(self, options):
-    config = station_configuration()
-    dsubc = config.data_subcarriers
-
-    gr.hier_block2.__init__(self, "corba_control",
-      gr.io_signature (0,0,0),
-      gr.io_signaturev(4,-1,[gr.sizeof_short,         # ID
-                             gr.sizeof_short,         # Multiplex control stream
-                             gr.sizeof_char*dsubc,    # Bit Map
-                             gr.sizeof_short, 
-                             gr.sizeof_int ]))        # Bit count per frame
-
-    id_out = (self,0)
-    mux_out = (self,1)
-    bitmap_out = (self,2)
-    bitcount_id_out = (self,3)
-
-    self.cur_port = 3
-
-    self.ns_ip = ns_ip = options.nameservice_ip
-    self.ns_port = ns_port = options.nameservice_port
-    self.evchan = evchan = std_event_channel
-    self.coding = coding = options.coding
-
-
-    ## ID Source (root)
-    id_src = self._id_source = corba_id_src(evchan,ns_ip,ns_port)
-    self.connect(id_src,id_out)
-
-
-    ## Multiplex Source
-    mux_src = self._multiplex_source = corba_multiplex_src_ss(evchan,ns_ip,ns_port,coding)
-    self.connect(id_src,mux_src,mux_out)
-
-
-    ## Map Source
-    map_src = self._bitmap_source = corba_bitmap_src(dsubc,
-        0,evchan,ns_ip,ns_port)
-    self.connect(id_src,map_src,bitmap_out)
-
-#    ## Map Source
-#    map_src = self._map_source = corba_map_src_sv(config.data_subcarriers,
-#                                                  evchan,ns_ip,ns_port)
-#    self.connect(id_src,map_src,bitmap_out)
-
-
-#    ## Power Allocation Source
-#    pa_src = self._power_allocation_source = \
-#        corba_power_src_sv(config.data_subcarriers,evchan,ns_ip,ns_port)
-#    self.connect(id_src,pa_src,powmap_out)
-
-
-
-  def add_mobile_station(self,uid):
-    """
-    Register mobile station with unique id \param uid
-    Provides a new bitcount stream for this id. The next free port of
-    the control block is used. Returns assigned output port.
-    """
-
-    config = station_configuration()
-    port = self.cur_port
-    self.cur_port += 2 #11
-
-    bc_src = corba_bitcount_src_02_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
-    self.connect(self._id_source,bc_src,(self,port))
-    self.connect((bc_src,1),(self,port+1))
-    
-    #log_to_file(self,bc_src,'data/bitcount_src.int')
-
-    return port
 
 ################################################################################
 ################################################################################
@@ -753,11 +645,7 @@ class static_tx_control (gr.hier_block2):
     self.connect(map_src,bitmap_out)
     
     self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
-    sample_data_map = ofdm.vector_sampler(gr.sizeof_char * dsubc, 1 )
-    sample_data_map_trig = blocks.vector_source_b( [0,1], True )
-    
-    self.connect(map_src, sample_data_map, self.zmq_probe_map)
-    self.connect(sample_data_map_trig, (sample_data_map,1))
+    self.connect(map_src, self.zmq_probe_map)
 
 
     ## Power Allocation Source

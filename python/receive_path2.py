@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 from numpy import concatenate, log10
-from corba_servants import *
-from corba_stubs import ofdm_ti, ofdm_ti__POA
 from gnuradio import eng_notation
 from gnuradio import gr, filter
 from gnuradio import blocks
@@ -12,10 +10,9 @@ from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
 from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm import generic_mapper_bcv, corba_rxinfo_sink, corba_rxinfo_sink_imgxfer, dynamic_trigger_ib, snr_estimator
+from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
 from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
-from ofdm import corba_power_allocator
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
 import ofdm as ofdm
@@ -23,8 +20,6 @@ import ofdm as ofdm
 from time import strftime,gmtime
 
 from snr_estimator import milans_snr_estimator, milans_sinr_sc_estimator, milans_sinr_sc_estimator2, milans_sinr_sc_estimator3
-
-from ofdm import corba_bitmap_src
 
 
 from station_configuration import *
@@ -43,8 +38,7 @@ import numpy
 
 from random import seed,randint
 
-from ofdm import corba_assignment_src_sv,corba_bitcount_src_02_si #,corba_bitcount_src_si
-from ofdm import corba_map_src_sv,corba_power_src_sv,corba_id_filter
+
 from ofdm import repetition_decoder_bs
 from gnuradio.blocks import delay
 
@@ -102,6 +96,9 @@ class receive_path(gr.hier_block2):
     config.frame_id_blocks      = 1 # FIXME
 
     self._options               = copy.copy(options) #FIXME: do we need this?
+    
+        
+        
     self.servants = []
 
     config.block_length = config.fft_length + config.cp_length
@@ -153,39 +150,6 @@ class receive_path(gr.hier_block2):
     whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
 
 
-    if options.no_decoding:
-
-      terminate_stream( self, disp_ctf )
-
-      ## get ID block, with pilot subcarriers
-      id_block_wps = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc, 1 )
-      idblock_trigger = blocks.delay( gr.sizeof_char,
-                                  config.training_data.no_preambles )
-      self.connect( ofdm_blocks, id_block_wps )
-      self.connect( frame_start, idblock_trigger, ( id_block_wps, 1 ) )
-
-      ## remove pilot subcarriers from ID block
-      id_block = pilot_subcarrier_filter()
-      self.connect( id_block_wps, id_block )
-
-      ## ID Demapper and Decoder, soft decision
-      id_dec = ofdm.coded_bpsk_soft_decoder( dsubc, used_id_bits, whitener_pn )
-      self.connect( id_block, id_dec )
-      log_to_file(self,id_dec,"data/id_dec.short")
-
-      ns_ip = options.nameservice_ip
-      ns_port = options.nameservice_port
-      evchan = std_event_channel
-      max_trials = 10
-      id_filt = self._id_source = corba_id_filter( evchan, ns_ip, ns_port,
-                                                   max_trials )
-
-      self.connect( id_dec, id_filt )
-      terminate_stream( self, id_filt )
-
-
-      print "No DECODING"
-      return
 
 
 
@@ -375,8 +339,7 @@ class receive_path(gr.hier_block2):
     if options.debug:
       self._rx_control = ctrl = static_rx_control(options)
       self.connect((ctrl,0),blocks.null_sink(gr.sizeof_short))
-    else:
-      self._rx_control = ctrl = corba_rx_control(options)
+    
 
     self.connect(id_dec,ctrl)
     id_filt = (ctrl,0)
@@ -401,33 +364,6 @@ class receive_path(gr.hier_block2):
       self.connect(pda_in,(pda,0))
       self.connect(pa_src,(pda,1))
 
-    else:
-
-      ## with CORBA control event channel
-      ns_ip = ctrl.ns_ip
-      ns_port = ctrl.ns_port
-      evchan = ctrl.evchan
-      pda = self._power_deallocator = corba_power_allocator(dsubc,
-          evchan, ns_ip, ns_port, False)
-
-      self.connect(pda_in,(pda,0))
-      self.connect(id_filt,(pda,1))
-      self.connect(self.frame_data_trigger,(pda,2))
-      
-      if 0:  
-          ac_vector = [0.0+0.0j]*208
-          ac_vector[0] = (2*10**(-0.452))
-          ac_vector[3] = (10**(-0.651))
-          ac_vector[7] = (10**(-1.151))
-          csi_vector_inv=1.0/numpy.fft.fft(numpy.sqrt(ac_vector))
-          skip_pilots = skip(gr.sizeof_gr_complex*vlen,frame_length)
-          self.inv_channel = blocks.multiply_const_vcc(csi_vector_inv)
-          self.connect(self.inv_channel,pda)
-          pda = self.inv_channel
-          #self.inv_channel = blocks.multiply_const_vcc(numpy.fft.fftshift(csi_vector_inv))
-
-    if options.log:
-      log_to_file(self,pda,"data/pda_out.compl")
 
 
 
@@ -674,18 +610,6 @@ class receive_path(gr.hier_block2):
     vlen = config.data_subcarriers
     vlen_sinr_sc = config.subcarriers
 
-
-#    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
-#                                    config.ns_port,vlen,config.rx_station_id)
-    if self.__dict__.has_key('_img_xfer_inprog'):
-      self.rx_per_sink = rpsink = corba_rxinfo_sink_imgxfer("himalaya",config.ns_ip,
-                                    config.ns_port,vlen,vlen_sinr_sc,config.rx_station_id,self.imgxfer_sink)
-    else:
-      self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
-                                    config.ns_port,vlen,vlen_sinr_sc,config.rx_station_id)
-
-#    self.rx_per_sink = rpsink = rpsink_dummy()
-
     self.setup_ber_measurement()
     self.setup_snr_measurement()
 
@@ -694,39 +618,22 @@ class receive_path(gr.hier_block2):
         sinr_mst = self._sinr_measurement
     else:
         snr_mst = self._snr_measurement
-
-    # 1. frame id
-    self.connect(self._id_decoder,(rpsink,0))
-
-    # 2. channel transfer function
+        
     ctf = self.filter_ctf()
-    self.connect( ctf, (rpsink,1) )
-    self.connect( ctf, (rpsink,2) )
     
     self.zmq_probe_ctf = zmqblocks.sink_pubsub(gr.sizeof_float*config.data_subcarriers, "tcp://*:5559")
     self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,2) ,self.zmq_probe_ctf)
-
-    # 3. BER
-    ### FIXME HACK
-    if self.__dict__.has_key('_img_xfer_inprog'):
+#    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
+#                                    config.ns_port,vlen,config.rx_station_id)
+    
+    
+    if self.__dict__.has_key('_img_xfer_inprog') is False:
 
 #      print "BER img xfer"
 #      self.connect(ber_mst,(rpsink,3))
 #      ## no sampling needed
       # 3. SNR
-      if self._options.sinr_est:
-          self.connect(sinr_mst,(rpsink,3))
-          self.connect((sinr_mst,1),(rpsink,4))
 
-      else:
-
-          vdd = [10]*vlen_sinr_sc
-
-          #self.connect(blocks.vector_source_f(vdd,True),blocks.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
-          #self.connect(snr_mst,(rpsink,4))
-          #self.connect(snr_mst,(rpsink,2))
-
-    else:
 
       print "Normal BER measurement"
 
@@ -750,31 +657,13 @@ class receive_path(gr.hier_block2):
           log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
 
 
-      if self._options.sinr_est:
-          self.connect(ber_sampler,(rpsink,4))
-          #self.connect(snr_mst,blocks.null_sink(gr.sizeof_float))
-          self.connect(sinr_mst,(rpsink,3))
-          self.connect((sinr_mst,1),(rpsink,5))
-          self.connect((sinr_mst,1),(rpsink,6))
-          
-
-      else:
-  #        self.connect(ber_sampler,(rpsink,2))
-  #        self.connect(snr_mst,(rpsink,3))
-
-          vdd = [10]*vlen_sinr_sc
-
-          self.connect(blocks.vector_source_f(vdd,True),blocks.stream_to_vector(gr.sizeof_float,vlen_sinr_sc),(rpsink,3))
-
-          self.connect(ber_sampler,(rpsink,4))
-          self.connect(snr_mst,(rpsink,5))
-          self.connect(snr_mst,(rpsink,6))
-        
+      if self._options.sinr_est is False:        
           self.zmq_probe_ber = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5556")
           self.connect(ber_sampler,self.zmq_probe_ber)
       
           self.zmq_probe_snr = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5555")
           self.connect(snr_mst,self.zmq_probe_snr)
+    
           
 
   ##############################################################################
@@ -1399,10 +1288,10 @@ class static_rx_control (gr.hier_block2):
     self.connect(map_src,bitmap_out)
     
     power_all = ctrl.pow_stream
-    print "ctrl.pow_stream", ctrl.pow_stream
+    #print "ctrl.pow_stream", ctrl.pow_stream
 
     power_all = [1.0 if x==0.0 else x for x in power_all]
-    print "power_all", power_all
+    #print "power_all", power_all
     
     #[1 if x==0.0 else x for x in ctrl.pow_stream]
     

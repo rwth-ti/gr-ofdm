@@ -1,44 +1,39 @@
 #!/usr/bin/env python
+# 
+# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# 
+# This is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+# 
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+# 
 
 from gnuradio import gr, gr_unittest
-import sys
-sys.path.append('../')
-from ofdm import vector_element
+import ofdm_swig as ofdm
 
-class qa_scf (gr_unittest.TestCase):
+class qa_vector_element (gr_unittest.TestCase):
 
     def setUp (self):
-        self.tb = gr.top_block ("test_block")
+        self.tb = gr.top_block ()
 
     def tearDown (self):
-        self.tb = None 
+        self.tb = None
 
-    def std_test (self, vlen, src_data, element, expected):
-        src = gr.vector_source_c (src_data,False,vlen)
-        elem = vector_element(vlen,element)
-        dst = gr.vector_sink_c (1)
-        self.tb.connect (src, elem)
-        self.tb.connect (elem, dst)
+    def test_001_t (self):
+        # set up fg
         self.tb.run ()
-        result_data = dst.data ()
-        print result_data
-        self.assertEqual(expected, result_data)
-             
-    def test_001_scf (self):
-        vlen = 4
-        element = 1
-        src_vec = (1+1j, 1, 0, -1, 17, 2, 3, 4)
-        expected = (1+1j, 17)
-        self.std_test (vlen, src_vec, element, expected)
-        
-    def test_002_scf (self):
-        vlen = 5
-        element = 4
-        src_vec = (1, 2, 3, 4, 5, 6, 7, 8, 9-2j, 10, 11, 12, 13, 14, 15)
-        expected = (4, 9-2j, 14)
-        self.std_test (vlen, src_vec, element, expected)
+        # check data
+
 
 if __name__ == '__main__':
-    gr_unittest.main ()
-
-
+    gr_unittest.run(qa_vector_element, "qa_vector_element.xml")

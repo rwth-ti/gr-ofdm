@@ -2,9 +2,9 @@
 #include "config.h"
 #endif
 
-#include <gr_math.h>
-#include <ofdmi_mod.h>
-#include <gr_expj.h>
+//#include <gnuradio/math.h>
+#include <ofdm/ofdmi_mod.h>
+#include <gnuradio/expj.h>
 
 #include <vector>
 #include <algorithm>

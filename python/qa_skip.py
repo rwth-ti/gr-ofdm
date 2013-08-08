@@ -1,60 +1,39 @@
 #!/usr/bin/env python
+# 
+# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# 
+# This is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+# 
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+# 
 
 from gnuradio import gr, gr_unittest
-import ofdm as ofdm
-
-from numpy import concatenate,zeros
+import ofdm_swig as ofdm
 
 class qa_skip (gr_unittest.TestCase):
-  def setUp (self):
-    self.fg = gr.top_block ("test_block")
 
-  def tearDown (self):
-    self.fg = None
+    def setUp (self):
+        self.tb = gr.top_block ()
 
-  def test_001 (self):
-    blocklen = 10
-    vlen = 4
-    blocks = 2
+    def tearDown (self):
+        self.tb = None
 
-    skip = [1,4,8]
-
-    data = [[float(i)]*vlen for i in range(0,blocklen*blocks)]
-    trigger = [concatenate([[1],[0]*(blocklen-1)])]*blocks
-    trigger_ref = [concatenate([[1],[0]*(blocklen-len(skip)-1)])]*blocks
-
-    ref = []
-    for x in range(len(data)):
-      p = x % blocklen
-      if not (p in skip):
-        ref.append(data[x])
-
-    data = concatenate(data)
-    ref = concatenate(ref)
-    trigger = concatenate(trigger)
-    trigger_ref = concatenate(trigger_ref)
-
-    src = gr.vector_source_f(data)
-    src2 = gr.vector_source_b(trigger.tolist())
-    dst = gr.vector_sink_f()
-    dst2 = gr.vector_sink_b()
-    uut = ofdm.skip(gr.sizeof_float*vlen,blocklen)
-
-    for x in skip:
-      uut.skip(x)
-
-
-    self.fg.connect(src,gr.stream_to_vector(gr.sizeof_float,vlen),
-                    uut,gr.vector_to_stream(gr.sizeof_float,vlen),dst)
-    self.fg.connect(src2,(uut,1),dst2)
-
-    self.fg.run()
-
-    self.assertFloatTuplesAlmostEqual(ref,dst.data())
-    self.assertEqual(list(trigger_ref),list(dst2.data()))
-
+    def test_001_t (self):
+        # set up fg
+        self.tb.run ()
+        # check data
 
 
 if __name__ == '__main__':
-  gr_unittest.main()
-
+    gr_unittest.run(qa_skip, "qa_skip.xml")

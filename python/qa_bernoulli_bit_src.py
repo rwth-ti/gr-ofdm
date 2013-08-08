@@ -1,58 +1,39 @@
 #!/usr/bin/env python
+# 
+# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# 
+# This is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+# 
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+# 
 
 from gnuradio import gr, gr_unittest
-import ofdm as ofdm
-import numpy
-
+import ofdm_swig as ofdm
 
 class qa_bernoulli_bit_src (gr_unittest.TestCase):
-  def setUp (self):
-    self.tb = gr.top_block ("test_block")
 
-  def tearDown (self):
-    self.tb = None
+    def setUp (self):
+        self.tb = gr.top_block ()
 
-  def std_test(self, p, N):
-    N = int( N )
-    
-    src = ofdm.bernoulli_bit_src( p )    
-    c2f = gr.char_to_float()
-    acc = ofdm.accumulator_ff()
-    dst = gr.vector_sink_f()
-    
-    skiphead = gr.skiphead( gr.sizeof_float, N-1 )
-    limit = gr.head( gr.sizeof_float, 1 )
-    
-    self.tb.connect( src, c2f, acc, skiphead, limit, dst )
-    self.tb.run()
-    
-    data = numpy.array( dst.data() )
-    
-    m = data[len(data)-1]
-    exp = N * p
-    
-    print "Bernoulli experiment N =",N,"expected",exp,"and is",m
-    print "Relative error:", abs( m/exp - 1.0 )
-    
-    self.assertEqual( len(data), 1 )
-    self.assert_( numpy.abs( m - exp ) < 0.05 * exp )
-    
-  def test_001(self):
-    self.std_test( 0.5 , 10e6 )
+    def tearDown (self):
+        self.tb = None
 
-  def test_002(self):
-    self.std_test( 1e-1, 10e6 )
-
-  def test_003(self):
-    self.std_test( 1e-2 , 10e6 )
-
-  def test_004(self):
-    self.std_test( 1e-4 , 10e7 )
-
-#  def test_005(self):
-#    self.std_test( 1e-7 , 10e10 )
+    def test_001_t (self):
+        # set up fg
+        self.tb.run ()
+        # check data
 
 
 if __name__ == '__main__':
-  gr_unittest.main()
-
+    gr_unittest.run(qa_bernoulli_bit_src, "qa_bernoulli_bit_src.xml")

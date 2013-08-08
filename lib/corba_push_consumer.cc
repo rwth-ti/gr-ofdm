@@ -1,5 +1,5 @@
 
-#include "corba_push_consumer.h"
+#include <ofdm/corba_push_consumer.h>
 
 #include <orbsvcs/CosEventCommS.h>
 #include <orbsvcs/CosEventChannelAdminS.h>
@@ -18,7 +18,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread/thread_time.hpp>
 
-#include "orb.h"
+#include <ofdm/orb.h>
 
 #define DEBUG_OUT 0
 
@@ -29,7 +29,7 @@ struct corba_push_consumer::pushconsumer_i
 {
 };
 
-#include "pushconsumer_i.hpp"
+#include <ofdm/pushconsumer_i.hpp>
 
 
 // singleton pattern for corba push consumer

@@ -2,7 +2,7 @@
 #include "config.h"
 #endif
 
-#include "orb.h"
+#include <ofdm/orb.h>
 
 #include <tao/ORB_Core.h>
 #include <tao/ORB.h>

@@ -1,8 +1,8 @@
-#include <util_bmp.h>
 #include <stdio.h>
 #include <cstdlib>
 #include <malloc.h>
-#include <util_endian.h>
+#include <ofdm/util_endian.h>
+#include <ofdm/util_bmp.h>
 
 /*
  * function to convert byte to 8 bytes containing 0 and 1

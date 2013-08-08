@@ -6,7 +6,7 @@
 
 #include <ctime>
 
-#include <ofdmi_shared_generator.h>
+#include <ofdm/ofdmi_shared_generator.h>
 
 static boost::once_flag f=BOOST_ONCE_INIT; 
 static shared_generator_sptr shared_generator;

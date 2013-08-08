@@ -5,7 +5,7 @@
  *      Author: koppers
  */
 
-#include <util_random.h>
+#include <ofdm/util_random.h>
 #include <iostream>
 #include <fstream>
 

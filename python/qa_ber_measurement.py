@@ -1,66 +1,39 @@
 #!/usr/bin/env python
+# 
+# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# 
+# This is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+# 
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+# 
 
 from gnuradio import gr, gr_unittest
-import ofdm as ofdm
-import numpy
-
+import ofdm_swig as ofdm
 
 class qa_ber_measurement (gr_unittest.TestCase):
-  def setUp (self):
-    self.tb = gr.top_block ("test_block")
 
-  def tearDown (self):
-    self.tb = None
+    def setUp (self):
+        self.tb = gr.top_block ()
 
-  def std_test(self, p, N, Nwin ):
-    N = int( N )
-    Nwin = int( Nwin )
-    
-    src = ofdm.bernoulli_bit_src( 0.5 )
-    err_src = ofdm.bernoulli_bit_src( p )
-    xor = gr.xor_bb()
-    #berm = ofdm.ber_measurement( Nwin )
-    skiphead = gr.skiphead( gr.sizeof_float, N-1 )
-    limit = gr.head( gr.sizeof_float, 1 )
-    dst = gr.vector_sink_f()
-    
-    berm = gr.single_pole_iir_filter_ff( 10.0/float(Nwin) )
-    self.tb.connect( err_src, gr.char_to_float(), 
-                     berm, 
-                     skiphead, limit, dst )
-    self.tb.connect( berm, gr.multiply_const_ff( 1.0/p), gr.file_sink( gr.sizeof_float, "ber_out.float" ) )
-    #self.tb.connect( src,     (xor,0), berm, skiphead, limit, dst )
-    #self.tb.connect( err_src, (xor,1) )
-    #self.tb.connect( src, (berm,1) )
-    self.tb.run()
-    
-    data = numpy.array( dst.data() )
-    
-    self.assertEqual( len(data), 1 )
-    print "Soll",p,"Ist",data[len(data)-1],"Relative Abweichung",numpy.abs( data[len(data)-1] - p ) / p
-     
-    
-#  def test_001(self):
-#    self.std_test( 0.2 , 1e6, 1e6 )
-#
-#  def test_002(self):
-#    self.std_test( 1e-1, 1e6, 1e6 )
-#
-#  def test_003(self):
-#    self.std_test( 1e-2 , 1e6, 1e6 )
-#
-#  def test_004(self):
-#    self.std_test( 1e-3 , 10e6, 10e6 )
-#
-#  def test_005(self):
-#    self.std_test( 1e-4 , 1e7, 1e7 )
+    def tearDown (self):
+        self.tb = None
 
-  def test_006(self):
-    self.std_test( 1e-4 , 1e8, 1e8 )
-#
-#  def test_007(self):
-#    self.std_test( 1e-7 , 1e10, 1e10 )
+    def test_001_t (self):
+        # set up fg
+        self.tb.run ()
+        # check data
+
 
 if __name__ == '__main__':
-  gr_unittest.main()
-
+    gr_unittest.run(qa_ber_measurement, "qa_ber_measurement.xml")

@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <stdexcept>
 #include <cmath>
-#include "base.h"
+#include <ofdm/base.h>
 
 
 bool dec2base(unsigned int num, int base, std::vector<int> &s)

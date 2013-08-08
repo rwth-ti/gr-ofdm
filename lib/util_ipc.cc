@@ -1,7 +1,7 @@
 
 /* $Id$ */
 
-#include <util_ipc.h>
+#include <ofdm/util_ipc.h>
 
 std::string const c_interprocess :: shm_id = "gnuradio_ipc_shm";
 std::string const c_interprocess :: shared_buffer_id = "shared_buffer";

@@ -33,12 +33,12 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
         # ZeroMQ
         self.probe_manager = zmqblocks.probe_manager()
-        self.probe_manager.add_pull_socket("tcp://"+self.options.rxhostname+":5555", 'float32', self.plot_snr)
-        self.probe_manager.add_pull_socket("tcp://"+self.options.rxhostname+":5556", 'float32', self.plot_ber)
-        self.probe_manager.add_pull_socket("tcp://"+self.options.rxhostname+":5557", 'float32', self.plot_freqoffset)
-        self.probe_manager.add_pull_socket("tcp://"+self.options.txhostname+":4445", 'uint8', self.plot_rate)
-        self.probe_manager.add_pull_socket("tcp://"+self.options.rxhostname+":5559", 'float32', self.plot_csi)
-        self.probe_manager.add_pull_socket("tcp://"+self.options.rxhostname+":5560", 'complex64', self.plot_scatter)
+        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5555", 'float32', self.plot_snr)
+        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5556", 'float32', self.plot_ber)
+        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5557", 'float32', self.plot_freqoffset)
+        self.probe_manager.add_socket("tcp://"+self.options.txhostname+":4445", 'uint8', self.plot_rate)
+        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5559", 'float32', self.plot_csi)
+        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5560", 'complex64', self.plot_scatter)
         self.rpc_manager = zmqblocks.rpc_manager()
         self.rpc_manager.set_request_socket("tcp://"+self.options.txhostname+":6666")
 
@@ -140,9 +140,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.horizontalSliderOffset, QtCore.SIGNAL("valueChanged(int)"), self.slide_freq_offset)
         self.connect(self.gui.lineEditOffset, QtCore.SIGNAL("editingFinished()"), self.edit_freq_offset)
         self.connect(self.plot_picker, QtCore.SIGNAL("selected(const QwtDoublePoint &)"), self.subcarrier_selected)
+        self.connect(self.gui.comboBoxChannelModel, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_channel_profile)
 
         # start GUI update timer
         self.update_timer.start(33)
+
+        # get transmitter settings
+        self.tx_params = self.rpc_manager.request("get_tx_parameters")
 
     def measure_average(self):
         avg_snr = float(sum(self.snr_y))/len(self.snr_y)
@@ -197,6 +201,9 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotScatter.setTitle(titlestring)
         self.rpc_manager.request("set_scatter_subcarrier",subcarrier)
 
+    def set_channel_profile(self, profile):
+        self.rpc_manager.request("set_channel_profile",str(profile))
+
     def plot_snr(self, samples):
         self.snr_y = numpy.append(samples,self.snr_y)
         self.snr_y = self.snr_y[:len(self.snr_x)]
@@ -205,8 +212,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.labelSNREstimate.setText(QtCore.QString.number(self.snr_y[0],'f',3))
 
     def plot_ber(self, samples):
-        if samples == 0:
-            samples = 1e-100
+        # clip samples to some low value
+        samples[numpy.where(samples == 0)] = 1e-100
         self.ber_y = numpy.append(samples,self.ber_y)
         self.ber_y = self.ber_y[:len(self.ber_x)]
         self.curve_ber.setData(self.ber_x, self.ber_y)
@@ -221,11 +228,12 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.labelFreqoffsetEstimate.setText(QtCore.QString.number(self.freqoffset_y[0],'f',3))
 
     def plot_rate(self, samples):
-        tx_params = self.rpc_manager.request("get_tx_parameters")
-        if tx_params:
-            self.data_subcarriers = tx_params.get('data_subcarriers')
-            self.frame_length = tx_params.get('frame_length')
-            self.symbol_time = tx_params.get('symbol_time')
+        if self.tx_params:
+            self.data_subcarriers = self.tx_params.get('data_subcarriers')
+            self.frame_length = self.tx_params.get('frame_length')
+            self.symbol_time = self.tx_params.get('symbol_time')
+        else:
+            self.tx_params = self.rpc_manager.request("get_tx_parameters")
         rate = sum(samples[:self.data_subcarriers])/self.symbol_time*(self.frame_length-3)/self.frame_length
         self.rate_y = numpy.append(rate,self.rate_y)
         self.rate_y = self.rate_y[:len(self.rate_x)]

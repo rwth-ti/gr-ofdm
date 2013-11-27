@@ -495,7 +495,7 @@ class ber_reference_source (gr.hier_block2):
 #    rand_file.close()
 #    rand_data = [ord(rand_string[i]) for i in range(len(rand_string))]
     seed(30214345)
-    rand_data = [chr(getrandbits(1)) for x in range(1000000)]
+    rand_data = [chr(getrandbits(1)) for x in range(options.subcarriers*options.data_blocks*256)]
     #rand_data = [chr(1), chr(1), chr(1),chr(1)] * 10000    
             
     ref_src = self._reference_data_source = reference_data_source_02_ib(rand_data)
@@ -575,7 +575,7 @@ class power_deallocator (common_power_allocator):
 
 class static_control ():
   def __init__(self, dsubc, frame_id_blocks, frame_data_blocks, options):
-    self.static_id = 1
+    self.static_id = range(0,256)
     self.static_idmod_map = [1] * dsubc
     self.static_idpow_map = [1.] * dsubc
     self.static_ass_map = concatenate([[1]*(dsubc/2),[0]*(dsubc/2)])
@@ -632,7 +632,7 @@ class static_tx_control (gr.hier_block2):
 
 
     ## ID Source (root)
-    id_src = self._id_source = blocks.vector_source_s([ctrl.static_id],True)
+    id_src = self._id_source = blocks.vector_source_s(ctrl.static_id,True)
     self.connect(id_src,id_out)
 
     ## Multiplex Source

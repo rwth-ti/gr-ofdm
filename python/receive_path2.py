@@ -1266,7 +1266,7 @@ class static_rx_control (gr.hier_block2):
 
 
     ## ID "filter"
-    self.connect(id_in,blocks.keep_one_in_n(gr.sizeof_short,1),id_out)
+    self.connect(id_in,blocks.copy(gr.sizeof_short),id_out)
 
 
 

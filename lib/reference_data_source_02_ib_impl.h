@@ -32,7 +32,6 @@ namespace gr {
         std::vector<char> d_ref_data;
         int d_vec_pos;
         unsigned int d_produced;
-        int d_last_id;
 
      public:
       reference_data_source_02_ib_impl(const std::vector<char> &ref_data);

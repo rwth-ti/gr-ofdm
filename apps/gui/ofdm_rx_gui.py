@@ -213,7 +213,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
     def plot_ber(self, samples):
         # clip samples to some low value
-        samples[numpy.where(samples == 0)] = 1e-100
+        samples[numpy.where(samples == 0)] = 1e-10
         self.ber_y = numpy.append(samples,self.ber_y)
         self.ber_y = self.ber_y[:len(self.ber_x)]
         self.curve_ber.setData(self.ber_x, self.ber_y)

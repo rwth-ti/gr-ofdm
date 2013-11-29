@@ -496,7 +496,6 @@ class ber_reference_source (gr.hier_block2):
 #    rand_data = [ord(rand_string[i]) for i in range(len(rand_string))]
     seed(30214345)
     rand_data = [chr(getrandbits(1)) for x in range(options.subcarriers*options.data_blocks*256)]
-    #rand_data = [chr(1), chr(1), chr(1),chr(1)] * 10000    
             
     ref_src = self._reference_data_source = reference_data_source_02_ib(rand_data)
     self.connect(id_src,(ref_src,0))

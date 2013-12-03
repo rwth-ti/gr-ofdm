@@ -466,7 +466,7 @@ class receive_path(gr.hier_block2):
               #self.connect(dm_trig,(scatter_sink,2))
               #print "Enabled scatterplot gui interface"
             self.zmq_probe_scatter = zmqblocks.sink_pubsub(gr.sizeof_gr_complex*config.frame_data_blocks, "tcp://*:5560")
-            self.connect(scatter_s2v, self.zmq_probe_scatter)      
+            self.connect(scatter_s2v, blocks.keep_one_in_n(gr.sizeof_gr_complex*config.frame_data_blocks,2), self.zmq_probe_scatter)
         else:
             print "Enabling Scatterplot for data before phase tracking"
             inner_rx = inner_receiver.before_phase_tracking
@@ -659,10 +659,10 @@ class receive_path(gr.hier_block2):
 
       if self._options.sinr_est is False:        
           self.zmq_probe_ber = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5556")
-          self.connect(ber_sampler,self.zmq_probe_ber)
+          self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,2) ,self.zmq_probe_ber)
       
           self.zmq_probe_snr = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5555")
-          self.connect(snr_mst,self.zmq_probe_snr)
+          self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,2) ,self.zmq_probe_snr)
     
           
 

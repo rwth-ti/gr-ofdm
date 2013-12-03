@@ -157,6 +157,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
     def update_modulation(self):
         modulation_str = str(self.gui.comboBoxModulation.currentText())
         self.rpc_manager.request("set_modulation",modulation_str)
+        self.tx_params = self.rpc_manager.request("get_tx_parameters")
 
     def slide_amplitude(self, amplitude):
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))

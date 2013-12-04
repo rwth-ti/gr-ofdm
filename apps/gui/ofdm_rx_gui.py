@@ -148,6 +148,12 @@ class OFDMRxGUI(QtGui.QMainWindow):
         # get transmitter settings
         self.tx_params = self.rpc_manager.request("get_tx_parameters")
 
+    def update_tx_params(self):
+        self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        self.data_subcarriers = self.tx_params.get('data_subcarriers')
+        self.frame_length = self.tx_params.get('frame_length')
+        self.symbol_time = self.tx_params.get('symbol_time')
+
     def measure_average(self):
         avg_snr = float(sum(self.snr_y))/len(self.snr_y)
         avg_ber = float(sum(self.ber_y))/len(self.ber_y)
@@ -157,7 +163,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
     def update_modulation(self):
         modulation_str = str(self.gui.comboBoxModulation.currentText())
         self.rpc_manager.request("set_modulation",modulation_str)
-        self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        self.update_tx_params()
 
     def slide_amplitude(self, amplitude):
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
@@ -229,12 +235,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.labelFreqoffsetEstimate.setText(QtCore.QString.number(self.freqoffset_y[0],'f',3))
 
     def plot_rate(self, samples):
-        if self.tx_params:
-            self.data_subcarriers = self.tx_params.get('data_subcarriers')
-            self.frame_length = self.tx_params.get('frame_length')
-            self.symbol_time = self.tx_params.get('symbol_time')
-        else:
-            self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        if not self.tx_params:
+            self.update_tx_params()
         rate = sum(samples[:self.data_subcarriers])/self.symbol_time*(self.frame_length-3)/self.frame_length
         self.rate_y = numpy.append(rate,self.rate_y)
         self.rate_y = self.rate_y[:len(self.rate_x)]

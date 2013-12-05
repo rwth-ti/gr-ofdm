@@ -308,7 +308,6 @@ class transmit_path(gr.hier_block2):
     Sets the rms amplitude sent to the USRP
     @param: ampl 0 <= ampl < 32768
     """
-    print "zmq amp change"
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
 
@@ -638,7 +637,6 @@ class static_tx_control (gr.hier_block2):
     mux_src = self._multiplex_source = blocks.vector_source_s(ctrl.mux_stream.tolist(),True)
     self.connect(mux_src,mux_out)
 
-    print "ctrl.rmod_stream.tolist()", ctrl.rmod_stream.tolist()
     ## Map Source
     map_src = blocks.vector_source_b(ctrl.rmod_stream.tolist(), True, dsubc)
     self.connect(map_src,bitmap_out)

@@ -487,9 +487,6 @@ class schmidl_ifo_designer:
     fd_1 = seq1*mimo_mask_1
     fd_2 = seq1*mimo_mask_2
  
-    print "fd_1: ",fd_1
-    print "fd_2: ",fd_2
-
     td_1 = ifft(fd_1, (fft_length-subcarriers)/2)
     td_2 = ifft(fd_2, (fft_length-subcarriers)/2)
     # transform to time domain

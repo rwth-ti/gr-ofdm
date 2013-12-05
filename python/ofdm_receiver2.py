@@ -162,7 +162,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
           
           inv_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
             block_header.channel_estimation_pilot[0] ] )
-          print "Channel estimation pilot: ", inv_preamble_fd
+          #print "Channel estimation pilot: ", inv_preamble_fd
           inv_preamble_fd = 1. / inv_preamble_fd
           LS_channel_estimator0 = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
           self.connect( ofdm_blocks, LS_channel_estimator0, gr.null_sink(gr.sizeof_gr_complex*total_subc))
@@ -186,7 +186,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     ## Least Squares estimator for channel transfer function (CTF)
     inv_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
         block_header.channel_estimation_pilot[0] ] )
-    print "Channel estimation pilot: ", inv_preamble_fd
+    #print "Channel estimation pilot: ", inv_preamble_fd
     inv_preamble_fd = 1. / inv_preamble_fd
     
     LS_channel_estimator = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )

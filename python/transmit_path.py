@@ -6,7 +6,6 @@ from gnuradio import gr, blocks
 from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
-from numpy import concatenate
 import ofdm as ofdm
 from ofdm import generic_mapper_bcv  
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
@@ -147,8 +146,8 @@ class transmit_path(gr.hier_block2):
 
     ## Bitmap Update Trigger
     # TODO
-    bmaptrig_stream = concatenate([[1, 1],[0]*(config.frame_data_part-2)])
-    btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream.tolist(), True)
+    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_part-2)
+    btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
     
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
@@ -156,20 +155,19 @@ class transmit_path(gr.hier_block2):
     ## Bitmap Update Trigger for puncturing
     # TODO
     if not options.nopunct:
-        #bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_part-2)])
-        bmaptrig_stream_puncturing = concatenate([[1],[0]*(config.frame_data_blocks/2-1)])
+        bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
         
-        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing.tolist(), True)
-        bmapsrc_stream_puncturing = concatenate([[1]*dsubc,[2]*dsubc])
-        bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing.tolist(), True, dsubc)
+        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
+        bmapsrc_stream_puncturing = [1]*dsubc + [2]*dsubc
+        bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing, True, dsubc)
         
     if options.log and options.coding and not options.nopunct:
       log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
 
     ## Frame Trigger
     # TODO
-    ftrig_stream = concatenate([[1],[0]*(config.frame_data_part-1)])
-    ftrig = self._frame_trigger = blocks.vector_source_b(ftrig_stream.tolist(),True)
+    ftrig_stream = [1]+[0]*(config.frame_data_part-1)
+    ftrig = self._frame_trigger = blocks.vector_source_b(ftrig_stream,True)
 
     ## Data Multiplexer
     # Input 0: control stream
@@ -273,7 +271,7 @@ class transmit_path(gr.hier_block2):
     if options.cheat:
       ## Artificial Channel
       # kept to compare with previous system
-      achan_ir = concatenate([[1.0],[0.0]*(config.cp_length-1)])
+      achan_ir = [1.0]+[0.0]*(config.cp_length-1)
       achan = self._artificial_channel = gr.fir_filter_ccc(1,achan_ir)
       self.connect( lastblock, achan )
       lastblock = achan
@@ -576,9 +574,9 @@ class static_control ():
     self.static_id = range(0,256)
     self.static_idmod_map = [1] * dsubc
     self.static_idpow_map = [1.] * dsubc
-    self.static_ass_map = concatenate([[1]*(dsubc/2),[0]*(dsubc/2)])
-    self.static_mod_map = concatenate([[2]*(dsubc/2),[0]*(dsubc/2)])
-    self.static_pow_map = concatenate([[1.]*(dsubc/2),[0.]*(dsubc/2)])
+    self.static_ass_map = [1]*(dsubc/2)+[0]*(dsubc/2)
+    self.static_mod_map = [2]*(dsubc/2)+[0]*(dsubc/2)
+    self.static_pow_map = [1.]*(dsubc/2)+[0.]*(dsubc/2)
 
 
     self.mux_stream = [0]*(frame_id_blocks*dsubc)
@@ -588,19 +586,14 @@ class static_control ():
           self.mux_stream.extend([self.static_ass_map[j]]*self.static_mod_map[j])    
     self.mux_stream = numpy.array(self.mux_stream)
 
-    self.mod_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
-                                   [self.static_mod_map]*frame_data_blocks])
-    self.mod_stream = concatenate(self.mod_stream)
+    self.mod_stream = self.static_idmod_map*frame_id_blocks + self.static_mod_map*frame_data_blocks
 
     # reduced, demapper can handle reuse count
-    self.rmod_stream = concatenate([self.static_idmod_map,
-                                    self.static_mod_map])
+    self.rmod_stream = self.static_idmod_map + self.static_mod_map
 
     self.rc_stream = [frame_id_blocks,frame_data_blocks]
 
-    self.pow_stream = concatenate([[self.static_idmod_map]*frame_id_blocks,
-                                    [self.static_pow_map]*frame_data_blocks])
-    self.pow_stream = list( concatenate(self.pow_stream) )
+    self.pow_stream = self.static_idmod_map*frame_id_blocks + self.static_pow_map*frame_data_blocks
 
 
 class static_tx_control (gr.hier_block2):
@@ -638,7 +631,7 @@ class static_tx_control (gr.hier_block2):
     self.connect(mux_src,mux_out)
 
     ## Map Source
-    map_src = blocks.vector_source_b(ctrl.rmod_stream.tolist(), True, dsubc)
+    map_src = blocks.vector_source_b(ctrl.rmod_stream, True, dsubc)
     self.connect(map_src,bitmap_out)
     
     self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
@@ -672,13 +665,10 @@ class static_tx_control (gr.hier_block2):
     sam = numpy.array(self.control.static_ass_map)
 
     bitcount = sum(smm[sam == uid])*config.frame_data_blocks
-    
-    bitcount_array = numpy.array(bitcount)
+    bitcount_list = [numpy.array(bitcount).tolist()]
 
-    bc_src = blocks.vector_source_i([bitcount_array.tolist()],True)
+    bc_src = blocks.vector_source_i(bitcount_list,True)
     self.connect(self._id_source,(self,port))
     self.connect(bc_src,(self,port+1))
-    
-    
 
     return port

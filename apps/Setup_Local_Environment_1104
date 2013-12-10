@@ -1,8 +1,0 @@
-#!/bin/bash
-killall -9 CosEvent_Service || echo ""
-killall -9 omniNames || echo ""
-screen -d -m omniNames -start 50001 -always -logdir ~/omnilog
-screen -d -m tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "GNUradio_EventChannel" -r
-screen -d -m tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "himalaya" -r
-screen -d -m tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "alps" -r
-export OMNIORB_CONFIG=`pwd`/../../omniORB.cfg

@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-killall -9 CosEvent_Service &> /dev/null
-
-tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "GNUradio_EventChannel" -r -p gr_evchan.pid &
-tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "himalaya" -r -p himalaya.pid &
-tao_cosevent  -d -ORBInitRef NameService=corbaloc:iiop:`hostname`:50001/NameService -n "alps" -r -p alps.pid &
-

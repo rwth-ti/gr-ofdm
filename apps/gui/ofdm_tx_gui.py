@@ -30,7 +30,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui = uic.loadUi(os.path.join(os.path.dirname(__file__),'ofdm_tx_gui_window.ui'), self)
 
         # GUI update timer
-        self.update_timer = Qt.QTimer()
+        self.plot_timer = Qt.QTimer()
 
         # ZeroMQ
         self.probe_manager = zmqblocks.probe_manager()
@@ -68,14 +68,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.curve_bitloading.setStyle(Qwt.QwtPlotCurve.Steps)
         self.curve_bitloading.attach(self.gui.qwtPlotBitloading)
 
-
         #Signals
-        self.connect(self.update_timer, QtCore.SIGNAL("timeout()"), self.probe_manager.watcher)
+        self.connect(self.plot_timer, QtCore.SIGNAL("timeout()"), self.probe_manager.watcher)
+        self.connect(self.gui.pushButtonUpdate, QtCore.SIGNAL("clicked()"), self.update_tx_parameters)
 
         # start GUI update timer
-        self.update_timer.start(33)
+        self.plot_timer.start(100)
 
-        self.get_tx_parameters()
 
     def plot_powerallocation(self, samples):
         self.powerallocation_x = range(-99,101)
@@ -89,18 +88,18 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.curve_bitloading.setData(self.bitloading_x, self.bitloading_y)
         self.gui.qwtPlotBitloading.replot()
 
-    def get_tx_parameters(self):
-        params = self.rpc_manager.request("get_tx_parameters")
-        if params:
-            self.gui.labelCarrierFrequency.setText(QtCore.QString("%1").arg(params.get('carrier_frequency')))
-            self.gui.labelFFTSize.setText(QtCore.QString("%1").arg(int(params.get('fft_size'))))
-            self.gui.labelCPSize.setText(QtCore.QString("%1").arg(int(params.get('cp_size'))))
-            self.gui.labelSubcarrierSpacing.setText(QtCore.QString("%1").arg(params.get('subcarrier_spacing')))
-            self.gui.labelDataSubcarriers.setText(QtCore.QString("%1").arg(int(params.get('data_subcarriers'))))
-            self.gui.labelBandwidth.setText(QtCore.QString("%1").arg(params.get('bandwidth')))
-            self.gui.labelFrameLength.setText(QtCore.QString("%1").arg(int(params.get('frame_length'))))
-            self.gui.labelSymbolTime.setText(QtCore.QString("%1").arg(params.get('symbol_time')))
-            self.gui.labelMaxDataRate.setText(QtCore.QString("%1").arg(params.get('max_data_rate')))
+    def update_tx_parameters(self):
+        self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        if self.tx_params:
+            self.gui.labelCarrierFrequency.setText(QtCore.QString("%1").arg(self.tx_params.get('carrier_frequency')))
+            self.gui.labelFFTSize.setText(QtCore.QString("%1").arg(int(self.tx_params.get('fft_size'))))
+            self.gui.labelCPSize.setText(QtCore.QString("%1").arg(int(self.tx_params.get('cp_size'))))
+            self.gui.labelSubcarrierSpacing.setText(QtCore.QString("%1").arg(self.tx_params.get('subcarrier_spacing')))
+            self.gui.labelDataSubcarriers.setText(QtCore.QString("%1").arg(int(self.tx_params.get('data_subcarriers'))))
+            self.gui.labelBandwidth.setText(QtCore.QString("%1").arg(self.tx_params.get('bandwidth')))
+            self.gui.labelFrameLength.setText(QtCore.QString("%1").arg(int(self.tx_params.get('frame_length'))))
+            self.gui.labelSymbolTime.setText(QtCore.QString("%1").arg(self.tx_params.get('symbol_time')))
+            self.gui.labelMaxDataRate.setText(QtCore.QString("%1").arg(self.tx_params.get('max_data_rate')))
 
 
 def parse_options():

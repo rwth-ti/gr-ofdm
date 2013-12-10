@@ -305,14 +305,20 @@
          </item>
         </layout>
        </item>
+       <item row="4" column="3" colspan="3">
+        <widget class="QPushButton" name="pushButtonUpdate">
+         <property name="text">
+          <string>Update</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
    </layout>
-   <zorder>qwtPlotPowerallocation</zorder>
    <zorder>qwtPlotBitloading</zorder>
    <zorder>groupBox</zorder>
-   <zorder></zorder>
+   <zorder>qwtPlotPowerallocation</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

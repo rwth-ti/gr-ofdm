@@ -84,7 +84,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotPowerallocation.replot()
 
     def plot_bitloading(self, samples):
-        print samples
         self.bitloading_x = range(-99,101)
         self.bitloading_y = samples
         self.curve_bitloading.setData(self.bitloading_x, self.bitloading_y)

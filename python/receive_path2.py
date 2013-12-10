@@ -458,7 +458,6 @@ class receive_path(gr.hier_block2):
         if not options.scatter_plot_before_phase_tracking:
             print "Enabling Scatterplot for data subcarriers"
             self.connect(pda,scatter_id_filt,scatter_vec_elem)
-            log_to_file(self, pda, "data/pda.comples")
               # Work on this  
               #scatter_sink = ofdm.scatterplot_sink(dsubc)
               #self.connect(pda,scatter_sink)

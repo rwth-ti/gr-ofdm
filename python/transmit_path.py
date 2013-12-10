@@ -9,7 +9,6 @@ from gr_tools import log_to_file,unpack_array, terminate_stream
 import ofdm as ofdm
 from ofdm import generic_mapper_bcv  
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
-from ofdm import sqrt_vff
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
@@ -520,12 +519,11 @@ class common_power_allocator (gr.hier_block2):
     data = (self,0)
     power = (self,1)
 
-    to_ampl = sqrt_vff(subcarriers)
     f2c = blocks.float_to_complex(subcarriers)
     adjust = operational_block
 
     self.connect(data,(adjust,0))
-    self.connect(power,to_ampl,f2c,(adjust,1))
+    self.connect(power,f2c,(adjust,1))
     self.connect(adjust, self)
 
 ################################################################################
@@ -635,7 +633,7 @@ class static_tx_control (gr.hier_block2):
     self.connect(map_src,bitmap_out)
     
     self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
-    self.connect(map_src, self.zmq_probe_map)
+    self.connect(map_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,33), self.zmq_probe_map)
 
 
     ## Power Allocation Source
@@ -643,7 +641,7 @@ class static_tx_control (gr.hier_block2):
     self.connect(pa_src,powmap_out)
     
     self.zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
-    self.connect(pa_src, sqrt_vff(dsubc), self.zmq_probe_power)
+    self.connect(pa_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,10), self.zmq_probe_power)
 
 #    ## Map Source
 #    map_src = blocks.vector_source_b(ctrl.mod_stream,True,dsubc)

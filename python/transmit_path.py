@@ -631,17 +631,16 @@ class static_tx_control (gr.hier_block2):
     ## Map Source
     map_src = blocks.vector_source_b(ctrl.rmod_stream, True, dsubc)
     self.connect(map_src,bitmap_out)
-    
-    self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
-    self.connect(map_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,33), self.zmq_probe_map)
 
+    self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
+    self.connect(map_src,  blocks.keep_one_in_n(gr.sizeof_char*dsubc,4), self.zmq_probe_map)
 
     ## Power Allocation Source
     pa_src = blocks.vector_source_f(ctrl.pow_stream,True,dsubc)
     self.connect(pa_src,powmap_out)
     
     self.zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
-    self.connect(pa_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,10), self.zmq_probe_power)
+    self.connect(pa_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,4), self.zmq_probe_power)
 
 #    ## Map Source
 #    map_src = blocks.vector_source_b(ctrl.mod_stream,True,dsubc)

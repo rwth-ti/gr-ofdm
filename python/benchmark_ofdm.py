@@ -531,7 +531,6 @@ class ofdm_benchmark (gr.top_block):
 
 
   def get_tx_parameters(self):
-    print self.tx_parameters
     return self.tx_parameters
 
   def set_channel_profile(self, profile):

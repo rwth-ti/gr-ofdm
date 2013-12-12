@@ -143,6 +143,7 @@ install(FILES
     itpp_tdl_channel.h
     encoder_bb.h
     reference_data_source_02_ib.h
-    #corba_bitcount_src_02_si.h 
-    DESTINATION include/ofdm
+    #corba_bitcount_src_02_si.h
+    allocation_src.h
+    allocation_buffer.h DESTINATION include/ofdm
 )

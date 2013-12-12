@@ -127,5 +127,7 @@ install(FILES
     ofdm_itpp_tdl_channel.xml
     ofdm_encoder_bb.xml
     ofdm_reference_data_source_02_ib.xml
-    ofdm_corba_bitcount_src_02_si.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_corba_bitcount_src_02_si.xml
+    ofdm_allocation_src.xml
+    ofdm_allocation_buffer.xml DESTINATION share/gnuradio/grc/blocks
 )

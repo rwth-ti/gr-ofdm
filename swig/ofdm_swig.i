@@ -119,6 +119,8 @@
 #include "ofdm/itpp_tdl_channel.h"
 #include "ofdm/encoder_bb.h"
 #include "ofdm/reference_data_source_02_ib.h"
+#include "ofdm/allocation_src.h"
+#include "ofdm/allocation_buffer.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -389,3 +391,7 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, encoder_bb);
 GR_SWIG_BLOCK_MAGIC2(ofdm, reference_data_source_02_ib);
 //%include "ofdm/corba_bitcount_src_02_si.h"
 //GR_SWIG_BLOCK_MAGIC2(ofdm, corba_bitcount_src_02_si);
+%include "ofdm/allocation_src.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_src);
+%include "ofdm/allocation_buffer.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_buffer);

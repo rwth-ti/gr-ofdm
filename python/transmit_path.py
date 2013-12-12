@@ -633,7 +633,8 @@ class static_tx_control (gr.hier_block2):
     self.connect(map_src,bitmap_out)
 
     self.zmq_probe_map = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
-    self.connect(map_src,  blocks.keep_one_in_n(gr.sizeof_char*dsubc,4), self.zmq_probe_map)
+    # also skip ID symbol bitloading with keep_one_in_n (side effect)
+    self.connect(map_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,8), self.zmq_probe_map)
 
     ## Power Allocation Source
     pa_src = blocks.vector_source_f(ctrl.pow_stream,True,dsubc)

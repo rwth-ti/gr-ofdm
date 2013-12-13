@@ -41,16 +41,26 @@ namespace gr {
     allocation_src_impl::allocation_src_impl(int subcarriers)
       : gr::sync_block("allocation_src",
               gr::io_signature::make(0, 0, 0),
-              gr::io_signature::make(5, 5, sizeof(short),
-                                           sizeof(int),
-                                           sizeof(char)*subcarriers,
-                                           sizeof(char)*subcarriers,
-                                           sizeof(float)*subcarriers))
+              gr::io_signature::make(0, 0, 0))
+        ,d_subcarriers(subcarriers)
     {
-        d_subcarrier_allocation.id = 0;
-        d_subcarrier_allocation.mask = 0;
-        d_subcarrier_allocation.bitloading = 0;
-        d_subcarrier_allocation.power = 0;
+        std::vector<int> out_sig(5);
+        out_sig[0] = sizeof(short);
+        out_sig[1] = sizeof(int);
+        out_sig[2] = sizeof(char)*subcarriers;
+        out_sig[3] = sizeof(char)*subcarriers;
+        out_sig[4] = sizeof(float)*subcarriers;
+        set_output_signature(io_signature::makev(5,5,out_sig));
+
+        d_allocation.id = 0;
+        // default BPSK
+        d_allocation.bitcount = subcarriers;
+        for(int i=0;i<subcarriers;i++)
+        {
+            d_allocation.mask.push_back(1);
+            d_allocation.bitloading.push_back(1);
+            d_allocation.power.push_back(1);
+        }
     }
 
     /*
@@ -60,17 +70,38 @@ namespace gr {
     {
     }
 
+    void
+    allocation_src_impl::set_allocation(std::vector<char> mask,
+                                        std::vector<char> bitloading,
+                                        std::vector<float> power)
+    {
+        gr::thread::scoped_lock guard(d_mutex);
+        d_allocation.mask = mask;
+        d_allocation.bitloading = bitloading;
+        d_allocation.power = power;
+    }
+
+
+
     int
     allocation_src_impl::work(int noutput_items,
                               gr_vector_const_void_star &input_items,
                               gr_vector_void_star &output_items)
     {
-        short *out = (short *) output_items[0];
-        int *out = (int *) output_items[1];
-        char *out = (char *) output_items[2];
-        char *out = (char *) output_items[3];
-        float *out = (float *) output_items[4];
+        gr::thread::scoped_lock guard(d_mutex);
 
+        short *out_id = (short *) output_items[0];
+        int *out_bitcount = (int *) output_items[1];
+        char *out_mask = (char *) output_items[2];
+        char *out_bitloading = (char *) output_items[3];
+        float *out_power = (float *) output_items[4];
+
+        *out_id = d_allocation.id;
+        d_allocation.id++;
+        *out_bitcount = d_allocation.bitcount;
+        memcpy(out_mask, &d_allocation.mask, sizeof(char)*d_subcarriers);
+        memcpy(out_mask, &d_allocation.bitloading, sizeof(char)*d_subcarriers);
+        memcpy(out_mask, &d_allocation.power, sizeof(float)*d_subcarriers);
 
         // Tell runtime system how many output items we produced.
         return noutput_items;

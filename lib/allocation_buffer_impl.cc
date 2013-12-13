@@ -41,13 +41,15 @@ namespace gr {
     allocation_buffer_impl::allocation_buffer_impl(int subcarriers)
       : gr::sync_block("allocation_buffer",
               gr::io_signature::make(1, 1, sizeof(short)),
-              gr::io_signature::make(4, 4, sizeof(int),
-                                           sizeof(char)*subcarriers,
-                                           sizeof(char)*subcarriers,
-                                           sizeof(float)*subcarriers))
+              gr::io_signature::make(0, 0, 0))
 
     {
-    
+        std::vector<int> out_sig(4);
+        out_sig[0] = sizeof(int);
+        out_sig[1] = sizeof(char)*subcarriers;
+        out_sig[2] = sizeof(char)*subcarriers;
+        out_sig[3] = sizeof(float)*subcarriers;
+        set_output_signature(io_signature::makev(4,4,out_sig));
     }
 
     /*
@@ -63,10 +65,10 @@ namespace gr {
                                  gr_vector_void_star &output_items)
     {
         const short *in = (const short *) input_items[0];
-        int *out = (int *) output_items[0];
-        char *out = (char *) output_items[1];
-        char *out = (char *) output_items[2];
-        float *out = (float *) output_items[3];
+        int *out_bitcount = (int *) output_items[0];
+        char *out_mask = (char *) output_items[1];
+        char *out_bitloading = (char *) output_items[2];
+        float *out_power = (float *) output_items[3];
 
 
         // Tell runtime system how many output items we produced.

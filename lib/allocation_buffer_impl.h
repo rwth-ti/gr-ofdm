@@ -22,6 +22,7 @@
 #define INCLUDED_OFDM_ALLOCATION_BUFFER_IMPL_H
 
 #include <ofdm/allocation_buffer.h>
+#include <queue>
 #include "zmq.hpp"
 
 namespace gr {
@@ -31,7 +32,8 @@ namespace gr {
         {
             private:
                 struct d_allocation_struct {
-                    int id;
+                    short id;
+                    int bitcount;
                     std::vector<char> mask;
                     std::vector<char> bitloading;
                     std::vector<float> power;

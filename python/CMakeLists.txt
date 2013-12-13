@@ -38,5 +38,3 @@ GR_PYTHON_INSTALL(
     test_channel_estimator.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm
 )
-GR_ADD_TEST(qa_allocation_src ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_allocation_src.py)
-GR_ADD_TEST(qa_allocation_buffer ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_allocation_buffer.py)

@@ -22,6 +22,7 @@
 #define INCLUDED_OFDM_ALLOCATION_SRC_IMPL_H
 
 #include <ofdm/allocation_src.h>
+#include <gnuradio/thread/thread.h>
 #include "zmq.hpp"
 
 namespace gr {
@@ -31,16 +32,21 @@ namespace gr {
     {
      private:
          struct d_allocation_struct {
-             int id;
+             short id;
+             int bitcount;
              std::vector<char> mask;
              std::vector<char> bitloading;
              std::vector<float> power;
          };
-         d_allocation_struct = d_subcarrier_allocation;
+         d_allocation_struct d_allocation;
+         int d_subcarriers;
+         gr::thread::mutex d_mutex;
 
      public:
         allocation_src_impl(int subcarriers);
         ~allocation_src_impl();
+
+        void set_allocation(std::vector<char> mask, std::vector<char> bitloading, std::vector<float> power);
 
       // Where all the action really happens
       int work(int noutput_items,

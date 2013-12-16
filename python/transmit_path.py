@@ -7,7 +7,7 @@ from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
 import ofdm as ofdm
-from ofdm import generic_mapper_bcv  
+from ofdm import generic_mapper_bcv
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
 from preambles import default_block_header
@@ -19,6 +19,7 @@ import numpy
 
 from ofdm import repetition_encoder_sb
 from ofdm import stream_controlled_mux_b
+from ofdm import allocation_src
 
 from random import seed,randint, getrandbits
 
@@ -52,9 +53,9 @@ class transmit_path(gr.hier_block2):
                                           config.fft_length,options)
     config.tx_station_id       = options.station_id
     config.coding              = options.coding
-    
-    
-    
+
+
+
 
     if config.tx_station_id is None:
       raise SystemError, "Station ID not set"
@@ -64,7 +65,7 @@ class transmit_path(gr.hier_block2):
     # digital rms amplitude sent to USRP
     rms_amp                    = options.rms_amplitude
     self._options              = copy.copy(options)
-    
+
 
     self.servants = [] # FIXME
 
@@ -147,19 +148,19 @@ class transmit_path(gr.hier_block2):
     # TODO
     bmaptrig_stream = [1, 1]+[0]*(config.frame_data_part-2)
     btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
-    
+
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
-      
+
     ## Bitmap Update Trigger for puncturing
     # TODO
     if not options.nopunct:
         bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
-        
+
         btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
         bmapsrc_stream_puncturing = [1]*dsubc + [2]*dsubc
         bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing, True, dsubc)
-        
+
     if options.log and options.coding and not options.nopunct:
       log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
 
@@ -181,7 +182,7 @@ class transmit_path(gr.hier_block2):
       dmux_f = gr.char_to_float()
       self.connect(dmux,dmux_f)
       log_to_file(self, dmux_f, "data/dmux_out.float")
-      
+
     ## Modulator
     mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding)
     self.connect(dmux,(mod,0))
@@ -252,17 +253,17 @@ class transmit_path(gr.hier_block2):
     ## Pilot blocks (preambles)
     pblocks = self._pilot_block_inserter = pilot_block_inserter(5,False)
     self.connect( ifft, pblocks )
-    
+
     if options.log:
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
-    
+
     ## Cyclic Prefix
     cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
                                                  config.block_length)
     self.connect( pblocks, cp )
-    
+
     lastblock = cp
-    
+
     if options.log:
       log_to_file(self, cp, "data/cp_out.compl")
 
@@ -281,7 +282,7 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
-    
+
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")
 
@@ -293,7 +294,7 @@ class transmit_path(gr.hier_block2):
     # Display some information about the setup
     if config._verbose:
       self._print_verbage()
-      
+
     #self.rpc_manager = zmqblocks.rpc_manager()
     #self.rpc_manager.set_reply_socket("tcp://*:6666")
 
@@ -333,12 +334,12 @@ class transmit_path(gr.hier_block2):
       ref_src = ofdm.imgtransfer_src( options.img )
     else:
       ref_src = ber_reference_source(self._options)
-    
+
     if(options.coding):
         ## Encoder
         encoder = self._encoder = ofdm.encoder_bb(fo,0)
         unpack = self._unpack = blocks.unpack_k_bits_bb(2)
-        
+
         ## Puncturing
         if not options.nopunct:
             puncturing = self._puncturing = puncture_bb(options.subcarriers)
@@ -355,7 +356,7 @@ class transmit_path(gr.hier_block2):
             #bmt = gr.char_to_float()
             #self.connect(bitmap_filter,gr.vector_to_stream(gr.sizeof_char,options.subcarriers), bmt)
             #log_to_file(self, bmt, "data/bitmap_filter_tx.float")
-            
+
         self.connect((self._control,ctrl_port),ref_src,encoder,unpack)
         self.connect((self._control,ctrl_port+1),(ref_src,1))
         if not options.nopunct:
@@ -368,7 +369,7 @@ class transmit_path(gr.hier_block2):
         #self.connect((self._control,ctrl_port),(ref_src,0))
         self.connect((self._control,ctrl_port+1),(ref_src,1))
         #self.connect(ref_src,(dmux,port))
-    
+
     if options.log and options.coding:
         log_to_file(self, encoder, "data/encoder_out.char")
         log_to_file(self, ref_src, "data/reference_data_src.char")
@@ -406,7 +407,7 @@ class transmit_path(gr.hier_block2):
               default=False,
               help="Enable channel cheating")
     normal.add_option(
-      "", "--img", type="string", 
+      "", "--img", type="string",
       default="ratatouille.bmp",
       help="The Bitmapfile which is tranferred[default=%default]")
     normal.add_option("", "--coding", action="store_true",
@@ -464,7 +465,7 @@ class ber_reference_source (gr.hier_block2):
 
     ## Setup Output
     self.connect(ref_src,self)'''
-    
+
     ################################################################################
 ################################################################################
 
@@ -492,14 +493,14 @@ class ber_reference_source (gr.hier_block2):
 #    rand_data = [ord(rand_string[i]) for i in range(len(rand_string))]
     seed(30214345)
     rand_data = [chr(getrandbits(1)) for x in range(options.subcarriers*options.data_blocks*256)]
-            
+
     ref_src = self._reference_data_source = reference_data_source_02_ib(rand_data)
     self.connect(id_src,(ref_src,0))
     self.connect(bc_src,(ref_src,1))
 
     ## Setup Output
     self.connect(ref_src,self)
-    
+
     #log_to_file(self, ref_src, "data/ref_src.char")
 
 
@@ -581,7 +582,7 @@ class static_control ():
     for k in range(frame_data_blocks):
       for j in range(dsubc):
         if self.static_ass_map[j] != 0:
-          self.mux_stream.extend([self.static_ass_map[j]]*self.static_mod_map[j])    
+          self.mux_stream.extend([self.static_ass_map[j]]*self.static_mod_map[j])
     self.mux_stream = numpy.array(self.mux_stream)
 
     self.mod_stream = self.static_idmod_map*frame_id_blocks + self.static_mod_map*frame_data_blocks
@@ -639,7 +640,7 @@ class static_tx_control (gr.hier_block2):
     ## Power Allocation Source
     pa_src = blocks.vector_source_f(ctrl.pow_stream,True,dsubc)
     self.connect(pa_src,powmap_out)
-    
+
     self.zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
     self.connect(pa_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,4), self.zmq_probe_power)
 

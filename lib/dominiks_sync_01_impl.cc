@@ -67,7 +67,7 @@ namespace gr {
 
       , d_state( ACQUISITION )
 
-      , d_avg_blocks( 20 )
+      , d_avg_blocks( 10 )
 
       , d_sc_threshold( 0.2 )
       , d_gi_threshold( 0.2 * d_avg_blocks )

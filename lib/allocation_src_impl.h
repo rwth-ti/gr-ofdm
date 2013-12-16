@@ -33,25 +33,27 @@ namespace gr {
      private:
          struct d_allocation_struct {
              short id;
-             int bitcount;
-             std::vector<char> mask;
              std::vector<char> bitloading;
-             std::vector<float> power;
+             std::vector<gr_complex> power;
          };
          d_allocation_struct d_allocation;
+         int d_bitcount;
          int d_subcarriers;
+         int d_data_symbols;
          gr::thread::mutex d_mutex;
 
      public:
-        allocation_src_impl(int subcarriers);
+        allocation_src_impl(int subcarriers, int data_symbols);
         ~allocation_src_impl();
 
-        void set_allocation(std::vector<char> mask, std::vector<char> bitloading, std::vector<float> power);
+        void set_allocation(std::vector<char> bitloading,
+                            std::vector<gr_complex> power);
 
       // Where all the action really happens
-      int work(int noutput_items,
-               gr_vector_const_void_star &input_items,
-               gr_vector_void_star &output_items);
+      int general_work(int noutput_items,
+                       gr_vector_int &ninput_items,
+                       gr_vector_const_void_star &input_items,
+                       gr_vector_void_star &output_items);
     };
 
   } // namespace ofdm

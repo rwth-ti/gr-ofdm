@@ -29,20 +29,20 @@ namespace gr {
   namespace ofdm {
 
     allocation_buffer::sptr
-    allocation_buffer::make(int subcarriers)
+    allocation_buffer::make(int subcarriers, int data_symbols)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_buffer_impl(subcarriers));
+        (new allocation_buffer_impl(subcarriers, data_symbols));
     }
 
     /*
      * The private constructor
      */
-    allocation_buffer_impl::allocation_buffer_impl(int subcarriers)
-      : gr::sync_block("allocation_buffer",
-              gr::io_signature::make(1, 1, sizeof(short)),
-              gr::io_signature::make(0, 0, 0))
-
+    allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols)
+        : gr::sync_block("allocation_buffer",
+                         gr::io_signature::make(1, 1, sizeof(short)),
+                         gr::io_signature::make(0, 0, 0))
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
     {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(int);
@@ -66,7 +66,6 @@ namespace gr {
     {
         const short *in = (const short *) input_items[0];
         int *out_bitcount = (int *) output_items[0];
-        char *out_mask = (char *) output_items[1];
         char *out_bitloading = (char *) output_items[2];
         float *out_power = (float *) output_items[3];
 

@@ -33,15 +33,16 @@ namespace gr {
             private:
                 struct d_allocation_struct {
                     short id;
-                    int bitcount;
-                    std::vector<char> mask;
                     std::vector<char> bitloading;
                     std::vector<float> power;
                 };
                 std::queue<d_allocation_struct> d_allocation_buffer;
+                int d_bitcount;
+                int d_subcarriers;
+                int d_data_symbols;
 
             public:
-                allocation_buffer_impl(int subcarriers);
+                allocation_buffer_impl(int subcarriers, int data_symbols);
                 ~allocation_buffer_impl();
 
                 // Where all the action really happens

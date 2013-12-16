@@ -47,12 +47,6 @@ from transmit_path import static_control
 
 from ofdm_receiver2 import ofdm_inner_receiver
 
-std_event_channel = "GNUradio_EventChannel" #TODO: flexible
-fo=ofdm.fsm(1,2,[91,121])
-print "\t\t\t\tfo=",fo
-
-#print 'Blocked waiting for GDB attach (pid = %d)' % (os.getpid(),)
-#raw_input ('Press Enter to continue: ')
 
 class receive_path(gr.hier_block2):
   """
@@ -84,7 +78,6 @@ class receive_path(gr.hier_block2):
       config.rx_station_id        = options.station_id
     config.ber_window           = options.ber_window
 
-    config.evchan               = std_event_channel
     config.ns_ip                = options.nameservice_ip
     config.ns_port              = options.nameservice_port
     config.periodic_parts       = 8
@@ -138,7 +131,7 @@ class receive_path(gr.hier_block2):
 
 
     # for ID decoder
-    used_id_bits = config.used_id_bits = 10 #TODO: constant in source code!
+    used_id_bits = config.used_id_bits = 8 #TODO: constant in source code!
     rep_id_bits = config.rep_id_bits = dsubc/used_id_bits #BPSK
     if options.log:
       print "rep_id_bits %d" % (rep_id_bits)
@@ -362,7 +355,7 @@ class receive_path(gr.hier_block2):
       ## static
       pda = self._power_deallocator = power_deallocator(dsubc)
       self.connect(pda_in,(pda,0))
-      self.connect(pa_src,(pda,1))
+      self.connect(pa_src,blocks.float_to_complex(dsubc),(pda,1))
 
 
 
@@ -403,6 +396,9 @@ class receive_path(gr.hier_block2):
         self.connect(dm_trig,(demod,2))
     self.connect(pda,demod)
     self.connect(map_src,(demod,1))
+
+    log_to_file(self, map_src, "data/map_src.char")
+
     
     if(options.coding):
         ## Depuncturing
@@ -580,9 +576,6 @@ class receive_path(gr.hier_block2):
     map_src = (self._rx_control,1)
     dm_trig = blocks.vector_source_b([1,1,0,0,0,0,0,0,0,0],True) # TODO
 
-    files = ["data/bpsk_pipe", "data/qpsk_pipe", "data/8psk_pipe",
-             "data/16qam_pipe", "data/32qam_pipe", "data/64qam_pipe",
-             "data/128qam_pipe", "data/256qam_pipe"]
 
     for i in range(8):
       print "pipe",i+1,"to",files[i]
@@ -1188,7 +1181,6 @@ class corba_rx_control (gr.hier_block2):
 
     self.ns_ip = ns_ip = options.nameservice_ip
     self.ns_port = ns_port = options.nameservice_port
-    self.evchan = evchan = std_event_channel
     self.coding = coding = options.coding
 
 

@@ -35,7 +35,7 @@ import sys
 import os
 
 from transmit_path import transmit_path
-from receive_path2 import receive_path
+from receive_path import receive_path
 from ofdm import throughput_measure, vector_sampler
 from common_options import common_tx_rx_usrp_options
 from gr_tools import log_to_file, ms_to_file
@@ -334,14 +334,8 @@ class ofdm_benchmark (gr.top_block):
     self.txpath = transmit_path(options)
     self.rpc_manager.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
 
-    for i in range( options.stations ):
-      print "Registering mobile station with ID %d" % ( i+1 )
-      self.txpath.add_mobile_station( i+1 )
-
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)
-
-
 
       # 1. frame id
       #self.connect(self.rxpath._id_decoder,(rx_sink,0))

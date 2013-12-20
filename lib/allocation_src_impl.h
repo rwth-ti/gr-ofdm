@@ -38,6 +38,7 @@ namespace gr {
          };
          d_allocation_struct d_allocation;
          int d_bitcount;
+         std::vector<char> d_mux_ctrl;
          int d_subcarriers;
          int d_data_symbols;
          gr::thread::mutex d_mutex;

@@ -129,5 +129,6 @@ install(FILES
     ofdm_reference_data_source_02_ib.xml
     ofdm_corba_bitcount_src_02_si.xml
     ofdm_allocation_src.xml
-    ofdm_allocation_buffer.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_allocation_buffer.xml
+    ofdm_tx_mux_ctrl.xml DESTINATION share/gnuradio/grc/blocks
 )

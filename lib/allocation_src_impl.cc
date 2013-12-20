@@ -53,25 +53,29 @@ namespace gr {
                          gr::io_signature::make(0, 0, 0))
         ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
     {
-        std::vector<int> out_sig(4);
+        std::vector<int> out_sig(5);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
-        out_sig[2] = sizeof(char)*subcarriers;                  // bitloading
-        out_sig[3] = sizeof(gr_complex)*subcarriers;            // power
-        set_output_signature(io_signature::makev(4,4,out_sig));
+        out_sig[2] = sizeof(char);                              // mux_ctrl
+        out_sig[3] = sizeof(char)*subcarriers;                  // bitloading
+        out_sig[4] = sizeof(gr_complex)*subcarriers;            // power
+        set_output_signature(io_signature::makev(5,5,out_sig));
 
         d_allocation.id = 0;
-        d_bitcount = data_symbols*subcarriers;
-        // default modulation scheme is BPSK
-        for(int i=0;i<2*subcarriers;i++)
+
+        std::vector<char> bitloading_vec;
+        std::vector<gr_complex> power_vec;
+        // default data modulation scheme is BPSK
+        for(int i=0;i<subcarriers;i++)
         {
-            d_allocation.bitloading.push_back(1);
+            bitloading_vec.push_back(1);
         }
-        // init power allocation vector for id and all data symbols
-        for(int i=0;i<(data_symbols+1)*subcarriers;i++)
+        // init power allocation vector
+        for(int i=0;i<subcarriers;i++)
         {
-            d_allocation.power.push_back(1);
+            power_vec.push_back(1);
         }
+        set_allocation(bitloading_vec,power_vec);
     }
 
     /*
@@ -86,12 +90,41 @@ namespace gr {
                                         std::vector<gr_complex> power)
     {
         gr::thread::scoped_lock guard(d_mutex);
-        d_allocation.bitloading = bitloading;
-        d_allocation.power = power;
+        // push back ID symbol modulation
+        for(int i=0;i<d_subcarriers;i++)
+        {
+            d_allocation.bitloading.push_back(1);
+        }
+        // insert data symbol modulation at the end ONCE
+        d_allocation.bitloading.insert(d_allocation.bitloading.end(), bitloading.begin(), bitloading.end());
+
+        // push back ID symbol power
+        for(int i=0;i<d_subcarriers;i++)
+        {
+            d_allocation.power.push_back(1);
+        }
+        // insert data symbol power at the end TIMES data_symbols
+        for(int i=0;i<d_data_symbols;i++)
+        {
+            d_allocation.power.insert(d_allocation.power.end(), power.begin(), power.end());
+        }
+
         int sum_of_elems = 0;
-        for(std::vector<char>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
+        for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
-        d_bitcount = sum_of_elems;
+        d_bitcount = sum_of_elems*d_data_symbols;
+
+        d_mux_ctrl.clear();
+        // switch mux to ID
+        for(int i=0;i<d_subcarriers;i++)
+        {
+            d_mux_ctrl.push_back(0);
+        }
+        // switch mux to DATA
+        for(int i=0;i<d_bitcount;i++)
+        {
+            d_mux_ctrl.push_back(1);
+        }
     }
 
 
@@ -106,13 +139,18 @@ namespace gr {
 
         short *out_id = (short *) output_items[0];
         int *out_bitcount = (int *) output_items[1];
-        char *out_bitloading = (char *) output_items[2];
-        gr_complex *out_power = (gr_complex *) output_items[3];
+        char *out_mux_ctrl = (char *) output_items[2];
+        char *out_bitloading = (char *) output_items[3];
+        gr_complex *out_power = (gr_complex *) output_items[4];
 
         *out_id = d_allocation.id;
         *out_bitcount = d_bitcount;
+        //FIXME: probably dirty hack
+        memcpy(out_mux_ctrl, &d_mux_ctrl[0], sizeof(char)*d_mux_ctrl.size());
+        // output 2 vectors for id and data
         memcpy(out_bitloading, &d_allocation.bitloading[0], sizeof(char)*2*d_subcarriers);
-        memcpy(out_power, &d_allocation.power[0], sizeof(gr_complex)*10*d_subcarriers);
+        // output 1 vector for id and the rest for data
+        memcpy(out_power, &d_allocation.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
 
         d_allocation.id++;
         if (d_allocation.id > 255) {
@@ -120,8 +158,9 @@ namespace gr {
         }
         produce(0,1);
         produce(1,1);
-        produce(2,2);
-        produce(3,10);
+        produce(2,d_mux_ctrl.size());
+        produce(3,2);
+        produce(4,1+d_data_symbols);
 
         // Tell runtime system how many output items we produced.
         return WORK_CALLED_PRODUCE;

@@ -91,12 +91,14 @@ class transmit_path(gr.hier_block2):
     self.allocation_src = allocation_src(config.data_subcarriers,config.frame_data_blocks)
     id_src = (self.allocation_src,0)
     bitcount_src = (self.allocation_src,1)
-    bitloading_src = (self.allocation_src,2)
-    power_src = (self.allocation_src,3)
+    mux_ctrl_src = (self.allocation_src,2)
+    bitloading_src = (self.allocation_src,3)
+    power_src = (self.allocation_src,4)
 
     if options.log or True:
         log_to_file(self, id_src, "data/id_src.short")
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
+        log_to_file(self, mux_ctrl_src, "data/mux_ctrl_src.char")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
         log_to_file(self, power_src, "data/power_src.cmplx")
 
@@ -106,7 +108,7 @@ class transmit_path(gr.hier_block2):
     self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,8), zmq_probe_bitloading)
     zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
     self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,4), blocks.complex_to_real(dsubc), zmq_probe_power)
-    
+
     ## Workaround to avoid periodic structure
     seed(1)
     whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
@@ -151,10 +153,11 @@ class transmit_path(gr.hier_block2):
     # Input 0: control stream
     # Input 1: encoded ID stream
     # Inputs 2..n: data streams
-    mux_stream = [0]*(config.frame_id_blocks*dsubc) + [1]*dsubc*config.frame_data_blocks
-    mux_stream_src = blocks.vector_source_s(mux_stream, True)
     dmux = self._data_multiplexer = stream_controlled_mux_b()
-    self.connect(mux_stream_src,(dmux,0))
+    tx_mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
+    log_to_file(self, tx_mux_ctrl, "data/tx_mux_ctrl.char")
+
+    self.connect(bitcount_src,tx_mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
     self.connect(ber_ref_src,(dmux,2))
 
@@ -184,8 +187,6 @@ class transmit_path(gr.hier_block2):
       ## static
       pa = self._power_allocator = power_allocator(config.data_subcarriers)
       self.connect(mod,(pa,0))
-      #pow_stream = [1.0]*dsubc + [1.0]*dsubc*config.frame_data_blocks
-      #pa_src = blocks.vector_source_c(pow_stream,True,dsubc)
       self.connect(power_src,(pa,1))
 
     if options.log:

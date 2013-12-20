@@ -44,7 +44,7 @@ namespace gr {
      */
     stream_controlled_mux_b_impl::stream_controlled_mux_b_impl()
       : gr::block("stream_controlled_mux_b",
-              gr::io_signature::make2(2, -1, sizeof(unsigned short), sizeof(char)),
+              gr::io_signature::make2(2, -1, sizeof(char), sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(char)))
     	, d_next_input(0)
     {}
@@ -104,7 +104,7 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-    	  const unsigned short *mux = static_cast<const unsigned short*>(input_items[0]);
+    	  const char *mux = static_cast<const char*>(input_items[0]);
     	  char *out = static_cast<char*>(output_items[0]);
 
     	  const char* in[input_items.size()];

@@ -145,5 +145,6 @@ install(FILES
     reference_data_source_02_ib.h
     #corba_bitcount_src_02_si.h
     allocation_src.h
-    allocation_buffer.h DESTINATION include/ofdm
+    allocation_buffer.h
+    tx_mux_ctrl.h DESTINATION include/ofdm
 )

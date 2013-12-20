@@ -397,9 +397,6 @@ class receive_path(gr.hier_block2):
     self.connect(pda,demod)
     self.connect(map_src,(demod,1))
 
-    log_to_file(self, map_src, "data/map_src.char")
-
-    
     if(options.coding):
         ## Depuncturing
         if not options.nopunct:

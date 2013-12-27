@@ -53,13 +53,12 @@ namespace gr {
                          gr::io_signature::make(0, 0, 0))
         ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
     {
-        std::vector<int> out_sig(5);
+        std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
-        out_sig[2] = sizeof(char);                              // mux_ctrl
-        out_sig[3] = sizeof(char)*subcarriers;                  // bitloading
-        out_sig[4] = sizeof(gr_complex)*subcarriers;            // power
-        set_output_signature(io_signature::makev(5,5,out_sig));
+        out_sig[2] = sizeof(char)*subcarriers;                  // bitloading
+        out_sig[3] = sizeof(gr_complex)*subcarriers;            // power
+        set_output_signature(io_signature::makev(4,4,out_sig));
 
         d_allocation.id = 0;
 
@@ -139,14 +138,12 @@ namespace gr {
 
         short *out_id = (short *) output_items[0];
         int *out_bitcount = (int *) output_items[1];
-        char *out_mux_ctrl = (char *) output_items[2];
-        char *out_bitloading = (char *) output_items[3];
-        gr_complex *out_power = (gr_complex *) output_items[4];
+        char *out_bitloading = (char *) output_items[2];
+        gr_complex *out_power = (gr_complex *) output_items[3];
 
         *out_id = d_allocation.id;
         *out_bitcount = d_bitcount;
         //FIXME: probably dirty hack
-        memcpy(out_mux_ctrl, &d_mux_ctrl[0], sizeof(char)*d_mux_ctrl.size());
         // output 2 vectors for id and data
         memcpy(out_bitloading, &d_allocation.bitloading[0], sizeof(char)*2*d_subcarriers);
         // output 1 vector for id and the rest for data
@@ -158,9 +155,8 @@ namespace gr {
         }
         produce(0,1);
         produce(1,1);
-        produce(2,d_mux_ctrl.size());
-        produce(3,2);
-        produce(4,1+d_data_symbols);
+        produce(2,2);
+        produce(3,1+d_data_symbols);
 
         // Tell runtime system how many output items we produced.
         return WORK_CALLED_PRODUCE;

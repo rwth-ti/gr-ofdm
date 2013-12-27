@@ -91,14 +91,12 @@ class transmit_path(gr.hier_block2):
     self.allocation_src = allocation_src(config.data_subcarriers,config.frame_data_blocks)
     id_src = (self.allocation_src,0)
     bitcount_src = (self.allocation_src,1)
-    mux_ctrl_src = (self.allocation_src,2)
-    bitloading_src = (self.allocation_src,3)
-    power_src = (self.allocation_src,4)
+    bitloading_src = (self.allocation_src,2)
+    power_src = (self.allocation_src,3)
 
-    if options.log or True:
+    if options.log:
         log_to_file(self, id_src, "data/id_src.short")
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
-        log_to_file(self, mux_ctrl_src, "data/mux_ctrl_src.char")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
         log_to_file(self, power_src, "data/power_src.cmplx")
 

@@ -22,7 +22,7 @@
 #define INCLUDED_OFDM_ALLOCATION_BUFFER_IMPL_H
 
 #include <ofdm/allocation_buffer.h>
-#include <queue>
+#include <boost/circular_buffer.hpp>
 #include "zmq.hpp"
 
 namespace gr {
@@ -34,9 +34,10 @@ namespace gr {
                 struct d_allocation_struct {
                     short id;
                     std::vector<char> bitloading;
-                    std::vector<float> power;
+                    std::vector<gr_complex> power;
                 };
-                std::queue<d_allocation_struct> d_allocation_buffer;
+//                boost::circular_buffer<d_allocation_struct> d_allocation_buffer(32);
+                d_allocation_struct d_allocation;
                 int d_bitcount;
                 int d_subcarriers;
                 int d_data_symbols;
@@ -45,10 +46,14 @@ namespace gr {
                 allocation_buffer_impl(int subcarriers, int data_symbols);
                 ~allocation_buffer_impl();
 
+                void set_allocation(std::vector<char> bitloading,
+                                    std::vector<gr_complex> power);
+
                 // Where all the action really happens
-                int work(int noutput_items,
-                        gr_vector_const_void_star &input_items,
-                        gr_vector_void_star &output_items);
+                int general_work(int noutput_items,
+                                 gr_vector_int &ninput_items,
+                                 gr_vector_const_void_star &input_items,
+                                 gr_vector_void_star &output_items);
         };
 
     } // namespace ofdm

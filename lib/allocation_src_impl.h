@@ -26,38 +26,37 @@
 #include "zmq.hpp"
 
 namespace gr {
-  namespace ofdm {
+    namespace ofdm {
 
-    class allocation_src_impl : public allocation_src
-    {
-     private:
-         struct d_allocation_struct {
-             short id;
-             std::vector<char> bitloading;
-             std::vector<gr_complex> power;
-         };
-         d_allocation_struct d_allocation;
-         int d_bitcount;
-         std::vector<char> d_mux_ctrl;
-         int d_subcarriers;
-         int d_data_symbols;
-         gr::thread::mutex d_mutex;
+        class allocation_src_impl : public allocation_src
+        {
+            private:
+                struct d_allocation_struct {
+                    short id;
+                    std::vector<char> bitloading;
+                    std::vector<gr_complex> power;
+                };
+                d_allocation_struct d_allocation;
+                int d_bitcount;
+                int d_subcarriers;
+                int d_data_symbols;
+                gr::thread::mutex d_mutex;
 
-     public:
-        allocation_src_impl(int subcarriers, int data_symbols);
-        ~allocation_src_impl();
+            public:
+                allocation_src_impl(int subcarriers, int data_symbols);
+                ~allocation_src_impl();
 
-        void set_allocation(std::vector<char> bitloading,
-                            std::vector<gr_complex> power);
+                void set_allocation(std::vector<char> bitloading,
+                        std::vector<gr_complex> power);
 
-      // Where all the action really happens
-      int general_work(int noutput_items,
-                       gr_vector_int &ninput_items,
-                       gr_vector_const_void_star &input_items,
-                       gr_vector_void_star &output_items);
-    };
+                // Where all the action really happens
+                int general_work(int noutput_items,
+                        gr_vector_int &ninput_items,
+                        gr_vector_const_void_star &input_items,
+                        gr_vector_void_star &output_items);
+        };
 
-  } // namespace ofdm
+    } // namespace ofdm
 } // namespace gr
 
 #endif /* INCLUDED_OFDM_ALLOCATION_SRC_IMPL_H */

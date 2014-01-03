@@ -87,7 +87,7 @@ class transmit_path(gr.hier_block2):
     if config.data_subcarriers % used_id_bits <> 0:
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
 
-    ## Control Part
+    ## Allocation Control
     self.allocation_src = allocation_src(config.data_subcarriers,config.frame_data_blocks)
     id_src = (self.allocation_src,0)
     bitcount_src = (self.allocation_src,1)
@@ -153,8 +153,6 @@ class transmit_path(gr.hier_block2):
     # Inputs 2..n: data streams
     dmux = self._data_multiplexer = stream_controlled_mux_b()
     tx_mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
-    log_to_file(self, tx_mux_ctrl, "data/tx_mux_ctrl.char")
-
     self.connect(bitcount_src,tx_mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
     self.connect(ber_ref_src,(dmux,2))

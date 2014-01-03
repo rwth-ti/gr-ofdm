@@ -112,18 +112,6 @@ namespace gr {
         for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
         d_bitcount = sum_of_elems*d_data_symbols;
-
-        d_mux_ctrl.clear();
-        // switch mux to ID
-        for(int i=0;i<d_subcarriers;i++)
-        {
-            d_mux_ctrl.push_back(0);
-        }
-        // switch mux to DATA
-        for(int i=0;i<d_bitcount;i++)
-        {
-            d_mux_ctrl.push_back(1);
-        }
     }
 
 

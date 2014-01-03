@@ -346,7 +346,18 @@ class receive_path(gr.hier_block2):
       self.connect(map_src,map_src_f)
       log_to_file(self, map_src_f, "data/map_src_out.float")
 
+    ## Allocation Control
+    self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers,config.frame_data_blocks)
+    bitcount_src = (self.allocation_buffer,0)
+    bitloading_src = (self.allocation_buffer,1)
+    power_src = (self.allocation_buffer,2)
 
+    if options.log:
+        log_to_file(self, bitcount_src, "data/bitcount_src_rx.int")
+        log_to_file(self, bitloading_src, "data/bitloading_src_rx.char")
+        log_to_file(self, power_src, "data/power_src_rx.cmplx")
+
+    self.connect(id_dec, self.allocation_buffer)
 
     ## Power Deallocator
     # TODO refactorization, suboptimal location
@@ -355,10 +366,8 @@ class receive_path(gr.hier_block2):
       ## static
       pda = self._power_deallocator = power_deallocator(dsubc)
       self.connect(pda_in,(pda,0))
-      self.connect(pa_src,blocks.float_to_complex(dsubc),(pda,1))
-
-
-
+      #self.connect(pa_src,blocks.float_to_complex(dsubc),(pda,1))
+      self.connect(power_src,(pda,1))
 
     ## Demodulator
     dm_trig = [0]*config.frame_data_part
@@ -395,7 +404,8 @@ class receive_path(gr.hier_block2):
         demod = self._data_demodulator = generic_demapper_vcb(dsubc)
         self.connect(dm_trig,(demod,2))
     self.connect(pda,demod)
-    self.connect(map_src,(demod,1))
+    #self.connect(map_src,(demod,1))
+    self.connect(bitloading_src,(demod,1))
 
     if(options.coding):
         ## Depuncturing
@@ -730,9 +740,10 @@ class receive_path(gr.hier_block2):
 
     ## Data Reference Source
     dref_src = self._data_reference_source = ber_reference_source(self._options)
-    #self.connect(bc_src,dref_src)
     self.connect(bc_src_id,(dref_src,0))
-    self.connect(bc_src,(dref_src,1))
+    #self.connect(bc_src,(dref_src,1))
+    bitcount_src = (self.allocation_buffer,0)
+    self.connect(bitcount_src,(dref_src,1))
     
 
     ## BER Measuring Tool
@@ -1150,49 +1161,6 @@ class ofdm_bpsk_modulator (gr.hier_block2):
 
 ################################################################################
 ################################################################################
-
-
-
-class corba_rx_control (gr.hier_block2):
-  def __init__(self, options):
-
-    config = station_configuration()
-    dsubc = config.data_subcarriers
-    station_id = config.rx_station_id
-
-    gr.hier_block2.__init__(self,"corba_rx_control",
-      gr.io_signature (1,1,gr.sizeof_short),
-      gr.io_signaturev(2,-1,[gr.sizeof_short,        # filtered ID
-                             gr.sizeof_char*dsubc,   # Bit Map
-                             gr.sizeof_short,        # ID from bitcount src
-                             gr.sizeof_int]))        # Bitcount stream
-
-    self.cur_port = 2
-    self._stations = {}
-
-    id_in = (self,0)
-
-    id_out = (self,0)
-    bitmap_out = (self,1)
-    bitcount_id_out = (self,2)
-
-    self.ns_ip = ns_ip = options.nameservice_ip
-    self.ns_port = ns_port = options.nameservice_port
-    self.coding = coding = options.coding
-
-
-    ## Corrupted ID Filter
-    id_filt = self._id_source = corba_id_filter(evchan,ns_ip,ns_port,10) #FIXME: avoid constant
-    self.connect(id_in,id_filt,id_out)
-    #log_to_file(self, id_filt, "data/id_filt.short")
-
-    ## Bitmap Source
-    map_src = self._bitmap_source = corba_bitmap_src(dsubc,station_id,
-        evchan,ns_ip,ns_port)
-    #log_to_file(self,map_src,"data/original_bitmap_src.char")
-    self.connect(id_filt,map_src,bitmap_out)
-
-
 
   def add_mobile_station(self,uid):
     """

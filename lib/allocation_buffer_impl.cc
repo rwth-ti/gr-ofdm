@@ -29,20 +29,20 @@ namespace gr {
   namespace ofdm {
 
     allocation_buffer::sptr
-    allocation_buffer::make(int subcarriers, int data_symbols)
+    allocation_buffer::make(int subcarriers, int data_symbols, char *address)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_buffer_impl(subcarriers, data_symbols));
+        (new allocation_buffer_impl(subcarriers, data_symbols, address));
     }
 
     /*
      * The private constructor
      */
-    allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols)
+    allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols, char *address)
         : gr::block("allocation_buffer",
                          gr::io_signature::make(1, 1, sizeof(short)),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_buffer(256) //TODO: id size hardcoded
     {
         std::vector<int> out_sig(3);
         out_sig[0] = sizeof(int);                               // bitcount
@@ -51,7 +51,6 @@ namespace gr {
         set_output_signature(io_signature::makev(3,3,out_sig));
 
         // generate an initial allocation with id -1
-        d_allocation.id = -1;
         std::vector<char> bitloading_vec;
         std::vector<gr_complex> power_vec;
         // default data modulation scheme is BPSK
@@ -64,7 +63,21 @@ namespace gr {
         {
             power_vec.push_back(1);
         }
+        // init allocation buffer TODO: id size hardcoded
+        for(int i=0;i<256;i++) {
+            d_allocation_buffer[i].id = i;
+            d_allocation_buffer[i].bitloading = bitloading_vec;
+            d_allocation_buffer[i].power = power_vec;
+        }
         set_allocation(bitloading_vec,power_vec);
+
+        d_context = new zmq::context_t(1);
+        d_socket = new zmq::socket_t(*d_context, ZMQ_SUB);
+        d_socket->connect(address);
+        // subscribe to all incoming messages
+        d_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
+
+        std::cout << "allocation_buffer on " << address << std::endl;
     }
 
     /*
@@ -72,6 +85,31 @@ namespace gr {
      */
     allocation_buffer_impl::~allocation_buffer_impl()
     {
+        delete(d_socket);
+        delete(d_context);
+    }
+
+    void
+    allocation_buffer_impl::recv_allocation()
+    {
+        zmq::pollitem_t items[] = { { *d_socket, 0, ZMQ_POLLIN, 0 } };
+        bool msg_received = true;
+        while(msg_received) {
+            // poll with timeout 0
+            zmq::poll (&items[0], 1, 0);
+            //  If we got a msg, process
+            if (items[0].revents & ZMQ_POLLIN) {
+                // Receive data
+                zmq::message_t msg;
+                d_socket->recv(&msg);
+                // copy message into allocation struct and find id to put into buffer
+                d_allocation_struct rcvd_alloc;
+                rcvd_alloc = *(d_allocation_struct *)msg.data();
+                d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
+            } else {
+                msg_received = false;
+            }
+        }
     }
 
     void
@@ -82,26 +120,26 @@ namespace gr {
         // NOTE: this is different in tx allocation_src!
         for(int i=0;i<d_subcarriers;i++)
         {
-            d_allocation.bitloading.push_back(0);
+            d_bitloading_out.push_back(0);
         }
         // insert data symbol modulation at the end ONCE
-        d_allocation.bitloading.insert(d_allocation.bitloading.end(), bitloading.begin(), bitloading.end());
+        d_bitloading_out.insert(d_bitloading_out.end(), bitloading.begin(), bitloading.end());
 
         // push back ID symbol power
         for(int i=0;i<d_subcarriers;i++)
         {
-            d_allocation.power.push_back(1);
+            d_power_out.push_back(1);
         }
         // insert data symbol power at the end TIMES data_symbols
         for(int i=0;i<d_data_symbols;i++)
         {
-            d_allocation.power.insert(d_allocation.power.end(), power.begin(), power.end());
+            d_power_out.insert(d_power_out.end(), power.begin(), power.end());
         }
 
         int sum_of_elems = 0;
         for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
-        d_bitcount = sum_of_elems*d_data_symbols;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
     }
 
     int
@@ -116,27 +154,24 @@ namespace gr {
         char *out_bitloading = (char *) output_items[1];
         gr_complex *out_power = (gr_complex *) output_items[2];
 
-        // find allocation data for incoming id
-        // std::vector<d_allocation_struct>::iterator it;
-        // it = std::find(d_allocation_buffer.begin(), d_allocation_buffer.end(),
-        //                  boost::bind(&d_allocation_struct::id, _1) == *in_id);
-        //if (it != d_allocation_buffer->back()) {
-        //    // set allocation
-        //    set_allocation(it->bitloading, it->power);
-        //}
 
-        *out_bitcount = d_bitcount;
+        // Receive allocation from Tx
+        recv_allocation();
+        // set new allocation
+        set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
+        // output
+        *out_bitcount = d_bitcount_out;
         //FIXME: probably dirty hack
         // output 2 vectors for id and data
-        memcpy(out_bitloading, &d_allocation.bitloading[0], sizeof(char)*2*d_subcarriers);
+        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(char)*2*d_subcarriers);
         // output 1 vector for id and the rest for data
-        memcpy(out_power, &d_allocation.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+        memcpy(out_power, &d_power_out[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
 
+        // Tell runtime system how many output items we produced.
+        consume(0,1);
         produce(0,1);
         produce(1,2);
         produce(2,1+d_data_symbols);
-
-        // Tell runtime system how many output items we produced.
         return WORK_CALLED_PRODUCE;
     }
 

@@ -24,9 +24,9 @@ include(GrPlatform) #define LIB_SUFFIX
 
 
 include_directories(${Boost_INCLUDE_DIR}
-					${CMAKE_CURRENT_BINARY_DIR}
-    				${CMAKE_CURRENT_BINARY_DIR}/../include
-    				${VOLK_INCLUDE_DIRS})
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/../include
+    ${VOLK_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND ofdm_sources
     accumulator_cc_impl.cc
@@ -156,28 +156,25 @@ list(APPEND ofdm_sources
     tx_mux_ctrl_impl.cc )
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
-target_link_libraries(gnuradio-ofdm 
-		${Boost_LIBRARIES} 
-		${GNURADIO_RUNTIME_LIBRARIES}
-		${GNURADIO_FFT_LIBRARIES}
-		${GNURADIO_BLOCKS_LIBRARIES}
-        ${GNURADIO_FILTER_LIBRARIES}
-        ${GNURADIO_FEC_LIBRARIES}
-        ${GNURADIO_TRELLIS_LIBRARIES}
-		${ITPP_LIBRARIES}
-    	#${TAO_LIBRARIES}
-    	# "-Wl,--whole-archive"
-     	#${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a
-    	#"-Wl,--no-whole-archive"
-		)
-		
+target_link_libraries(gnuradio-ofdm
+    ${Boost_LIBRARIES}
+    ${GNURADIO_RUNTIME_LIBRARIES}
+    ${GNURADIO_FFT_LIBRARIES}
+    ${GNURADIO_BLOCKS_LIBRARIES}
+    ${GNURADIO_FILTER_LIBRARIES}
+    ${GNURADIO_FEC_LIBRARIES}
+    ${GNURADIO_TRELLIS_LIBRARIES}
+    ${ITPP_LIBRARIES}
+    ${ZeroMQ_LIBRARIES}
+    )
+
 add_dependencies(gnuradio-ofdm gnuradio-runtime gnuradio-fft gnuradio-blocks gnuradio-filter gnuradio-fec gnuradio -trellis)
 # tao_ofdmti)
-    message(STATUS "gnuradio-fft: ${gnuradio-fft}")
-    message(STATUS "Boost_LIBRARIES at: ${Boost_LIBRARIES}")
-    message(STATUS "GNURADIO_RUNTIME_LIBRARIES at: ${GNURADIO_RUNTIME_LIBRARIES}")
-    message(STATUS "TAO_LIBRARIES at: ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a")
-    		
+message(STATUS "gnuradio-fft: ${gnuradio-fft}")
+message(STATUS "Boost_LIBRARIES at: ${Boost_LIBRARIES}")
+message(STATUS "GNURADIO_RUNTIME_LIBRARIES at: ${GNURADIO_RUNTIME_LIBRARIES}")
+message(STATUS "TAO_LIBRARIES at: ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a")
+
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")
 
 ########################################################################
@@ -187,6 +184,6 @@ install(TARGETS gnuradio-ofdm
     LIBRARY DESTINATION lib${LIB_SUFFIX} # .so/.dylib file
     ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
     RUNTIME DESTINATION bin              # .dll file
-)
+    )
 
 

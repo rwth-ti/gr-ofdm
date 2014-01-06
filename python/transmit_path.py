@@ -88,7 +88,7 @@ class transmit_path(gr.hier_block2):
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers,config.frame_data_blocks)
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
     id_src = (self.allocation_src,0)
     bitcount_src = (self.allocation_src,1)
     bitloading_src = (self.allocation_src,2)

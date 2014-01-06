@@ -31,7 +31,7 @@ class qa_allocation_src (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-        src = ofdm.allocation_src(8)
+        src = ofdm.allocation_src(8,4,"tcp://*:3333")
         #skiphead = blocks.skiphead( gr.sizeof_float, 8 )
         limit_id = blocks.head( gr.sizeof_short, 10 )
         limit_bitcount = blocks.head( gr.sizeof_int, 10 )

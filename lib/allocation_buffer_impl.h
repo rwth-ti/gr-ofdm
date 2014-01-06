@@ -36,15 +36,21 @@ namespace gr {
                     std::vector<char> bitloading;
                     std::vector<gr_complex> power;
                 };
-//                boost::circular_buffer<d_allocation_struct> d_allocation_buffer(32);
-                d_allocation_struct d_allocation;
-                int d_bitcount;
+                std::vector<d_allocation_struct> d_allocation_buffer;
+                std::vector<char> d_bitloading_out;
+                std::vector<gr_complex> d_power_out;
+                int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
 
+                zmq::context_t  *d_context;
+                zmq::socket_t   *d_socket;
+
             public:
-                allocation_buffer_impl(int subcarriers, int data_symbols);
+                allocation_buffer_impl(int subcarriers, int data_symbols, char *address);
                 ~allocation_buffer_impl();
+
+                void recv_allocation();
 
                 void set_allocation(std::vector<char> bitloading,
                                     std::vector<gr_complex> power);

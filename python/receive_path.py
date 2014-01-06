@@ -347,7 +347,7 @@ class receive_path(gr.hier_block2):
       log_to_file(self, map_src_f, "data/map_src_out.float")
 
     ## Allocation Control
-    self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers,config.frame_data_blocks)
+    self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://localhost:3333")
     bitcount_src = (self.allocation_buffer,0)
     bitloading_src = (self.allocation_buffer,1)
     power_src = (self.allocation_buffer,2)

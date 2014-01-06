@@ -30,10 +30,10 @@ namespace gr {
   namespace ofdm {
 
     allocation_src::sptr
-    allocation_src::make(int subcarriers, int data_symbols)
+    allocation_src::make(int subcarriers, int data_symbols, char *address)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_src_impl(subcarriers, data_symbols));
+        (new allocation_src_impl(subcarriers, data_symbols, address));
     }
 
     /*
@@ -47,7 +47,7 @@ namespace gr {
      * power: vector containing power allocation vectors for id symbol and every data symbol
      *
      */
-    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols)
+    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols, char *address)
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
@@ -75,6 +75,11 @@ namespace gr {
             power_vec.push_back(1);
         }
         set_allocation(bitloading_vec,power_vec);
+
+        d_context = new zmq::context_t(1);
+        d_socket = new zmq::socket_t(*d_context, ZMQ_PUB);
+        d_socket->bind(address);
+        std::cout << "allocation_src on " << address << std::endl;
     }
 
     /*
@@ -82,6 +87,16 @@ namespace gr {
      */
     allocation_src_impl::~allocation_src_impl()
     {
+        delete(d_socket);
+        delete(d_context);
+    }
+
+    void
+    allocation_src_impl::send_allocation()
+    {
+        zmq::message_t msg(sizeof(d_allocation_struct));
+        memcpy((void *)msg.data(), &d_allocation, sizeof(d_allocation_struct));
+        d_socket->send(msg);
     }
 
     void
@@ -129,6 +144,10 @@ namespace gr {
         char *out_bitloading = (char *) output_items[2];
         gr_complex *out_power = (gr_complex *) output_items[3];
 
+        // send the allocation to Rx
+        send_allocation();
+
+        // now generate outputs
         *out_id = d_allocation.id;
         *out_bitcount = d_bitcount;
         //FIXME: probably dirty hack
@@ -141,12 +160,12 @@ namespace gr {
         if (d_allocation.id > 255) {
             d_allocation.id = 0;
         }
+
+        // Tell runtime system how many output items we produced.
         produce(0,1);
         produce(1,1);
         produce(2,2);
         produce(3,1+d_data_symbols);
-
-        // Tell runtime system how many output items we produced.
         return WORK_CALLED_PRODUCE;
     }
 

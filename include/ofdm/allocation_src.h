@@ -46,7 +46,7 @@ namespace gr {
        * class. ofdm::allocation_src::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int data_symbols);
+      static sptr make(int subcarriers, int data_symbols, char *address);
     };
 
   } // namespace ofdm

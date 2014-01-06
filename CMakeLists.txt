@@ -116,6 +116,7 @@ INCLUDE(FindPackageMessage)
 find_package(NumPy REQUIRED) 
 find_package(ITPP REQUIRED)
 find_package(Qwt REQUIRED)
+find_package(ZeroMQ REQUIRED)
 
 if(NOT NUMPY_FOUND)
     message(FATAL_ERROR "NumPy required to run gr-ofdm")
@@ -123,6 +124,10 @@ endif()
 
 if(NOT ITPP_FOUND)
     message(FATAL_ERROR "IT++ required for to build gr-ofdm")
+endif()
+
+if(NOT ZEROMQ_FOUND)
+    message(FATAL_ERROR "ZeroMQ required to build gr-ofdm")
 endif()
 
 
@@ -149,6 +154,8 @@ include_directories(
     ${ITPP_INCLUDE_DIR}/itpp
     ${QWT_INCLUDE_DIRS}
     ${QT_INCLUDE_DIRS}
+    ${ZeroMQ_INCLUDE_DIRS}
+
 )
 message(STATUS "GR_FFT_INCLUDE_DIRS at: ${GR_FFT_INCLUDE_DIRS}")
 link_directories(

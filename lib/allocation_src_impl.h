@@ -42,9 +42,14 @@ namespace gr {
                 int d_data_symbols;
                 gr::thread::mutex d_mutex;
 
+                zmq::context_t  *d_context;
+                zmq::socket_t   *d_socket;
+
             public:
-                allocation_src_impl(int subcarriers, int data_symbols);
+                allocation_src_impl(int subcarriers, int data_symbols, char *address);
                 ~allocation_src_impl();
+
+                void send_allocation();
 
                 void set_allocation(std::vector<char> bitloading,
                         std::vector<gr_complex> power);

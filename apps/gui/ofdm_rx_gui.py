@@ -163,7 +163,16 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
     def update_modulation(self):
         modulation_str = str(self.gui.comboBoxModulation.currentText())
-        self.rpc_manager.request("set_modulation",modulation_str)
+        bitloading = {'BPSK'    : 1,
+                      'QPSK'    : 2,
+                      '8-PSK'   : 3,
+                      '16-QAM'  : 4,
+                      '32-QAM'  : 5,
+                      '64-QAM'  : 6,
+                      '128-QAM' : 7,
+                      '256-QAM' : 8,
+                     }[modulation_str]
+        self.rpc_manager.request("set_modulation",bitloading)
         self.update_tx_params()
 
     def slide_amplitude(self, amplitude):

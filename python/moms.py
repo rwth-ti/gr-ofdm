@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from gnuradio import gr
+from gnuradio import gr, blocks, filter
 from ofdm import moms_ff
 
 
@@ -13,18 +13,18 @@ class moms(gr.hier_block2):
       gr.io_signature(1,1,gr.sizeof_gr_complex),
       gr.io_signature(1,1,gr.sizeof_gr_complex))
 
-    cmplx_to_real  = gr.complex_to_real()
-    cmplx_to_img   = gr.complex_to_imag()
+    cmplx_to_real  = blocks.complex_to_real()
+    cmplx_to_img   = blocks.complex_to_imag()
 
-    iirf_real = gr.iir_filter_ffd([1.5],[1, -0.5])
+    iirf_real = filter.iir_filter_ffd([1.5],[1, -0.5])
     self.moms_real = moms_ff()
     self.moms_real.set_init_ip_fraction(delay_num,delay_denom)
 
-    iirf_imag = gr.iir_filter_ffd([1.5],[1, -0.5])
+    iirf_imag = filter.iir_filter_ffd([1.5],[1, -0.5])
     self.moms_imag = moms_ff()
     self.moms_imag.set_init_ip_fraction(delay_num,delay_denom)
 
-    float_to_cmplx = gr.float_to_complex()
+    float_to_cmplx = blocks.float_to_complex()
 
     self.connect((self,0),            (cmplx_to_real,0))
     self.connect((self,0),            (cmplx_to_img,0))

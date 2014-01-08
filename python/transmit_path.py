@@ -88,11 +88,26 @@ class transmit_path(gr.hier_block2):
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
-    id_src = (self.allocation_src,0)
-    bitcount_src = (self.allocation_src,1)
-    bitloading_src = (self.allocation_src,2)
-    power_src = (self.allocation_src,3)
+    if True: #DEBUG
+        id_vec = range(0,256)
+        id_src = blocks.vector_source_s(id_vec,True,1)
+        bitcount_vec = [9000]
+        bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+        bitloading_vec = [1]*dsubc+[5]*dsubc
+        bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
+        power_vec = [1]*200
+        power_src = blocks.vector_source_c(power_vec,True,dsubc)
+        mux_vec = [0]*dsubc+[1]*9000
+        mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
+    else:
+        self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
+#        self.allocation_src.set_allocation([1]*config.data_subcarriers,[1]*config.data_subcarriers)
+        id_src = (self.allocation_src,0)
+        bitcount_src = (self.allocation_src,1)
+        bitloading_src = (self.allocation_src,2)
+        power_src = (self.allocation_src,3)
+        mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
+        self.connect(bitcount_src,mux_ctrl)
 
     if options.log:
         log_to_file(self, id_src, "data/id_src.short")
@@ -110,6 +125,7 @@ class transmit_path(gr.hier_block2):
     ## Workaround to avoid periodic structure
     seed(1)
     whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
+    #whitener_pn = [2]*200
 
     ## ID Encoder
     id_enc = self._id_encoder = repetition_encoder_sb(used_id_bits,rep_id_bits,whitener_pn)
@@ -126,7 +142,7 @@ class transmit_path(gr.hier_block2):
     self.connect(bitcount_src,(ber_ref_src,1))
 
     ## Bitmap Update Trigger
-    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_part-2)
+    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_blocks-1)
     btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
 
     if options.log:
@@ -152,10 +168,11 @@ class transmit_path(gr.hier_block2):
     # Input 1: encoded ID stream
     # Inputs 2..n: data streams
     dmux = self._data_multiplexer = stream_controlled_mux_b()
-    tx_mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
-    self.connect(bitcount_src,tx_mux_ctrl,(dmux,0))
+    self.connect(mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
     self.connect(ber_ref_src,(dmux,2))
+    log_to_file(self, mux_ctrl, "data/tx_mux_ctrl.char")
+    log_to_file(self, dmux, "data/tx_mux_out.char")
 
     if options.log:
       dmux_f = gr.char_to_float()

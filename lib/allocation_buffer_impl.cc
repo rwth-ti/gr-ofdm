@@ -116,6 +116,8 @@ namespace gr {
     allocation_buffer_impl::set_allocation(std::vector<char> bitloading,
                                         std::vector<gr_complex> power)
     {
+        // clear and write bitloading output vector
+        d_bitloading_out.clear();
         // push back 0s for ID symbol to ignore in demodulator
         // NOTE: this is different in tx allocation_src!
         for(int i=0;i<d_subcarriers;i++)
@@ -125,6 +127,8 @@ namespace gr {
         // insert data symbol modulation at the end ONCE
         d_bitloading_out.insert(d_bitloading_out.end(), bitloading.begin(), bitloading.end());
 
+        // clear and write power output vector
+        d_power_out.clear();
         // push back ID symbol power
         for(int i=0;i<d_subcarriers;i++)
         {

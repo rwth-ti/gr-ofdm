@@ -26,30 +26,33 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace ofdm {
+    namespace ofdm {
 
-    /*!
-     * \brief Source block for all control vectors, e.g., bitloading.
-     * \ingroup ofdm
-     *
-     */
-    class OFDM_API allocation_src : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<allocation_src> sptr;
+        /*!
+         * \brief Source block for all control vectors, e.g., bitloading.
+         * \ingroup ofdm
+         *
+         */
+        class OFDM_API allocation_src : virtual public gr::block
+        {
+            public:
+                typedef boost::shared_ptr<allocation_src> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of ofdm::allocation_src.
-       *
-       * To avoid accidental use of raw pointers, ofdm::allocation_src's
-       * constructor is in a private implementation
-       * class. ofdm::allocation_src::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(int subcarriers, int data_symbols, char *address);
-    };
+                /*!
+                 * \brief Return a shared_ptr to a new instance of ofdm::allocation_src.
+                 *
+                 * To avoid accidental use of raw pointers, ofdm::allocation_src's
+                 * constructor is in a private implementation
+                 * class. ofdm::allocation_src::make is the public interface for
+                 * creating new instances.
+                 */
+                static sptr make(int subcarriers, int data_symbols, char *address);
 
-  } // namespace ofdm
+                virtual void set_allocation(std::vector<char> bitloading,
+                                            std::vector<gr_complex> power) = 0;
+        };
+
+    } // namespace ofdm
 } // namespace gr
 
 #endif /* INCLUDED_OFDM_ALLOCATION_SRC_H */

@@ -31,7 +31,7 @@ namespace gr {
      private:
         // Nothing to declare in this block.
         std::vector<char> d_mux_ctrl;
-        int d_prev_bitcount;
+        int d_bitcount;
         int d_subcarriers;
 
      public:

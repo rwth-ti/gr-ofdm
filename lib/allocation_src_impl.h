@@ -36,8 +36,11 @@ namespace gr {
                     std::vector<char> bitloading;
                     std::vector<gr_complex> power;
                 };
+                // local copy of allocation
                 d_allocation_struct d_allocation;
-                int d_bitcount;
+                // output vectors have a different format, see set_allocation()
+                d_allocation_struct d_allocation_out;
+                int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
                 gr::thread::mutex d_mutex;

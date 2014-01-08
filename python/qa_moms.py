@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from gnuradio import gr, gr_unittest
+from gnuradio import gr, gr_unittest, blocks
 from moms import moms
-import ofdm.ofdm_swig as ofdm
+import ofdm as ofdm
 
 class qa_scf (gr_unittest.TestCase):
 
@@ -13,9 +13,9 @@ class qa_scf (gr_unittest.TestCase):
         self.tb = None 
 
     def std_test (self, src_data, soff, expected):
-        src = gr.vector_source_c (src_data,False,1)
+        src = blocks.vector_source_c (src_data,False,1)
         interp = moms(2,1)
-        dst = gr.vector_sink_c (1)
+        dst = blocks.vector_sink_c (1)
         self.tb.connect (src, interp)
         self.tb.connect (interp, dst)
         self.tb.run ()

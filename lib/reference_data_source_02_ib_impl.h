@@ -30,20 +30,15 @@ namespace gr {
     {
      private:
         std::vector<char> d_ref_data;
-        int d_vec_pos;
-        unsigned int d_produced;
+        int d_bitcount;
 
      public:
       reference_data_source_02_ib_impl(const std::vector<char> &ref_data);
       ~reference_data_source_02_ib_impl();
 
-      // Where all the action really happens
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
-
-      int general_work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+      int work(int noutput_items,
+               gr_vector_const_void_star &input_items,
+               gr_vector_void_star &output_items);
     };
 
   } // namespace ofdm

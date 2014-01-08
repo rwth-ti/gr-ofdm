@@ -256,9 +256,9 @@ class receive_path(gr.hier_block2):
 
 
       ## ID Demapper and Decoder, soft decision
-      id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( dsubc,
+      self.id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( dsubc,
           used_id_bits, whitener_pn )
-      self.connect( id_bfilt, id_dec )
+      self.connect( id_bfilt, self.id_dec )
 
       print "Using coded BPSK soft decoder for ID detection"
 
@@ -283,9 +283,9 @@ class receive_path(gr.hier_block2):
       self.connect( ofdm_blocks, id_bfilt )
       self.connect( orig_frame_start, id_bfilt_trig, ( id_bfilt, 1 ) )
 
-      id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( total_subc,
+      self.id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( total_subc,
           used_id_bits, whitener_pn, config.training_data.shifted_pilot_tones )
-      self.connect( id_bfilt, id_dec )
+      self.connect( id_bfilt, self.id_dec )
 
       print "Using coded BPSK soft decoder for ID detection"
 
@@ -293,14 +293,14 @@ class receive_path(gr.hier_block2):
       # id decoder is below the threshold, else 0.0. Hence we convert this
       # into chars, 0 and 1, and use it as trigger for the sampler.
 
-      min_llr = ( id_dec, 1 )
+      min_llr = ( self.id_dec, 1 )
       erasure_threshold = gr.threshold_ff( 10.0, 10.0, 0 ) # FIXME is it the optimal threshold?
       erasure_dec = gr.float_to_char()
       id_gate = vector_sampler( gr.sizeof_short, 1 )
       ctf_gate = vector_sampler( gr.sizeof_float * total_subc, 1 )
 
 
-      self.connect( id_dec ,       id_gate )
+      self.connect( self.id_dec ,       id_gate )
       self.connect( self.ctf,      ctf_gate )
 
       self.connect( min_llr,       erasure_threshold,  erasure_dec )
@@ -308,7 +308,7 @@ class receive_path(gr.hier_block2):
       self.connect( erasure_dec, ( id_gate,    1 ) )
       self.connect( erasure_dec, ( ctf_gate,   1 ) )
 
-      id_dec = self._id_decoder = id_gate
+      self.id_dec = self._id_decoder = id_gate
       self.ctf = ctf_gate
 
 
@@ -320,7 +320,7 @@ class receive_path(gr.hier_block2):
 
     if options.log:
       id_dec_f = gr.short_to_float()
-      self.connect(id_dec,id_dec_f)
+      self.connect(self.id_dec,id_dec_f)
       log_to_file(self, id_dec_f, "data/id_dec_out.float")
 
 
@@ -329,15 +329,7 @@ class receive_path(gr.hier_block2):
 
 
     # TODO: refactor names
-    if options.debug:
-      self._rx_control = ctrl = static_rx_control(options)
-      self.connect((ctrl,0),blocks.null_sink(gr.sizeof_short))
-    
 
-    self.connect(id_dec,ctrl)
-    id_filt = (ctrl,0)
-    map_src =self._map_src = (ctrl,1)
-    pa_src = (ctrl,2) # doesn't exist for CORBA rx contorl
 
 
 
@@ -347,17 +339,27 @@ class receive_path(gr.hier_block2):
       log_to_file(self, map_src_f, "data/map_src_out.float")
 
     ## Allocation Control
-    self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://localhost:3333")
-    bitcount_src = (self.allocation_buffer,0)
-    bitloading_src = (self.allocation_buffer,1)
-    power_src = (self.allocation_buffer,2)
+    if True: #DEBUG
+        bitcount_vec = [9000]
+        #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
+        self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+        bitloading_vec = [0]*dsubc+[5]*dsubc
+        bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
+        power_vec = [1]*200
+        power_src = blocks.vector_source_c(power_vec,True,dsubc)
+    else:
+        self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://localhost:3333")
+        self.bitcount_src = (self.allocation_buffer,0)
+        bitloading_src = (self.allocation_buffer,1)
+        power_src = (self.allocation_buffer,2)
+        self.connect(self.id_dec, self.allocation_buffer)
 
     if options.log:
-        log_to_file(self, bitcount_src, "data/bitcount_src_rx.int")
+        log_to_file(self, self.bitcount_src, "data/bitcount_src_rx.int")
         log_to_file(self, bitloading_src, "data/bitloading_src_rx.char")
         log_to_file(self, power_src, "data/power_src_rx.cmplx")
+        log_to_file(self, self.id_dec, "data/id_dec_rx.short")
 
-    self.connect(id_dec, self.allocation_buffer)
 
     ## Power Deallocator
     # TODO refactorization, suboptimal location
@@ -366,7 +368,6 @@ class receive_path(gr.hier_block2):
       ## static
       pda = self._power_deallocator = power_deallocator(dsubc)
       self.connect(pda_in,(pda,0))
-      #self.connect(pa_src,blocks.float_to_complex(dsubc),(pda,1))
       self.connect(power_src,(pda,1))
 
     ## Demodulator
@@ -404,7 +405,6 @@ class receive_path(gr.hier_block2):
         demod = self._data_demodulator = generic_demapper_vcb(dsubc)
         self.connect(dm_trig,(demod,2))
     self.connect(pda,demod)
-    #self.connect(map_src,(demod,1))
     self.connect(bitloading_src,(demod,1))
 
     if(options.coding):
@@ -508,7 +508,7 @@ class receive_path(gr.hier_block2):
       whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
 
       id_enc = ofdm.repetition_encoder_sb(used_id_bits,rep_id_bits,whitener_pn)
-      self.connect( id_dec, id_enc )
+      self.connect( self.id_dec, id_enc )
 
       id_mod = ofdm_bpsk_modulator(dsubc)
       self.connect( id_enc, id_mod )
@@ -580,8 +580,8 @@ class receive_path(gr.hier_block2):
 
 
     pda = self._power_deallocator
-    map_src = (self._rx_control,1)
-    dm_trig = blocks.vector_source_b([1,1,0,0,0,0,0,0,0,0],True) # TODO
+    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_blocks-1)
+    dm_trig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
 
 
     for i in range(8):
@@ -636,14 +636,8 @@ class receive_path(gr.hier_block2):
 
       print "Normal BER measurement"
 
-      port = self._rx_control.add_mobile_station(config.rx_station_id)
-      
-      if config.debug:
-          count_src = (self._rx_control,port)
-      else:
-          count_src = (self._rx_control,port+1)
       trig_src = dynamic_trigger_ib(False)
-      self.connect(count_src,trig_src)
+      self.connect(self.bitcount_src,trig_src)
 
       ber_sampler = vector_sampler(gr.sizeof_float,1)
       self.connect(ber_mst,(ber_sampler,0))
@@ -727,24 +721,10 @@ class receive_path(gr.hier_block2):
     config = station_configuration()
 
 
-    port = self._rx_control.add_mobile_station(config.rx_station_id)
-    #bc_src = (self._rx_control,port)
-    
-    if config.debug:
-        bc_src = (self._rx_control,port)
-        bc_src_id = (self._rx_control,0)
-    else:
-        bc_src_id = (self._rx_control,port)
-        bc_src = (self._rx_control,port+1)
-        
-
     ## Data Reference Source
     dref_src = self._data_reference_source = ber_reference_source(self._options)
-    self.connect(bc_src_id,(dref_src,0))
-    #self.connect(bc_src,(dref_src,1))
-    bitcount_src = (self.allocation_buffer,0)
-    self.connect(bitcount_src,(dref_src,1))
-    
+    self.connect(self.id_dec,(dref_src,0))
+    self.connect(self.bitcount_src,(dref_src,1))
 
     ## BER Measuring Tool
     ber_mst = self._ber_measuring_tool = ber_measurement(int(config.ber_window))
@@ -1158,139 +1138,7 @@ class ofdm_bpsk_modulator (gr.hier_block2):
     self.connect(map_src,(mod,1))
     self.connect(trig_src,(mod,2))
 
-
 ################################################################################
-################################################################################
-
-  def add_mobile_station(self,uid):
-    """
-    Register mobile station with unique id \param uid
-    Provides a new bitcount stream for this id. The next free port of
-    the control block is used. Returns assigned output port.
-    """
-
-    try:
-      bc_src_port = self._stations[uid]
-      return bc_src_port
-    except:
-      pass
-
-    config = station_configuration()
-    port = self.cur_port
-    self.cur_port += 2
-
-    self._bc_src = bc_src = corba_bitcount_src_02_si(uid,self.evchan,self.ns_ip,self.ns_port,self.coding)
-    self.connect(self._id_source,bc_src)
-    self.connect((bc_src,0),(self,port))
-    self.connect((bc_src,1),(self,port+1))
-
-    self._stations[uid] = port
-
-    return port
-
-################################################################################
-################################################################################
-
-
-class static_rx_control (gr.hier_block2):
-  def __init__(self, options):
-    config = station_configuration()
-    dsubc = config.data_subcarriers
-
-    gr.hier_block2.__init__(self,"static_rx_control",
-      gr.io_signature (1,1,gr.sizeof_short),
-      gr.io_signaturev(3,-1,[gr.sizeof_short,        # ID
-                             gr.sizeof_char*dsubc,   # Bit Map
-                             gr.sizeof_float*dsubc,  # Power map
-                             gr.sizeof_int]))        # Bitcount stream
-
-    self.cur_port = 3
-    self._stations = {}
-
-    self.control = ctrl = static_control(dsubc,config.frame_id_blocks,
-                                         config.frame_data_blocks,options)
-    
-
-    id_in = (self,0)
-
-    id_out = (self,0)
-    bitmap_out = (self,1)
-    powmap_out = (self,2)
-    
-    #bitcount_id_out = (self,3)
-
-
-
-    ## ID "filter"
-    self.connect(id_in,blocks.copy(gr.sizeof_short),id_out)
-
-
-
-    assmap = numpy.array(ctrl.static_ass_map)
-    assmap_stream = numpy.zeros(len(assmap))
-    assmap_stream[assmap == config.rx_station_id] = 1
-    assmap_stream = concatenate([[[0]*(len(assmap))],
-                                 [assmap_stream]])
-
-    bitmap_stream = numpy.array(ctrl.rmod_stream) * concatenate(assmap_stream)
-    bitmap_stream = list(  bitmap_stream )
-
-    helper = []
-    for x in bitmap_stream:
-      helper.append(int(x))
-
-    ## Map Source
-    map_src = blocks.vector_source_b(helper,True,dsubc)
-    self.connect(map_src,bitmap_out)
-    
-    power_all = ctrl.pow_stream
-    #print "ctrl.pow_stream", ctrl.pow_stream
-
-    power_all = [1.0 if x==0.0 else x for x in power_all]
-    #print "power_all", power_all
-    
-    #[1 if x==0.0 else x for x in ctrl.pow_stream]
-    
-    ## Power Allocation Source
-    pa_src = blocks.vector_source_f(power_all,True,dsubc)
-    self.connect(pa_src,powmap_out)
-
-
-
-  def add_mobile_station(self,uid):
-    """
-    Register mobile station with unique id \param uid
-    Provides a new bitcount stream for this id. The next free port of
-    the control block is used. Returns assigned output port.
-    """
-
-    try:
-      bc_src_port = self._stations[uid]
-      return bc_src_port
-    except:
-      pass
-
-    config = station_configuration()
-    port = self.cur_port
-    self.cur_port += 1
-
-    smm = numpy.array(self.control.static_mod_map)
-    sam = numpy.array(self.control.static_ass_map)
-
-    bitcount = sum(smm[sam == uid])*config.frame_data_blocks
-    
-    bitcount_array = numpy.array(bitcount)
-
-    bc_src = blocks.vector_source_i([bitcount_array.tolist()],True)
-    self.connect(bc_src,(self,port))
-
-    print "static rx control: bitcount for ", uid," is ",bitcount
-
-    return port
-
-
-
-
 ################################################################################
 # Useful for debugging: dummy implementations
 

@@ -26,30 +26,30 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace ofdm {
+    namespace ofdm {
 
-    /*!
-     * \brief <+description of block+>
-     * \ingroup ofdm
-     *
-     */
-    class OFDM_API allocation_buffer : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<allocation_buffer> sptr;
+        /*!
+         * \brief <+description of block+>
+         * \ingroup ofdm
+         *
+         */
+        class OFDM_API allocation_buffer : virtual public gr::block
+        {
+            public:
+                typedef boost::shared_ptr<allocation_buffer> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of ofdm::allocation_buffer.
-       *
-       * To avoid accidental use of raw pointers, ofdm::allocation_buffer's
-       * constructor is in a private implementation
-       * class. ofdm::allocation_buffer::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(int subcarriers, int data_symbols, char *address);
-    };
+                /*!
+                 * \brief Return a shared_ptr to a new instance of ofdm::allocation_buffer.
+                 *
+                 * To avoid accidental use of raw pointers, ofdm::allocation_buffer's
+                 * constructor is in a private implementation
+                 * class. ofdm::allocation_buffer::make is the public interface for
+                 * creating new instances.
+                 */
+                static sptr make(int subcarriers, int data_symbols, char *address);
+        };
 
-  } // namespace ofdm
+    } // namespace ofdm
 } // namespace gr
 
 #endif /* INCLUDED_OFDM_ALLOCATION_BUFFER_H */

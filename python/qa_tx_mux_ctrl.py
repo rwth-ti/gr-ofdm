@@ -19,6 +19,7 @@
 # 
 
 from gnuradio import gr, gr_unittest
+from gnuradio import blocks
 import ofdm_swig as ofdm
 
 class qa_tx_mux_ctrl (gr_unittest.TestCase):
@@ -31,9 +32,14 @@ class qa_tx_mux_ctrl (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
-        self.tb.run ()
+        src = blocks.vector_source_i([4],False,1)
+        mux_ctrl = ofdm.tx_mux_ctrl(2)
+        dst = blocks.vector_sink_b(1)
+        self.tb.connect(src,mux_ctrl,dst)
+        self.tb.run()
         # check data
-
+        result = dst.data()
+        print "mux stream: ", result
 
 if __name__ == '__main__':
     gr_unittest.run(qa_tx_mux_ctrl, "qa_tx_mux_ctrl.xml")

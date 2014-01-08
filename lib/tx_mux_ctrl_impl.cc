@@ -41,8 +41,8 @@ namespace gr {
     tx_mux_ctrl_impl::tx_mux_ctrl_impl(int subcarriers)
         : gr::sync_interpolator("tx_mux_ctrl",
                                 gr::io_signature::make(1, 1, sizeof(int)),
-                                gr::io_signature::make(1, 1, sizeof(char)), 1),
-        d_subcarriers(subcarriers), d_prev_bitcount(0)
+                                gr::io_signature::make(1, 1, sizeof(char)), 2000),
+        d_subcarriers(subcarriers), d_bitcount(0)
     {
     }
 
@@ -61,8 +61,8 @@ namespace gr {
         const int *in = (const int *) input_items[0];
         char *out = (char *) output_items[0];
 
-        if (*in != d_prev_bitcount) {
-            d_prev_bitcount = *in;
+        if (*in != d_bitcount) {
+            d_bitcount = *in;
             d_mux_ctrl.clear();
             // switch mux to ID
             for(int i=0;i<d_subcarriers;i++)
@@ -70,22 +70,23 @@ namespace gr {
                 d_mux_ctrl.push_back(0);
             }
             // switch mux to DATA
-            for(int i=0;i<*in;i++)
+            for(int i=0;i<d_bitcount;i++)
             {
                 d_mux_ctrl.push_back(1);
             }
-            set_interpolation(d_subcarriers+d_prev_bitcount);
+            set_interpolation(d_subcarriers + d_bitcount);
+//            set_output_multiple(d_subcarriers + d_bitcount);
+//            set_alignment(d_subcarriers + d_bitcount);
             return 0;
-        } else if ((d_subcarriers + d_prev_bitcount) < noutput_items) {
-            memcpy(out, &d_mux_ctrl[0], sizeof(char)*(d_subcarriers + d_prev_bitcount));
-            // Tell runtime system how many output items we produced.
-            return (d_subcarriers + d_prev_bitcount);
+        //} else if ((d_subcarriers + d_bitcount) <= noutput_items) {
         } else {
-            return 0;
+            memcpy(out, &d_mux_ctrl[0], sizeof(char)*(d_subcarriers + d_bitcount));
+            // Tell runtime system how many output items we produced.
+            std::cout << "noutput_items " << noutput_items << std::endl;
+            std::cout << "returned items " << d_subcarriers + d_bitcount << std::endl;
+            return (d_subcarriers + d_bitcount);
         }
-
     }
-
   } /* namespace ofdm */
 } /* namespace gr */
 

@@ -41,12 +41,11 @@ namespace gr {
      * The private constructor
      */
     reference_data_source_02_ib_impl::reference_data_source_02_ib_impl(const std::vector<char> &ref_data)
-      : gr::block("reference_data_source_02_ib",
+      : gr::sync_interpolator("reference_data_source_02_ib",
               gr::io_signature::make2 (2, 2, sizeof(short), sizeof(unsigned int)),
-              gr::io_signature::make(1, 1, sizeof(char)))
+              gr::io_signature::make(1, 1, sizeof(char)),1800)
         , d_ref_data(ref_data)
-        , d_vec_pos(0)
-        , d_produced(0)
+        , d_bitcount(0)
     {}
 
     /*
@@ -56,70 +55,25 @@ namespace gr {
     {
     }
 
-    void
-    reference_data_source_02_ib_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
-    {
-        /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-        ninput_items_required[0] = 1;
-        ninput_items_required[1] = 1;
-    }
-
     int
-    reference_data_source_02_ib_impl::general_work (int noutput_items,
-                       gr_vector_int &ninput_items,
-                       gr_vector_const_void_star &input_items,
-                       gr_vector_void_star &output_items)
+    reference_data_source_02_ib_impl::work(int noutput_items,
+                                           gr_vector_const_void_star &input_items,
+                                           gr_vector_void_star &output_items)
     {
         const short *in_id = static_cast<const short*>(input_items[0]);
         const unsigned int *in_cnt = static_cast<const unsigned int*>(input_items[1]);
-        char *out = static_cast<char*>(output_items[0]);
+        char *out_bits = static_cast<char*>(output_items[0]);
 
-        if(DEBUG)
-            std::cout << "[dref.src " << unique_id() << "] entered, state "
-                << "nin=" << ninput_items[0] << " nout=" << noutput_items
-                << " d_produced=" << d_produced
-                << " in_cnt[0]=" << in_cnt[0]
-                << std::endl;
-
-        if(in_cnt[0] == 0){
-
-            std::cerr << "warning: bitcount = 0" << std::endl;
-            consume_each(1);
+        if (*in_cnt != d_bitcount) {
+            d_bitcount = *in_cnt;
+            set_interpolation(d_bitcount);
             return 0;
-
-        } else if(in_cnt[0] > d_produced){
-            //how many bits should be produced?
-            int nout = std::min(in_cnt[0]-d_produced,(unsigned int)noutput_items);
-
-            if(DEBUG)
-                std::cout << "produce " << nout << " items" << std::endl;
-
-            //copy as many bits as needed
-            for (int i = 0 ; i < nout; ++i) {
-                //reset if end of input vector reached
-                assert((unsigned int)d_vec_pos <= d_ref_data.size());
-                out[i] = d_ref_data[in_id[0]*in_cnt[0]+d_vec_pos];
-                d_vec_pos++;
-            }
-            d_produced += nout;
-
-            // if frame end reached restart counter and call consume
-            if(d_produced >= in_cnt[0]){
-                d_produced = 0;
-                d_vec_pos = 0;
-                consume_each(1);
-                if(DEBUG)
-                    std::cout << "consume input value" << std::endl;
-            }
-
-            return nout;
-
+        } else {
+            memcpy(out_bits, &d_ref_data[in_id[0]*in_cnt[0]], sizeof(char)*(d_bitcount));
+            // Tell runtime system how many output items we produced.
+            return d_bitcount;
         }
-
-        assert(false && "should never get here");
-        return -1;
     }
-
   } /* namespace ofdm */
 } /* namespace gr */
 

@@ -60,7 +60,6 @@ namespace gr {
         out_sig[3] = sizeof(gr_complex)*subcarriers;            // power
         set_output_signature(io_signature::makev(4,4,out_sig));
 
-        d_allocation.id = 0;
 
         std::vector<char> bitloading_vec;
         std::vector<gr_complex> power_vec;
@@ -74,6 +73,9 @@ namespace gr {
         {
             power_vec.push_back(1);
         }
+        // generate allocation and allocation_out structures
+        d_allocation.id = 0;
+        d_allocation_out.id = 0;
         set_allocation(bitloading_vec,power_vec);
 
         d_context = new zmq::context_t(1);
@@ -104,29 +106,36 @@ namespace gr {
                                         std::vector<gr_complex> power)
     {
         gr::thread::scoped_lock guard(d_mutex);
+        d_allocation.bitloading = bitloading;
+        d_allocation.power = power;
+
+        // clear and write bitloading output vector
+        d_allocation_out.bitloading.clear();
         // push back ID symbol modulation
         for(int i=0;i<d_subcarriers;i++)
         {
-            d_allocation.bitloading.push_back(1);
+            d_allocation_out.bitloading.push_back(1);
         }
         // insert data symbol modulation at the end ONCE
-        d_allocation.bitloading.insert(d_allocation.bitloading.end(), bitloading.begin(), bitloading.end());
+        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), bitloading.begin(), bitloading.end());
 
+        // clear and write power output vector
+        d_allocation_out.power.clear();
         // push back ID symbol power
         for(int i=0;i<d_subcarriers;i++)
         {
-            d_allocation.power.push_back(1);
+            d_allocation_out.power.push_back(1);
         }
         // insert data symbol power at the end TIMES data_symbols
         for(int i=0;i<d_data_symbols;i++)
         {
-            d_allocation.power.insert(d_allocation.power.end(), power.begin(), power.end());
+            d_allocation_out.power.insert(d_allocation_out.power.end(), power.begin(), power.end());
         }
 
         int sum_of_elems = 0;
         for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
-        d_bitcount = sum_of_elems*d_data_symbols;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
     }
 
 
@@ -148,18 +157,20 @@ namespace gr {
         send_allocation();
 
         // now generate outputs
-        *out_id = d_allocation.id;
-        *out_bitcount = d_bitcount;
+        *out_id = d_allocation_out.id;
+        *out_bitcount = d_bitcount_out;
         //FIXME: probably dirty hack
         // output 2 vectors for id and data
-        memcpy(out_bitloading, &d_allocation.bitloading[0], sizeof(char)*2*d_subcarriers);
+        memcpy(out_bitloading, &d_allocation_out.bitloading[0], sizeof(char)*2*d_subcarriers);
         // output 1 vector for id and the rest for data
-        memcpy(out_power, &d_allocation.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+        memcpy(out_power, &d_allocation_out.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
 
+        //increase frame id, [0..255]
         d_allocation.id++;
         if (d_allocation.id > 255) {
             d_allocation.id = 0;
         }
+        d_allocation_out.id = d_allocation.id;
 
         // Tell runtime system how many output items we produced.
         produce(0,1);

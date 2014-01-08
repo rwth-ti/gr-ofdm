@@ -46,14 +46,14 @@ namespace gr {
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
+                void set_allocation(std::vector<char> bitloading,
+                                    std::vector<gr_complex> power);
+
             public:
                 allocation_buffer_impl(int subcarriers, int data_symbols, char *address);
                 ~allocation_buffer_impl();
 
                 void recv_allocation();
-
-                void set_allocation(std::vector<char> bitloading,
-                                    std::vector<gr_complex> power);
 
                 // Where all the action really happens
                 int general_work(int noutput_items,

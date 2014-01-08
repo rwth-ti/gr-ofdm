@@ -1,3 +1,6 @@
 *.swp
 *.pyc
 build/
+apps/data/
+benchmark_ofdm.dot
+benchmark_ofdm.dot.pdf

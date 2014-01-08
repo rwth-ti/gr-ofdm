@@ -75,15 +75,11 @@ namespace gr {
                 d_mux_ctrl.push_back(1);
             }
             set_interpolation(d_subcarriers + d_bitcount);
-//            set_output_multiple(d_subcarriers + d_bitcount);
-//            set_alignment(d_subcarriers + d_bitcount);
             return 0;
         //} else if ((d_subcarriers + d_bitcount) <= noutput_items) {
         } else {
             memcpy(out, &d_mux_ctrl[0], sizeof(char)*(d_subcarriers + d_bitcount));
             // Tell runtime system how many output items we produced.
-            std::cout << "noutput_items " << noutput_items << std::endl;
-            std::cout << "returned items " << d_subcarriers + d_bitcount << std::endl;
             return (d_subcarriers + d_bitcount);
         }
     }

@@ -340,10 +340,10 @@ class receive_path(gr.hier_block2):
 
     ## Allocation Control
     if False: #DEBUG
-        bitcount_vec = [3600]
+        bitcount_vec = [9000]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
         self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
-        bitloading_vec = [0]*dsubc+[2]*dsubc
+        bitloading_vec = [0]*dsubc+[5]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         power_vec = [1]*200
         power_src = blocks.vector_source_c(power_vec,True,dsubc)

@@ -34,6 +34,7 @@ namespace gr {
         int d_bitcount;
         int d_subcarriers;
 
+        void set_ctrl_stream();
      public:
         tx_mux_ctrl_impl(int subcarriers);
         ~tx_mux_ctrl_impl();

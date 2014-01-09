@@ -53,6 +53,22 @@ namespace gr {
     {
     }
 
+    void tx_mux_ctrl_impl::set_ctrl_stream()
+    {
+        d_mux_ctrl.clear();
+        // switch mux to ID
+        for(int i=0;i<d_subcarriers;i++)
+        {
+            d_mux_ctrl.push_back(0);
+        }
+        // switch mux to DATA
+        for(int i=0;i<d_bitcount;i++)
+        {
+            d_mux_ctrl.push_back(1);
+        }
+        set_interpolation(d_subcarriers + d_bitcount);
+    }
+
     int
     tx_mux_ctrl_impl::work(int noutput_items,
                            gr_vector_const_void_star &input_items,
@@ -61,27 +77,29 @@ namespace gr {
         const int *in = (const int *) input_items[0];
         char *out = (char *) output_items[0];
 
+        // necessary for first run
         if (*in != d_bitcount) {
             d_bitcount = *in;
-            d_mux_ctrl.clear();
-            // switch mux to ID
-            for(int i=0;i<d_subcarriers;i++)
-            {
-                d_mux_ctrl.push_back(0);
-            }
-            // switch mux to DATA
-            for(int i=0;i<d_bitcount;i++)
-            {
-                d_mux_ctrl.push_back(1);
-            }
-            set_interpolation(d_subcarriers + d_bitcount);
+            set_ctrl_stream();
             return 0;
-        //} else if ((d_subcarriers + d_bitcount) <= noutput_items) {
-        } else {
-            memcpy(out, &d_mux_ctrl[0], sizeof(char)*(d_subcarriers + d_bitcount));
-            // Tell runtime system how many output items we produced.
-            return (d_subcarriers + d_bitcount);
         }
+        // ! Integer division
+        int runs = noutput_items / (d_subcarriers + d_bitcount);
+        // see if bitcount changes
+        int equalcount = 0;
+        for (int i=0;i<runs;i++) {
+            if (in[i] == d_bitcount) {
+                equalcount++;
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < equalcount; i++) {
+            int idx = i*(d_subcarriers+d_bitcount);
+            memcpy(&out[idx], &d_mux_ctrl[0], sizeof(char)*(d_subcarriers + d_bitcount));
+        }
+        // Tell runtime system how many output items we produced.
+        return equalcount * (d_subcarriers + d_bitcount);
     }
   } /* namespace ofdm */
 } /* namespace gr */

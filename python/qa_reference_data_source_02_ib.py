@@ -32,14 +32,17 @@ class qa_tx_mux_ctrl (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
-        src = blocks.vector_source_i([3,4,3,2,2,2,1],False,1)
-        mux_ctrl = ofdm.tx_mux_ctrl(2)
+        src_id = blocks.vector_source_s([0,1,2,3],False,1)
+        src_bitcount = blocks.vector_source_i([2,3,3,1],False,1)
+        ref_data = ofdm.reference_data_source_02_ib([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dst = blocks.vector_sink_b(1)
-        self.tb.connect(src,mux_ctrl,dst)
+        self.tb.connect(src_id,(ref_data,0))
+        self.tb.connect(src_bitcount,(ref_data,1))
+        self.tb.connect(ref_data,dst)
         self.tb.run()
         # check data
         result = dst.data()
-        print "mux stream: ", result
+        print "reference data stream: ", result
 
 if __name__ == '__main__':
     gr_unittest.run(qa_tx_mux_ctrl, "qa_tx_mux_ctrl.xml")

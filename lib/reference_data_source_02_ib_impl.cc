@@ -45,8 +45,9 @@ namespace gr {
               gr::io_signature::make2 (2, 2, sizeof(short), sizeof(unsigned int)),
               gr::io_signature::make(1, 1, sizeof(char)),1800)
         , d_ref_data(ref_data)
-        , d_bitcount(0)
-    {}
+        , d_bitcount(-1)
+    {
+    }
 
     /*
      * Our virtual destructor.
@@ -68,11 +69,23 @@ namespace gr {
             d_bitcount = *in_cnt;
             set_interpolation(d_bitcount);
             return 0;
-        } else {
-            memcpy(out_bits, &d_ref_data[in_id[0]*in_cnt[0]], sizeof(char)*(d_bitcount));
-            // Tell runtime system how many output items we produced.
-            return d_bitcount;
         }
+        int runs = noutput_items / d_bitcount;
+        // see if bitcount changes
+        int equalcount = 0;
+        for (int i=0;i<runs;++i) {
+            if (in_cnt[i] == d_bitcount) {
+                equalcount++;
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < equalcount; i++) {
+            // take random data bits according to frame ID
+            memcpy(&out_bits[i*d_bitcount], &d_ref_data[in_id[i]*d_bitcount], sizeof(char)*(d_bitcount));
+            // Tell runtime system how many output items we produced.
+        }
+        return equalcount * d_bitcount;
     }
   } /* namespace ofdm */
 } /* namespace gr */

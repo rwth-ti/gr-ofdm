@@ -93,15 +93,15 @@ class transmit_path(gr.hier_block2):
         id_src = blocks.vector_source_s(id_vec,True,1)
         bitcount_vec = [9000]
         bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
-        bitloading_vec = [1]*dsubc+[1]*dsubc
+        bitloading_vec = [1]*dsubc+[5]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         power_vec = [1]*200
         power_src = blocks.vector_source_c(power_vec,True,dsubc)
-        mux_vec = [0]*dsubc+[1]*14400
+        mux_vec = [0]*dsubc+[1]*9000
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
         self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
-        self.allocation_src.set_allocation([3]*config.data_subcarriers,[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([1]*config.data_subcarriers,[1]*config.data_subcarriers)
         id_src = (self.allocation_src,0)
         bitcount_src = (self.allocation_src,1)
         bitloading_src = (self.allocation_src,2)

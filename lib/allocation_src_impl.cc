@@ -82,6 +82,8 @@ namespace gr {
         d_socket = new zmq::socket_t(*d_context, ZMQ_PUB);
         d_socket->bind(address);
         std::cout << "allocation_src on " << address << std::endl;
+
+        set_output_multiple((1+d_data_symbols)*d_subcarriers);
     }
 
     /*
@@ -153,38 +155,40 @@ namespace gr {
         char *out_bitloading = (char *) output_items[2];
         gr_complex *out_power = (gr_complex *) output_items[3];
 
-        if (noutput_items >= 1+d_data_symbols) {
-
-            // send the allocation to Rx
-            send_allocation();
-
-            // now generate outputs
-            *out_id = d_allocation_out.id;
-            *out_bitcount = d_bitcount_out;
-            //FIXME: probably dirty hack
-            // output 2 vectors for id and data
-            memcpy(out_bitloading, &d_allocation_out.bitloading[0], sizeof(char)*2*d_subcarriers);
-            // output 1 vector for id and the rest for data
-            memcpy(out_power, &d_allocation_out.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
-
-            //increase frame id, [0..255]
-            d_allocation.id++;
-            if (d_allocation.id > 255) {
-                d_allocation.id = 0;
-            }
-            d_allocation_out.id = d_allocation.id;
-
-            // Tell runtime system how many output items we produced.
-            produce(0,1);
-            produce(1,1);
-            produce(2,2);
-            produce(3,1+d_data_symbols);
-            return WORK_CALLED_PRODUCE;
-        } else {
+        if (noutput_items < (1+d_data_symbols)) {
             return 0;
+        } else {
+            for (int i = 0; i < (noutput_items / ((1+d_data_symbols)*d_subcarriers)); i++) {
+                // send the allocation to Rx
+                send_allocation();
+
+                // now generate outputs
+                out_id[i] = d_allocation_out.id;
+                out_bitcount[i] = d_bitcount_out;
+                //FIXME: probably dirty hack
+                // output 2 vectors for id and data
+                int bl_idx = i*2*d_subcarriers;
+                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(char)*2*d_subcarriers);
+                // output 1 vector for id and the rest for data
+                int p_idx = i*(1+d_data_symbols)*d_subcarriers;
+                memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+
+                //increase frame id, [0..255]
+                d_allocation.id++;
+                if (d_allocation.id > 255) {
+                    d_allocation.id = 0;
+                }
+                d_allocation_out.id = d_allocation.id;
+
+                // Tell runtime system how many output items we produced.
+                produce(0,1);
+                produce(1,1);
+                produce(2,2);
+                produce(3,1+d_data_symbols);
+            }
+            return WORK_CALLED_PRODUCE;
         }
     }
-
   } /* namespace ofdm */
 } /* namespace gr */
 

@@ -1,6 +1,7 @@
 *.swp
 *.pyc
 build/
+.unittests/
 apps/data/
 benchmark_ofdm.dot
 benchmark_ofdm.dot.pdf

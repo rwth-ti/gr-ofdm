@@ -165,18 +165,13 @@ class ofdm_benchmark (gr.top_block):
 
     self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
 
-
-    #self.enable_txfreq_adjust("txfreq")
-
-
+    self.rpc_manager.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
 
     if options.imgxfer:
       self.rxpath.setup_imgtransfer_sink()
 
     if not options.no_decoding:
       self.rxpath.publish_rx_performance_measure()
-
-
 
       # capture transmitter's stream to disk
     #self.dst  = gr.file_sink(gr.sizeof_gr_complex,options.to_file)

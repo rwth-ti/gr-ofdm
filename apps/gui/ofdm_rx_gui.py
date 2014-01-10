@@ -172,13 +172,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
                       '128-QAM' : 7,
                       '256-QAM' : 8,
                      }[modulation_str]
-        self.rpc_manager.request("set_modulation",bitloading)
+        self.rpc_manager.request("set_modulation",[[bitloading]*self.data_subcarriers,[1]*self.data_subcarriers])
         self.update_tx_params()
 
     def slide_amplitude(self, amplitude):
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
         self.amplitude = amplitude
-        self.rpc_manager.request("set_amplitude",self.amplitude)
+        self.rpc_manager.request("set_amplitude",[self.amplitude])
 
     def edit_amplitude(self):
         amplitude = self.lineEditAmplitude.text().toInt()[0]
@@ -190,14 +190,14 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.horizontalSliderAmplitude.setValue(amplitude)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
         self.amplitude = amplitude
-        self.rpc_manager.request("set_amplitude",self.amplitude)
+        self.rpc_manager.request("set_amplitude",[self.amplitude])
 
     def slide_freq_offset(self, offset):
         # note slider positions are int (!)
         freq_offset = offset/100.0
         self.gui.lineEditOffset.setText(QtCore.QString.number(freq_offset,'f',3))
         self.freq_offset = freq_offset
-        self.rpc_manager.request("set_freq_offset",self.freq_offset)
+        self.rpc_manager.request("set_freq_offset",[self.freq_offset])
 
     def edit_freq_offset(self):
         freq_offset = self.lineEditOffset.text().toFloat()[0]
@@ -210,16 +210,16 @@ class OFDMRxGUI(QtGui.QMainWindow):
         # note slider positions are int (!)
         self.gui.horizontalSliderOffset.setValue(freq_offset*100.0)
         self.gui.horizontalSliderOffset.blockSignals(False)
-        self.rpc_manager.request("set_freq_offset",self.freq_offset)
+        self.rpc_manager.request("set_freq_offset",[self.freq_offset])
 
     def subcarrier_selected(self, point):
         subcarrier = int(point.x()+99)
         titlestring = "Scatterplot (Subcarrier " + str(subcarrier) + ")"
         self.gui.qwtPlotScatter.setTitle(titlestring)
-        self.rpc_manager.request("set_scatter_subcarrier",subcarrier)
+        self.rpc_manager.request("set_scatter_subcarrier",[subcarrier])
 
     def set_channel_profile(self, profile):
-        self.rpc_manager.request("set_channel_profile",str(profile))
+        self.rpc_manager.request("set_channel_profile",[str(profile)])
 
     def plot_snr(self, samples):
         self.snr_y = numpy.append(samples,self.snr_y)

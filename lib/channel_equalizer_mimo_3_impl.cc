@@ -47,15 +47,8 @@ namespace gr {
      */
     channel_equalizer_mimo_3_impl::channel_equalizer_mimo_3_impl(int vlen)
       : gr::block("channel_equalizer_mimo_3",
-              gr::io_signature::make8(8, 8,
-            	        sizeof( gr_complex ) * vlen,    // ofdm_blocks
-            	                sizeof( gr_complex ) * vlen,    // ofdm_blocks2
-            	                sizeof( gr_complex ) * vlen/2,    // h0
-            	                sizeof( gr_complex ) * vlen/2,    // h1
-            	                sizeof( gr_complex ) * vlen/2,    // h2
-            	                sizeof( gr_complex ) * vlen/2,    // h3
-            	                sizeof( char ),                 // frame_start
-            	                sizeof( char ) ),
+
+              gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(1, 1,
             	        sizeof( gr_complex ) * vlen))
     , d_vlen( vlen )
@@ -69,6 +62,18 @@ namespace gr {
       , d_buffer_h2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) * vlen ) ) )
       , d_buffer_h3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) * vlen ) ) )
     {
+        std::vector<int> in_sig(8);
+        in_sig[0] = sizeof( gr_complex ) * vlen;    // ofdm_blocks
+        in_sig[1] =sizeof( gr_complex ) * vlen;    // ofdm_blocks2
+        in_sig[2] =sizeof( gr_complex ) * vlen/2;    // h0
+        in_sig[3] =sizeof( gr_complex ) * vlen/2;    // h1
+        in_sig[4] =sizeof( gr_complex ) * vlen/2;    // h2
+        in_sig[5] =sizeof( gr_complex ) * vlen/2;    // h3
+        in_sig[6] =sizeof( char );                 // frame_start
+        in_sig[7] =sizeof( char );
+        set_input_signature(io_signature::makev(8,8,in_sig));
+
+
     	assert( ( vlen % 2 ) == 0 ); // alignment 16 byte
     }
 

@@ -49,12 +49,8 @@ namespace gr {
      */
     generic_softdemapper_vcf_impl::generic_softdemapper_vcf_impl(int vlen,bool coding)
       : gr::block("generic_softdemapper_vcf",
-              gr::io_signature::make4 (
-                      4, 4,
-                      sizeof(gr_complex)*vlen, // ofdm blocks
-                      sizeof(char)*vlen,       // bitmap
-                      sizeof(float)*vlen,	   // CSI
-                      sizeof(char)),           // update trigger
+
+              gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(
                       1, 1,
                       sizeof(float)))          // bitdata
@@ -67,6 +63,15 @@ namespace gr {
         , d_csi( new float[vlen] )
         , d_demod( new ofdmi_modem() )
     {
+
+         std::vector<int> in_sig(4);
+         in_sig[0]= sizeof(gr_complex)*vlen; // ofdm blocks
+         in_sig[1]= sizeof(char)*vlen;       // bitmap
+         in_sig[2]= sizeof(float)*vlen;          // CSI
+         in_sig[3]= sizeof(char);           // update trigger
+         set_input_signature(io_signature::makev(4,4,in_sig));
+
+
     	  memset(d_bitmap.get(), 0, d_vlen);
     	  memset(d_csi.get(), 1, d_vlen);
     	  if( DEBUG )

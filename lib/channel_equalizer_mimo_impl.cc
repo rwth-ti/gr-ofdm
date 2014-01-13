@@ -48,11 +48,8 @@ namespace gr {
      */
     channel_equalizer_mimo_impl::channel_equalizer_mimo_impl(int vlen)
       : gr::block("channel_equalizer_mimo",
-              gr::io_signature::make4(4, 4,
-            	        sizeof( gr_complex ) * vlen,	// ofdm_blocks
-            			sizeof( gr_complex ) * vlen/2,	// h0
-            			sizeof( gr_complex ) * vlen/2,	// h1
-            			sizeof( char ) ),
+
+              gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(1, 1,
             	        sizeof( gr_complex ) * vlen))
      , d_vlen( vlen )
@@ -62,6 +59,13 @@ namespace gr {
      , d_buffer_h0( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) * vlen ) ) )
      , d_buffer_h1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) * vlen ) ) )
     {
+        std::vector<int> in_sig(4);
+        in_sig[0]=sizeof( gr_complex ) * vlen;    // ofdm_blocks
+        in_sig[1]=sizeof( gr_complex ) * vlen/2;  // h0
+        in_sig[2]=sizeof( gr_complex ) * vlen/2;  // h1
+        in_sig[3]=sizeof( char );
+        set_input_signature(io_signature::makev(4,4,in_sig));
+
     	assert( ( vlen % 2 ) == 0 ); // alignment 16 byte
     }
 

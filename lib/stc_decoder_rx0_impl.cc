@@ -44,16 +44,22 @@ namespace gr {
      */
     stc_decoder_rx0_impl::stc_decoder_rx0_impl(int vlen)
       : gr::sync_block("stc_decoder_rx0",
-              gr::io_signature::make6( 6, 6,
-            	        sizeof( gr_complex ) * vlen,		// ofdm_blcoks
-            	        sizeof( gr_complex ) * vlen,		// ofdm_blcoks2
-            			sizeof( gr_complex ) * vlen,		// h0
-            	        sizeof( gr_complex ) * vlen,		// h1
-            			sizeof( gr_complex ) * vlen,		// h2
-            	        sizeof( gr_complex ) * vlen ),		// h3
+
+              gr::io_signature::make(0, 0, 0),
               gr::io_signature::make( 1, 1, sizeof( gr_complex ) * vlen ))
     	, d_vlen( vlen )
     {
+        std::vector<int> in_sig(6);
+        in_sig[0]= sizeof( gr_complex ) * vlen;            // ofdm_blcoks
+        in_sig[1]=sizeof( gr_complex ) * vlen;           // ofdm_blcoks2
+        in_sig[2]= sizeof( gr_complex ) * vlen;            // h0
+        in_sig[3]=sizeof( gr_complex ) * vlen;            // h1
+        in_sig[4]=sizeof( gr_complex ) * vlen;            // h2
+        in_sig[5]=sizeof( gr_complex ) * vlen ;          // h3
+        set_input_signature(io_signature::makev(6,6,in_sig));
+
+
+
     	  assert( ( vlen % 2 ) == 0 ); // alignment 16 byte
     }
 

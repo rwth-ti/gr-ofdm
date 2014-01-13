@@ -83,7 +83,12 @@ namespace gr {
         d_socket->bind(address);
         std::cout << "allocation_src on " << address << std::endl;
 
-        set_output_multiple((1+d_data_symbols)*d_subcarriers);
+        //set_output_multiple((1+d_data_symbols));
+        //set_output_multiple((1+d_data_symbols)*d_subcarriers);
+        //set_min_output_buffer (3, 2*sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+        //set_max_output_buffer (3, 2*sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+        set_min_noutput_items((1+d_data_symbols));
+        //set_max_noutput_items((1+d_data_symbols)*d_subcarriers);
     }
 
     /*
@@ -158,7 +163,7 @@ namespace gr {
         if (noutput_items < (1+d_data_symbols)) {
             return 0;
         } else {
-            for (int i = 0; i < (noutput_items / ((1+d_data_symbols)*d_subcarriers)); i++) {
+            for (int i = 0; i < (noutput_items / ((1+d_data_symbols))); i++) {
                 // send the allocation to Rx
                 send_allocation();
 

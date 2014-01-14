@@ -339,13 +339,13 @@ class receive_path(gr.hier_block2):
       log_to_file(self, map_src_f, "data/map_src_out.float")
 
     ## Allocation Control
-    if True: #DEBUG
-        bitloading = 1
+    if False: #DEBUG
+        bitloading = 3
         bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
         self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
-        #bitloading_vec = [0]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
         # 0s for ID block, then data
+        #bitloading_vec = [0]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
         bitloading_vec = [0]*dsubc+[bitloading]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         power_vec = [1]*config.data_subcarriers
@@ -357,7 +357,7 @@ class receive_path(gr.hier_block2):
         power_src = (self.allocation_buffer,2)
         self.connect(self.id_dec, self.allocation_buffer)
 
-    if options.log or True:
+    if options.log:
         log_to_file(self, self.bitcount_src, "data/bitcount_src_rx.int")
         log_to_file(self, bitloading_src, "data/bitloading_src_rx.char")
         log_to_file(self, power_src, "data/power_src_rx.cmplx")

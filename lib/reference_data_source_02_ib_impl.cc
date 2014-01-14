@@ -47,6 +47,7 @@ namespace gr {
         , d_ref_data(ref_data)
         , d_bitcount(-1)
     {
+        // be careful with the length of the random sequence it has to be long enough for all IDs and bitloadings
     }
 
     /*

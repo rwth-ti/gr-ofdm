@@ -89,21 +89,27 @@ class transmit_path(gr.hier_block2):
 
     ## Allocation Control
     self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
-    if True: #DEBUG
-        bitloading = 1
+    if False: #DEBUG
+        # how many bits per subcarrier
+        bitloading = 3
+        # id's for frames
         id_vec = range(0,256)
         id_src = blocks.vector_source_s(id_vec,True,1)
-        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
-        bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+        # bitloading for ID symbol and then once for data symbols
         #bitloading_vec = [1]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
         bitloading_vec = [1]*dsubc+[bitloading]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
+        # bitcount for frames
+        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+        # power loading, here same for all symbols
         power_vec = [1]*config.data_subcarriers
         power_src = blocks.vector_source_c(power_vec,True,dsubc)
+        # mux controll stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
-        self.allocation_src.set_allocation([0]*(config.data_subcarriers/2)+[2]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([0]*(config.data_subcarriers/2)+[3]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
         id_src = (self.allocation_src,0)
         bitcount_src = (self.allocation_src,1)
         bitloading_src = (self.allocation_src,2)
@@ -111,16 +117,7 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
 
-    #null_sink_dbg = blocks.null_sink(gr.sizeof_short)
-    #self.connect((self.allocation_src,0),null_sink_dbg)
-    #null_sink_dbg = blocks.null_sink(gr.sizeof_int)
-    #self.connect((self.allocation_src,1),null_sink_dbg)
-    #null_sink_dbg = blocks.null_sink(gr.sizeof_char*200)
-    #self.connect((self.allocation_src,2),null_sink_dbg)
-    #null_sink_dbg = blocks.null_sink(gr.sizeof_gr_complex*200)
-    #self.connect((self.allocation_src,3),null_sink_dbg)
-
-    if options.log or True:
+    if options.log:
         log_to_file(self, id_src, "data/id_src.short")
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
@@ -151,8 +148,11 @@ class transmit_path(gr.hier_block2):
     self.connect(id_src,(ber_ref_src,0))
     self.connect(bitcount_src,(ber_ref_src,1))
 
+    if options.log:
+      log_to_file(self, ber_ref_src, "data/ber_rec_src_tx.char")
+
     ## Bitmap Update Trigger
-    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_blocks-1)
+    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_part-2)
     btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
 
     if options.log:
@@ -181,8 +181,6 @@ class transmit_path(gr.hier_block2):
     self.connect(mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
     self.connect(ber_ref_src,(dmux,2))
-    log_to_file(self, mux_ctrl, "data/tx_mux_ctrl.char")
-    log_to_file(self, dmux, "data/tx_mux_out.char")
 
     if options.log:
       dmux_f = gr.char_to_float()
@@ -197,8 +195,8 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")
-      modi = gr.complex_to_imag(config.data_subcarriers)
-      modr = gr.complex_to_real(config.data_subcarriers)
+      modi = blocks.complex_to_imag(config.data_subcarriers)
+      modr = blocks.complex_to_real(config.data_subcarriers)
       self.connect(mod,modi)
       self.connect(mod,modr)
       log_to_file(self, modi, "data/mod_imag_out.float")
@@ -375,8 +373,11 @@ class ber_reference_source (gr.hier_block2):
 #    rand_string = rand_file.read()
 #    rand_file.close()
 #    rand_data = [ord(rand_string[i]) for i in range(len(rand_string))]
+    # We have to use a fix seed so that Tx and Rx have the same random sequence in order to calculate BER
     seed(30214345)
-    rand_data = [chr(getrandbits(1)) for x in range(options.subcarriers*options.data_blocks*256)]
+    # Maximum bitloading is 8 and maximum ID is 256
+    print "Generating random bits..."
+    rand_data = [chr(getrandbits(1)) for x in range(options.subcarriers*8*options.data_blocks*256)]
 
     ref_src = self._reference_data_source = reference_data_source_02_ib(rand_data)
     self.connect(id_src,(ref_src,0))

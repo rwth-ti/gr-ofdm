@@ -23,7 +23,7 @@
 
 #include <ofdm/allocation_src.h>
 #include <gnuradio/thread/thread.h>
-#include "zmq.hpp"
+#include <zmq.hpp>
 
 namespace gr {
     namespace ofdm {

@@ -23,7 +23,7 @@
 
 #include <ofdm/allocation_buffer.h>
 #include <boost/circular_buffer.hpp>
-#include "zmq.hpp"
+#include <zmq.hpp>
 
 namespace gr {
     namespace ofdm {

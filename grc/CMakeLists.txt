@@ -112,22 +112,9 @@ install(FILES
     ofdm_vector_sum_vff.xml
     ofdm_viterbi_combined_fb.xml
     ofdm_fsm.xml
-    ofdm_corba_assignment_src_sv.xml
-    ofdm_corba_bitcount_src_si.xml
-    ofdm_corba_bitmap_src.xml
-    ofdm_corba_id_filter.xml
-    ofdm_corba_id_src.xml
-    ofdm_corba_map_src_sv.xml
-    ofdm_corba_multiplex_src_ss.xml
-    ofdm_corba_power_allocator.xml
-    ofdm_corba_power_src_sv.xml
-    ofdm_corba_rxbaseband_sink.xml
-    ofdm_corba_rxinfo_sink_imgxfer.xml
-    ofdm_corba_rxinfo_sink.xml
     ofdm_itpp_tdl_channel.xml
     ofdm_encoder_bb.xml
     ofdm_reference_data_source_02_ib.xml
-    ofdm_corba_bitcount_src_02_si.xml
     ofdm_allocation_src.xml
     ofdm_allocation_buffer.xml
     ofdm_tx_mux_ctrl.xml DESTINATION share/gnuradio/grc/blocks

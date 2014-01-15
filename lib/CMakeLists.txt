@@ -131,26 +131,9 @@ list(APPEND ofdm_sources
     vector_sum_vff_impl.cc
     viterbi_combined_fb_impl.cc
     fsm.cc
-    #corba_push_consumer.cc
-    #corba_push_supplier.cc
-    #corba_push_supplier_wrapper.cc
-    #orb.cc 
-    #corba_assignment_src_sv_impl.cc
-    #corba_bitcount_src_si_impl.cc
-    #corba_bitmap_src_impl.cc
-    #corba_id_filter_impl.cc
-    #corba_id_src_impl.cc
-    #corba_map_src_sv_impl.cc
-    #corba_multiplex_src_ss_impl.cc
-    #corba_power_allocator_impl.cc
-    #corba_power_src_sv_impl.cc
-    #corba_rxbaseband_sink_impl.cc
-    #corba_rxinfo_sink_imgxfer_impl.cc
-    #corba_rxinfo_sink_impl.cc
     itpp_tdl_channel_impl.cc
     encoder_bb_impl.cc
     reference_data_source_02_ib_impl.cc
-    #corba_bitcount_src_02_si_impl.cc
     allocation_src_impl.cc
     allocation_buffer_impl.cc
     tx_mux_ctrl_impl.cc )

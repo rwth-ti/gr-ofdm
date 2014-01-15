@@ -124,26 +124,10 @@ install(FILES
     vector_sum_vcc.h
     vector_sum_vff.h
     viterbi_combined_fb.h
-    #corba_push_consumer.h 
-    #corba_push_supplier.h 
-    #corba_push_supplier_wrapper.h
     fsm.h
-    #corba_assignment_src_sv.h
-    #corba_bitcount_src_si.h
-    #corba_bitmap_src.h
-    #corba_id_filter.h
-    #corba_id_src.h
-    #corba_map_src_sv.h
-    #corba_multiplex_src_ss.h
-    #corba_power_allocator.h
-    #corba_power_src_sv.h
-    #corba_rxbaseband_sink.h
-    #corba_rxinfo_sink_imgxfer.h
-    #corba_rxinfo_sink.h
     itpp_tdl_channel.h
     encoder_bb.h
     reference_data_source_02_ib.h
-    #corba_bitcount_src_02_si.h
     allocation_src.h
     allocation_buffer.h
     tx_mux_ctrl.h DESTINATION include/ofdm

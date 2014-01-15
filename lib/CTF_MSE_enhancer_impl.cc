@@ -26,7 +26,7 @@
 #include "CTF_MSE_enhancer_impl.h"
 
 
-#include <gnuradio/malloc16.h>
+#include "malloc16.h"
 
 #include <iostream>
 #include <algorithm>

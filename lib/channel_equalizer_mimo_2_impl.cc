@@ -27,7 +27,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <gnuradio/malloc16.h>
+#include "malloc16.h"
 
 #define DEBUG 0
 

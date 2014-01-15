@@ -25,7 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "multiply_const_vcc_impl.h"
 
-#include <gnuradio/malloc16.h>
+#include "malloc16.h"
 
 #include <iostream>
 #include <algorithm>

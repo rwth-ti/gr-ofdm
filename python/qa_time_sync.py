@@ -21,7 +21,7 @@
 from gnuradio import gr, gr_unittest
 import ofdm_swig as ofdm
 
-class qa_dominiks_sync_01 (gr_unittest.TestCase):
+class qa_time_sync (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
@@ -36,4 +36,4 @@ class qa_dominiks_sync_01 (gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_dominiks_sync_01, "qa_dominiks_sync_01.xml")
+    gr_unittest.run(qa_time_sync, "qa_time_sync.xml")

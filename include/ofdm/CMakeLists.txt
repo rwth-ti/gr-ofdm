@@ -57,7 +57,7 @@ install(FILES
     cyclic_prefixer.h
     depuncture_bb.h
     depuncture_ff.h
-    dominiks_sync_01.h
+    time_sync.h
     dynamic_trigger_ib.h
     extract_block_from_frame.h
     find_cir_shift.h

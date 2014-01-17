@@ -44,7 +44,7 @@ install(FILES
     ofdm_cyclic_prefixer.xml
     ofdm_depuncture_bb.xml
     ofdm_depuncture_ff.xml
-    ofdm_dominiks_sync_01.xml
+    ofdm_time_sync.xml
     ofdm_dynamic_trigger_ib.xml
     ofdm_extract_block_from_frame.xml
     ofdm_find_cir_shift.xml

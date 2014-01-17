@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_OFDM_DOMINIKS_SYNC_01_H
-#define INCLUDED_OFDM_DOMINIKS_SYNC_01_H
+#ifndef INCLUDED_OFDM_TIME_SYNC_H
+#define INCLUDED_OFDM_TIME_SYNC_H
 
 #include <ofdm/api.h>
 #include <gnuradio/block.h>
@@ -33,17 +33,17 @@ namespace gr {
      * \ingroup ofdm
      *
      */
-    class OFDM_API dominiks_sync_01 : virtual public gr::block
+    class OFDM_API time_sync : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<dominiks_sync_01> sptr;
+      typedef boost::shared_ptr<time_sync> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of ofdm::dominiks_sync_01.
+       * \brief Return a shared_ptr to a new instance of ofdm::time_sync.
        *
-       * To avoid accidental use of raw pointers, ofdm::dominiks_sync_01's
+       * To avoid accidental use of raw pointers, ofdm::time_sync's
        * constructor is in a private implementation
-       * class. ofdm::dominiks_sync_01::make is the public interface for
+       * class. ofdm::time_sync::make is the public interface for
        * creating new instances.
        */
       static sptr make(int vlen, int cplen);
@@ -52,5 +52,5 @@ namespace gr {
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_DOMINIKS_SYNC_01_H */
+#endif /* INCLUDED_OFDM_TIME_SYNC_H */
 

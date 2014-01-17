@@ -71,7 +71,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( rx_input, gi_metric )
     
     ## Sync. Output contains OFDM blocks
-    sync = ofdm.dominiks_sync_01( fft_length, cp_length )
+    sync = ofdm.time_sync( fft_length, cp_length )
     self.connect( rx_input, ( sync, 0 ) )
     self.connect( sc_metric, ( sync, 1 ) )
     self.connect( gi_metric, ( sync, 2 ) )

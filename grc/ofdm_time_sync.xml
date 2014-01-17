@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>dominiks_sync_01</name>
-  <key>ofdm_dominiks_sync_01</key>
+  <name>time_sync</name>
+  <key>ofdm_time_sync</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.dominiks_sync_01($vlen, $cplen)</make>
+  <make>ofdm.time_sync($vlen, $cplen)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

@@ -36,7 +36,7 @@
 #include "ofdm/cyclic_prefixer.h"
 #include "ofdm/depuncture_bb.h"
 #include "ofdm/depuncture_ff.h"
-#include "ofdm/dominiks_sync_01.h"
+#include "ofdm/time_sync.h"
 #include "ofdm/dynamic_trigger_ib.h"
 #include "ofdm/extract_block_from_frame.h"
 #include "ofdm/find_cir_shift.h"
@@ -184,8 +184,8 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, cyclic_prefixer);
 GR_SWIG_BLOCK_MAGIC2(ofdm, depuncture_bb);
 %include "ofdm/depuncture_ff.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, depuncture_ff);
-%include "ofdm/dominiks_sync_01.h"
-GR_SWIG_BLOCK_MAGIC2(ofdm, dominiks_sync_01);
+%include "ofdm/time_sync.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, time_sync);
 %include "ofdm/dynamic_trigger_ib.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, dynamic_trigger_ib);
 %include "ofdm/extract_block_from_frame.h"

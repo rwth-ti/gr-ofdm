@@ -81,7 +81,7 @@ class ofdm_rx (gr.top_block):
 
 
     self.decimation = 1
-    
+
     if self.decimation > 1:
       bw = 0.5/self.decimation * 1
       tb = bw/5
@@ -162,7 +162,7 @@ class ofdm_rx (gr.top_block):
       self._configure_usrp(options)
 
       self.enable_rxgain_remote_adjust("rxgain")
-      
+
       if self.filter is not None:
         self.connect( self.u, self.filter, self.rxpath )
       else:
@@ -175,7 +175,7 @@ class ofdm_rx (gr.top_block):
       print "Scatterplot enabled"
       self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
 
-      
+
     if options.with_old_gui:
       self.publish_rx_spectrum(256)
       self.rxpath.publish_ctf("ctf_display")
@@ -183,7 +183,7 @@ class ofdm_rx (gr.top_block):
       self.rxpath.publish_average_snr(["totalsnr"])
       if options.sinr_est:
         self.rxpath.publish_sinrsc("sinrsc_display")
-      
+
 
 
     print "Hit Strg^C to terminate"
@@ -270,7 +270,7 @@ class ofdm_rx (gr.top_block):
     self.servants.append(corba_data_buffer_servant("spectrum",fftlen,msgq))
 
     print "RXS trigger unique id", rxs_trigger.unique_id()
-    
+
     print "Publishing RX baseband under id: spectrum"
 
   def change_rxgain(self,val):
@@ -279,14 +279,14 @@ class ofdm_rx (gr.top_block):
   def enable_rxgain_remote_adjust(self,unique_id):
     self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
         self.change_rxgain,msg=""))
-  
+
   def change_rxfreq(self,val):
     self.set_freq(val[0])
-  
+
   def enable_rxfreq_remote_adjust(self,unique_id):
     self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
         self.change_rxfreq,
-        msg="Change rx frequency\n"))  
+        msg="Change rx frequency\n"))
 
   def _setup_usrp_source(self):
     if self._rx_freq is None:
@@ -297,42 +297,42 @@ class ofdm_rx (gr.top_block):
       self.u = usrp2.source_32fc(self._interface, self._mac_addr)
       self._decim = int(100e6 / self._bandwidth / self.decimation)
       self.u.set_decim(self._decim)
-      
+
       print "USRP2 MAC address is %s" % ( self.u.mac_addr() )
     else:
       self.u = uhd.usrp_source(device_addr="", stream_args=uhd.stream_args('fc32'))
-      
+
 
       #adc_rate = self.u.adc_rate()
-  
+
       self._decim = int(64e6 / self._bandwidth / self.decimation)
       self.u.set_samp_rate(self._bandwidth * self.decimation)
-    
+
       # determine the daughterboard subdevice we're using
       if self._rx_subdev_spec is None:
           self._rx_subdev_spec = self.u.get_subdev_spec()
       self.u.set_subdev_spec(self._rx_subdev_spec)
-  
+
       #self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
-  
+
       #print "Using RX D'Board: %s" % (self.subdev.side_and_name())
       print "USRP used: ", ( self.u.get_usrp_info().get("mboard_id").split(" ")[0])
-      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))  
+      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))
       print "RX Daughterboard used: ", ( self.u.get_usrp_info().get("rx_id").split(" ")[0].split(",")[0])
-      
-      dboard_serial = self.u.get_usrp_info().get("rx_serial")    
-      if dboard_serial == "":   
+
+      dboard_serial = self.u.get_usrp_info().get("rx_serial")
+      if dboard_serial == "":
                 dboard_serial = "no serial"
       print "RX Daughterboard serial number is: ", dboard_serial
-      
-    
+
+
     print "FPGA decimation: %d" % (self._decim)
-    
-    
+
+
 
 
   def _configure_usrp(self,options):
-    
+
     if not options.usrp2 and options.show_rx_gain_range:
       g = self.u.gain_range()
       print "Rx Gain Range: minimum = %g, maximum = %g, step size = %g" \
@@ -366,7 +366,7 @@ class ofdm_rx (gr.top_block):
       r = self.u.set_center_freq(target_freq)
     else:
       r = self.u.set_center_freq(target_freq, 0)
-    
+
     if r:
       return True
 
@@ -388,7 +388,7 @@ class ofdm_rx (gr.top_block):
            print "\nNo gain specified."
            print "Setting gain to %f (from [%f, %f])" % \
                 (gain, g.start(), g.stop())
-        
+
       self.u.set_gain(gain, 0)
       return gain
 
@@ -424,7 +424,7 @@ class ofdm_rx (gr.top_block):
                       help="enable throughput measure");
     expert.add_option("", "--dyn-freq", action="store_true", default=False,
                       help="enable dynamic frequency change");
-                      
+
     normal.add_option("-e", "--interface", type="string", default="eth0",
                           help="select Ethernet interface, default is eth0")
     normal.add_option("-m", "--mac-addr", type="string", default="",
@@ -453,7 +453,7 @@ class ofdm_rx (gr.top_block):
                        action="store_true",
                        default=False,
                        help="Log frequency offset")
-    
+
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)
@@ -475,7 +475,7 @@ class ofdm_rx (gr.top_block):
 
 
 def main():
-  
+
 
   parser = OptionParser(conflict_handler="resolve")
 
@@ -484,15 +484,15 @@ def main():
   ofdm_rx.add_options(parser, expert_grp)
   receive_path.add_options(parser, expert_grp)
   fusb_options.add_options(expert_grp)
-  
-  parser.add_option( 
+
+  parser.add_option(
     "-c", "--cfg",
     action="store", type="string", default=None,
     help="Specifiy configuration file, default: none",
     config="false" )
-  
+
   (options, args) = parser.parse_args()
-  
+
   if options.cfg is not None:
     (options,args) = parser.parse_args(files=[options.cfg])
     print "Using configuration file %s" % ( options.cfg )

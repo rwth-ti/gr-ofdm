@@ -79,8 +79,8 @@ class ofdm_tx (gr.top_block):
     self._which              = options.which_usrp
     self._bandwidth          = options.bandwidth
     self.servants = []
-    
-    
+
+
     self._interface          = options.interface
     self._mac_addr           = options.mac_addr
 
@@ -88,12 +88,12 @@ class ofdm_tx (gr.top_block):
 
 
     self._interpolation = 1
-    
+
     f1 = numpy.array([-107,0,445,0,-1271,0,2959,0,-6107,0,11953,
                       0,-24706,0,82359,262144/2,82359,0,-24706,0,
                       11953,0,-6107,0,2959,0,-1271,0,445,0,-107],
                       numpy.float64)/262144.
-    
+
     print "Software interpolation: %d" % (self._interpolation)
 
     bw = 0.5/self._interpolation
@@ -104,17 +104,17 @@ class ofdm_tx (gr.top_block):
                                    gr.io_signature(1,1,gr.sizeof_gr_complex))
       self.filter.connect( self.filter, gr.interp_fir_filter_ccf(2,f1),
                            gr.interp_fir_filter_ccf(2,f1), self.filter )
-      
+
       print "New"
-#      
-#      
+#
+#
 #      self.filt_coeff = optfir.low_pass(1.0, 1.0, bw, bw+tb, 0.2, 60.0, 0)
 #      self.filter = gr.interp_fir_filter_ccf(self._interpolation,self.filt_coeff)
 #      print "Software interpolation filter length: %d" % (len(self.filt_coeff))
     else:
       self.filter = None
-      
-      
+
+
     if not options.from_file is None:
       # sent captured file to usrp
       self.src = gr.file_source(gr.sizeof_gr_complex,options.from_file)
@@ -123,15 +123,15 @@ class ofdm_tx (gr.top_block):
         self.connect(self.src,self.filter,self.u) #,self.filter
       else:
         self.connect(self.src,self.u)
-      
-      return 
-    
-    
-    
+
+      return
+
+
+
     self._setup_tx_path(options)
-    
+
     config = self.config = station_configuration()
-    
+
     self.enable_info_tx("info_tx", "pa_user")
 #    if not options.no_cheat:
 #      self.txpath.enable_channel_cheating("channelcheat")
@@ -139,49 +139,49 @@ class ofdm_tx (gr.top_block):
     self.txpath.publish_txpower("txpower_info")
     #self.txpath.enable_modulation_adjust("txmod")
     #self.enable_txfreq_adjust("txfreq")
-    
-    
-    
+
+
+
     if options.nullsink:
       self.dst = gr.null_sink( gr.sizeof_gr_complex )
-    
-    else:  
+
+    else:
       if not options.to_file is None:
         # capture transmitter's stream to disk
         self.dst  = gr.file_sink(gr.sizeof_gr_complex,options.to_file)
         tmp = gr.throttle(gr.sizeof_gr_complex,1e5)
         self.connect( tmp, self.dst )
         self.dst = tmp
-        
+
         if options.force_filter:
           print "Forcing filter usage"
           self.connect( self.filter, self.dst )
           self.dst = self.filter
-        
+
       else:
         # connect transmitter to usrp
         self._setup_usrp_sink()
         if options.dyn_freq:
             self.enable_txfreq_adjust("txfreq")
-            
+
         if self.filter is not None:
           self.connect( self.filter,self.dst )
           self.dst = self.filter
-          
+
         if options.record:
           log_to_file( self, self.txpath, "data/txpath_out.compl" )
-        
+
         #self.publish_spectrum( 256 )
-        
-      
-        
-        
-        
+
+
+
+
+
     if options.measure:
       self.m = throughput_measure(gr.sizeof_gr_complex)
       self.connect( self.m, self.dst )
       self.dst = self.m
-        
+
     if options.samplingoffset is not None:
       soff = options.samplingoffset
       interp = gr.fractional_interpolator_cc(0.0,soff)
@@ -189,10 +189,10 @@ class ofdm_tx (gr.top_block):
       self.dst = interp
 
     if options.snr is not None:
-      
+
 #      if options.berm is not None:
 #          noise_sigma = 380 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
-#          #check for fading channel 
+#          #check for fading channel
 #      else:
       snr_db = options.snr
       snr = 10.0**(snr_db/10.0)
@@ -237,16 +237,16 @@ class ofdm_tx (gr.top_block):
       self.connect( freq_shift, dst )
       self.dst = freq_shift
 
-    
+
     self.connect( self.txpath, self.dst )
-    
-    
+
+
 
     if options.cheat:
       self.txpath.enable_channel_cheating("channelcheat")
 
-    
-      
+
+
     print "Hit Strg^C to terminate"
 
 
@@ -270,7 +270,7 @@ class ofdm_tx (gr.top_block):
                  decimate_rate,spectrum,mag,logdb,msg_sink)
 
     self.servants.append(corba_data_buffer_servant("tx_spectrum",fftlen,msgq))
-    
+
   def set_rms_amplitude(self, ampl):
     """
     Sets the rms amplitude sent to the USRP
@@ -279,7 +279,7 @@ class ofdm_tx (gr.top_block):
 
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
-    
+
     self.rms = max(0.0, min(ampl, 1))
 
     if self._options.usrp2:
@@ -289,10 +289,10 @@ class ofdm_tx (gr.top_block):
     self._amplifier.set_k(self._amplification)
 
     print "Amplitude set to: ", ampl
-    
+
   def change_txfreq(self,val):
-    self.set_freq(val[0])  
-    
+    self.set_freq(val[0])
+
   def enable_txfreq_adjust(self,unique_id):
     self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
         self.change_txfreq,
@@ -310,12 +310,12 @@ class ofdm_tx (gr.top_block):
 
   def _setup_tx_path(self,options):
     self.txpath = transmit_path(options)
-    
+
     for i in range( options.stations ):
       print "Registering mobile station with ID %d" % ( i+1 )
       self.txpath.add_mobile_station( i+1 )
-    
-    
+
+
 
   def _setup_usrp_sink(self):
     """
@@ -331,41 +331,41 @@ class ofdm_tx (gr.top_block):
       self.dst = self.u
       print "Using USRP2, as you wish, my master"
       print "USRP2 MAC address is %s" % ( self.u.mac_addr() )
-      
+
       self._interp = 100e6 / self._bandwidth / self._interpolation
       self.u.set_interp(int(self._interp))
     else:
-      #self.u = usrp.sink_s(which=self._which, 
+      #self.u = usrp.sink_s(which=self._which,
                           # fusb_block_size=self._fusb_block_size,
                            #fusb_nblocks=self._fusb_nblocks ,
                            #fpga_filename="std_1rxhb_1txhb.rbf")
-      
+
       self.u = uhd.usrp_sink(device_addr="", stream_args=uhd.stream_args('fc32'))
-      
+
       #self.uc = gr.complex_to_interleaved_short()
       #self.connect( self.uc, self.u )
       self.dst = self.u
-      #print "USRP serial number is %s" % ( self.u.serial_number() ) 
+      #print "USRP serial number is %s" % ( self.u.serial_number() )
       print "USRP used: ", ( self.u.get_usrp_info().get("mboard_id").split(" ")[0])
-      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))  
+      print "USRP serial number is: ",  ( self.u.get_usrp_info().get("mboard_serial"))
       print "TX Daughterboard used: ", ( self.u.get_usrp_info().get("tx_id").split(" ")[0].split(",")[0])
-      
-      dboard_serial = self.u.get_usrp_info().get("tx_serial")    
-      if dboard_serial == "":   
+
+      dboard_serial = self.u.get_usrp_info().get("tx_serial")
+      if dboard_serial == "":
                 dboard_serial = "no serial"
       print "TX Daughterboard serial number is: ", dboard_serial
-      
+
       self._interp = 128e6/ self._bandwidth / self._interpolation
       #self.u.set_interp_rate(int(self._interp))
       self.u.set_samp_rate(self._bandwidth*self._interpolation)
-      
+
       # determine the daughterboard subdevice we're using
       #if self._tx_subdev_spec is None:
        #   self._tx_subdev_spec = usrp.pick_tx_subdevice(self.u)
       #self.u.set_mux(usrp.determine_tx_mux_value(self.u, self._tx_subdev_spec))
       #self.subdev = usrp.selected_subdev(self.u, self._tx_subdev_spec)
-      
-    
+
+
     print "FPGA interpolation",self._interp
 
     # Set center frequency of USRP
@@ -417,7 +417,7 @@ class ofdm_tx (gr.top_block):
     """
     norm_freq = freqoff / self.config.fft_length
     self.freq_off_src.set_frequency(norm_freq)
-    print "Frequency offset changed to", freqoff    
+    print "Frequency offset changed to", freqoff
 
   def set_gain(self, gain=None):
     """
@@ -427,7 +427,7 @@ class ofdm_tx (gr.top_block):
     #if self._options.usrp2:
     #  self.u.set_gain(gain)
    # else:
-     # self.subdev.set_gain(gain)      
+     # self.subdev.set_gain(gain)
     if gain is None:
             # if no gain was specified, use the mid-point in dB
             g = self.u.get_gain_range()
@@ -436,7 +436,7 @@ class ofdm_tx (gr.top_block):
             print "\nNo gain specified."
             print "Setting gain to %f (from [%f, %f])" % \
                 (gain, g.start(), g.stop())
-        
+
     self.u.set_gain(gain, 0)
     return gain
 
@@ -493,7 +493,7 @@ class ofdm_tx (gr.top_block):
                        burst_length=config.frame_length
                        )
     self.servants.append(general_corba_servant(str(unique_id),infotx))
-    
+
     print "Enabled info_tx, id: %s" % (unique_id)
 
   def add_options(normal, expert):
@@ -509,7 +509,7 @@ class ofdm_tx (gr.top_block):
                       help="set transmit frequency to FREQ [default=%default]", metavar="FREQ")
     normal.add_option("", "--measure", action="store_true", default=False,
                       help="enable troughput measure, usrp disabled");
-                      
+
     normal.add_option("", "--dyn-freq", action="store_true", default=False,
                       help="enable troughput measure, usrp disabled");
 
@@ -533,23 +533,23 @@ class ofdm_tx (gr.top_block):
 
     expert.add_option("", "--force-filter", action="store_true", default=False,
                       help="force filter use while transmitting to file or measuring")
-    
+
     expert.add_option("", "--nullsink", action="store_true",
                       default=False,
                       help="Throw away samples")
-    
+
     normal.add_option("-e", "--interface", type="string", default="eth0",
                           help="select Ethernet interface, default is eth0")
     normal.add_option("-m", "--mac-addr", type="string", default="",
                           help="select USRP by MAC address, default is auto-select")
     normal.add_option("", "--usrp2", action="store_true", default=False,
                       help="Use USRP2 Interface")
-    
+
 
     expert.add_option("", "--record", action="store_true",
                       default=False,
                       help="Record transmission stream")
-    
+
     expert.add_option("", "--stations", type="intx", default=1,
                       help="Mobile station count")
 
@@ -612,14 +612,14 @@ def main():
   transmit_path.add_options(parser, expert_grp)
   fusb_options.add_options(expert_grp)
 
-  parser.add_option( 
+  parser.add_option(
     "-c", "--cfg",
     action="store", type="string", default=None,
     help="Specifiy configuration file, default: none",
     config="false" )
-  
+
   (options, args) = parser.parse_args()
-  
+
   if options.cfg is not None:
     (options,args) = parser.parse_args(files=[options.cfg])
     print "Using configuration file %s" % ( options.cfg )
@@ -641,7 +641,7 @@ def main():
     #dot_file = open(filetx,'w')
     #dot_file.write(string_tx)
     #dot_file.close()
-    
+
     runtime.start()
     try:
       tx.txpath._control._id_source.ready()

@@ -28,8 +28,6 @@ from gnuradio import optfir
 from station_configuration import station_configuration
 
 from math import log10
-from corba_servants import corba_data_buffer_servant
-from corba_servants import *
 
 try:
   from gnuradio import uhd
@@ -45,11 +43,6 @@ from gr_tools import log_to_file, ms_to_file
 
 import fusb_options
 import os
-
-from omniORB import CORBA, PortableServer
-import CosNaming
-from corba_stubs import ofdm_ti,ofdm_ti__POA
-from corba_servants import general_corba_servant
 
 import ofdm as ofdm
 #import itpp
@@ -269,8 +262,6 @@ class ofdm_tx (gr.top_block):
     self.connect(self.filter,gr.stream_to_vector(gr.sizeof_gr_complex,fftlen),
                  decimate_rate,spectrum,mag,logdb,msg_sink)
 
-    self.servants.append(corba_data_buffer_servant("tx_spectrum",fftlen,msgq))
-
   def set_rms_amplitude(self, ampl):
     """
     Sets the rms amplitude sent to the USRP
@@ -293,20 +284,8 @@ class ofdm_tx (gr.top_block):
   def change_txfreq(self,val):
     self.set_freq(val[0])
 
-  def enable_txfreq_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_txfreq,
-        msg="Changing tx frequency\n"))
-    print "enable_txfreq_adjust"
-
   def change_freqoff(self,val):
     self.set_freqoff(val[0])
-
-  def enable_freqoff_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_freqoff,
-        msg=""))
-    print "Enable tx freq offset adjust"
 
   def _setup_tx_path(self,options):
     self.txpath = transmit_path(options)
@@ -470,32 +449,6 @@ class ofdm_tx (gr.top_block):
       print "DAC rate:        %s"    % (eng_notation.num_to_str(self.u.dac_rate()))
     print ""
 
-  def enable_info_tx(self,unique_id,userid):
-    """
-    create servant for info_tx interface and give him our specifications.
-    only fixed data should go here!
-    """
-
-    config = station_configuration()
-    carrier_freq = self._tx_freq or 0.0
-    bandwidth = self._bandwidth or 2e6
-    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
-    samples_per_frame = config.frame_length*config.block_length
-    tb = samples_per_frame/bandwidth
-    infotx = info_tx_i(subcarriers= config.data_subcarriers,
-                       fft_window=config.fft_length,
-                       cp_length=config.cp_length,
-                       carrier_freq=carrier_freq,
-                       symbol_time=config.block_length/bandwidth,
-                       bandwidth=bandwidth,
-                       subbandwidth=bandwidth/config.fft_length,
-                       max_datarate=(bits/tb),
-                       burst_length=config.frame_length
-                       )
-    self.servants.append(general_corba_servant(str(unique_id),infotx))
-
-    print "Enabled info_tx, id: %s" % (unique_id)
-
   def add_options(normal, expert):
     """
     Adds usrp-specific options to the Options Parser
@@ -634,7 +587,6 @@ def main():
     print "Enabled realtime scheduling"
 
   try:
-    orb = CORBA.ORB_init(sys.argv,CORBA.ORB_ID)
     #string_tx = runtime.dot_graph()
     #filetx = os.path.expanduser('~/omnilog/text_tx.dot')
     #filetx = 'text_tx.dot'
@@ -647,7 +599,6 @@ def main():
       tx.txpath._control._id_source.ready()
     except:
       pass
-    orb.run()
   except KeyboardInterrupt:
     runtime.stop()
     runtime.wait()

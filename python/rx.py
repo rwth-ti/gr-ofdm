@@ -35,8 +35,7 @@ except:
 import sys
 
 from receive_path2 import receive_path
-#from ofdm import throughput_measure, vector_sampler, corba_rxbaseband_sink
-from ofdm import  vector_sampler, corba_rxbaseband_sink
+from ofdm import  vector_sampler
 from numpy import sum,concatenate
 from common_options import common_tx_rx_usrp_options
 from math import log10
@@ -45,9 +44,7 @@ import numpy
 import copy
 import os
 
-from corba_servants import corba_data_buffer_servant,corba_push_vector_f_servant
 from gr_tools import log_to_file
-from omniORB import CORBA
 
 """
 You have three options:
@@ -199,21 +196,6 @@ class ofdm_rx (gr.top_block):
     #self.rxpath.setup_snr_measurement()
 
 
-  def publish_rx_baseband_measure(self):
-      config = self.config
-      vlen = config.fft_length
-      self.rx_baseband_sink = rx_sink = corba_rxbaseband_sink("alps",config.ns_ip,
-                                    config.ns_port,vlen,config.rx_station_id)
-
-      # 1. frame id
-      #self.connect(self.rxpath._id_decoder,(rx_sink,0))
-
-      # 2. channel transfer function
-      rx_bband = self.supply_rx_baseband()
-      print "Supplied"
-      self.connect( rx_bband, (rx_sink,0) )
-
-
   def supply_rx_baseband(self):
     ## RX Spectrum
     if self.__dict__.has_key('rx_baseband'):
@@ -243,10 +225,6 @@ class ofdm_rx (gr.top_block):
     self.rx_baseband = rxs_decimate_rate
     return rxs_decimate_rate
 
-#  def trigger_watch(self):
-#      self.servants.append(corba_ndata_buffer_servant(str(unique_id),
-#        self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
-
   def publish_spectrum(self,fftlen):
     ## RX Spectrum
 
@@ -267,26 +245,7 @@ class ofdm_rx (gr.top_block):
     self.connect(t,rxs_sampler,rxs_window,
                  rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate,
                  rxs_msg_sink)
-    self.servants.append(corba_data_buffer_servant("spectrum",fftlen,msgq))
 
-    print "RXS trigger unique id", rxs_trigger.unique_id()
-
-    print "Publishing RX baseband under id: spectrum"
-
-  def change_rxgain(self,val):
-    self.set_gain(val[0])
-
-  def enable_rxgain_remote_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_rxgain,msg=""))
-
-  def change_rxfreq(self,val):
-    self.set_freq(val[0])
-
-  def enable_rxfreq_remote_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_rxfreq,
-        msg="Change rx frequency\n"))
 
   def _setup_usrp_source(self):
     if self._rx_freq is None:
@@ -327,8 +286,6 @@ class ofdm_rx (gr.top_block):
 
 
     print "FPGA decimation: %d" % (self._decim)
-
-
 
 
   def _configure_usrp(self,options):
@@ -437,8 +394,6 @@ class ofdm_rx (gr.top_block):
       "", "--event-rxbaseband",
       action="store_true", default=False,
       help = "Enable RX baseband via event channel alps" )
-    normal.add_option("", "--with-old-gui", action="store_true", default=False,
-                      help="Turn of CORBA interfaces to support old GUI")
 
     normal.add_option(
       "", "--imgxfer",
@@ -507,7 +462,6 @@ def main():
     else:
       print "Enabled realtime scheduling"
 
-    orb = CORBA.ORB_init(sys.argv,CORBA.ORB_ID)
     runtime = rx
     #string_rx = runtime.dot_graph()
     #rxfile =os.path.expanduser('~/omnilog/text_rx.dot')
@@ -517,7 +471,6 @@ def main():
     #dot_file.close()
 
     runtime.start()
-    orb.run()
   except Exception,ex:
     print "ui"
     print repr(ex)

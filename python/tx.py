@@ -512,51 +512,6 @@ class ofdm_tx (gr.top_block):
 ################################################################################
 ################################################################################
 
-"""
-CORBA servant implementation of info_tx interface
-"""
-class info_tx_i(ofdm_ti__POA.info_tx):
-  def __init__(self,**kwargs):
-    self.subcarriers = kwargs['subcarriers']
-    self.fft_window = kwargs['fft_window']
-    self.cp_length = kwargs['cp_length']
-    self.carrier_freq = kwargs['carrier_freq']
-    self.symbol_time = kwargs['symbol_time']
-    self.bandwidth = kwargs['bandwidth']
-    self.subbandwidth = kwargs['subbandwidth']
-    self.max_datarate = kwargs['max_datarate']
-    self.burst_length = kwargs['burst_length']
-
-  def _get_subcarriers(self):
-    return self.subcarriers
-
-  def _get_fft_window(self):
-    return self.fft_window
-
-  def _get_cp_length(self):
-    return self.cp_length
-
-  def _get_carrier_freq(self):
-    return float(self.carrier_freq)
-
-  def _get_symbol_time(self):
-    return self.symbol_time
-
-  def _get_bandwidth(self):
-    return self.bandwidth
-
-  def _get_subbandwidth(self):
-    return self.subbandwidth
-
-  def _get_max_datarate(self):
-    return int(self.max_datarate)
-
-  def _get_burst_length(self):
-    return self.burst_length
-
-################################################################################
-################################################################################
-
 def main():
   parser = OptionParser(conflict_handler="resolve")
   expert_grp = parser.add_option_group("Expert")

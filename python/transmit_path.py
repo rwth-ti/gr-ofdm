@@ -309,7 +309,7 @@ class transmit_path(gr.hier_block2):
     """
     Adds transmitter-specific options to the Options Parser
     """
-    common_options.add(normal,expert)
+    common_options.add_options(normal,expert)
 
     normal.add_option("-a", "--rms-amplitude",
                       type="eng_float", default=1000, metavar="AMPL",

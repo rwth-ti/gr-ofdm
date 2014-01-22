@@ -72,27 +72,14 @@ class receive_path(gr.hier_block2):
     config.fft_length           = options.fft_length
     config.training_data        = default_block_header(dsubc,
                                           config.fft_length,options)
-    if options.benchmark:
-      config.rx_station_id        = options.rx_station_id
-    else:
-      config.rx_station_id        = options.station_id
     config.ber_window           = options.ber_window
 
-    config.ns_ip                = options.nameservice_ip
-    config.ns_port              = options.nameservice_port
     config.periodic_parts       = 8
     config.debug                = options.debug
-
-    if config.rx_station_id is None:
-      raise SystemError, "station id not set"
 
     config.frame_id_blocks      = 1 # FIXME
 
     self._options               = copy.copy(options) #FIXME: do we need this?
-    
-        
-        
-    self.servants = []
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
@@ -1027,7 +1014,7 @@ class receive_path(gr.hier_block2):
     """
     Adds receiver-specific options to the Options Parser
     """
-    common_options.add(normal,expert)
+    common_options.add_options(normal,expert)
     #ofdm_receiver.add_options(normal,expert)
     preambles.default_block_header.add_options(normal,expert)
 

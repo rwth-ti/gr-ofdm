@@ -37,7 +37,7 @@ import os
 from transmit_path import transmit_path
 from receive_path import receive_path
 from ofdm import throughput_measure, vector_sampler
-from common_options import common_tx_rx_usrp_options
+import common_options
 from gr_tools import log_to_file, ms_to_file
 from moms import moms
 
@@ -551,7 +551,7 @@ class ofdm_benchmark (gr.top_block):
     """
     Adds usrp-specific options to the Options Parser
     """
-    common_tx_rx_usrp_options(normal,expert)
+    common_options.add_options(normal,expert)
     transmit_path.add_options(normal,expert)
     receive_path.add_options(normal,expert)
 

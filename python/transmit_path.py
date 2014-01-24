@@ -89,7 +89,7 @@ class transmit_path(gr.hier_block2):
 
     ## Allocation Control
     self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
-    if False: #DEBUG
+    if options.static_allocation: #DEBUG
         # how many bits per subcarrier
         bitloading = 3
         # id's for frames
@@ -105,7 +105,7 @@ class transmit_path(gr.hier_block2):
         # power loading, here same for all symbols
         power_vec = [1]*config.data_subcarriers
         power_src = blocks.vector_source_c(power_vec,True,dsubc)
-        # mux controll stream to mux id and data bits
+        # mux control stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
@@ -203,12 +203,9 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, modr, "data/mod_real_out.float")
 
     ## Power allocator
-    if options.debug:
-
-      ## static
-      pa = self._power_allocator = power_allocator(config.data_subcarriers)
-      self.connect(mod,(pa,0))
-      self.connect(power_src,(pa,1))
+    pa = self._power_allocator = power_allocator(config.data_subcarriers)
+    self.connect(mod,(pa,0))
+    self.connect(power_src,(pa,1))
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")

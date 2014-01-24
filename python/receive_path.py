@@ -11,7 +11,6 @@ from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, ve
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
 from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
-from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
@@ -75,7 +74,6 @@ class receive_path(gr.hier_block2):
     config.ber_window           = options.ber_window
 
     config.periodic_parts       = 8
-    config.debug                = options.debug
 
     config.frame_id_blocks      = 1 # FIXME
 
@@ -350,22 +348,17 @@ class receive_path(gr.hier_block2):
         log_to_file(self, power_src, "data/power_src_rx.cmplx")
         log_to_file(self, self.id_dec, "data/id_dec_rx.short")
 
-
     ## Power Deallocator
-    # TODO refactorization, suboptimal location
-    if options.debug:
-
-      ## static
-      pda = self._power_deallocator = power_deallocator(dsubc)
-      self.connect(pda_in,(pda,0))
-      self.connect(power_src,(pda,1))
+    pda = self._power_deallocator = power_deallocator(dsubc)
+    self.connect(pda_in,(pda,0))
+    self.connect(power_src,(pda,1))
 
     ## Demodulator
     dm_trig = [0]*config.frame_data_part
     dm_trig[0] = 1
     dm_trig[1] = 2
     dm_trig = blocks.vector_source_b(dm_trig,True) # TODO
-#    if 0:  
+#    if 0:
 #          ac_vector = [0.0+0.0j]*208
 #          ac_vector[0] = (2*10**(-0.452))
 #          ac_vector[3] = (10**(-0.651))
@@ -379,9 +372,9 @@ class receive_path(gr.hier_block2):
     dp_trig = [0]*(config.frame_data_blocks/2)
     dp_trig[0] = 1
     dp_trig = blocks.vector_source_b(dp_trig,True) # TODO
-    
-    
-            
+
+
+
     if(options.coding):
         demod = self._data_demodulator = generic_softdemapper_vcf(dsubc,options.coding)
         if(options.ideal):
@@ -409,33 +402,33 @@ class receive_path(gr.hier_block2):
             #sah_trigger = blocks.vector_source_b([1,0],True)
             bmapsrc_stream_depuncturing = concatenate([[1]*dsubc,[2]*dsubc])
             bsrc_depuncturing = self._bitmap_src_depuncturing = blocks.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
-            
+
             #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
             self.connect(self._map_src,bitmap_filter,(depuncturing,1))
             #bmt = gr.char_to_float()
             #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,dsubc), bmt)
             #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
-            
+
             self.connect(dp_trig,(depuncturing,2))
             self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
-        
+
         ## Decoding
         chunkdivisor = int(numpy.ceil(config.frame_data_blocks/5.0))
         print "Number of chunks at Viterbi decoder: ", chunkdivisor
         decoding = self._data_decoder = ofdm.viterbi_combined_fb(fo,dsubc,-1,-1,2,chunkdivisor,[-1,-1,-1,1,1,-1,1,1],ofdm.TRELLIS_EUCLIDEAN)
-        
+
         if options.log and options.coding:
             log_to_file(self, decoding, "data/decoded.char")
             if not options.nopunct:
                 log_to_file(self, depuncturing, "data/vit_in.float")
-        
+
         if not options.nopunct:
             self.connect(demod,depuncturing,decoding)
             #self.connect(sah_trigger, (sah,1))
         else:
             self.connect(demod,decoding)
         self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
-        
+
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
         scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
         scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
@@ -447,11 +440,11 @@ class receive_path(gr.hier_block2):
         scatter_trig = blocks.vector_source_b(scatter_trig,True)
         self.connect(scatter_trig,(scatter_id_filt,1))
         self.connect(scatter_vec_elem,scatter_s2v)
-        
+
         if not options.scatter_plot_before_phase_tracking:
             print "Enabling Scatterplot for data subcarriers"
             self.connect(pda,scatter_id_filt,scatter_vec_elem)
-              # Work on this  
+              # Work on this
               #scatter_sink = ofdm.scatterplot_sink(dsubc)
               #self.connect(pda,scatter_sink)
               #self.connect(map_src,(scatter_sink,1))
@@ -470,11 +463,11 @@ class receive_path(gr.hier_block2):
             self.connect( orig_frame_start, (new_framesampler,1) )
             new_ps_filter = pilot_subcarrier_filter()
             new_pb_filter = pilot_block_filter()
-    
+
             self.connect( (new_framesampler,1), (new_pb_filter,1) )
             self.connect( new_framesampler, new_pb_filter,
                          new_ps_filter, scatter_id_filt, scatter_vec_elem )
-            
+
             #self.connect( new_ps_filter, scatter_sink2 )
             #self.connect( map_src, (scatter_sink2,1))
             #self.connect( dm_trig, (scatter_sink2,2))
@@ -607,15 +600,15 @@ class receive_path(gr.hier_block2):
         sinr_mst = self._sinr_measurement
     else:
         snr_mst = self._snr_measurement
-        
+
     ctf = self.filter_ctf()
-    
+
     self.zmq_probe_ctf = zmqblocks.sink_pubsub(gr.sizeof_float*config.data_subcarriers, "tcp://*:5559")
     self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,2) ,self.zmq_probe_ctf)
 #    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
 #                                    config.ns_port,vlen,config.rx_station_id)
-    
-    
+
+
     if self.__dict__.has_key('_img_xfer_inprog') is False:
 
 #      print "BER img xfer"
@@ -632,22 +625,22 @@ class receive_path(gr.hier_block2):
       ber_sampler = vector_sampler(gr.sizeof_float,1)
       self.connect(ber_mst,(ber_sampler,0))
       self.connect(trig_src,(ber_sampler,1))
-      
-      
+
+
       if self._options.log:
           trig_src_float = gr.char_to_float()
           self.connect(trig_src,trig_src_float)
           log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
 
 
-      if self._options.sinr_est is False:        
+      if self._options.sinr_est is False:
           self.zmq_probe_ber = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5556")
           self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,2) ,self.zmq_probe_ber)
-      
+
           self.zmq_probe_snr = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5555")
           self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,2) ,self.zmq_probe_snr)
-    
-          
+
+
 
   ##############################################################################
   def setup_imgtransfer_sink(self):
@@ -899,7 +892,7 @@ class receive_path(gr.hier_block2):
 
   # ---------------------------------------------------------------------------#
 
-  
+
   def change_estim_power(self,val):
     self.inner_receiver.inv_estimated_CTF_mul.set_k(1.0/val[0])
     #print "CHANGE set_k", val[0]
@@ -909,13 +902,13 @@ class receive_path(gr.hier_block2):
     self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
         self.change_estim_power,
         msg="Changing estim power output rms level\n"))
-    
+
   def publish_estim_power(self,unique_id):
     def dummy_reset():
       pass
     self.servants.append(corba_ndata_buffer_servant(str(unique_id),
         self.get_rms_amplitude,dummy_reset))
-    
+
   def filter_ctf(self):
     if self.__dict__.has_key('filtered_ctf'):
       return self.filtered_ctf
@@ -1006,7 +999,7 @@ class receive_path(gr.hier_block2):
     """
     self.servants.append(corba_ndata_buffer_servant(str(unique_id),
         self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
-    
+
   def set_scatterplot_subc(self, subc):
      return self._scatter_vec_elem.set_element(int(subc))
 
@@ -1015,7 +1008,6 @@ class receive_path(gr.hier_block2):
     Adds receiver-specific options to the Options Parser
     """
     common_options.add_options(normal,expert)
-    #ofdm_receiver.add_options(normal,expert)
     preambles.default_block_header.add_options(normal,expert)
 
     ofdm_inner_receiver.add_options( normal, expert )

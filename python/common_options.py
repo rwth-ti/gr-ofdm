@@ -22,8 +22,8 @@ def add_options(normal,expert):
     normal.add_option("-v", "--verbose", action="store_true", default=False)
     expert.add_option("", "--log", action="store_true", default=False,
             help="enable file logs [default=%default]")
-    expert.add_option("", "--debug", action="store_true", default=False,
-            help="Enable debugging mode [default=%default]")
+    expert.add_option("", "--static-allocation", action="store_true", default=False,
+            help="Enable static resource allocation mode [default=%default]")
 
     preambles.default_block_header.add_options(normal,expert)
 

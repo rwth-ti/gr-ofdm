@@ -324,7 +324,7 @@ class receive_path(gr.hier_block2):
       log_to_file(self, map_src_f, "data/map_src_out.float")
 
     ## Allocation Control
-    if option.static_allocation: #DEBUG
+    if options.static_allocation: #DEBUG
         bitloading = 3
         bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]

@@ -33,14 +33,14 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
         # ZeroMQ
         self.probe_manager = zmqblocks.probe_manager()
-        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5555", 'float32', self.plot_snr)
-        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5556", 'float32', self.plot_ber)
-        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5557", 'float32', self.plot_freqoffset)
-        self.probe_manager.add_socket("tcp://"+self.options.txhostname+":4445", 'uint8', self.plot_rate)
-        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5559", 'float32', self.plot_csi)
-        self.probe_manager.add_socket("tcp://"+self.options.rxhostname+":5560", 'complex64', self.plot_scatter)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5555", 'float32', self.plot_snr)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5556", 'float32', self.plot_ber)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5557", 'float32', self.plot_freqoffset)
+        self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'uint8', self.plot_rate)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5560", 'complex64', self.plot_scatter)
         self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.txhostname+":6666")
+        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6666")
 
         # Window Title
         self.gui.setWindowTitle("Receiver")
@@ -270,9 +270,9 @@ class OFDMRxGUI(QtGui.QMainWindow):
 def parse_options():
     """ Options parser. """
     parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
-    parser.add_option("-t", "--txhostname", type="string", default="localhost",
+    parser.add_option("-t", "--tx-hostname", type="string", default="localhost",
                       help="Transmitter hostname")
-    parser.add_option("-r", "--rxhostname", type="string", default="localhost",
+    parser.add_option("-r", "--rx-hostname", type="string", default="localhost",
                       help="Transmitter hostname")
     (options, args) = parser.parse_args()
     return options

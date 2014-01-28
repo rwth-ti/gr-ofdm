@@ -34,10 +34,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
         # ZeroMQ
         self.probe_manager = zmqblocks.probe_manager()
-        self.probe_manager.add_socket("tcp://"+self.options.txhostname+":4444", 'f', self.plot_powerallocation)
-        self.probe_manager.add_socket("tcp://"+self.options.txhostname+":4445", 'B', self.plot_bitloading)
+        self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4444", 'f', self.plot_powerallocation)
+        self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'B', self.plot_bitloading)
         self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.txhostname+":6666")
+        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6666")
 
 
         # Window Title
@@ -105,7 +105,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
 def parse_options():
     """ Options parser. """
     parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
-    parser.add_option("-t", "--txhostname", type="string", default="localhost",
+    parser.add_option("-t", "--tx-hostname", type="string", default="localhost",
                       help="Transmitter hostname")
     (options, args) = parser.parse_args()
     return options

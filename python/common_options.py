@@ -17,8 +17,6 @@ def add_options(normal,expert):
             help="set total bandwidth. [default=%default]")
     expert.add_option("", "--tx-hostname", type="string", default="localhost",
             help="Set Tx hostname for zeromq")
-    expert.add_option("", "--rx-hostname", type="string", default="localhost",
-            help="Set Rx hostname for zeromq")
     normal.add_option("-v", "--verbose", action="store_true", default=False)
     expert.add_option("", "--log", action="store_true", default=False,
             help="enable file logs [default=%default]")

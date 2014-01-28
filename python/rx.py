@@ -30,8 +30,6 @@ class rx_top_block(gr.top_block):
         self.rxpath = receive_path(options)
         self.connect(self.source, self.rxpath)
 
-        if not options.no_decoding:
-            self.rxpath.publish_rx_performance_measure()
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

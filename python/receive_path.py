@@ -553,6 +553,9 @@ class receive_path(gr.hier_block2):
       log_to_file( self, rxs_decimate_rate, "data/psd_input.float" )
 
 
+    #output branches
+    self.publish_rx_performance_measure()
+
 
   def filter_constellation_samples_to_file( self ):
 

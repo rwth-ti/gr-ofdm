@@ -556,6 +556,15 @@ class receive_path(gr.hier_block2):
     #output branches
     self.publish_rx_performance_measure()
 
+    ## Adding rpc manager for Transmitter
+    self.rpc_mgr_rx = zmqblocks.rpc_manager()
+    self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
+    self.rpc_mgr_rx.start_watcher()
+  
+    if options.scatterplot:
+      print "Scatterplot enabled"
+      self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.set_scatterplot_subc)
+
 
   def filter_constellation_samples_to_file( self ):
 

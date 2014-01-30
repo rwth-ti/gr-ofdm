@@ -39,8 +39,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'uint8', self.plot_rate)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5560", 'complex64', self.plot_scatter)
-        self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
+        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
+        self.rpc_mgr_rx = zmqblocks.rpc_manager()
+        self.rpc_mgr_rx.set_request_socket("tcp://"+self.options.rx_hostname+":5550")
+        self.rpc_mgr_channel = zmqblocks.rpc_manager()
+        self.rpc_mgr_channel.set_request_socket("tcp://"+self.options.tx_hostname+":4440")
+
 
         # Window Title
         self.gui.setWindowTitle("Receiver")
@@ -149,7 +154,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.update_tx_params()
 
     def update_tx_params(self):
-        self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        self.tx_params = self.rpc_mgr_tx.request("get_tx_parameters")
         if self.tx_params != None:
             self.data_subcarriers = self.tx_params.get('data_subcarriers')
             self.frame_length = self.tx_params.get('frame_length')
@@ -172,13 +177,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
                       '128-QAM' : 7,
                       '256-QAM' : 8,
                      }[modulation_str]
-        self.rpc_manager.request("set_modulation",[[bitloading]*self.data_subcarriers,[1]*self.data_subcarriers])
+        self.rpc_mgr_tx.request("set_modulation",[[bitloading]*self.data_subcarriers,[1]*self.data_subcarriers])
         self.update_tx_params()
 
     def slide_amplitude(self, amplitude):
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
         self.amplitude = amplitude
-        self.rpc_manager.request("set_amplitude",[self.amplitude])
+        self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
 
     def edit_amplitude(self):
         amplitude = self.lineEditAmplitude.text().toInt()[0]
@@ -190,14 +195,14 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.horizontalSliderAmplitude.setValue(amplitude)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
         self.amplitude = amplitude
-        self.rpc_manager.request("set_amplitude",[self.amplitude])
+        self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
 
     def slide_freq_offset(self, offset):
         # note slider positions are int (!)
         freq_offset = offset/100.0
         self.gui.lineEditOffset.setText(QtCore.QString.number(freq_offset,'f',3))
         self.freq_offset = freq_offset
-        self.rpc_manager.request("set_freq_offset",[self.freq_offset])
+        self.rpc_mgr_tx.request("set_freq_offset",[self.freq_offset])
 
     def edit_freq_offset(self):
         freq_offset = self.lineEditOffset.text().toFloat()[0]
@@ -210,16 +215,16 @@ class OFDMRxGUI(QtGui.QMainWindow):
         # note slider positions are int (!)
         self.gui.horizontalSliderOffset.setValue(freq_offset*100.0)
         self.gui.horizontalSliderOffset.blockSignals(False)
-        self.rpc_manager.request("set_freq_offset",[self.freq_offset])
+        self.rpc_mgr_tx.request("set_freq_offset",[self.freq_offset])
 
     def subcarrier_selected(self, point):
         subcarrier = int(point.x()+99)
         titlestring = "Scatterplot (Subcarrier " + str(subcarrier) + ")"
         self.gui.qwtPlotScatter.setTitle(titlestring)
-        self.rpc_manager.request("set_scatter_subcarrier",[subcarrier])
+        self.rpc_mgr_rx.request("set_scatter_subcarrier",[subcarrier])
 
     def set_channel_profile(self, profile):
-        self.rpc_manager.request("set_channel_profile",[str(profile)])
+        self.rpc_mgr_channel.request("set_channel_profile",[str(profile)])
 
     def plot_snr(self, samples):
         self.snr_y = numpy.append(samples,self.snr_y)

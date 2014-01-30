@@ -273,10 +273,11 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, amp, "data/amp_tx_out.compl")
 
     ## Adding rpc manager for Transmitter
-    self.rpc_manager = zmqblocks.rpc_manager()
-    self.rpc_manager.set_reply_socket("tcp://*:6660")
-    self.rpc_manager.start_watcher()
-
+    self.rpc_mgr_tx = zmqblocks.rpc_manager()
+    self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
+    self.rpc_mgr_tx.start_watcher()
+    
+    ## Artificial Frequency Offset
     if options.freqoff is not None:
 
       print "Artificial Frequency Offset: ", options.freqoff
@@ -288,11 +289,11 @@ class transmit_path(gr.hier_block2):
       self.connect( amp, freq_shift )
       tx_output = freq_shift
 
-      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
+      self.rpc_mgr_tx.add_interface("set_freq_offset",self.set_freqoff)
 
 
     ## Creating interface to set Tx amplitude from GUI
-    self.rpc_manager.add_interface("set_amplitude",self.set_rms_amplitude)
+    self.rpc_mgr_tx.add_interface("set_amplitude",self.set_rms_amplitude)
 
     ## Tx parameters
     bandwidth = options.bandwidth or 2e6
@@ -306,10 +307,10 @@ class transmit_path(gr.hier_block2):
                           , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
 
     ## Creating interface to get Tx paramenters and show them in GUI
-    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
+    self.rpc_mgr_tx.add_interface("get_tx_parameters",self.get_tx_parameters)
     
     ## Creating interface to set Tx modulation
-    self.rpc_manager.add_interface("set_modulation",self.allocation_src.set_allocation)
+    self.rpc_mgr_tx.add_interface("set_modulation",self.allocation_src.set_allocation)
     ## Setup Output
     self.connect(tx_output,self)
 
@@ -372,10 +373,11 @@ class transmit_path(gr.hier_block2):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
-    normal.add_option(
-      "", "--imgxfer",
-      action="store_true", default=False,
+    normal.add_option("", "--imgxfer", action="store_true", default=False,
       help="Enable IMG Transfer mode")
+    expert.add_option("", "--freqoff", type="eng_float", default=None,
+               help="Simulate frequency offset [default=%default]")
+ 
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)

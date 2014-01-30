@@ -36,8 +36,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.probe_manager = zmqblocks.probe_manager()
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4444", 'f', self.plot_powerallocation)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'B', self.plot_bitloading)
-        self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
+        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
 
 
         # Window Title
@@ -89,7 +89,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotBitloading.replot()
 
     def update_tx_parameters(self):
-        self.tx_params = self.rpc_manager.request("get_tx_parameters")
+        self.tx_params = self.rpc_mgr_tx.request("get_tx_parameters")
         if self.tx_params:
             self.gui.labelCarrierFrequency.setText(QtCore.QString("%1").arg(self.tx_params.get('carrier_frequency')))
             self.gui.labelFFTSize.setText(QtCore.QString("%1").arg(int(self.tx_params.get('fft_size'))))

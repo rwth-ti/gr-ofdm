@@ -233,6 +233,11 @@ class ofdm_benchmark (gr.top_block):
 #      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
 
 
+    ## Adding rpc manager for multipath channel
+    self.rpc_mgr_channel = zmqblocks.rpc_manager()
+    self.rpc_mgr_channel.set_reply_socket("tcp://*:4440")
+    self.rpc_mgr_channel.start_watcher()
+
     if options.multipath:
       if options.itu_channel:
         self.fad_chan = ofdm.itpp_tdl_channel(  ) #[0, -7, -20], [0, 2, 6]
@@ -242,7 +247,7 @@ class ofdm_benchmark (gr.top_block):
         #fad_chan.set_channel_profile_exponential(8) #5e-8 )
         self.fad_chan.set_norm_doppler( 5e-7 )
 
-#        self.rpc_manager.add_interface("set_channel_profile",self.set_channel_profile)
+        self.rpc_mgr_channel.add_interface("set_channel_profile",self.set_channel_profile)
       else:
         self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
 
@@ -271,8 +276,8 @@ class ofdm_benchmark (gr.top_block):
     self.connect( self.txpath,self.dst )
 
 
-    if options.scatterplot:
-      print "Scatterplot enabled"
+#    if options.scatterplot:
+#      print "Scatterplot enabled"
 #      self.rpc_manager.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
      # self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
 

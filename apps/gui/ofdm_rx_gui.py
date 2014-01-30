@@ -40,7 +40,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5560", 'complex64', self.plot_scatter)
         self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6666")
+        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
 
         # Window Title
         self.gui.setWindowTitle("Receiver")

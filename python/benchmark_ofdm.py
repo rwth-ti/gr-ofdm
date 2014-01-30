@@ -86,9 +86,9 @@ class ofdm_benchmark (gr.top_block):
     self._options = copy.copy( options )
 
 
-    self.rpc_manager = zmqblocks.rpc_manager()
-    self.rpc_manager.set_reply_socket("tcp://*:6666")
-    self.rpc_manager.start_watcher()
+#    self.rpc_manager = zmqblocks.rpc_manager()
+#    self.rpc_manager.set_reply_socket("tcp://*:5550")
+#    self.rpc_manager.start_watcher()
 
     self._interpolation = 1
 
@@ -150,22 +150,22 @@ class ofdm_benchmark (gr.top_block):
 
     config = self.config = station_configuration()
 
-    bandwidth = options.bandwidth or 2e6
-    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
-    samples_per_frame = config.frame_length*config.block_length
-    tb = samples_per_frame/bandwidth
+#    bandwidth = options.bandwidth or 2e6
+#    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
+#    samples_per_frame = config.frame_length*config.block_length
+#    tb = samples_per_frame/bandwidth
 
 
-    self.tx_parameters = {'carrier_frequency':0.0/1e6,'fft_size':config.fft_length, 'cp_size':config.cp_length \
-                          , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
-                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
-                          , 'frame_length':config.frame_length  \
-                          , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
+#    self.tx_parameters = {'carrier_frequency':0.0/1e6,'fft_size':config.fft_length, 'cp_size':config.cp_length \
+#                          , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
+#                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
+#                          , 'frame_length':config.frame_length  \
+#                          , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
 
 
-    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
+#    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
 
-    self.rpc_manager.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
+#    self.rpc_manager.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
 
     if options.imgxfer:
       self.rxpath.setup_imgtransfer_sink()
@@ -219,18 +219,18 @@ class ofdm_benchmark (gr.top_block):
       self.connect( awgn_chan, self.dst )
       self.dst = awgn_chan
 
-    if options.freqoff is not None:
+#    if options.freqoff is not None:
+#
+#      print "Artificial Frequency Offset: ", options.freqoff
+#      freq_shift = blocks.multiply_cc()
+#      norm_freq = options.freqoff / config.fft_length
+#      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
+#      self.connect( freq_off_src, ( freq_shift, 1 ) )
+#      dst = self.dst
+#      self.connect( freq_shift, dst )
+#      self.dst = freq_shift
 
-      print "Artificial Frequency Offset: ", options.freqoff
-      freq_shift = blocks.multiply_cc()
-      norm_freq = options.freqoff / config.fft_length
-      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
-      self.connect( freq_off_src, ( freq_shift, 1 ) )
-      dst = self.dst
-      self.connect( freq_shift, dst )
-      self.dst = freq_shift
-
-      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
+#      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
 
 
     if options.multipath:
@@ -242,7 +242,7 @@ class ofdm_benchmark (gr.top_block):
         #fad_chan.set_channel_profile_exponential(8) #5e-8 )
         self.fad_chan.set_norm_doppler( 5e-7 )
 
-        self.rpc_manager.add_interface("set_channel_profile",self.set_channel_profile)
+#        self.rpc_manager.add_interface("set_channel_profile",self.set_channel_profile)
       else:
         self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
 
@@ -273,7 +273,7 @@ class ofdm_benchmark (gr.top_block):
 
     if options.scatterplot:
       print "Scatterplot enabled"
-      self.rpc_manager.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+#      self.rpc_manager.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
      # self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
 
     if options.cheat:
@@ -327,7 +327,7 @@ class ofdm_benchmark (gr.top_block):
   def _setup_tx_path(self,options):
     print "OPTIONS", options
     self.txpath = transmit_path(options)
-    self.rpc_manager.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
+#    self.rpc_manager.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
 
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)
@@ -375,13 +375,13 @@ class ofdm_benchmark (gr.top_block):
     self.set_freqoff(val[0])
 
 
-  def set_freqoff(self, freqoff):
-    """
-    Sets the simulated frequency offset
-    """
-    norm_freq = freqoff / self.config.fft_length
-    self.freq_off_src.set_frequency(norm_freq)
-    print "Frequency offset changed to", freqoff
+#  def set_freqoff(self, freqoff):
+#    """
+#    Sets the simulated frequency offset
+#    """
+#    norm_freq = freqoff / self.config.fft_length
+#    self.freq_off_src.set_frequency(norm_freq)
+#    print "Frequency offset changed to", freqoff
 
 #  def _setup_usrp_sink(self):
 #    """

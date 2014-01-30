@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import eng_notation
-from gnuradio import gr, blocks
+from gnuradio import gr, blocks, analog
 from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
@@ -267,21 +267,68 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
+    tx_output = amp
 
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")
 
+    ## Adding rpc manager for Transmitter
+    self.rpc_manager = zmqblocks.rpc_manager()
+    self.rpc_manager.set_reply_socket("tcp://*:6660")
+    self.rpc_manager.start_watcher()
+
+    if options.freqoff is not None:
+
+      print "Artificial Frequency Offset: ", options.freqoff
+      freq_shift = blocks.multiply_cc()
+      norm_freq = options.freqoff / config.fft_length
+      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
+      self.connect( freq_off_src, ( freq_shift, 1 ) )
+      #dst = self.dst
+      self.connect( amp, freq_shift )
+      tx_output = freq_shift
+
+      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
+
+
+    ## Creating interface to set Tx amplitude from GUI
+    self.rpc_manager.add_interface("set_amplitude",self.set_rms_amplitude)
+
+    ## Tx parameters
+    bandwidth = options.bandwidth or 2e6
+    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
+    samples_per_frame = config.frame_length*config.block_length
+    tb = samples_per_frame/bandwidth
+    self.tx_parameters = {'carrier_frequency':0.0/1e6,'fft_size':config.fft_length, 'cp_size':config.cp_length \
+                          , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
+                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
+                          , 'frame_length':config.frame_length  \
+                          , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
+
+    ## Creating interface to get Tx paramenters and show them in GUI
+    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
+    
+    ## Creating interface to set Tx modulation
+    self.rpc_manager.add_interface("set_modulation",self.allocation_src.set_allocation)
     ## Setup Output
-    self.connect(amp,self)
+    self.connect(tx_output,self)
 
     # Display some information about the setup
     if config._verbose:
       self._print_verbage()
 
-    #self.rpc_manager = zmqblocks.rpc_manager()
-    #self.rpc_manager.set_reply_socket("tcp://*:6666")
 
-    #self.rpc_manager.start_watcher()
+  def set_freqoff(self, freqoff):
+    """
+    Sets the simulated frequency offset
+    """
+    norm_freq = freqoff / self.config.fft_length
+    self.freq_off_src.set_frequency(norm_freq)
+    print "Frequency offset changed to", freqoff
+
+  def get_tx_parameters(self):
+    return self.tx_parameters
+
 
   def set_rms_amplitude(self, ampl):
     """

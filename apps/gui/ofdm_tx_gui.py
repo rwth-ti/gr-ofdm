@@ -37,7 +37,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4444", 'f', self.plot_powerallocation)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'B', self.plot_bitloading)
         self.rpc_manager = zmqblocks.rpc_manager()
-        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6666")
+        self.rpc_manager.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
 
 
         # Window Title

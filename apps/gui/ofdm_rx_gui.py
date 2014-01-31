@@ -43,8 +43,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
         self.rpc_mgr_rx = zmqblocks.rpc_manager()
         self.rpc_mgr_rx.set_request_socket("tcp://"+self.options.rx_hostname+":5550")
-        self.rpc_mgr_channel = zmqblocks.rpc_manager()
-        self.rpc_mgr_channel.set_request_socket("tcp://"+self.options.tx_hostname+":4440")
+#        self.rpc_mgr_channel = zmqblocks.rpc_manager()
+#        self.rpc_mgr_channel.set_request_socket("tcp://"+self.options.tx_hostname+":4440")
 
 
         # Window Title

@@ -10,6 +10,7 @@ from uhd_interface import uhd_receiver
 from receive_path import receive_path
 
 import os
+import zmqblocks
 
 
 class rx_top_block(gr.top_block):
@@ -29,6 +30,14 @@ class rx_top_block(gr.top_block):
 
         self.rxpath = receive_path(options)
         self.connect(self.source, self.rxpath)
+        ## Adding rpc manager for Receiver
+        self.rpc_mgr_rx = zmqblocks.rpc_manager()
+        self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
+        self.rpc_mgr_rx.start_watcher()
+  
+        if options.scatterplot:
+          print "Scatterplot enabled"
+          self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
 
 
     def add_options(parser):

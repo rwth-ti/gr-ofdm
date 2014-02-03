@@ -224,7 +224,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_rx.request("set_scatter_subcarrier",[subcarrier])
 
     def set_channel_profile(self, profile):
-        self.rpc_mgr_channel.request("set_channel_profile",[str(profile)])
+        self.rpc_mgr_tx.request("set_channel_profile",[str(profile)])
 
     def plot_snr(self, samples):
         self.snr_y = numpy.append(samples,self.snr_y)

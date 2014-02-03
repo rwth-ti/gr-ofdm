@@ -23,7 +23,7 @@
 from numpy import absolute
 from cmath import exp
 from gnuradio import eng_notation
-from gnuradio import gr, gru
+from gnuradio import gr, gru, blocks, analog
 from gnuradio.eng_option import eng_option
 from math import pi, log10, sqrt, log
 import numpy
@@ -33,6 +33,8 @@ import ofdm as ofdm
 import numpy, scipy
 
 from gr_tools import log_to_file
+
+from station_configuration import station_configuration
 
 class awgn_channel(gr.hier_block2):
   def __init__(self, noise_voltage, frequency_offset):
@@ -196,5 +198,28 @@ class time_variant_rayleigh_channel ( gr.hier_block2 ):
     
     
     
+class freq_offset(gr.hier_block2):
+  def __init__(self, freq_off):
+    gr.hier_block2.__init__(self, "freq_offset", 
+        gr.io_signature(1,1,gr.sizeof_gr_complex),
+        gr.io_signature(1,1,gr.sizeof_gr_complex))
+
+    freqoff = freq_off
+    config = self.config = station_configuration()
     
-    
+    print "Artificial Frequency Offset: ",freqoff
+    freq_shift = blocks.multiply_cc()
+    norm_freq = freqoff / config.fft_length
+    freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
+    self.connect( self,( freq_shift, 0 )  )
+    self.connect( freq_off_src, ( freq_shift, 1 ) )
+    self.connect( freq_shift, self )
+
+  def set_freqoff(self, freqoff):
+    """
+    Sets the simulated frequency offset
+    """
+    norm_freq = freqoff / self.config.fft_length
+    self.freq_off_src.set_frequency(norm_freq)
+    print "Frequency offset changed to", freqoff
+

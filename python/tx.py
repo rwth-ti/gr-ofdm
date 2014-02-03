@@ -12,6 +12,7 @@ from transmit_path import transmit_path
 import os
 import zmqblocks
 
+import channel
 
 class tx_top_block(gr.top_block):
     def __init__(self, options):
@@ -28,19 +29,26 @@ class tx_top_block(gr.top_block):
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
 
-        self.txpath = transmit_path(options)
-        self.connect(self.txpath, self.sink)
+        txpath = self.txpath = transmit_path(options)
 
         ## Adding rpc manager for Transmitter
         self.rpc_mgr_tx = zmqblocks.rpc_manager()
         self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
         self.rpc_mgr_tx.start_watcher()
+
+        if options.freqoff is not None:
+            freq_off = channel.freq_offset(options.freqoff )
+            self.connect(txpath, freq_off) 
+            txpath = freq_off
+
+            self.rpc_mgr_tx.add_interface("set_freq_offset",freq_off.set_freqoff)
   
         self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
-        self.rpc_mgr_tx.add_interface("set_freq_offset",self.txpath.set_freqoff)
         self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
         self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
 
+
+        self.connect(txpath, self.sink)
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

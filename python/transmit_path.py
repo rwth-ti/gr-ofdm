@@ -267,33 +267,11 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
-    tx_output = amp
 
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")
 
-#    ## Adding rpc manager for Transmitter
-#    self.rpc_mgr_tx = zmqblocks.rpc_manager()
-#    self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
-#    self.rpc_mgr_tx.start_watcher()
-    
-    ## Artificial Frequency Offset
-    if options.freqoff is not None:
 
-      print "Artificial Frequency Offset: ", options.freqoff
-      freq_shift = blocks.multiply_cc()
-      norm_freq = options.freqoff / config.fft_length
-      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
-      self.connect( freq_off_src, ( freq_shift, 1 ) )
-      #dst = self.dst
-      self.connect( amp, freq_shift )
-      tx_output = freq_shift
-
-#      self.rpc_mgr_tx.add_interface("set_freq_offset",self.set_freqoff)
-
-
-    ## Creating interface to set Tx amplitude from GUI
-#    self.rpc_mgr_tx.add_interface("set_amplitude",self.set_rms_amplitude)
 
     ## Tx parameters
     bandwidth = options.bandwidth or 2e6
@@ -312,20 +290,12 @@ class transmit_path(gr.hier_block2):
     ## Creating interface to set Tx modulation
 #    self.rpc_mgr_tx.add_interface("set_modulation",self.allocation_src.set_allocation)
     ## Setup Output
-    self.connect(tx_output,self)
+    self.connect(amp,self)
 
     # Display some information about the setup
     if config._verbose:
       self._print_verbage()
 
-
-  def set_freqoff(self, freqoff):
-    """
-    Sets the simulated frequency offset
-    """
-    norm_freq = freqoff / self.config.fft_length
-    self.freq_off_src.set_frequency(norm_freq)
-    print "Frequency offset changed to", freqoff
 
   def get_tx_parameters(self):
     return self.tx_parameters

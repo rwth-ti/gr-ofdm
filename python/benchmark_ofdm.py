@@ -55,6 +55,8 @@ import copy
 
 import zmqblocks
 
+import channel
+
 #import os
 #print 'Blocked waiting for GDB attach (pid = %d)' % (os.getpid(),)
 #raw_input ('Press Enter to continue: ')
@@ -232,19 +234,15 @@ class ofdm_benchmark (gr.top_block):
       self.connect( awgn_chan, self.dst )
       self.dst = awgn_chan
 
-#    if options.freqoff is not None:
-#
-#      print "Artificial Frequency Offset: ", options.freqoff
-#      freq_shift = blocks.multiply_cc()
-#      norm_freq = options.freqoff / config.fft_length
-#      freq_off_src = self.freq_off_src = analog.sig_source_c(1.0, analog.GR_SIN_WAVE, norm_freq, 1.0, 0.0 )
-#      self.connect( freq_off_src, ( freq_shift, 1 ) )
-#      dst = self.dst
-#      self.connect( freq_shift, dst )
-#      self.dst = freq_shift
 
-#      self.rpc_manager.add_interface("set_freq_offset",self.set_freqoff)
+    if options.freqoff is not None:
+      freq_off = channel.freq_offset(options.freqoff )
+      dst = self.dst
+      self.connect(freq_off, dst) 
+      self.dst = freq_off
 
+      self.rpc_mgr_tx.add_interface("set_freq_offset",freq_off.set_freqoff)
+   
 
     if options.multipath:
       if options.itu_channel:
@@ -337,11 +335,12 @@ class ofdm_benchmark (gr.top_block):
 ##        msg="Changing tx frequency\n"))
 ##    print "enable_txfreq_adjust"
 
+
   def _setup_tx_path(self,options):
     print "OPTIONS", options
     self.txpath = transmit_path(options)
     self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
-    self.rpc_mgr_tx.add_interface("set_freq_offset",self.txpath.set_freqoff)
+#    self.rpc_mgr_tx.add_interface("set_freq_offset",self.txpath.set_freqoff)
     self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
     self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
 
@@ -391,13 +390,7 @@ class ofdm_benchmark (gr.top_block):
     self.set_freqoff(val[0])
 
 
-#  def set_freqoff(self, freqoff):
-#    """
-#    Sets the simulated frequency offset
-#    """
-#    norm_freq = freqoff / self.config.fft_length
-#    self.freq_off_src.set_frequency(norm_freq)
-#    print "Frequency offset changed to", freqoff
+
 
 #  def _setup_usrp_sink(self):
 #    """

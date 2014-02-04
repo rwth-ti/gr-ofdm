@@ -169,13 +169,8 @@ class ofdm_benchmark (gr.top_block):
 
     if options.multipath:
       if options.itu_channel:
-        self.fad_chan = ofdm.itpp_tdl_channel(  ) #[0, -7, -20], [0, 2, 6]
-          #fad_chan.set_norm_doppler( 1e-9 )
-          #fad_chan.set_LOS( [500.,0,0] )
-        self.fad_chan.set_channel_profile( ofdm.ITU_Pedestrian_B, 1./self._bandwidth) #5e-8 )
-        #fad_chan.set_channel_profile_exponential(8) #5e-8 )
-        self.fad_chan.set_norm_doppler( 5e-7 )
-        self.rpc_mgr_tx.add_interface("set_channel_profile",self.set_channel_profile)
+        self.fad_chan = channel.itpp_channel(options.bandwidth)
+        self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
 
       else:
         self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
@@ -313,31 +308,6 @@ class ofdm_benchmark (gr.top_block):
 
   def get_tx_parameters(self):
     return self.tx_parameters
-
-  def set_channel_profile(self, profile):
-      lookup_profile = {'ITU Vehicular A' : ofdm.ITU_Vehicular_A,
-                        'ITU Vehicular B' : ofdm.ITU_Vehicular_B,
-                        'ITU Pedestrian A' : ofdm.ITU_Pedestrian_A,
-                        'ITU Pedestrian B' : ofdm.ITU_Pedestrian_B,
-                        'COST207 RA' : ofdm.COST207_RA,
-                        'COST207 RA6' : ofdm.COST207_RA6,
-                        'COST207 TU' : ofdm.COST207_TU,
-                        'COST207 TU6alt' : ofdm.COST207_TU6alt,
-                        'COST207 TU12' : ofdm.COST207_TU12,
-                        'COST207 TU12alt' : ofdm.COST207_TU12alt,
-                        'COST207 BU' : ofdm.COST207_BU,
-                        'COST207 BU6alt' : ofdm.COST207_BU6alt,
-                        'COST207 BU12' : ofdm.COST207_BU12,
-                        'COST207 BU12alt' : ofdm.COST207_BU12alt,
-                        'COST207 HT' : ofdm.COST207_HT,
-                        'COST207 HT6alt' : ofdm.COST207_HT6alt,
-                        'COST207 HT12' : ofdm.COST207_HT12,
-                        'COST207 HT12alt' : ofdm.COST207_HT12alt,
-                        'COST259 TUx' : ofdm.COST259_TUx,
-                        'COST259 RAx' : ofdm.COST259_RAx,
-                        'COST259 HTx' : ofdm.COST259_HTx
-                        }[profile]
-      self.fad_chan.set_channel_profile( lookup_profile, 1./self._bandwidth)
 
   def add_options(normal, expert):
     """

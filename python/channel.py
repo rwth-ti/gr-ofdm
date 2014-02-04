@@ -137,7 +137,6 @@ class fading_channel(gr.hier_block2):
     self.connect(self,self.awgn,self.multipath,self)
 
 
-
 class time_variant_rayleigh_channel ( gr.hier_block2 ):
   def __init__ ( self, noise_power, coherence_time, taps ):
     gr.hier_block2.__init__(self,
@@ -148,18 +147,14 @@ class time_variant_rayleigh_channel ( gr.hier_block2 ):
     inp = gr.kludge_copy( gr.sizeof_gr_complex )
     self.connect( self, inp )
     
- 
-    
     tap1_delay = gr.delay( gr.sizeof_gr_complex, 1 )
     tap2_delay = gr.delay( gr.sizeof_gr_complex, 2 )
     self.connect( inp, tap1_delay )
     self.connect( inp, tap2_delay )
     
-    
     fd = 100
     z = numpy.arange(-fd+0.1,fd,0.1)
     t = numpy.sqrt(1. / ( pi * fd * numpy.sqrt( 1. - (z/fd)**2 ) ) )
-
     
     tap1_noise = ofdm.complex_white_noise( 0.0, taps[0] )
     tap1_filter = gr.fft_filter_ccc(1, t)
@@ -168,7 +163,6 @@ class time_variant_rayleigh_channel ( gr.hier_block2 ):
     tap1_mult = gr.multiply_cc()
     self.connect( tap1_filter, (tap1_mult,0) )
     self.connect( tap1_delay, (tap1_mult,1) )
-    
     
     tap2_noise = ofdm.complex_white_noise( 0.0, taps[1] )
     tap2_filter = gr.fft_filter_ccc(1, t)
@@ -195,9 +189,6 @@ class time_variant_rayleigh_channel ( gr.hier_block2 ):
     log_to_file( self, tap2_filter, "data/tap2_filter.float", mag=True)
     
     
-    
-    
-    
 class freq_offset(gr.hier_block2):
   def __init__(self, freq_off):
     gr.hier_block2.__init__(self, "freq_offset", 
@@ -222,4 +213,46 @@ class freq_offset(gr.hier_block2):
     norm_freq = freqoff / self.config.fft_length
     self.freq_off_src.set_frequency(norm_freq)
     print "Frequency offset changed to", freqoff
+
+
+
+class itpp_channel(gr.hier_block2):
+  def __init__(self, bw):
+    gr.hier_block2.__init__(self, "itpp_channel", 
+        gr.io_signature(1,1,gr.sizeof_gr_complex),
+        gr.io_signature(1,1,gr.sizeof_gr_complex))
+
+    self._bandwidth=bw
+    fad_chan= self.fad_chan = ofdm.itpp_tdl_channel(  ) #[0, -7, -20], [0, 2, 6]
+    fad_chan.set_channel_profile( ofdm.ITU_Pedestrian_B, 1./self._bandwidth) #5e-8 )
+    fad_chan.set_norm_doppler( 5e-7 )
+
+    self.connect(self, fad_chan, self)
+
+  def set_channel_profile(self, profile):
+      lookup_profile = {'ITU Vehicular A' : ofdm.ITU_Vehicular_A,
+                        'ITU Vehicular B' : ofdm.ITU_Vehicular_B,
+                        'ITU Pedestrian A' : ofdm.ITU_Pedestrian_A,
+                        'ITU Pedestrian B' : ofdm.ITU_Pedestrian_B,
+                        'COST207 RA' : ofdm.COST207_RA,
+                        'COST207 RA6' : ofdm.COST207_RA6,
+                        'COST207 TU' : ofdm.COST207_TU,
+                        'COST207 TU6alt' : ofdm.COST207_TU6alt,
+                        'COST207 TU12' : ofdm.COST207_TU12,
+                        'COST207 TU12alt' : ofdm.COST207_TU12alt,
+                        'COST207 BU' : ofdm.COST207_BU,
+                        'COST207 BU6alt' : ofdm.COST207_BU6alt,
+                        'COST207 BU12' : ofdm.COST207_BU12,
+                        'COST207 BU12alt' : ofdm.COST207_BU12alt,
+                        'COST207 HT' : ofdm.COST207_HT,
+                        'COST207 HT6alt' : ofdm.COST207_HT6alt,
+                        'COST207 HT12' : ofdm.COST207_HT12,
+                        'COST207 HT12alt' : ofdm.COST207_HT12alt,
+                        'COST259 TUx' : ofdm.COST259_TUx,
+                        'COST259 RAx' : ofdm.COST259_RAx,
+                        'COST259 HTx' : ofdm.COST259_HTx
+                        }[profile]
+      self.fad_chan.set_channel_profile( lookup_profile, 1./self._bandwidth)
+
+
 

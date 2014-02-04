@@ -29,8 +29,6 @@ from station_configuration import station_configuration
 
 from math import log10
 
-
-
 import sys
 import os
 
@@ -73,37 +71,11 @@ class ofdm_benchmark (gr.top_block):
   def __init__ (self, options):
     gr.top_block.__init__(self, "ofdm_benchmark")
 
-    ##self._tx_freq            = options.tx_freq         # tranmitter's center frequency
-    ##self._tx_subdev_spec     = options.tx_subdev_spec  # daughterboard to use
-    ##self._fusb_block_size    = options.fusb_block_size # usb info for USRP
-    ##self._fusb_nblocks       = options.fusb_nblocks    # usb info for USRP
-    ##self._which              = options.which_usrp
     self._bandwidth          = options.bandwidth
     self.servants = []
     self._verbose            = options.verbose
 
-    ##self._interface          = options.interface
-    ##self._mac_addr           = options.mac_addr
-
     self._options = copy.copy( options )
-
-
-#    ## Adding rpc manager for multipath channel
-#    self.rpc_mgr_channel = zmqblocks.rpc_manager()
-#    self.rpc_mgr_channel.set_reply_socket("tcp://*:4440")
-#    self.rpc_mgr_channel.start_watcher()
-
-   ## Adding rpc manager for Transmitter
-    self.rpc_mgr_tx = zmqblocks.rpc_manager()
-    self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
-    self.rpc_mgr_tx.start_watcher()
-
-    ## Adding rpc manager for Receiver
-    self.rpc_mgr_rx = zmqblocks.rpc_manager()
-    self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
-    self.rpc_mgr_rx.start_watcher()
-  
-  
 
     self._interpolation = 1
 
@@ -124,11 +96,7 @@ class ofdm_benchmark (gr.top_block):
                            gr.interp_fir_filter_ccf(2,f1), self.tx_filter )
 
       print "New"
-#
-#
-#      self.filt_coeff = optfir.low_pass(1.0, 1.0, bw, bw+tb, 0.2, 60.0, 0)
-#      self.filter = gr.interp_fir_filter_ccf(self._interpolation,self.filt_coeff)
-#      print "Software interpolation filter length: %d" % (len(self.filt_coeff))
+
     else:
       self.tx_filter = None
 
@@ -146,41 +114,12 @@ class ofdm_benchmark (gr.top_block):
     else:
       self.rx_filter = None
 
-
-##    if not options.from_file is None:
-##      # sent captured file to usrp
-##      self.src = gr.file_source(gr.sizeof_gr_complex,options.from_file)
-##      self._setup_usrp_sink()
-##      if hasattr(self, "filter"):
-##        self.connect(self.src,self.filter,self.u) #,self.filter
-##      else:
-##        self.connect(self.src,self.u)
-##
-##      return
-
-
-
     self._setup_tx_path(options)
     self._setup_rx_path(options)
+    self._setup_rpc_manager()
 
     config = self.config = station_configuration()
 
-#    bandwidth = options.bandwidth or 2e6
-#    bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
-#    samples_per_frame = config.frame_length*config.block_length
-#    tb = samples_per_frame/bandwidth
-
-
-#    self.tx_parameters = {'carrier_frequency':0.0/1e6,'fft_size':config.fft_length, 'cp_size':config.cp_length \
-#                          , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
-#                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
-#                          , 'frame_length':config.frame_length  \
-#                          , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
-
-
-#    self.rpc_manager.add_interface("get_tx_parameters",self.get_tx_parameters)
-
-#    self.rpc_manager.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
 
     if options.imgxfer:
       self.rxpath.setup_imgtransfer_sink()
@@ -195,21 +134,6 @@ class ofdm_benchmark (gr.top_block):
       print "Forcing rx filter usage"
       self.connect( self.rx_filter, self.dst )
       self.dst = self.rx_filter
-
-
-    ##self.dst  = self.rxpath
-#    tmp = blocks.throttle(gr.sizeof_gr_complex,1e5)
-#    self.connect( tmp, self.dst )
-#    self.dst = tmp
-
-
-
-
-
-    #self.publish_spectrum( 256 )
-
-
-
 
 
     if options.measure:
@@ -236,13 +160,12 @@ class ofdm_benchmark (gr.top_block):
 
 
     if options.freqoff is not None:
-      freq_off = channel.freq_offset(options.freqoff )
+      freq_off = self.freq_off = channel.freq_offset(options.freqoff )
       dst = self.dst
       self.connect(freq_off, dst) 
       self.dst = freq_off
+      self.rpc_mgr_tx.add_interface("set_freq_offset",self.freq_off.set_freqoff)
 
-      self.rpc_mgr_tx.add_interface("set_freq_offset",freq_off.set_freqoff)
-   
 
     if options.multipath:
       if options.itu_channel:
@@ -252,8 +175,8 @@ class ofdm_benchmark (gr.top_block):
         self.fad_chan.set_channel_profile( ofdm.ITU_Pedestrian_B, 1./self._bandwidth) #5e-8 )
         #fad_chan.set_channel_profile_exponential(8) #5e-8 )
         self.fad_chan.set_norm_doppler( 5e-7 )
-
         self.rpc_mgr_tx.add_interface("set_channel_profile",self.set_channel_profile)
+
       else:
         self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
 
@@ -279,24 +202,17 @@ class ofdm_benchmark (gr.top_block):
     if options.record:
       log_to_file( self, self.txpath, "data/txpath_out.compl" )
 
-    self.connect( self.txpath,self.dst )
-
 
     if options.scatterplot:
       print "Scatterplot enabled"
-      self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
-     # self.rxpath.enable_scatterplot_ctrl("scatter_ctrl")
 
     if options.cheat:
       self.txpath.enable_channel_cheating("channelcheat")
 
+    self.connect( self.txpath,self.dst )
 
 
     print "Hit Strg^C to terminate"
-
-
-
-
 
     print "Hit Strg^C to terminate"
 
@@ -305,53 +221,32 @@ class ofdm_benchmark (gr.top_block):
     if self._verbose:
         self._print_verbage()
 
-#    if not options.to_file is None:
-#      log_to_file(self, self.txpath, options.to_file)
-#      log_to_file(self, self.filter, "data/tx_filter.compl")
-#      log_to_file(self, self.filter, "data/tx_filter.float",mag=True)
-#      ms_to_file(self, self.filter, "data/tx_filter_power.float")
-
-
-#  def set_rms_amplitude(self, ampl):
-#    """
-#    Sets the rms amplitude sent to the USRP
-#    @param: ampl 0 <= ampl < 32768
-#    """
-#
-#    # The standard output amplitude depends on the subcarrier number. E.g.
-#    # if non amplified, the amplitude is sqrt(subcarriers).
-#
-#    self.rms = max(0.0, min(ampl, 32767.0))
-#    scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
-#    self._amplification = scaled_ampl
-#    self._amplifier.set_k(self._amplification)
-
-##  def change_txfreq(self,val):
-##    self.set_freq(val[0])
-##
-##  def enable_txfreq_adjust(self,unique_id):
-##    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-##        self.change_txfreq,
-##        msg="Changing tx frequency\n"))
-##    print "enable_txfreq_adjust"
-
 
   def _setup_tx_path(self,options):
     print "OPTIONS", options
     self.txpath = transmit_path(options)
-    self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
-#    self.rpc_mgr_tx.add_interface("set_freq_offset",self.txpath.set_freqoff)
-    self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
-    self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
 
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)
 
-      # 1. frame id
-      #self.connect(self.rxpath._id_decoder,(rx_sink,0))
 
-      # 2. channel transfer function
+  def _setup_rpc_manager(self):
+   ## Adding rpc manager for Transmitter
+    self.rpc_mgr_tx = zmqblocks.rpc_manager()
+    self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
+    self.rpc_mgr_tx.start_watcher()
 
+    ## Adding rpc manager for Receiver
+    self.rpc_mgr_rx = zmqblocks.rpc_manager()
+    self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
+    self.rpc_mgr_rx.start_watcher()
+
+    ## Adding interfaces
+    self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
+    self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
+    self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
+    self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+  
 
   def supply_rx_baseband(self):
     ## RX Spectrum
@@ -381,122 +276,10 @@ class ofdm_benchmark (gr.top_block):
     self.rx_baseband = rxs_decimate_rate
     return rxs_decimate_rate
 
-#  def trigger_watch(self):
-#      self.servants.append(corba_ndata_buffer_servant(str(unique_id),
-#        self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
-
 
   def change_freqoff(self,val):
     self.set_freqoff(val[0])
 
-
-
-
-#  def _setup_usrp_sink(self):
-#    """
-#    Creates a USRP sink, determines the settings for best bitrate,
-#    and attaches to the transmitter's subdevice.
-#    """
-#    if self._tx_freq is None:
-#      sys.stderr.write("-f FREQ or --freq FREQ or --tx-freq FREQ must be specified\n")
-#      raise SystemExit
-#
-#    if self._options.usrp2:
-#      self.u = usrp2.sink_32fc(self._interface, self._mac_addr)
-#      self.dst = self.u
-#      print "Using USRP2, as you wish, my master"
-#      print "USRP2 MAC address is %s" % ( self.u.mac_addr() )
-#
-#      self._interp = 100e6 / self._bandwidth / self._interpolation
-#      self.u.set_interp(int(self._interp))
-#    else:
-#      self.u = usrp.sink_s(which=self._which,
-#                           fusb_block_size=self._fusb_block_size,
-#                           fusb_nblocks=self._fusb_nblocks ,
-#                           fpga_filename="std_1rxhb_1txhb.rbf")
-#      self.uc = gr.complex_to_interleaved_short()
-#      self.connect( self.uc, self.u )
-#      self.dst = self.uc
-#      print "USRP serial number is %s" % ( self.u.serial_number() )
-#
-#      print "Using new USRP1 tx chain with halfband filters on FPGA"
-#
-#      self._interp = self.u.dac_rate() / self._bandwidth / self._interpolation
-#      self.u.set_interp_rate(int(self._interp))
-#
-#      # determine the daughterboard subdevice we're using
-#      if self._tx_subdev_spec is None:
-#          self._tx_subdev_spec = usrp.pick_tx_subdevice(self.u)
-#      self.u.set_mux(usrp.determine_tx_mux_value(self.u, self._tx_subdev_spec))
-#      self.subdev = usrp.selected_subdev(self.u, self._tx_subdev_spec)
-#
-#
-#    print "FPGA interpolation",self._interp
-#
-#    # Set center frequency of USRP
-#    ok = self.set_freq(self._tx_freq)
-#    if not ok:
-#      print "Failed to set Tx frequency to %s" % (eng_notation.num_to_str(self._tx_freq),)
-#      raise ValueError
-#
-#    # Set the USRP for maximum transmit gain
-#    # (Note that on the RFX cards this is a nop.)
-#    if self._options.usrp2:
-#      self.set_gain(0.3) # ??????????????????????????????
-#    else:
-#      self.set_gain(self.subdev.gain_range()[1])
-#
-#    print "Starte Strahlenwaffe mit maximaler Leistung"
-#    print "And now, young jedi, you will die !!!"
-#
-##    self.u.enable_detailed_profiling()
-#
-#    if not self._options.usrp2:
-#      self.subdev.set_enable(True)
-#
-#  def set_freq(self, target_freq):
-#    """
-#    Set the center frequency we're interested in.
-#
-#    @param target_freq: frequency in Hz
-#    @rypte: bool
-#
-#    Tuning is a two step process.  First we ask the front-end to
-#    tune as close to the desired frequency as it can.  Then we use
-#    the result of that operation and our target_frequency to
-#    determine the value for the digital up converter.
-#    """
-#    if self._options.usrp2:
-#      r = self.u.set_center_freq(target_freq)
-#    else:
-#      r = self.u.tune(self.subdev.which(), self.subdev, target_freq)
-#    if r:
-#        return True
-#
-#    return False
-#
-#  def set_gain(self, gain):
-#    """
-#    Sets the analog gain in the USRP
-#    """
-#    self.gain = gain
-#    if self._options.usrp2:
-#      self.u.set_gain(gain)
-#    else:
-#      self.subdev.set_gain(gain)
-#
-#  def set_auto_tr(self, enable):
-#    """
-#    Turns on auto transmit/receive of USRP daughterboard (if exits; else ignored)
-#    """
-#    if not self._options.usrp2:
-#      return self.subdev.set_auto_tr(enable)
-#    else:
-#      return True
-#
-#  def __del__(self):
-#    if hasattr(self, "subdev"):
-#      del self.subdev
 
   def _print_verbage(self):
     """
@@ -566,8 +349,8 @@ class ofdm_benchmark (gr.top_block):
 
 #    normal.add_option("-T", "--tx-subdev-spec", type="subdev", default=None,
 #                      help="select USRP Tx side A or B")
-#    expert.add_option("", "--tx-freq", type="eng_float", default=None,
-#                      help="set transmit frequency to FREQ [default=%default]", metavar="FREQ")
+    expert.add_option("", "--tx-freq", type="eng_float", default=None,
+                      help="set transmit frequency to FREQ [default=%default]", metavar="FREQ");
     normal.add_option("", "--measure", action="store_true", default=False,
                       help="enable troughput measure, usrp disabled");
 
@@ -584,7 +367,6 @@ class ofdm_benchmark (gr.top_block):
                       help="Enable multipath channel")
     expert.add_option("", "--itu-channel", action="store_true", default=False,
                       help="Enable itu channel model (ported from itpp)")
-
     expert.add_option("", "--online-work", action="store_true", default=False,
                       help="Force the ofdm transmitter to work during file record [default=%default]")
 #    normal.add_option("", "--from-file", type="string", default=None,

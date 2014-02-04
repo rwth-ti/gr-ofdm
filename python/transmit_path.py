@@ -278,17 +278,12 @@ class transmit_path(gr.hier_block2):
     bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
     samples_per_frame = config.frame_length*config.block_length
     tb = samples_per_frame/bandwidth
-    self.tx_parameters = {'carrier_frequency':0.0/1e9,'fft_size':config.fft_length, 'cp_size':config.cp_length \
+    self.tx_parameters = {'carrier_frequency':options.tx_freq/1e9,'fft_size':config.fft_length, 'cp_size':config.cp_length \
                           , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
                           ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
                           , 'frame_length':config.frame_length  \
                           , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
 
-    ## Creating interface to get Tx paramenters and show them in GUI
-#    self.rpc_mgr_tx.add_interface("get_tx_parameters",self.get_tx_parameters)
-    
-    ## Creating interface to set Tx modulation
-#    self.rpc_mgr_tx.add_interface("set_modulation",self.allocation_src.set_allocation)
     ## Setup Output
     self.connect(amp,self)
 

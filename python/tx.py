@@ -34,28 +34,28 @@ class tx_top_block(gr.top_block):
 
         if options.freqoff is not None:
             freq_off = self.freq_off = channel.freq_offset(options.freqoff )
-            self.connect(txpath, freq_off) 
-            txpath = freq_off
+            self.connect(self.txpath, freq_off) 
+            self.txpath = freq_off
             self.rpc_mgr_tx.add_interface("set_freq_offset",self.freq_off.set_freqoff)
 
 
-        self.connect(txpath, self.sink)
+        self.connect(self.txpath, self.sink)
 
 
-  def _setup_tx_path(self,options):
-    print "OPTIONS", options
-    txpath = self.txpath = transmit_path(options)
+    def _setup_tx_path(self,options):
+        print "OPTIONS", options
+        self.txpath = transmit_path(options)
 
-  def _setup_rpc_manager(self):
-   ## Adding rpc manager for Transmitter
-    self.rpc_mgr_tx = zmqblocks.rpc_manager()
-    self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
-    self.rpc_mgr_tx.start_watcher()
+    def _setup_rpc_manager(self):
+      ## Adding rpc manager for Transmitter
+        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
+        self.rpc_mgr_tx.start_watcher()
 
-    ## Adding interfaces
-    self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
-    self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
-    self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
+       ## Adding interfaces
+        self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
+        self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
+        self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

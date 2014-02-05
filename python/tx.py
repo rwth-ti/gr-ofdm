@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from gnuradio import gr
+from gnuradio import gr, filter
 from gnuradio import eng_notation
 from configparse import OptionParser
 
@@ -29,14 +29,26 @@ class tx_top_block(gr.top_block):
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
 
+
+
         self._setup_tx_path(options)
         self._setup_rpc_manager()
 
         if options.freqoff is not None:
             freq_off = self.freq_off = channel.freq_offset(options.freqoff )
-            self.connect(self.txpath, freq_off) 
+            self.connect(self.txpath, freq_off)
             self.txpath = freq_off
             self.rpc_mgr_tx.add_interface("set_freq_offset",self.freq_off.set_freqoff)
+
+        if options.multipath:
+          if options.itu_channel:
+            self.fad_chan = channel.itpp_channel(options.bandwidth)
+            self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
+          else:
+            self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
+
+          self.connect(self.txpath, self.fad_chan)
+          self.txpath = self.fad_chan
 
 
         self.connect(self.txpath, self.sink)

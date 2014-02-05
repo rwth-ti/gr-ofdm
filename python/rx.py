@@ -8,6 +8,7 @@ from gnuradio import blocks
 from uhd_interface import uhd_receiver
 
 from receive_path import receive_path
+from gr_tools import log_to_file
 
 import os
 import zmqblocks
@@ -29,16 +30,22 @@ class rx_top_block(gr.top_block):
             self.source = blocks.null_source(gr.sizeof_gr_complex)
 
         self.rxpath = receive_path(options)
+        self._setup_rpc_manager()
+
+        log_to_file (self, self.source, "receive_log.compl")
         self.connect(self.source, self.rxpath)
-        ## Adding rpc manager for Receiver
-        self.rpc_mgr_rx = zmqblocks.rpc_manager()
-        self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
-        self.rpc_mgr_rx.start_watcher()
   
         if options.scatterplot:
           print "Scatterplot enabled"
-          self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
 
+    def _setup_rpc_manager(self):
+      ## Adding rpc manager for Receiver
+      self.rpc_mgr_rx = zmqblocks.rpc_manager()
+      self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
+      self.rpc_mgr_rx.start_watcher()
+
+      ## Adding interfaces
+      self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,
@@ -48,9 +55,6 @@ class rx_top_block(gr.top_block):
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)
-
-
-
 
 def main():
     parser = OptionParser(conflict_handler="resolve")

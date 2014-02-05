@@ -342,7 +342,11 @@ class transmit_path(gr.hier_block2):
       help="Enable IMG Transfer mode")
     expert.add_option("", "--freqoff", type="eng_float", default=None,
                help="Simulate frequency offset [default=%default]")
- 
+    expert.add_option("", "--multipath", action="store_true", default=False,
+                      help="Enable multipath channel")
+    expert.add_option("", "--itu-channel", action="store_true", default=False,
+                      help="Enable itu channel model (ported from itpp)")
+
 
   # Make a static method to call before instantiation
   add_options = staticmethod(add_options)

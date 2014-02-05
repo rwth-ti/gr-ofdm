@@ -171,11 +171,10 @@ class ofdm_benchmark (gr.top_block):
       if options.itu_channel:
         self.fad_chan = channel.itpp_channel(options.bandwidth)
         self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
-
       else:
         self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
 
-      self.connect( self.fad_chan, self.dst )
+      self.connect(self.fad_chan, self.dst)
       self.dst = self.fad_chan
 
     if options.samplingoffset is not None:

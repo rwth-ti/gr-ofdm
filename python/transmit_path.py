@@ -304,7 +304,7 @@ class transmit_path(gr.hier_block2):
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
 
-    self.rms = max(0.0, min(ampl, 32767.0))
+    self.rms = max(0.0, min(ampl, 1.0))
     scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
@@ -322,9 +322,9 @@ class transmit_path(gr.hier_block2):
     common_options.add_options(normal,expert)
 
     normal.add_option("-a", "--rms-amplitude",
-                      type="eng_float", default=1000, metavar="AMPL",
+                      type="eng_float", default=0.2, metavar="AMPL",
                       help="set transmitter digital rms amplitude: 0"+
-                           " <= AMPL < 32768 [default=%default]")
+                           " <= AMPL < 1 [default=%default]")
     expert.add_option("", "--cheat", action="store_true",
               default=False,
               help="Enable channel cheating")

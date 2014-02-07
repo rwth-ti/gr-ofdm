@@ -106,6 +106,12 @@ namespace gr {
         zmq::message_t msg(sizeof(d_allocation_struct));
         memcpy((void *)msg.data(), &d_allocation, sizeof(d_allocation_struct));
         d_socket->send(msg);
+         std::cout << "ID DATA " << d_allocation.id  << std::endl;
+        for(int i=0;i<d_allocation.bitloading.size();i++)
+            {
+            std::cout << "TX DATA " << int(d_allocation.bitloading[i]) << std::endl;
+           }
+
     }
 
     void

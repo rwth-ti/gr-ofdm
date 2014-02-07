@@ -105,6 +105,12 @@ namespace gr {
                 // copy message into allocation struct and find id to put into buffer
                 d_allocation_struct rcvd_alloc;
                 rcvd_alloc = *(d_allocation_struct *)msg.data();
+                std::cout << "rcvd_alloc ID !!!! " << rcvd_alloc.id << std::endl;
+                 for(int i=0;i<rcvd_alloc.bitloading.size();i++)
+                    {
+                     std::cout << "RCVD ALLOC DATA " << int(rcvd_alloc.bitloading[i]) << std::endl;
+                     }
+
                 d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
             } else {
                 msg_received = false;
@@ -158,10 +164,12 @@ namespace gr {
         char *out_bitloading = (char *) output_items[1];
         gr_complex *out_power = (gr_complex *) output_items[2];
 
+        std::cout << "in_id DATA " << *in_id << std::endl;
 
         // Receive allocation from Tx
         recv_allocation();
         // set new allocation
+
         set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
         // output
         *out_bitcount = d_bitcount_out;

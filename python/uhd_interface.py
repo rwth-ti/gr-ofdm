@@ -117,6 +117,11 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         gr.hier_block2.__init__(self, "uhd_transmitter",
                                 gr.io_signature(1,1,gr.sizeof_gr_complex),
                                 gr.io_signature(0,0,0))
+        
+        #Make adjustments for usrp1
+        if (args == 'type=usrp1'):
+                args ='fpga=std_1rxhb_1txhb.rbf'
+                bandwidth=(bandwidth/2.0)
 
         # Set up the UHD interface as a transmitter
         uhd_interface.__init__(self, True, args, bandwidth,

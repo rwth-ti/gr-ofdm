@@ -46,12 +46,12 @@ namespace gr {
     {
         std::vector<int> out_sig(3);
         out_sig[0] = sizeof(int);                               // bitcount
-        out_sig[1] = sizeof(char)*subcarriers;                  // bitloading
+        out_sig[1] = sizeof(uint8_t)*subcarriers;                  // bitloading
         out_sig[2] = sizeof(gr_complex)*subcarriers;            // power
         set_output_signature(io_signature::makev(3,3,out_sig));
 
         // generate an initial allocation with id -1
-        std::vector<char> bitloading_vec;
+        std::vector<uint8_t> bitloading_vec;
         std::vector<gr_complex> power_vec;
         // default data modulation scheme is BPSK
         for(int i=0;i<subcarriers;i++)
@@ -102,15 +102,19 @@ namespace gr {
                 // Receive data
                 zmq::message_t msg;
                 d_socket->recv(&msg);
-                // copy message into allocation struct and find id to put into buffer
+                // Convert to string needed by the deserialize_str method
+                std::string msg_str;
+                msg_str.append((char *)msg.data(), msg.size());
+		        // deserialize
+                pmt::pmt_t pmt_tuple = pmt::deserialize_str(msg_str);
+                pmt::pmt_t pmt_id = pmt::tuple_ref(pmt_tuple,0);
+                pmt::pmt_t pmt_bitloading = pmt::tuple_ref(pmt_tuple,1);
+                pmt::pmt_t pmt_power = pmt::tuple_ref(pmt_tuple,2);
+                // copy message into allocation struct and find id to put into buffer                
                 d_allocation_struct rcvd_alloc;
-                rcvd_alloc = *(d_allocation_struct *)msg.data();
-                std::cout << "rcvd_alloc ID !!!! " << rcvd_alloc.id << std::endl;
-                 for(int i=0;i<rcvd_alloc.bitloading.size();i++)
-                    {
-                     std::cout << "RCVD ALLOC DATA " << int(rcvd_alloc.bitloading[i]) << std::endl;
-                     }
-
+                rcvd_alloc.id = (short)pmt::to_long(pmt_id);
+                rcvd_alloc.bitloading = pmt::u8vector_elements(pmt_bitloading);
+                rcvd_alloc.power = pmt::c32vector_elements(pmt_power);
                 d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
             } else {
                 msg_received = false;
@@ -119,7 +123,7 @@ namespace gr {
     }
 
     void
-    allocation_buffer_impl::set_allocation(std::vector<char> bitloading,
+    allocation_buffer_impl::set_allocation(std::vector<uint8_t> bitloading,
                                         std::vector<gr_complex> power)
     {
         // clear and write bitloading output vector
@@ -147,7 +151,7 @@ namespace gr {
         }
 
         int sum_of_elems = 0;
-        for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+        for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
     }
@@ -161,10 +165,8 @@ namespace gr {
     {
         const short *in_id = (const short *) input_items[0];
         int *out_bitcount = (int *) output_items[0];
-        char *out_bitloading = (char *) output_items[1];
+        uint8_t *out_bitloading = (uint8_t *) output_items[1];
         gr_complex *out_power = (gr_complex *) output_items[2];
-
-        std::cout << "in_id DATA " << *in_id << std::endl;
 
         // Receive allocation from Tx
         recv_allocation();
@@ -175,7 +177,7 @@ namespace gr {
         *out_bitcount = d_bitcount_out;
         //FIXME: probably dirty hack
         // output 2 vectors for id and data
-        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(char)*2*d_subcarriers);
+        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(uint8_t)*2*d_subcarriers);
         // output 1 vector for id and the rest for data
         memcpy(out_power, &d_power_out[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
 

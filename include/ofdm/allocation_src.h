@@ -24,6 +24,7 @@
 
 #include <ofdm/api.h>
 #include <gnuradio/sync_block.h>
+#include <stdint.h>
 
 namespace gr {
     namespace ofdm {
@@ -48,7 +49,7 @@ namespace gr {
                  */
                 static sptr make(int subcarriers, int data_symbols, char *address);
 
-                virtual void set_allocation(std::vector<char> bitloading,
+                virtual void set_allocation(std::vector<uint8_t> bitloading,
                                             std::vector<gr_complex> power) = 0;
         };
 

@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "allocation_src_impl.h"
 #include <iostream>
+#include <pmt/pmt.h>
 
 namespace gr {
   namespace ofdm {
@@ -56,12 +57,12 @@ namespace gr {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
-        out_sig[2] = sizeof(char)*subcarriers;                  // bitloading
+        out_sig[2] = sizeof(uint8_t)*subcarriers;                  // bitloading
         out_sig[3] = sizeof(gr_complex)*subcarriers;            // power
         set_output_signature(io_signature::makev(4,4,out_sig));
 
 
-        std::vector<char> bitloading_vec;
+        std::vector<uint8_t> bitloading_vec;
         std::vector<gr_complex> power_vec;
         // default data modulation scheme is BPSK
         for(int i=0;i<subcarriers;i++)
@@ -103,19 +104,24 @@ namespace gr {
     void
     allocation_src_impl::send_allocation()
     {
-        zmq::message_t msg(sizeof(d_allocation_struct));
-        memcpy((void *)msg.data(), &d_allocation, sizeof(d_allocation_struct));
-        d_socket->send(msg);
-         std::cout << "ID DATA " << d_allocation.id  << std::endl;
-        for(int i=0;i<d_allocation.bitloading.size();i++)
-            {
-            std::cout << "TX DATA " << int(d_allocation.bitloading[i]) << std::endl;
-           }
+        // use pmt to serialize allocation struct        
+	    pmt::pmt_t pmt_id, pmt_bitloading, pmt_power;
+	    pmt_id = pmt::from_long(d_allocation.id);
+	    pmt_bitloading = pmt::init_u8vector(d_allocation.bitloading.size(),d_allocation.bitloading);
+	    pmt_power = pmt::init_c32vector(d_allocation.power.size(),d_allocation.power);
+	    pmt::pmt_t pmt_tuple;
+	    pmt_tuple = pmt::make_tuple();
+	    pmt_tuple = pmt::make_tuple(pmt_id, pmt_bitloading, pmt_power);
+	    std::string msg_str = pmt::serialize_str(pmt_tuple);
 
+        // copy to zmq message and send
+        zmq::message_t msg(msg_str.size()+1);
+        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
+        d_socket->send(msg);
     }
 
     void
-    allocation_src_impl::set_allocation(std::vector<char> bitloading,
+    allocation_src_impl::set_allocation(std::vector<uint8_t> bitloading,
                                         std::vector<gr_complex> power)
     {
         gr::thread::scoped_lock guard(d_mutex);
@@ -146,7 +152,7 @@ namespace gr {
         }
 
         int sum_of_elems = 0;
-        for(std::vector<char>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+        for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
     }
@@ -163,7 +169,7 @@ namespace gr {
 
         short *out_id = (short *) output_items[0];
         int *out_bitcount = (int *) output_items[1];
-        char *out_bitloading = (char *) output_items[2];
+        uint8_t *out_bitloading = (uint8_t *) output_items[2];
         gr_complex *out_power = (gr_complex *) output_items[3];
 
         if (noutput_items < (1+d_data_symbols)) {
@@ -179,7 +185,7 @@ namespace gr {
                 //FIXME: probably dirty hack
                 // output 2 vectors for id and data
                 int bl_idx = i*2*d_subcarriers;
-                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(char)*2*d_subcarriers);
+                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*2*d_subcarriers);
                 // output 1 vector for id and the rest for data
                 int p_idx = i*(1+d_data_symbols)*d_subcarriers;
                 memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);

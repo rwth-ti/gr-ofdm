@@ -33,11 +33,11 @@ namespace gr {
             private:
                 struct d_allocation_struct {
                     short id;
-                    std::vector<char> bitloading;
+                    std::vector<uint8_t> bitloading;
                     std::vector<gr_complex> power;
                 };
                 std::vector<d_allocation_struct> d_allocation_buffer;
-                std::vector<char> d_bitloading_out;
+                std::vector<uint8_t> d_bitloading_out;
                 std::vector<gr_complex> d_power_out;
                 int d_bitcount_out;
                 int d_subcarriers;
@@ -46,7 +46,7 @@ namespace gr {
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
-                void set_allocation(std::vector<char> bitloading,
+                void set_allocation(std::vector<uint8_t> bitloading,
                                     std::vector<gr_complex> power);
 
             public:

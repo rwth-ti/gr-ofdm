@@ -24,6 +24,7 @@
 #include <ofdm/allocation_src.h>
 #include <gnuradio/thread/thread.h>
 #include <zmq.hpp>
+#include <stdint.h>
 
 namespace gr {
     namespace ofdm {
@@ -33,7 +34,7 @@ namespace gr {
             private:
                 struct d_allocation_struct {
                     short id;
-                    std::vector<char> bitloading;
+                    std::vector<uint8_t> bitloading;
                     std::vector<gr_complex> power;
                 };
                 // local copy of allocation
@@ -54,7 +55,7 @@ namespace gr {
 
                 void send_allocation();
 
-                void set_allocation(std::vector<char> bitloading,
+                void set_allocation(std::vector<uint8_t> bitloading,
                         std::vector<gr_complex> power);
 
                 // Where all the action really happens

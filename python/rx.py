@@ -32,8 +32,6 @@ class rx_top_block(gr.top_block):
         self.rxpath = receive_path(options)
         self._setup_rpc_manager()
 
-        log_to_file (self, self.source, "receive_log.compl")
-
         self.connect(self.source, self.rxpath)
   
         if options.scatterplot:

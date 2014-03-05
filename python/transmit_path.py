@@ -91,7 +91,7 @@ class transmit_path(gr.hier_block2):
     self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
-        bitloading = 3
+        bitloading = 1
         # id's for frames
         id_vec = range(0,256)
         id_src = blocks.vector_source_s(id_vec,True,1)

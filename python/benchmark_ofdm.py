@@ -186,7 +186,7 @@ class ofdm_benchmark (gr.top_block):
       if options.record:
        log_to_file( self, interp, "data/interp_out.compl" )
 
-    tmm =blocks.throttle(gr.sizeof_gr_complex,1e5)
+    tmm =blocks.throttle(gr.sizeof_gr_complex,1e6)
     self.connect( tmm, self.dst )
     self.dst = tmm
     if options.force_tx_filter:

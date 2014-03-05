@@ -325,7 +325,7 @@ class receive_path(gr.hier_block2):
 
     ## Allocation Control
     if options.static_allocation: #DEBUG
-        bitloading = 3
+        bitloading = 1
         bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
         self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
@@ -347,11 +347,6 @@ class receive_path(gr.hier_block2):
         log_to_file(self, bitloading_src, "data/bitloading_src_rx.char")
         log_to_file(self, power_src, "data/power_src_rx.cmplx")
         log_to_file(self, self.id_dec, "data/id_dec_rx.short")
-
-    log_to_file(self, bitloading_src, "receiver_bitloading.char")
-    log_to_file(self, self.bitcount_src, "receiver_bitcount_src.int")
-    log_to_file(self, power_src, "receiver_power_src.cmplx")
-    log_to_file(self, self.id_dec, "receiver_id_dec.short")
 
     ## Power Deallocator
     pda = self._power_deallocator = power_deallocator(dsubc)

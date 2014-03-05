@@ -318,7 +318,7 @@ class ofdm_benchmark (gr.top_block):
 
 #    normal.add_option("-T", "--tx-subdev-spec", type="subdev", default=None,
 #                      help="select USRP Tx side A or B")
-    expert.add_option("", "--tx-freq", type="eng_float", default=None,
+    expert.add_option("", "--tx-freq", type="eng_float", default=0.0,
                       help="set transmit frequency to FREQ [default=%default]", metavar="FREQ");
     normal.add_option("", "--measure", action="store_true", default=False,
                       help="enable troughput measure, usrp disabled");

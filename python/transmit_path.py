@@ -109,7 +109,7 @@ class transmit_path(gr.hier_block2):
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
-        self.allocation_src.set_allocation([0]*(config.data_subcarriers/2)+[3]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
+        #self.allocation_src.set_allocation([0]*(config.data_subcarriers/2)+[3]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
         id_src = (self.allocation_src,0)
         bitcount_src = (self.allocation_src,1)
         bitloading_src = (self.allocation_src,2)
@@ -126,9 +126,11 @@ class transmit_path(gr.hier_block2):
     ## GUI probe output
     zmq_probe_bitloading = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
     # also skip ID symbol bitloading with keep_one_in_n (side effect)
-    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,8), zmq_probe_bitloading)
+    # factor 2 for bitloading because we have two vectors per frame, one for id symbol and one for all payload/data symbols
+    # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
+    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
     zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
-    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,4), blocks.complex_to_real(dsubc), zmq_probe_power)
+    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,config.frame_data_part*40), blocks.complex_to_real(dsubc), zmq_probe_power)
 
     ## Workaround to avoid periodic structure
     seed(1)

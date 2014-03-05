@@ -116,7 +116,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     freq_offset = lms_fir
     
     self.zmq_probe_freqoff = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5557")
-    self.connect(lms_fir, blocks.keep_one_in_n(gr.sizeof_float,2) ,self.zmq_probe_freqoff)
+    self.connect(lms_fir, blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_freqoff)
     
     #log_to_file(self, lms_fir, "data/lms_fir.float")
     

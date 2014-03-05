@@ -179,20 +179,22 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.update_tx_params()
 
     def slide_amplitude(self, amplitude):
-        self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
+        displayed_amplitude = amplitude/10000.0
+        self.gui.lineEditAmplitude.setText(QtCore.QString.number(displayed_amplitude,'f',4))
         self.amplitude = amplitude
-        self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
+        self.rpc_mgr_tx.request("set_amplitude",[displayed_amplitude])
 
     def edit_amplitude(self):
-        amplitude = self.lineEditAmplitude.text().toInt()[0]
-        amplitude = min(amplitude,10000)
-        amplitude = max(amplitude,0)
+        amplitude = self.lineEditAmplitude.text().toFloat()[0]
+        amplitude = min(amplitude,1.0)
+        amplitude = max(amplitude,0.0)
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
+        self.amplitude = amplitude
         # block signals to avoid feedback loop
         self.gui.horizontalSliderAmplitude.blockSignals(True)
-        self.gui.horizontalSliderAmplitude.setValue(amplitude)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderAmplitude.setValue(amplitude*10000.0)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
-        self.amplitude = amplitude
         self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
 
     def slide_freq_offset(self, offset):

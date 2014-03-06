@@ -110,7 +110,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.curve_csi.setStyle(Qwt.QwtPlotCurve.Steps)
         self.curve_csi.attach(self.gui.qwtPlotCSI)
 
-        self.gui.qwtPlotScatter.setTitle("Scatterplot")
+        self.gui.qwtPlotScatter.setTitle("Scatterplot (Subcarrier -99)")
         self.gui.qwtPlotScatter.setAxisTitle(Qwt.QwtPlot.xBottom, "I")
         self.gui.qwtPlotScatter.setAxisTitle(Qwt.QwtPlot.yLeft, "Q")
         self.gui.qwtPlotScatter.setAxisScale(Qwt.QwtPlot.xBottom, -1.5, 1.5)
@@ -218,7 +218,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_tx.request("set_freq_offset",[self.freq_offset])
 
     def subcarrier_selected(self, point):
-        subcarrier = int(point.x()+99)
+        subcarrier = int(point.x())
         titlestring = "Scatterplot (Subcarrier " + str(subcarrier) + ")"
         self.gui.qwtPlotScatter.setTitle(titlestring)
         self.rpc_mgr_rx.request("set_scatter_subcarrier",[subcarrier])

@@ -148,9 +148,9 @@ class transmit_path(gr.hier_block2):
     # also skip ID symbol bitloading with keep_one_in_n (side effect)
     # factor 2 for bitloading because we have two vectors per frame, one for id symbol and one for all payload/data symbols
     # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
-    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
+    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,int(2*40*options.bandwidth/1e6)), zmq_probe_bitloading)
     zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
-    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,config.frame_data_part*40), blocks.complex_to_real(dsubc), zmq_probe_power)
+    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,config.frame_data_part*int(40*options.bandwidth/1e6)), blocks.complex_to_real(dsubc), zmq_probe_power)
 
     ## Workaround to avoid periodic structure
     seed(1)

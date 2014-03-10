@@ -39,13 +39,24 @@ gr-ofdm folder do
 
 to run the simulation or
 
-    ./run_usrp_tx_gui.sh
+    ./run_app.sh ../python/tx.py -f2.45G
 
 And
 
-    ./run_usrp_rx_gui.sh
+    ./run_app.sh ../python/rx.py -f2.45G --disable-ctf-enhancer
 
-To run the rf transmission
+
+to run the rf transmission.
+Then to oberserve everything in th graphical user interface:
+
+    ./run_app.sh gui/ofdm_tx_gui.py
+
+and
+
+    ./run_app.sh gui/ofdm_rx_gui.py --tx-hostname=<hostname>
+
+be careful with the frequency offset of you radio frontend. It might be
+necessary to apply a small manual correction of a few kHz.
 
 
 Copyright information

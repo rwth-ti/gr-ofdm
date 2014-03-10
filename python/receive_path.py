@@ -1045,7 +1045,7 @@ class receive_path(gr.hier_block2):
     ofdm_inner_receiver.add_options( normal, expert )
 
     expert.add_option("", "--ber-window",
-      type="intx", default=1e6,
+      type="intx", default=50000,
       help="window size for BER measurement")
 
     normal.add_option("", "--img",

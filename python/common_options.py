@@ -27,13 +27,13 @@ def add_options(normal,expert):
     def_data_blocks_per_frame = 9
     expert.add_option("", "--data-blocks", type="int", default=def_data_blocks_per_frame,
             help="set the number of data blocks per ofdm frame [default=%default]")
-    normal.add_option("", "--fft-length", type="int", default=512,
+    normal.add_option("", "--fft-length", type="int", default=256,
             help="set the number of FFT bins [default=%default]")
-    expert.add_option("", "--subcarriers", type="int", default=None,
+    expert.add_option("", "--subcarriers", type="int", default=200,
             help="set the number of occupied FFT bins. Default: fft window size - Pilot Subcarriers")
     expert.add_option("", "--cp-length", type="int", default=None,
             help="set the number of bits in the cyclic prefix. Default: 12.5% of fft window size")
-    expert.add_option("", "--bandwidth", type="eng_float", default='500k',
+    expert.add_option("", "--bandwidth", type="eng_float", default='1M',
             help="set total bandwidth. [default=%default]")
     expert.add_option("", "--tx-hostname", type="string", default="localhost",
             help="Set Tx hostname for zeromq")

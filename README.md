@@ -43,7 +43,7 @@ to run the simulation or
 
 And
 
-    ./run_app.sh ../python/rx.py -f2.45G --disable-ctf-enhancer
+    ./run_app.sh ../python/rx.py -f2.45G --disable-ctf-enhancer --scatterplot
 
 
 to run the rf transmission.

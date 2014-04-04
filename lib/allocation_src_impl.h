@@ -35,7 +35,7 @@ namespace gr {
         {
             private:
                 struct d_allocation_struct {
-                    short id;
+                    uint8_t id;
                     std::vector<uint8_t> bitloading;
                     std::vector<gr_complex> power;
                 };

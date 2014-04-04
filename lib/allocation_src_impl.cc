@@ -106,20 +106,34 @@ namespace gr {
     void
     allocation_src_impl::send_allocation()
     {
-        // use pmt to serialize allocation struct        
-	    pmt::pmt_t pmt_id, pmt_bitloading, pmt_power;
-	    pmt_id = pmt::from_long(d_allocation.id);
-	    pmt_bitloading = pmt::init_u8vector(d_allocation.bitloading.size(),d_allocation.bitloading);
-	    pmt_power = pmt::init_c32vector(d_allocation.power.size(),d_allocation.power);
-	    pmt::pmt_t pmt_tuple;
-	    pmt_tuple = pmt::make_tuple();
-	    pmt_tuple = pmt::make_tuple(pmt_id, pmt_bitloading, pmt_power);
-	    std::string msg_str = pmt::serialize_str(pmt_tuple);
+//        // use pmt to serialize allocation struct
+//        pmt::pmt_t pmt_id, pmt_bitloading, pmt_power;
+//        pmt_id = pmt::from_long(d_allocation.id);
+//        pmt_bitloading = pmt::init_u8vector(d_allocation.bitloading.size(),d_allocation.bitloading);
+//        pmt_power = pmt::init_c32vector(d_allocation.power.size(),d_allocation.power);
+//        pmt::pmt_t pmt_tuple;
+//        pmt_tuple = pmt::make_tuple();
+//        pmt_tuple = pmt::make_tuple(pmt_id, pmt_bitloading, pmt_power);
+//        std::string msg_str = pmt::serialize_str(pmt_tuple);
+//
+//        // copy to zmq message and send
+//        zmq::message_t msg(msg_str.size()+1);
+//        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
 
-        // copy to zmq message and send
-        zmq::message_t msg(msg_str.size()+1);
-        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
-        d_socket->send(msg);
+        zmq::message_t msg(sizeof(d_allocation.id)
+                           + d_subcarriers*sizeof(d_allocation.bitloading[0])
+                           + d_subcarriers*sizeof(d_allocation.power[0]));
+        memcpy(msg.data(), &d_allocation.id, sizeof(d_allocation.id));
+        memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id),
+                                 &d_allocation.bitloading[0],
+                                 d_subcarriers*sizeof(d_allocation.bitloading[0]));
+//        memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id)+d_subcarriers*sizeof(d_allocation.bitloading[0]),
+//                                 &d_allocation.power[0],
+//                                 d_subcarriers*sizeof(d_allocation.power[0]));
+        memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id)+d_subcarriers*sizeof(d_allocation.bitloading[0]),
+                                 &d_allocation.power[0],
+                                 5*sizeof(d_allocation.power[0]));
+        d_socket->send(msg, ZMQ_NOBLOCK);
     }
 
     void

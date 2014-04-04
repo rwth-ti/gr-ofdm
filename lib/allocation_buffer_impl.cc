@@ -104,20 +104,46 @@ namespace gr {
                 // Receive data
                 zmq::message_t msg;
                 d_socket->recv(&msg);
-                // Convert to string needed by the deserialize_str method
-                std::string msg_str;
-                msg_str.append((char *)msg.data(), msg.size());
-		        // deserialize
-                pmt::pmt_t pmt_tuple = pmt::deserialize_str(msg_str);
-                pmt::pmt_t pmt_id = pmt::tuple_ref(pmt_tuple,0);
-                pmt::pmt_t pmt_bitloading = pmt::tuple_ref(pmt_tuple,1);
-                pmt::pmt_t pmt_power = pmt::tuple_ref(pmt_tuple,2);
-                // copy message into allocation struct and find id to put into buffer                
+//                // Convert to string needed by the deserialize_str method
+//                std::string msg_str;
+//                msg_str.append((char *)msg.data(), msg.size());
+//                // deserialize
+//                pmt::pmt_t pmt_tuple = pmt::deserialize_str(msg_str);
+//                pmt::pmt_t pmt_id = pmt::tuple_ref(pmt_tuple,0);
+//                pmt::pmt_t pmt_bitloading = pmt::tuple_ref(pmt_tuple,1);
+//                pmt::pmt_t pmt_power = pmt::tuple_ref(pmt_tuple,2);
+//                // copy message into allocation struct and find id to put into buffer
+//                d_allocation_struct rcvd_alloc;
+//                rcvd_alloc.id = (short)pmt::to_long(pmt_id);
+//                rcvd_alloc.bitloading = pmt::u8vector_elements(pmt_bitloading);
+//                rcvd_alloc.power = pmt::c32vector_elements(pmt_power);
+//                d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
+
+                // copy message into allocation struct and find id to put into buffer
                 d_allocation_struct rcvd_alloc;
-                rcvd_alloc.id = (short)pmt::to_long(pmt_id);
-                rcvd_alloc.bitloading = pmt::u8vector_elements(pmt_bitloading);
-                rcvd_alloc.power = pmt::c32vector_elements(pmt_power);
-                d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
+                rcvd_alloc.id = *(uint8_t*)msg.data(); //FIXME
+                rcvd_alloc.bitloading.assign((uint8_t*)msg.data()
+                                                              +sizeof(rcvd_alloc.id),
+                                                              (uint8_t*)msg.data()
+                                                              +sizeof(rcvd_alloc.id)
+                                                              +d_subcarriers*sizeof(rcvd_alloc.bitloading[0]));
+                rcvd_alloc.power.assign((gr_complex*)((uint8_t*)msg.data()
+                                                             +sizeof(rcvd_alloc.id)
+                                                             +d_subcarriers*sizeof(rcvd_alloc.bitloading[0])),
+                                                             (gr_complex*)((uint8_t*)msg.data()
+                                                             +sizeof(rcvd_alloc.id)
+                                                             +d_subcarriers*sizeof(rcvd_alloc.bitloading[0])
+                                                             +d_subcarriers*sizeof(rcvd_alloc.power[0])));
+                std::cout << "AAAAAAAAAAAA " << (int)rcvd_alloc.id << std::endl;
+                for(int i=0;i<d_subcarriers;i++) {
+                    std::cout << (int)rcvd_alloc.bitloading[i] << " ";
+                }
+                for(int i=0;i<d_subcarriers;i++) {
+                    std::cout << (gr_complex)rcvd_alloc.power[i] << " ";
+                }
+
+                //d_allocation_buffer[rcvd_alloc.id] = rcvd_alloc;
+
             } else {
                 msg_received = false;
             }

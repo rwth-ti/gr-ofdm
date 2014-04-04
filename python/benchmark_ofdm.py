@@ -153,7 +153,8 @@ class ofdm_benchmark (gr.top_block):
 
       print " Noise St. Dev. %d" % (noise_sigma)
       awgn_chan = blocks.add_cc()
-      awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
+      #awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
+      awgn_noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma, 0, 8192)
       self.connect( awgn_noise_src, (awgn_chan,1) )
       self.connect( awgn_chan, self.dst )
       self.dst = awgn_chan

@@ -106,7 +106,7 @@ namespace gr {
     void
     allocation_src_impl::send_allocation()
     {
-//        // use pmt to serialize allocation struct
+        // use pmt to serialize allocation struct (this is VERY slow)
 //        pmt::pmt_t pmt_id, pmt_bitloading, pmt_power;
 //        pmt_id = pmt::from_long(d_allocation.id);
 //        pmt_bitloading = pmt::init_u8vector(d_allocation.bitloading.size(),d_allocation.bitloading);
@@ -120,6 +120,7 @@ namespace gr {
 //        zmq::message_t msg(msg_str.size()+1);
 //        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
 
+        // just write datagram to message with raw copying (much faster)
         zmq::message_t msg(sizeof(d_allocation.id)
                            + d_subcarriers*sizeof(d_allocation.bitloading[0])
                            + d_subcarriers*sizeof(d_allocation.power[0]));
@@ -127,12 +128,9 @@ namespace gr {
         memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id),
                                  &d_allocation.bitloading[0],
                                  d_subcarriers*sizeof(d_allocation.bitloading[0]));
-//        memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id)+d_subcarriers*sizeof(d_allocation.bitloading[0]),
-//                                 &d_allocation.power[0],
-//                                 d_subcarriers*sizeof(d_allocation.power[0]));
         memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id)+d_subcarriers*sizeof(d_allocation.bitloading[0]),
                                  &d_allocation.power[0],
-                                 5*sizeof(d_allocation.power[0]));
+                                 d_subcarriers*sizeof(d_allocation.power[0]));
         d_socket->send(msg, ZMQ_NOBLOCK);
     }
 

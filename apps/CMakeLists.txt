@@ -21,5 +21,16 @@ include(GrPython)
 
 GR_PYTHON_INSTALL(
     PROGRAMS
+    run_app.sh
+    run_benchmark_gui.sh
+    run_benchmark.sh
+    run_usrp_rx_gui.sh
+    run_usrp_rx.sh
+    run_usrp_tx_gui.sh
+    run_usrp_tx.sh
+    gui/ofdm_rx_gui.py
+    gui/ofdm_rx_gui_window.ui
+    gui/ofdm_tx_gui.py
+    gui/ofdm_tx_gui_window.ui
     DESTINATION bin
 )

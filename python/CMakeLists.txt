@@ -35,6 +35,30 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    test_channel_estimator.py
+    autocorrelator.py
+    benchmark_ofdm.py
+    channel.py
+    common_options.py
+    configparse.py
+    delaylines.py
+    file_psd.py
+    fusb_options.py
+    gr_tools.py
+    moms_general.py
+    moms.py
+    morelli.py
+    ofdm_receiver2.py
+    ofdm_receiver.py
+    preambles.py
+    receive_path.py
+    rx.py
+    schmidl.py
+    snr_estimator.py
+    station_configuration.py
+    transmit_path2.py
+    transmit_path.py
+    tx.py
+    uhd_interface.py
+    vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm
 )

@@ -21,7 +21,7 @@
 #
 
 from gnuradio import eng_notation
-from gnuradio import gr, blocks, analog
+from gnuradio import gr, blocks, analog, filter
 from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
@@ -129,13 +129,15 @@ class transmit_path(gr.hier_block2):
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
-        #self.allocation_src.set_allocation([0]*(config.data_subcarriers/2)+[3]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
         id_src = (self.allocation_src,0)
         bitcount_src = (self.allocation_src,1)
         bitloading_src = (self.allocation_src,2)
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
+
+    if options.lab_special_case:
+        self.allocation_src.set_allocation([0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4),[1]*config.data_subcarriers)
 
     if options.log:
         log_to_file(self, id_src, "data/id_src.short")
@@ -276,14 +278,6 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, cp, "data/cp_out.compl")
 
-    if options.cheat:
-      ## Artificial Channel
-      # kept to compare with previous system
-      achan_ir = [1.0]+[0.0]*(config.cp_length-1)
-      achan = self._artificial_channel = gr.fir_filter_ccc(1,achan_ir)
-      self.connect( lastblock, achan )
-      lastblock = achan
-
     ## Digital Amplifier
     #amp = self._amplifier = gr.multiply_const_cc(1)
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
@@ -347,9 +341,6 @@ class transmit_path(gr.hier_block2):
                       type="eng_float", default=0.2, metavar="AMPL",
                       help="set transmitter digital rms amplitude: 0.0 "+
                            "<= AMPL < 1.0 [default=%default]")
-    expert.add_option("", "--cheat", action="store_true",
-              default=False,
-              help="Enable channel cheating")
     normal.add_option(
       "", "--img", type="string",
       default="ratatouille.bmp",
@@ -364,10 +355,8 @@ class transmit_path(gr.hier_block2):
       help="Enable IMG Transfer mode")
     expert.add_option("", "--freqoff", type="eng_float", default=None,
                help="Simulate frequency offset [default=%default]")
-    expert.add_option("", "--multipath", action="store_true", default=False,
-                      help="Enable multipath channel")
-    expert.add_option("", "--itu-channel", action="store_true", default=False,
-                      help="Enable itu channel model (ported from itpp)")
+    expert.add_option('', '--lab-special-case', action='store_true', default=False,
+                      help='For lab exercise, use only half of the subcarriers and multipath')
 
 
   # Make a static method to call before instantiation

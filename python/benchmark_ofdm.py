@@ -173,7 +173,9 @@ class ofdm_benchmark (gr.top_block):
         self.fad_chan = channel.itpp_channel(options.bandwidth)
         self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
       else:
-        self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
+        #self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
+        # filter coefficients for the lab exercise
+        self.fad_chan = filter.fir_filter_ccc(1,[0,0,0.3267,0.8868,0.3267])
 
       self.connect(self.fad_chan, self.dst)
       self.dst = self.fad_chan
@@ -200,9 +202,6 @@ class ofdm_benchmark (gr.top_block):
 
     if options.scatterplot:
       print "Scatterplot enabled"
-
-    if options.cheat:
-      self.txpath.enable_channel_cheating("channelcheat")
 
     self.connect( self.txpath,self.dst )
 

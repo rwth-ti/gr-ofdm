@@ -236,7 +236,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         subcarrier = int(point.x())
         titlestring = "Scatterplot (Subcarrier " + str(subcarrier) + ")"
         self.gui.qwtPlotScatter.setTitle(titlestring)
-        self.rpc_mgr_rx.request("set_scatter_subcarrier",[subcarrier])
+        # Don't send negative subcarrier number!
+        self.rpc_mgr_rx.request("set_scatter_subcarrier",[subcarrier+100])
 
     def set_channel_profile(self, profile):
         self.rpc_mgr_tx.request("set_channel_profile",[str(profile)])

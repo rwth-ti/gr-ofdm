@@ -1,0 +1,27 @@
+{ "tests": [
+    {
+        "module": "bm_pskmod",
+        "testname": "bm_pskmod",
+        "nitems": 100000,
+        "iters": 10
+    },
+
+    {"module": "bm_pskdemod",
+     "testname": "bm_pskdemod",
+     "nitems": 100000,
+     "iters": 10
+    },
+
+    {"module": "bm_noise",
+     "testname": "bm_noise",
+     "nitems": 10000,
+     "iters": 100
+     },
+
+    {"module": "bm_sig_source",
+     "testname": "bm_sig_source",
+     "nitems": 1000000,
+     "iters": 100
+    }
+]
+}

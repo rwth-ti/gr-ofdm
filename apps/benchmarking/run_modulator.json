@@ -1,0 +1,11 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+    {
+        "module": "bm_modulator",
+        "testname": "bm_modulator",
+        "nitems": 5000,
+        "iters": 100
+    }
+]
+}

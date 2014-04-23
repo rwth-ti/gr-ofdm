@@ -48,6 +48,7 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(int vlen);
+      virtual std::vector<gr_complex> get_constellation( int bits ) = 0;
     };
 
   } // namespace ofdm

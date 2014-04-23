@@ -1,0 +1,16 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+    {
+        "module": "bm_pskmod",
+        "testname": "bm_pskmod",
+        "nitems": 100000,
+        "iters": 100
+    },
+    {"module": "bm_pskdemod",
+     "testname": "bm_pskdemod",
+     "nitems": 100000,
+     "iters": 100
+    }
+]
+}

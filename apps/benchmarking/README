@@ -1,0 +1,23 @@
+
+gr-benchmark
+  a performance measurement tool for GNU Radio
+
+* Requirements
+gr-benchmark is intended to be used with GNU Radio 3.7.2.1 or later
+volk_profile output must match the new-style formatting
+
+* Downloading
+git clone https://github.com/osh/gr-benchmark.git
+or 
+./pybombs install gr-benchmark
+
+* Running the benchmark
+cd gr-benchmark
+./gr_profiler.py
+or
+./gr_profiler.py -s  #(to submit results to stats.gnuradio.org)
+
+# Results/Analysis
+Compare results at
+http://stats.gnuradio.org
+

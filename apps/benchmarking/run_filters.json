@@ -1,0 +1,26 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+    {
+        "module": "bm_fir_filters",
+        "testname": "fir_filters_equal",
+        "nitems": 100000,
+        "iters": 50,
+        "kwargs": {
+            "mfirs": 8,
+            "ntaps": 10000
+        }
+    },
+    {
+        "module": "bm_fir_filters",
+        "testname": "fir_filters_nonequal",
+        "nitems": 100000,
+        "iters": 50,
+        "kwargs": {
+            "mfirs": 8,
+            "ntaps": 10000,
+            "mult": 10
+        }
+    }
+]
+}

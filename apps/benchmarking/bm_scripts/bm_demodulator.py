@@ -2,7 +2,7 @@
 
 from gnuradio import gr, blocks, digital, analog
 import random, numpy
-from random import randint
+from random import randint, random
 from ofdm import generic_demapper_vcb, symbol_random_src
 
 class bm_demodulator:
@@ -15,8 +15,8 @@ class bm_demodulator:
         
 
         # Generate some random bits
-        rndm = random.Random()
-        rndm.seed(0)
+        #rndm = random.Random()
+        #rndm.seed(0)
         self.coding = 0
         
 
@@ -34,7 +34,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -67,7 +67,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -101,7 +101,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -135,7 +135,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -169,7 +169,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -203,7 +203,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -237,7 +237,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         
@@ -272,7 +272,7 @@ class bm_demodulator:
         assert( len( const ) == 2**self.nobits )
                
     
-        self.bitdata = [randint(0,2)*2-2 for i in range(self.blks*self.data_subcarriers)]
+        self.bitdata = [random()+1j*random() for i in range(self.blks*self.data_subcarriers)]
         self.src = blocks.vector_source_c(self.bitdata,False, self.data_subcarriers)
         #self.src = symbol_random_src( const, self.data_subcarriers )
         

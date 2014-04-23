@@ -26,20 +26,28 @@ if(NOT PYTHONINTERP_FOUND)
 endif()
 
 ########################################################################
-# Include ofdm_ti_idl
-########################################################################
-
-########################################################################
 # Install python sources
 ########################################################################
+GR_PYTHON_INSTALL(
+    PROGRAMS
+    benchmark_ofdm.py
+    rx.py
+    tx.py
+    DESTINATION bin
+)
+
+GR_PYTHON_INSTALL(
+    FILES
+    configparse.py
+    DESTINATION ${GR_PYTHON_DIR}
+)
+
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
     autocorrelator.py
-    benchmark_ofdm.py
     channel.py
     common_options.py
-    configparse.py
     delaylines.py
     file_psd.py
     fusb_options.py
@@ -51,13 +59,11 @@ GR_PYTHON_INSTALL(
     ofdm_receiver.py
     preambles.py
     receive_path.py
-    rx.py
     schmidl.py
     snr_estimator.py
     station_configuration.py
     transmit_path2.py
     transmit_path.py
-    tx.py
     uhd_interface.py
     vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm

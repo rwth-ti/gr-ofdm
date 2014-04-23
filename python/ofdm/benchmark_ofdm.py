@@ -423,13 +423,13 @@ def main():
 
   try:
 
-    string_benchmark = runtime.dot_graph()
-
-    filetx = os.path.expanduser('~/omnilog/benchmark_ofdm.dot')
-    filetx = os.path.expanduser('benchmark_ofdm.dot')
-    dot_file = open(filetx,'w')
-    dot_file.write(string_benchmark)
-    dot_file.close()
+    if options.dot_graph:
+      string_benchmark = runtime.dot_graph()
+      filetx = os.path.expanduser('~/omnilog/benchmark_ofdm.dot')
+      filetx = os.path.expanduser('benchmark_ofdm.dot')
+      dot_file = open(filetx,'w')
+      dot_file.write(string_benchmark)
+      dot_file.close()
 
     runtime.run()
     try:

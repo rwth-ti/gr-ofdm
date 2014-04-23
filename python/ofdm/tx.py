@@ -112,12 +112,13 @@ def main():
 
     tb = tx_top_block(options)
 
-    # write a dot graph of the flowgraph to file
-    dot_str = tb.dot_graph()
-    file_str = os.path.expanduser('tx_ofdm.dot')
-    dot_file = open(file_str,'w')
-    dot_file.write(dot_str)
-    dot_file.close()
+    if options.dot_graph:
+        # write a dot graph of the flowgraph to file
+        dot_str = tb.dot_graph()
+        file_str = os.path.expanduser('tx_ofdm.dot')
+        dot_file = open(file_str,'w')
+        dot_file.write(dot_str)
+        dot_file.close()
 
     try:
         tb.run()

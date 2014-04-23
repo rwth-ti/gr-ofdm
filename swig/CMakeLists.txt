@@ -47,9 +47,6 @@ GR_SWIG_MAKE(ofdm_swig ofdm_swig.i)
 # Install the build swig module
 ########################################################################
 GR_SWIG_INSTALL(TARGETS ofdm_swig DESTINATION ${GR_PYTHON_DIR}/ofdm)
-add_custom_command( TARGET _ofdm_swig POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/ofdm_swig.py ${CMAKE_CURRENT_BINARY_DIR}/ofdm.py
-) 
 
 ########################################################################
 # Install swig .i files for development

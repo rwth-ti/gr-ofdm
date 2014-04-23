@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=ti-icon.png
+Name=task_1_usrp_rx
+Exec=usrp2_rx.sh

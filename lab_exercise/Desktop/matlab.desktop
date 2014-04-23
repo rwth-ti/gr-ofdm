@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=matlab-icon.png
+Name=Matlab
+Exec=start_matlab.sh

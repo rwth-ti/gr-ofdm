@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon=ti-icon.png
+Name=usrp_fft
+Exec=usrp2_fft.py -e eth1

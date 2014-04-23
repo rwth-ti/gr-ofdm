@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon=ti-icon.png
+Name=print_results
+Exec=print_results.sh

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Terminal=false
+Terminal=true
 Icon=ti-icon.png
 Name=task_3_system_simulation_case_1
-Exec=task_3_system_simulation_case_1.sh
+Exec=/opt/lab-ofdm/gr-ofdm/bin/run_benchmark_gui.sh --multipath

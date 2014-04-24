@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon.png
 Name=print_results
-Exec=print_results.sh
+Exec=shell_scripts/print_results.sh

@@ -4,4 +4,4 @@ Type=Application
 Terminal=false
 Icon=matlab-icon.png
 Name=Matlab
-Exec=start_matlab.sh
+Exec=shell_scripts/start_matlab.sh

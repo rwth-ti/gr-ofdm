@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Terminal=false
+Terminal=true
 Icon=ti-icon.png
 Name=task_4_system_simulation
-Exec=task_4_system_simulation.sh
+Exec=/opt/lab-ofdm/gr-ofdm/bin/run_benchmark_gui.sh --disable-freq-sync

@@ -67,4 +67,4 @@ legend('show');
 set(legend1,'Position',[0.2 0.7 0.1615 0.07309]);
 grid on;
 
-saveas(figure1,'~/lab_ofdm_sdr/latex/exercise_3', 'epsc');
+saveas(figure1,'~/latex/exercise_3', 'epsc');

@@ -97,7 +97,7 @@ annotation(figure10,'textbox','String',{'BPSK on','200 occupied carriers'},...
  xlabel('Occupied bandwidth [MHz]');
  ylabel('BER');
  grid on;
- saveas(figure10,'~/lab_ofdm_sdr/latex/exercise_2', 'epsc');
+ saveas(figure10,'~/latex/exercise_2', 'epsc');
  
  
  

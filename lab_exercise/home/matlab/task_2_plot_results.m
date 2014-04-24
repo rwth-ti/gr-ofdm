@@ -153,5 +153,5 @@ grid on;
 set(figure1,'OuterPosition',pos1);
 set(figure2,'OuterPosition',pos2);
 
-saveas(figure2,'~/lab_ofdm_sdr/latex/exercise_12', 'epsc');
-saveas(figure1,'~/lab_ofdm_sdr/latex/exercise_11', 'epsc');
+saveas(figure2,'~/latex/exercise_12', 'epsc');
+saveas(figure1,'~/latex/exercise_11', 'epsc');

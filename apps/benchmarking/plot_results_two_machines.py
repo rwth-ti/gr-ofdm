@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
 width = 0.2
-params = {'legend.fontsize': 14}
+params = {'legend.fontsize': 12}
 plt.rcParams.update(params)
 #plt.rc('legend', labelsize=8) 
 
@@ -68,9 +68,10 @@ class plotter:
                       capsize=5, color='b', alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
         self.sp1.set_title(self.title, fontsize=22, fontweight='bold')
         self.sp1.set_xlabel("Time (us)", fontsize=16, fontweight='bold')
-        self.sp1.set_yticks(self.mins_x+width)
+        self.sp1.set_yticks(self.mins_x+2*width)
         self.sp1.set_yticklabels(self.labels, fontweight='bold')
         self.sp1.legend()
+        self.sp1.set_xlim([0,11])
         
         #Adding second plot
         self.title_2 = self.extract_title(test_3)
@@ -105,10 +106,11 @@ class plotter:
         self.sp2.barh(self.avgs_x_2, self.pt_avgs_2, height=width,xerr=self.pt_stddev_2,ecolor='c', 
                       capsize=5, color='b', alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
         self.sp2.set_title(self.title_2, fontsize=22, fontweight='bold')
-        self.sp2.set_xlabel("Time (us)", fontsize=16, fontweight='bold')
-        self.sp2.set_yticks(self.mins_x+width)
+        self.sp2.set_xlabel("Time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        self.sp2.set_yticks(self.mins_x+2*width)
         self.sp2.set_yticklabels(self.labels, fontweight='bold')
         self.sp2.legend()
+        self.sp2.set_xlim([0,11])
         
         """
         self.sp2 = self.fig.add_subplot(1,2,2)

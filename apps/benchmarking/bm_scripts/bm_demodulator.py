@@ -21,7 +21,8 @@ class bm_demodulator:
         
 
 
-    def setup_BPSK(self):
+    def setup_test07(self):
+        print "... benchmarking BPSK demapper"
         self.nobits = 1
         self.data_subcarriers = 200
         
@@ -50,11 +51,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
-    def run_BPSK(self):
+    def run_test07(self):
         self.src.rewind()
         self.tb.run()
     
-    def setup_QPSK(self):
+    def setup_test06(self):
+        print "... benchmarking QPSK demapper"
         self.nobits = 2
         self.data_subcarriers = 200
         
@@ -84,11 +86,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_QPSK(self):
+    def run_test06(self):
         self.src.rewind()
         self.tb.run()
         
-    def setup_8_PSK(self):
+    def setup_test05(self):
+        print "... benchmarking 8-PSK demapper"
         self.nobits = 4
         self.data_subcarriers = 200
         
@@ -118,11 +121,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_8_PSK(self):
+    def run_test05(self):
         self.src.rewind()
         self.tb.run()
         
-    def setup_16_QAM(self):
+    def setup_test04(self):
+        print "... benchmarking 16-QAM demapper"
         self.nobits = 4
         self.data_subcarriers = 200
         
@@ -152,11 +156,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_16_QAM(self):
+    def run_test04(self):
         self.src.rewind()
         self.tb.run()    
         
-    def setup_32_QAM(self):
+    def setup_test03(self):
+        print "... benchmarking 32-QAM demapper"
         self.nobits = 5
         self.data_subcarriers = 200
         
@@ -186,11 +191,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_32_QAM(self):
+    def run_test03(self):
         self.src.rewind()
         self.tb.run() 
         
-    def setup_64_QAM(self):
+    def setup_test02(self):
+        print "... benchmarking 64-QAM demapper"
         self.nobits = 6
         self.data_subcarriers = 200
         
@@ -220,11 +226,12 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_64_QAM(self):
+    def run_test02(self):
         self.src.rewind()
         self.tb.run()
         
-    def setup_128_QAM(self):
+    def setup_test01(self):
+        print "... benchmarking 128-QAM demapper"
         self.nobits = 7
         self.data_subcarriers = 200
         
@@ -254,12 +261,13 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_128_QAM(self):
+    def run_test01(self):
         self.src.rewind()
         self.tb.run()
         
         
-    def setup_256_QAM(self):
+    def setup_test08(self):
+        print "... benchmarking 256-QAM demapper"
         self.nobits = 8
         self.data_subcarriers = 200
         
@@ -289,7 +297,7 @@ class bm_demodulator:
         self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
-    def run_256_QAM(self):
+    def run_test08(self):
         self.src.rewind()
         self.tb.run() 
         

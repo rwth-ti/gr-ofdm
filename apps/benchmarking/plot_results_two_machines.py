@@ -36,11 +36,14 @@ class plotter:
         self.v_2 = v_2 = results_2.values()
         #print v
         
-        self.labels = results.keys()
-        self.labels_2 = results_2.keys()
+        #self.labels = results.keys()
+        #self.labels_2 = results_2.keys()
         
         #Manually add labels
-        #self.labels = 
+        self.labels = ['256-QAM','128-QAM','64-QAM','32-QAM','16-QAM','8-PSK','QPSK','BPSK']
+
+        
+        # Divided by 50 -> 5000 frames with 10 OFDM symbols normalized to us -> 5000*10/1000 ->50
         
         self.pt_mins = numpy.array([vi[0]/50 for vi in v])
         self.pt_mins_2 = numpy.array([vi[0]/50 for vi in v_2])
@@ -67,11 +70,12 @@ class plotter:
         self.sp1.barh(self.avgs_x_2, self.pt_avgs_2, height=width,xerr=self.pt_stddev_2,ecolor='c', 
                       capsize=5, color='b', alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
         self.sp1.set_title(self.title, fontsize=22, fontweight='bold')
-        self.sp1.set_xlabel("Time (us)", fontsize=16, fontweight='bold')
+        self.sp1.set_xlabel("Time per OFDM symbol (us)", fontsize=16, fontweight='bold')
         self.sp1.set_yticks(self.mins_x+2*width)
         self.sp1.set_yticklabels(self.labels, fontweight='bold')
         self.sp1.legend()
-        self.sp1.set_xlim([0,11])
+        self.sp1.set_xlim([0,12])
+        self.sp1.grid()
         
         #Adding second plot
         self.title_2 = self.extract_title(test_3)
@@ -79,9 +83,15 @@ class plotter:
         self.v_2 = v_2 = results_4.values()
         #print v
         
-        self.labels = results_3.keys()
-        self.labels_2 = results_4.keys()
+        #self.labels = results_3.keys()
+        #self.labels_2 = results_4.keys()
         
+        #Manually add labels
+        self.labels = ['256-QAM','128-QAM','64-QAM','32-QAM','16-QAM','8-PSK','QPSK','BPSK']
+
+        
+        # Divided by 50 -> 5000 frames with 10 OFDM symbols normalized to us -> 5000*10/1000 ->50
+         
         self.pt_mins = numpy.array([vi[0]/50 for vi in v])
         self.pt_mins_2 = numpy.array([vi[0]/50 for vi in v_2])
         self.pt_avgs = numpy.array([vi[1]/50 for vi in v])
@@ -110,7 +120,8 @@ class plotter:
         self.sp2.set_yticks(self.mins_x+2*width)
         self.sp2.set_yticklabels(self.labels, fontweight='bold')
         self.sp2.legend()
-        self.sp2.set_xlim([0,11])
+        self.sp2.set_xlim([0,12])
+        self.sp2.grid()
         
         """
         self.sp2 = self.fig.add_subplot(1,2,2)

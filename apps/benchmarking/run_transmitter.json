@@ -1,0 +1,15 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+        {
+        "module": "bm_transmitter_usrp",
+        "testname": "bm_transmitter_usrp",
+        "nitems": 400000000,
+        "iters": 1,
+        "kwargs": {
+            "data_blocks": 10
+        }
+    }
+    
+]
+}

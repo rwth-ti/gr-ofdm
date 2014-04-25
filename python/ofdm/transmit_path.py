@@ -135,6 +135,9 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
+        if options.benchmarking:
+            self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
+
 
     if options.lab_special_case:
         self.allocation_src.set_allocation([0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4),[1]*config.data_subcarriers)
@@ -204,7 +207,11 @@ class transmit_path(gr.hier_block2):
     dmux = self._data_multiplexer = stream_controlled_mux_b()
     self.connect(mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
-    self.connect(ber_ref_src,(dmux,2))
+    if options.benchmarking:
+        self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+    else:
+        self.connect(ber_ref_src,(dmux,2))
+        
 
     if options.log:
       dmux_f = gr.char_to_float()
@@ -357,6 +364,8 @@ class transmit_path(gr.hier_block2):
                help="Simulate frequency offset [default=%default]")
     expert.add_option('', '--lab-special-case', action='store_true', default=False,
                       help='For lab exercise, use only half of the subcarriers and multipath')
+    expert.add_option('', '--benchmarking', action='store_true', default=False,
+                      help='Modify transmitter for the benchmarking mode')
 
 
   # Make a static method to call before instantiation

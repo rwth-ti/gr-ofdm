@@ -407,7 +407,11 @@ class receive_path(gr.hier_block2):
     else:
         demod = self._data_demodulator = generic_demapper_vcb(dsubc)
         self.connect(dm_trig,(demod,2))
-    self.connect(pda,demod)
+    if options.benchmarking:
+        # Do receiver benchmarking until the number of frames x symbols are collected
+        self.connect(pda,blocks.head(gr.sizeof_gr_complex*dsubc, options.N*config.frame_data_blocks),demod)
+    else:        
+        self.connect(pda,demod)
     self.connect(bitloading_src,(demod,1))
 
     if(options.coding):
@@ -1083,6 +1087,8 @@ class receive_path(gr.hier_block2):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
+    expert.add_option('', '--benchmarking', action='store_true', default=False,
+                      help='Modify transmitter for the benchmarking mode')
 
 
   # Make a static method to call before instantiation

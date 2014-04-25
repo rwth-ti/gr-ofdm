@@ -94,6 +94,8 @@ class tx_top_block(gr.top_block):
                           help="Specifiy configuration file, default: none")
         parser.add_option("","--to-file", default=None,
                           help="Output file for modulated samples")
+        parser.add_option("", "--multipath", action="store_true", default=False,
+                          help="Enable multipath channel")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

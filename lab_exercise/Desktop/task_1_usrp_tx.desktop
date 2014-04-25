@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon.png
 Name=task_1_usrp_tx
-Exec=/opt/lab-ofdm/gr-ofdm/bin/run_usrp_tx_gui.sh
+Exec=shell_scripts/usrp_tx.sh

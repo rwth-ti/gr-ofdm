@@ -8,6 +8,6 @@ else
     . $PWD/environment_release
 fi
 
-ofdm_rx_gui.py --tx-hostname=tabur &
+ofdm_rx_gui.py $1 $2 &
 
-rx.py -f 2.45G --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 $1 $2 $3
+rx.py -f 2.45G --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 $1 $2 $3 $4

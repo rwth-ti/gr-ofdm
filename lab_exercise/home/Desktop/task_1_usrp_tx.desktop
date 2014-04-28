@@ -2,6 +2,6 @@
 Version=1.0
 Type=Application
 Terminal=true
-Icon=ti-icon.png
+Icon=ti-icon
 Name=task_1_usrp_tx
 Exec=shell_scripts/usrp_tx.sh

@@ -2,6 +2,6 @@
 Version=1.0
 Type=Application
 Terminal=true
-Icon=ti-icon.png
+Icon=ti-icon
 Name=task_3_system_simulation_case_1
 Exec=/opt/lab-ofdm/gr-ofdm/bin/run_benchmark_gui.sh --multipath

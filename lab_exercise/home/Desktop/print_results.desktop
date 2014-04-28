@@ -2,6 +2,6 @@
 Version=1.0
 Type=Application
 Terminal=true
-Icon=ti-icon.png
+Icon=ti-icon
 Name=print_results
 Exec=shell_scripts/print_results.sh

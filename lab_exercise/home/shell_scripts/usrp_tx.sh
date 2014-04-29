@@ -9,4 +9,4 @@ fi
 CARRIER=$(zenity --entry --title "Carrier frequency" --text "Enter transmitter's carrier frequency:" --entry-text "$CARRIER")
 echo $CARRIER > carrier
 
-/opt/lab-ofdm/gr-ofdm/bin/run_usrp_tx_gui.sh -f $CARRIER --spec=A:0
+/opt/lab-ofdm/gr-ofdm/bin/run_usrp_tx_gui.sh -f $CARRIER --spec=A:0 --args="type=usrp1"

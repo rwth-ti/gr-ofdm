@@ -120,7 +120,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         
         #Make adjustments for usrp1
         if (args == 'type=usrp1'):
-                args ='fpga=../usrp/images/std_1rxhb_1txhb.rbf'
+                args ='fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
                 bandwidth=(bandwidth/2.0)
 
         # Set up the UHD interface as a transmitter

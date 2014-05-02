@@ -4,6 +4,7 @@ from gnuradio import gr, blocks, digital, analog
 import random, numpy
 from random import randint, random
 from ofdm import generic_demapper_vcb, symbol_random_src
+import os
 
 class bm_demodulator:
     '''
@@ -263,6 +264,11 @@ class bm_demodulator:
 
     def run_test01(self):
         self.src.rewind()
+        dot_str = self.tb.dot_graph()
+        file_str = os.path.expanduser('rx.dot')
+        dot_file = open(file_str,'w')
+        dot_file.write(dot_str)
+        dot_file.close()
         self.tb.run()
         
         

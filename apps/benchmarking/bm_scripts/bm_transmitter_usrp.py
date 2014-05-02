@@ -11,7 +11,7 @@ from configparse import OptionParser
 
 class bm_transmitter_usrp:
     '''
-    @title: Benchmark TIGR transmitter with the USRP1
+    @title: Benchmark TIGR transmitter
     '''
     
     def __init__(self, N, data_blocks=10):
@@ -29,7 +29,7 @@ class bm_transmitter_usrp:
         self.static_allocation = 0
         self.lab_special_case = 0
         self.nopunct = 1
-        self.bandwidth = 5000000.0
+        self.bandwidth = 2500000.0
         self.tx_freq = 2480000000
         self.bm = True
         #self.sps = 4

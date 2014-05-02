@@ -6,6 +6,10 @@ import cPickle as pickle
 import operator
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
+from matplotlib2tikz import save as tikz_save
+
+plt.rc('font', family='serif')
+
 
 width = 0.2
 params = {'legend.fontsize': 12}
@@ -70,9 +74,11 @@ class plotter:
         self.sp1.barh(self.avgs_x_2, self.pt_avgs_2, height=width,xerr=self.pt_stddev_2,ecolor='c', 
                       capsize=5, color='b', alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
         self.sp1.set_title(self.title, fontsize=22, fontweight='bold')
-        self.sp1.set_xlabel("Time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        #self.sp1.set_xlabel("Execution time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        self.sp1.set_xlabel("Execution time per OFDM symbol (us)", fontsize=18)
         self.sp1.set_yticks(self.mins_x+2*width)
-        self.sp1.set_yticklabels(self.labels, fontweight='bold')
+        #self.sp1.set_yticklabels(self.labels, fontweight='bold')
+        self.sp1.set_yticklabels(self.labels, fontsize=18)
         self.sp1.legend()
         self.sp1.set_xlim([0,12])
         self.sp1.grid()
@@ -116,9 +122,11 @@ class plotter:
         self.sp2.barh(self.avgs_x_2, self.pt_avgs_2, height=width,xerr=self.pt_stddev_2,ecolor='c', 
                       capsize=5, color='b', alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
         self.sp2.set_title(self.title_2, fontsize=22, fontweight='bold')
-        self.sp2.set_xlabel("Time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        #self.sp2.set_xlabel("Execution time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        self.sp2.set_xlabel("Execution time per OFDM symbol (us)", fontsize=18)
         self.sp2.set_yticks(self.mins_x+2*width)
-        self.sp2.set_yticklabels(self.labels, fontweight='bold')
+        #self.sp2.set_yticklabels(self.labels, fontweight='bold')
+        self.sp2.set_yticklabels(self.labels, fontsize=18)
         self.sp2.legend()
         self.sp2.set_xlim([0,12])
         self.sp2.grid()
@@ -228,7 +236,7 @@ def main():
         #nfigs += 1
        # plots.append(plotter_2(t, results_3[t['testname']], results_4[t['testname']],nfigs))
         #plots.append(plotter(t, results_2[t['testname']], nfigs))
-
+    #tikz_save( 'myfile_mapper.tikz', figureheight='20cm', figurewidth='14cm' )
     plt.show(block=True)
 
 

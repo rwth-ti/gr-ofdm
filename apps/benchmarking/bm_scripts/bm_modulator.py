@@ -4,6 +4,7 @@ from gnuradio import gr, blocks, digital, analog
 import random, numpy
 from random import randint
 from ofdm import generic_mapper_bcv
+import os
 
 class bm_modulator:
     '''
@@ -215,6 +216,11 @@ class bm_modulator:
 
     def run_test01(self):
         self.src.rewind()
+        dot_str = self.tb.dot_graph()
+        file_str = os.path.expanduser('tx.dot')
+        dot_file = open(file_str,'w')
+        dot_file.write(dot_str)
+        dot_file.close()
         self.tb.run()
         
         

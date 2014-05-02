@@ -8,8 +8,10 @@ import operator
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
+from matplotlib2tikz import save as tikz_save
 
 
+plt.rc('font', family='serif')
 width = 0.4
 
 def add_argparser():
@@ -152,7 +154,7 @@ class plotter:
         self.blks_times_2 = [s[1] for s in sorted_dict_2]
         self.blks_keys_2 = [s[0] for s in sorted_dict_2]
 
-        self.fig100 = plt.figure(100+self.fignum, figsize=(18,10), facecolor='w')
+        self.fig100 = plt.figure(100+self.fignum, figsize=(18,28), facecolor='w')
         self.fig100.clf()
         self.sp101 = self.fig100.add_subplot(1,1,1)
         
@@ -161,19 +163,19 @@ class plotter:
         print "self.blks_times ", self.blks_times
         
         self.sp101.barh(self.blks_x, self.blks_times, height=width,
-                        color='r',alpha=0.85, label='Intel(R) Core(TM) i7-960  CPU@3.20GHz')
+                        color='r',alpha=0.85, label='2.5 MHz')
         self.sp101.barh(self.blks_x_2+width, self.blks_times_2, height=width,
-                        color='b',alpha=0.85, label='Intel(R) Core(TM) i7-2620M CPU@2.70GHz')
+                        color='b',alpha=0.85, label='1 MHz')
         #print self.blks_times
         self.sp101.set_title(self.title, fontsize=22, fontweight='bold')
-        self.sp101.set_xlabel("Time per OFDM symbol (us)", fontsize=16, fontweight='bold')
+        self.sp101.set_xlabel("Execution time per OFDM symbol (us)", fontsize=16)
         self.sp101.set_yticks(self.blks_x+width)
-        self.sp101.set_yticklabels(self.blks_keys, fontweight='bold')
+        self.sp101.set_yticklabels(self.blks_keys)
         self.sp101.grid()
         self.sp101.legend()
         #self.sp101.set_color_cycle(['c', 'm', 'y', 'k'])
-
         plt.draw()
+        tikz_save( 'myfile.tikz', figureheight='20cm', figurewidth='14cm' )
         #plt.savefig('test_figure.pgf')    
 
 
@@ -200,6 +202,7 @@ def main():
         nfigs += 1
         plots.append(plotter(t, results[t['testname']], results_2[t['testname']], nfigs, nitems))
 
+    tikz_save( 'myfile.tikz', figureheight='20cm', figurewidth='14cm' )
     plt.show(block=True)
 
 

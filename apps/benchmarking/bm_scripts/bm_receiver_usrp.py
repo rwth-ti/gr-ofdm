@@ -19,7 +19,7 @@ class bm_receiver_usrp:
         self.N = N
         self.subcarriers = 200
         self.cp_length = 16
-        self.data_blocks = data_blocks
+        self.data_blocks = 10
         self.verbose = False
         self.fft_length = 256
         self.coding = 0
@@ -29,8 +29,8 @@ class bm_receiver_usrp:
         self.static_allocation = 0
         self.lab_special_case = 0
         self.nopunct = 1
-        self.bandwidth = 5000000
-        self.rx_freq = 2480000000
+        self.bandwidth = 2500000
+        self.rx_freq = 2480020000.0
         self.ber_window = 500000
         self.disable_time_sync = False
         self.disable_freq_sync = False
@@ -45,7 +45,7 @@ class bm_receiver_usrp:
         self.sinr_est = False
         self.logcir = False
         self.ideal = False
-        self.tx_hostname = 'amphitrite'
+        self.tx_hostname = 'tabur'
         self.bm = True
         #self.sps = 4
         #self.eb = 0.25
@@ -98,7 +98,7 @@ class bm_receiver_usrp:
             self.tb.stop()
         """
         #self.snk = blocks.null_sink(gr.sizeof_gr_complex)
-        self.src = uhd_receiver( 'type=usrp2',self.bandwidth, 2480000000.0,0.0)
+        self.src = uhd_receiver( 'type=usrp2',self.bandwidth, self.rx_freq,0.0)
 
 
         self.tb.connect(self.src,self.rxpath)

@@ -369,9 +369,9 @@ class receive_path(gr.hier_block2):
         log_to_file(self, self.id_dec, "data/id_dec_rx.short")
 
     ## Power Deallocator
-    pda = self._power_deallocator = power_deallocator(dsubc)
-    self.connect(pda_in,(pda,0))
-    self.connect(power_src,(pda,1))
+    pda = self._power_deallocator = power_deallocator(config.frame_data_part, dsubc)
+    self.connect(pda_in,(pda,1))
+    self.connect(power_src,(pda,0))
 
     ## Demodulator
     dm_trig = [0]*config.frame_data_part

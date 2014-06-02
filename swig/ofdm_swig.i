@@ -59,6 +59,8 @@
 #include "ofdm/mm_frequency_estimator.h"
 #include "ofdm/moms_cc.h"
 #include "ofdm/moms_ff.h"
+#include "ofdm/multiply_frame_fc.h"
+#include "ofdm/divide_frame_fc.h"
 #include "ofdm/multiply_const_ccf.h"
 #include "ofdm/multiply_const_ii.h"
 #include "ofdm/multiply_const_vcc.h"
@@ -232,6 +234,10 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, mm_frequency_estimator);
 GR_SWIG_BLOCK_MAGIC2(ofdm, moms_cc);
 %include "ofdm/moms_ff.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, moms_ff);
+%include "ofdm/multiply_frame_fc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, multiply_frame_fc);
+%include "ofdm/divide_frame_fc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, divide_frame_fc);
 %include "ofdm/multiply_const_ccf.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, multiply_const_ccf);
 %include "ofdm/multiply_const_ii.h"

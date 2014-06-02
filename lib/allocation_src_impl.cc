@@ -54,18 +54,18 @@ namespace gr {
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), blabla_test(0)
     {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
         out_sig[2] = sizeof(uint8_t)*subcarriers;                  // bitloading
-        out_sig[3] = sizeof(gr_complex)*subcarriers;            // power
+        out_sig[3] = sizeof(float)*subcarriers;            // power
         set_output_signature(io_signature::makev(4,4,out_sig));
 
 
         std::vector<uint8_t> bitloading_vec;
-        std::vector<gr_complex> power_vec;
+        std::vector<float> power_vec;
         // default data modulation scheme is BPSK
         for(int i=0;i<subcarriers;i++)
         {
@@ -136,7 +136,7 @@ namespace gr {
 
     void
     allocation_src_impl::set_allocation(std::vector<uint8_t> bitloading,
-                                        std::vector<gr_complex> power)
+                                        std::vector<float> power)
     {
         gr::thread::scoped_lock guard(d_mutex);
         d_allocation.bitloading = bitloading;
@@ -162,7 +162,7 @@ namespace gr {
         // insert data symbol power at the end TIMES data_symbols
         for(int i=0;i<d_data_symbols;i++)
         {
-            d_allocation_out.power.insert(d_allocation_out.power.end(), power.begin(), power.end());
+           // d_allocation_out.power.insert(d_allocation_out.power.end(), power.begin(), power.end());
         }
 
         int sum_of_elems = 0;
@@ -184,7 +184,7 @@ namespace gr {
         short *out_id = (short *) output_items[0];
         int *out_bitcount = (int *) output_items[1];
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
-        gr_complex *out_power = (gr_complex *) output_items[3];
+        float *out_power = (float *) output_items[3];
 
         if (noutput_items < (1+d_data_symbols)) {
             return 0;
@@ -201,8 +201,8 @@ namespace gr {
                 int bl_idx = i*2*d_subcarriers;
                 memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*2*d_subcarriers);
                 // output 1 vector for id and the rest for data
-                int p_idx = i*(1+d_data_symbols)*d_subcarriers;
-                memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+                int p_idx = i*d_subcarriers;
+                memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
 
                 //increase frame id, [0..255]
                 d_allocation.id++;
@@ -215,8 +215,20 @@ namespace gr {
                 produce(0,1);
                 produce(1,1);
                 produce(2,2);
-                produce(3,1+d_data_symbols);
+                produce(3,1);
             }
+            if(blabla_test==500)
+            {
+                std::cout <<"aaaaaaaaaaa"<< blabla_test<< std::endl;
+                bla_start= time(0);
+            }
+            if(blabla_test==5000)
+            {
+                bla_stop=time(0);
+                std::cout<< "bbbbbbbbbbbb"<< std::difftime(bla_stop, bla_start) << std::endl;
+            }
+            blabla_test++;
+            
             return WORK_CALLED_PRODUCE;
         }
     }

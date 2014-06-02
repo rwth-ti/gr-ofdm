@@ -105,6 +105,7 @@ namespace gr {
     	      {
     		memcpy( out, in, dsubc * sizeof( gr_complex ) );
     		out += dsubc+1; in += dsubc;
+                
     	      }
 
     	    } // for( int i = 0; i < partition_size - 1; ++i )

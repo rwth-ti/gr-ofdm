@@ -49,12 +49,12 @@ namespace gr {
         std::vector<int> out_sig(3);
         out_sig[0] = sizeof(int);                               // bitcount
         out_sig[1] = sizeof(uint8_t)*subcarriers;                  // bitloading
-        out_sig[2] = sizeof(gr_complex)*subcarriers;            // power
+        out_sig[2] = sizeof(float)*subcarriers;            // power
         set_output_signature(io_signature::makev(3,3,out_sig));
 
         // generate an initial allocation with id -1
         std::vector<uint8_t> bitloading_vec;
-        std::vector<gr_complex> power_vec;
+        std::vector<float> power_vec;
         // default data modulation scheme is BPSK
         for(int i=0;i<subcarriers;i++)
         {
@@ -128,10 +128,10 @@ namespace gr {
                                                               (uint8_t*)msg.data()
                                                               +sizeof(rcvd_alloc.id)
                                                               +d_subcarriers*sizeof(rcvd_alloc.bitloading[0]));
-                rcvd_alloc.power.assign((gr_complex*)((uint8_t*)msg.data()
+                rcvd_alloc.power.assign((float*)((uint8_t*)msg.data()
                                                              +sizeof(rcvd_alloc.id)
                                                              +d_subcarriers*sizeof(rcvd_alloc.bitloading[0])),
-                                                             (gr_complex*)((uint8_t*)msg.data()
+                                                             (float*)((uint8_t*)msg.data()
                                                              +sizeof(rcvd_alloc.id)
                                                              +d_subcarriers*sizeof(rcvd_alloc.bitloading[0])
                                                              +d_subcarriers*sizeof(rcvd_alloc.power[0])));
@@ -145,7 +145,7 @@ namespace gr {
 
     void
     allocation_buffer_impl::set_allocation(std::vector<uint8_t> bitloading,
-                                        std::vector<gr_complex> power)
+                                        std::vector<float> power)
     {
         // clear and write bitloading output vector
         d_bitloading_out.clear();
@@ -187,7 +187,7 @@ namespace gr {
         const short *in_id = (const short *) input_items[0];
         int *out_bitcount = (int *) output_items[0];
         uint8_t *out_bitloading = (uint8_t *) output_items[1];
-        gr_complex *out_power = (gr_complex *) output_items[2];
+        float *out_power = (float *) output_items[2];
 
         // Receive allocation from Tx
         recv_allocation();
@@ -200,13 +200,13 @@ namespace gr {
         // output 2 vectors for id and data
         memcpy(out_bitloading, &d_bitloading_out[0], sizeof(uint8_t)*2*d_subcarriers);
         // output 1 vector for id and the rest for data
-        memcpy(out_power, &d_power_out[0], sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
+        memcpy(out_power, &d_power_out[0], sizeof(float)*d_subcarriers);
 
         // Tell runtime system how many output items we produced.
         consume(0,1);
         produce(0,1);
         produce(1,2);
-        produce(2,1+d_data_symbols);
+        produce(2,1);
         return WORK_CALLED_PRODUCE;
     }
 

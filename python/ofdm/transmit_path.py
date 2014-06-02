@@ -29,6 +29,7 @@ import ofdm as ofdm
 from ofdm import generic_mapper_bcv
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
+from ofdm import multiply_frame_fc, divide_frame_fc
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
 import common_options
@@ -155,7 +156,8 @@ class transmit_path(gr.hier_block2):
     # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
     self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
     zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
-    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,config.frame_data_part*40), blocks.complex_to_real(dsubc), zmq_probe_power)
+    #self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,40), blocks.complex_to_real(dsubc), zmq_probe_power)
+    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,40), zmq_probe_power)
 
     ## Workaround to avoid periodic structure
     seed(1)
@@ -234,9 +236,9 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, modr, "data/mod_real_out.float")
 
     ## Power allocator
-    pa = self._power_allocator = power_allocator(config.data_subcarriers)
-    self.connect(mod,(pa,0))
-    self.connect(power_src,(pa,1))
+    pa = self._power_allocator = power_allocator(config.frame_data_part, config.data_subcarriers)
+    self.connect(mod,(pa,1))
+    self.connect(power_src,(pa,0))
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
@@ -430,17 +432,18 @@ class common_power_allocator (gr.hier_block2):
   """
   def __init__(self,subcarriers,operational_block):
     gr.hier_block2.__init__(self, "common_power_allocator",
-      gr.io_signature2(2,2,gr.sizeof_gr_complex*subcarriers,
+      #gr.io_signature2(2,2,gr.sizeof_gr_complex*subcarriers,
+      gr.io_signature2(2,2,gr.sizeof_float*subcarriers,
                            gr.sizeof_gr_complex*subcarriers),
       gr.io_signature (1,1,gr.sizeof_gr_complex*subcarriers))
 
-    data = (self,0)
-    power = (self,1)
+    data = (self,1)
+    power = (self,0)
 
     adjust = operational_block
 
-    self.connect(data,(adjust,0))
-    self.connect(power,(adjust,1))
+    self.connect(data,(adjust,1))
+    self.connect(power,(adjust,0))
     self.connect(adjust, self)
 
 ################################################################################
@@ -458,9 +461,10 @@ class power_allocator (common_power_allocator):
   Input 1: Power allocation
   Output: Power adjusted data subcarriers
   """
-  def __init__(self, subcarriers):
+  def __init__(self,frame_size, subcarriers):
     common_power_allocator.__init__(self, subcarriers,
-                                    blocks.multiply_vcc(subcarriers))
+                                   multiply_frame_fc(frame_size,subcarriers))
+            #blocks.multiply_vcc(subcarriers))
 
 ################################################################################
 
@@ -476,9 +480,10 @@ class power_deallocator (common_power_allocator):
   Input 1: Power allocation
   Output: Power adjusted data subcarriers
   """
-  def __init__(self, subcarriers):
+  def __init__(self,frame_size, subcarriers):
     common_power_allocator.__init__(self,subcarriers,
-                                    blocks.divide_cc(subcarriers))
+                                    divide_frame_fc(frame_size, subcarriers))
+            #blocks.divide_cc(subcarriers))
 
 
 ################################################################################

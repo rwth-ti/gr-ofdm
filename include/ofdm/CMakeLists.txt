@@ -80,6 +80,8 @@ install(FILES
     mm_frequency_estimator.h
     moms_cc.h
     moms_ff.h
+    multiply_frame_fc.h
+    divide_frame_fc.h
     multiply_const_ccf.h
     multiply_const_ii.h
     multiply_const_vcc.h

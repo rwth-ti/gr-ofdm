@@ -68,3 +68,13 @@ GR_PYTHON_INSTALL(
     vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm
 )
+
+
+########################################################################
+# Handle the unit tests
+########################################################################
+include(GrTest)
+
+set(GR_TEST_TARGET_DEPS gnuradio-test1)
+set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
+GR_ADD_TEST(qa_multiply_frame_fc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multiply_frame_fc.py)

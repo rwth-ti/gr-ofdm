@@ -28,6 +28,8 @@
 #include <zmq.hpp>
 #include <stdint.h>
 
+#include <ctime>
+
 namespace gr {
     namespace ofdm {
 
@@ -37,7 +39,7 @@ namespace gr {
                 struct d_allocation_struct {
                     uint8_t id;
                     std::vector<uint8_t> bitloading;
-                    std::vector<gr_complex> power;
+                    std::vector<float> power;
                 };
                 // local copy of allocation
                 d_allocation_struct d_allocation;
@@ -46,6 +48,8 @@ namespace gr {
                 int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
+                int blabla_test;
+                time_t bla_start, bla_stop;
                 gr::thread::mutex d_mutex;
 
                 zmq::context_t  *d_context;
@@ -58,7 +62,7 @@ namespace gr {
                 void send_allocation();
 
                 void set_allocation(std::vector<uint8_t> bitloading,
-                        std::vector<gr_complex> power);
+                        std::vector<float> power);
 
                 // Where all the action really happens
                 int general_work(int noutput_items,

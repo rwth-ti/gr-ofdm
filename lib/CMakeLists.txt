@@ -86,6 +86,8 @@ list(APPEND ofdm_sources
     mm_frequency_estimator_impl.cc
     moms_cc_impl.cc
     moms_ff_impl.cc
+    multiply_frame_fc_impl.cc
+    divide_frame_fc_impl.cc
     multiply_const_ccf_impl.cc
     multiply_const_ii_impl.cc
     multiply_const_vcc_impl.cc

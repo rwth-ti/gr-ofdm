@@ -52,7 +52,7 @@ namespace gr {
                 static sptr make(int subcarriers, int data_symbols, char *address);
 
                 virtual void set_allocation(std::vector<uint8_t> bitloading,
-                                            std::vector<gr_complex> power) = 0;
+                                            std::vector<float> power) = 0;
         };
 
     } // namespace ofdm

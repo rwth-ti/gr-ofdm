@@ -59,6 +59,7 @@ class qa_allocation_src (gr_unittest.TestCase):
         print "bitcount", result_bitcount
         print "bitloading", result_bitloading
         print "power", result_power
+       
 
 #        expected_id = [0,1]
 #        self.assertFloatTuplesAlmostEqual(expected_id, result_data, 6)

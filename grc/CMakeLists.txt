@@ -68,6 +68,7 @@ install(FILES
     ofdm_moms_cc.xml
     ofdm_moms_ff.xml
     ofdm_multiply_const_ccf.xml
+    ofdm_multiply_const_ccf.xml
     ofdm_multiply_const_ii.xml
     ofdm_multiply_const_vcc.xml
     ofdm_noise_nulling.xml

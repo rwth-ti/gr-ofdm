@@ -159,17 +159,7 @@ namespace gr {
         d_bitloading_out.insert(d_bitloading_out.end(), bitloading.begin(), bitloading.end());
 
         // clear and write power output vector
-        d_power_out.clear();
-        // push back ID symbol power
-        for(int i=0;i<d_subcarriers;i++)
-        {
-            d_power_out.push_back(1);
-        }
-        // insert data symbol power at the end TIMES data_symbols
-        for(int i=0;i<d_data_symbols;i++)
-        {
-            d_power_out.insert(d_power_out.end(), power.begin(), power.end());
-        }
+        d_power_out = power;
 
         int sum_of_elems = 0;
         for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)

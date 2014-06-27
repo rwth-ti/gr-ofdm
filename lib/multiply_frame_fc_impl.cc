@@ -40,10 +40,10 @@ namespace gr {
       : gr::block("multiply_frame_fc",
               gr::io_signature::make2 (2, 2,sizeof(float)*subc ,sizeof(gr_complex)*subc),
               gr::io_signature::make (1,  1, sizeof(gr_complex)*subc)),
-        d_subc(subc), d_frame_size(frame_size), d_symbol_counter(0), d_hold_power(std::vector<float>(subc,0))
+        d_subc(subc), d_frame_size(frame_size), d_symbol_counter(0), d_hold_power(std::vector<float>(subc,1.0))
     {
       const int alignment_multiple =
-	volk_get_alignment() / sizeof(gr_complex);
+        volk_get_alignment() / sizeof(gr_complex);
       set_alignment(std::max(1, alignment_multiple));
     }
 

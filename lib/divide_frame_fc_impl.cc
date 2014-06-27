@@ -26,31 +26,26 @@
 
 #include "divide_frame_fc_impl.h"
 #include <gnuradio/io_signature.h>
-#include <volk/volk.h>
 
 namespace gr {
   namespace ofdm {
 
     divide_frame_fc::sptr divide_frame_fc::make(const unsigned int frame_size, size_t subc)
     {
-      return gnuradio::get_initial_sptr(new divide_frame_fc_impl(frame_size, subc));
+        return gnuradio::get_initial_sptr(new divide_frame_fc_impl(frame_size, subc));
     }
 
     divide_frame_fc_impl::divide_frame_fc_impl(const unsigned int frame_size, size_t subc)
       : gr::block("divide_frame_fc",
-                      gr::io_signature::make2 (2, 2,sizeof(gr_complex)*subc,sizeof(float)*subc),
-                      gr::io_signature::make (1,  1, sizeof(gr_complex)*subc)),
+                  gr::io_signature::make2 (2, 2, sizeof(gr_complex)*subc, sizeof(float)*subc),
+                  gr::io_signature::make (1, 1, sizeof(gr_complex)*subc)),
         d_subc(subc), d_frame_size(frame_size), d_symbol_counter(0), d_hold_power(std::vector<float>(subc,1))
     {
-        const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
-        set_alignment(std::max(1, alignment_multiple));
     }
 
     divide_frame_fc_impl::~divide_frame_fc_impl()
     {
     }
-
-
 
     void
     divide_frame_fc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
@@ -59,8 +54,6 @@ namespace gr {
         ninput_items_required[0] = noutput_items;
         ninput_items_required[1] = noutput_items/d_frame_size;
     }
-
-
 
     int
     divide_frame_fc_impl::general_work (int noutput_items,
@@ -79,7 +72,7 @@ namespace gr {
                 d_hold_power.assign(in_power,in_power+d_subc);
                 in_power+=d_subc;
                 consume(1, 1);
-                d_symbol_counter= d_frame_size;
+                d_symbol_counter = d_frame_size;
             }
             d_symbol_counter--;
 
@@ -90,7 +83,6 @@ namespace gr {
             }
             consume(0, 1);
         }
-
         return noutput_items;
     }
 

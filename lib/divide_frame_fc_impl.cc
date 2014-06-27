@@ -38,13 +38,12 @@ namespace gr {
 
     divide_frame_fc_impl::divide_frame_fc_impl(const unsigned int frame_size, size_t subc)
       : gr::block("divide_frame_fc",
-                      gr::io_signature::make2 (2, 2,sizeof(float)*subc ,sizeof(gr_complex)*subc),
+                      gr::io_signature::make2 (2, 2,sizeof(gr_complex)*subc,sizeof(float)*subc),
                       gr::io_signature::make (1,  1, sizeof(gr_complex)*subc)),
         d_subc(subc), d_frame_size(frame_size), d_symbol_counter(0), d_hold_power(std::vector<float>(subc,1))
     {
-      const int alignment_multiple =
-        volk_get_alignment() / sizeof(gr_complex);
-      set_alignment(std::max(1, alignment_multiple));
+        const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+        set_alignment(std::max(1, alignment_multiple));
     }
 
     divide_frame_fc_impl::~divide_frame_fc_impl()
@@ -57,11 +56,8 @@ namespace gr {
     divide_frame_fc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-          ninput_items_required[0] = noutput_items/d_frame_size;
-
-          for(int i = 1; i < ninput_items_required.size(); ++i)
-            ninput_items_required[i] = noutput_items;
-
+        ninput_items_required[0] = noutput_items;
+        ninput_items_required[1] = noutput_items/d_frame_size;
     }
 
 
@@ -72,30 +68,30 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      gr_complex *out = (gr_complex *) output_items[0];
-      float *in_power = (float *) input_items[0];
-      gr_complex *in_samples = (gr_complex *) input_items[1];
-      
-      for(int t=0; t<noutput_items; t++)
-      {
-          if(d_symbol_counter==0)
-          {
-              d_hold_power.assign(in_power,in_power+d_subc);
-              in_power+=d_subc;
-              consume(0, 1);
-              d_symbol_counter= d_frame_size;
-          }
-          d_symbol_counter--;
-          
-          for(int i=0;i<d_subc;i++)
-          {
-              *out=(*in_samples)/(d_hold_power[i]);
-              out++;in_samples++;
-          }
-          consume(1, 1);
-      }
+        gr_complex *out = (gr_complex *) output_items[0];
+        const gr_complex *in_samples = (const gr_complex *) input_items[0];
+        const float *in_power = (const float *) input_items[1];
 
-      return noutput_items;
+        for(int t=0; t<noutput_items; t++)
+        {
+            if(d_symbol_counter==0)
+            {
+                d_hold_power.assign(in_power,in_power+d_subc);
+                in_power+=d_subc;
+                consume(1, 1);
+                d_symbol_counter= d_frame_size;
+            }
+            d_symbol_counter--;
+
+            for(int i=0;i<d_subc;i++)
+            {
+                *out=(*in_samples)/(d_hold_power[i]);
+                out++;in_samples++;
+            }
+            consume(0, 1);
+        }
+
+        return noutput_items;
     }
 
   } /* namespace ofdm */

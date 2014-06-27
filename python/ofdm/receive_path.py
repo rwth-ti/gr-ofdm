@@ -34,6 +34,7 @@ from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
+from ofdm import divide_frame_fc
 import ofdm as ofdm
 
 from time import strftime,gmtime
@@ -42,7 +43,7 @@ from snr_estimator import milans_snr_estimator, milans_sinr_sc_estimator, milans
 
 
 from station_configuration import *
-from transmit_path import power_deallocator, ber_reference_source
+from transmit_path import ber_reference_source
 import common_options
 import gr_tools
 import copy
@@ -369,9 +370,9 @@ class receive_path(gr.hier_block2):
         log_to_file(self, self.id_dec, "data/id_dec_rx.short")
 
     ## Power Deallocator
-    pda = self._power_deallocator = power_deallocator(config.frame_data_part, dsubc)
-    self.connect(pda_in,(pda,1))
-    self.connect(power_src,(pda,0))
+    pda = self._power_deallocator = divide_frame_fc(config.frame_data_part, dsubc)
+    self.connect(pda_in,(pda,0))
+    self.connect(power_src,(pda,1))
 
     ## Demodulator
     dm_trig = [0]*config.frame_data_part

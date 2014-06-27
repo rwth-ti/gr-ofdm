@@ -38,7 +38,7 @@ namespace gr {
 
     multiply_frame_fc_impl::multiply_frame_fc_impl(const unsigned int frame_size, size_t subc)
       : gr::block("multiply_frame_fc",
-              gr::io_signature::make2 (2, 2,sizeof(float)*subc ,sizeof(gr_complex)*subc),
+              gr::io_signature::make2 (2, 2,sizeof(gr_complex)*subc, sizeof(float)*subc),
               gr::io_signature::make (1,  1, sizeof(gr_complex)*subc)),
         d_subc(subc), d_frame_size(frame_size), d_symbol_counter(0), d_hold_power(std::vector<float>(subc,1.0))
     {
@@ -57,8 +57,8 @@ namespace gr {
     multiply_frame_fc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-        ninput_items_required[0] = noutput_items/d_frame_size;
-        ninput_items_required[1] = noutput_items;
+        ninput_items_required[0] = noutput_items;
+        ninput_items_required[1] = noutput_items/d_frame_size;
     }
 
 
@@ -70,26 +70,24 @@ namespace gr {
                        gr_vector_void_star &output_items)
     {
       gr_complex *out = (gr_complex *) output_items[0];
-      float *in_power = (float *) input_items[0];
-      gr_complex *in_symbol = (gr_complex *) input_items[1];
+      const gr_complex *in_samples = (const gr_complex *) input_items[0];
+      const float *in_power = (const float *) input_items[1];
       for(int t=0; t<noutput_items; t++)
       {
           if(d_symbol_counter==0)
           {
               d_hold_power.assign(in_power, in_power+d_subc);
               in_power+=d_subc;
-              consume(0, 1);
+              consume(1, 1);
               d_symbol_counter= d_frame_size;
           }
           d_symbol_counter--;
-          //memcpy(out+(t*d_subc), d_hold_power, d_subc*sizeof(float));
-        
-          volk_32fc_32f_multiply_32fc(out, in_symbol,&d_hold_power[0], d_subc);
+
+          volk_32fc_32f_multiply_32fc(out, in_samples,&d_hold_power[0], d_subc);
           out+=d_subc;
-          in_symbol+=d_subc;
-        
-          //memcpy(out, (gr_complex*)input_items[i], noi);
-          consume(1, 1);
+          in_samples+=d_subc;
+
+          consume(0, 1);
       }
 
       return noutput_items;

@@ -29,7 +29,7 @@ import ofdm as ofdm
 from ofdm import generic_mapper_bcv
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
-from ofdm import multiply_frame_fc, divide_frame_fc
+from ofdm import multiply_frame_fc
 from preambles import default_block_header
 from preambles import pilot_subcarrier_inserter,pilot_block_inserter
 import common_options
@@ -236,9 +236,9 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, modr, "data/mod_real_out.float")
 
     ## Power allocator
-    pa = self._power_allocator = power_allocator(config.frame_data_part, config.data_subcarriers)
-    self.connect(mod,(pa,1))
-    self.connect(power_src,(pa,0))
+    pa = self._power_allocator = multiply_frame_fc(config.frame_data_part, config.data_subcarriers)
+    self.connect(mod,(pa,0))
+    self.connect(power_src,(pa,1))
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
@@ -422,68 +422,6 @@ class ber_reference_source (gr.hier_block2):
 
     ## Setup Output
     self.connect(ref_src,self)
-
-
-################################################################################
-
-class common_power_allocator (gr.hier_block2):
-  """
-  internal use
-  """
-  def __init__(self,subcarriers,operational_block):
-    gr.hier_block2.__init__(self, "common_power_allocator",
-      #gr.io_signature2(2,2,gr.sizeof_gr_complex*subcarriers,
-      gr.io_signature2(2,2,gr.sizeof_float*subcarriers,
-                           gr.sizeof_gr_complex*subcarriers),
-      gr.io_signature (1,1,gr.sizeof_gr_complex*subcarriers))
-
-    data = (self,1)
-    power = (self,0)
-
-    adjust = operational_block
-
-    self.connect(data,(adjust,1))
-    self.connect(power,(adjust,0))
-    self.connect(adjust, self)
-
-################################################################################
-
-class power_allocator (common_power_allocator):
-  """
-  Allocates power to subcarriers.
-
-  It combines the complex data subcarrier stream with the real valued power
-  allocation stream. Power allocation vectors are counted in energy units. The
-  power is converted to the real amplitude (square root). The data is multiplied
-  with the real power amplitude.
-
-  Input 0: Data subcarriers
-  Input 1: Power allocation
-  Output: Power adjusted data subcarriers
-  """
-  def __init__(self,frame_size, subcarriers):
-    common_power_allocator.__init__(self, subcarriers,
-                                   multiply_frame_fc(frame_size,subcarriers))
-            #blocks.multiply_vcc(subcarriers))
-
-################################################################################
-
-class power_deallocator (common_power_allocator):
-  """
-  Deallocates power to subcarriers, i.e. reverts power allocation.
-
-  Simply divides the data with the real valued power amplitude. See
-  power_allocator block for detailed description of power amplitude and power
-  units.
-
-  Input 0: Data subcarriers
-  Input 1: Power allocation
-  Output: Power adjusted data subcarriers
-  """
-  def __init__(self,frame_size, subcarriers):
-    common_power_allocator.__init__(self,subcarriers,
-                                    divide_frame_fc(frame_size, subcarriers))
-            #blocks.divide_cc(subcarriers))
 
 
 ################################################################################

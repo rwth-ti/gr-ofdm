@@ -31,7 +31,7 @@ class qa_multiply_frame_fc (gr_unittest.TestCase):
     def tearDown (self):
         self.tb = None
 
-    def test_multiply_frame(self):
+    def test_multiply_frame_01(self):
         src1_data = [1,1,1,1,4,4,4,4,1,1,1,1,1,1,1,1]
         src2_data = [1,2,2,1,2,2,1,1]
         expected_result2 = [1,0.5,1,0.5,2,4,2,4,0.5,0.5,0.5,0.5,1,1,1,1]
@@ -40,8 +40,24 @@ class qa_multiply_frame_fc (gr_unittest.TestCase):
         src1 = blocks.vector_source_c(src1_data,False,2)
         src2 = blocks.vector_source_f(src2_data,False,2)
         dst = blocks.vector_sink_c(2)
-        self.tb.connect(src2, (op, 0))
-        self.tb.connect(src1, (op, 1))
+        self.tb.connect(src2, (op, 1))
+        self.tb.connect(src1, (op, 0))
+        self.tb.connect(op, dst)
+        self.tb.run()
+        result_data = dst.data()
+        self.assertComplexTuplesAlmostEqual(expected_result2, result_data, 5)
+
+    def test_multiply_frame_02(self):
+        src1_data = [1]*4000
+        src2_data = [0.5]*400
+        expected_result2 = [2]*4000
+
+        op = ofdm.divide_frame_fc(10,200)
+        src1 = blocks.vector_source_c(src1_data,False,200)
+        src2 = blocks.vector_source_f(src2_data,False,200)
+        dst = blocks.vector_sink_c(200)
+        self.tb.connect(src2, (op, 1))
+        self.tb.connect(src1, (op, 0))
         self.tb.connect(op, dst)
         self.tb.run()
         result_data = dst.data()

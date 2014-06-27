@@ -48,8 +48,6 @@ namespace gr {
                 int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
-                int blabla_test;
-                time_t bla_start, bla_stop;
                 gr::thread::mutex d_mutex;
 
                 zmq::context_t  *d_context;

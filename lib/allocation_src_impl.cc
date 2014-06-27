@@ -54,7 +54,7 @@ namespace gr {
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), blabla_test(0)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
     {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
@@ -217,17 +217,6 @@ namespace gr {
                 produce(2,2);
                 produce(3,1);
             }
-            if(blabla_test==500)
-            {
-                std::cout <<"aaaaaaaaaaa"<< blabla_test<< std::endl;
-                bla_start= time(0);
-            }
-            if(blabla_test==5000)
-            {
-                bla_stop=time(0);
-                std::cout<< "bbbbbbbbbbbb"<< std::difftime(bla_stop, bla_start) << std::endl;
-            }
-            blabla_test++;
             
             return WORK_CALLED_PRODUCE;
         }

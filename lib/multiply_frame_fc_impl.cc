@@ -89,7 +89,6 @@ namespace gr {
           in_symbol+=d_subc;
         
           //memcpy(out, (gr_complex*)input_items[i], noi);
-          std::cout<<"ah"<<d_symbol_counter<<std::endl;
           consume(1, 1);
       }
 

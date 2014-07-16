@@ -26,6 +26,7 @@
 
 #include "divide_frame_fc_impl.h"
 #include <gnuradio/io_signature.h>
+#include <iostream>
 
 namespace gr {
   namespace ofdm {
@@ -64,11 +65,18 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
         const gr_complex *in_samples = (const gr_complex *) input_items[0];
         const float *in_power = (const float *) input_items[1];
+        int nin_samples = ninput_items[0];
+        int nin_power = ninput_items[1];
 
-        for(int t=0; t<noutput_items; t++)
+        int produce = std::min(nin_samples, noutput_items);
+
+        for(int t=0; t<produce; t++)
         {
             if(d_symbol_counter==0)
             {
+                if(nin_power==0) return t;
+                nin_power--;
+
                 d_hold_power.assign(in_power,in_power+d_subc);
                 in_power+=d_subc;
                 consume(1, 1);
@@ -83,7 +91,7 @@ namespace gr {
             }
             consume(0, 1);
         }
-        return noutput_items;
+        return produce;
     }
 
   } /* namespace ofdm */

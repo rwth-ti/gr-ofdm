@@ -148,15 +148,7 @@ namespace gr {
                                         std::vector<float> power)
     {
         // clear and write bitloading output vector
-        d_bitloading_out.clear();
-        // push back 0s for ID symbol to ignore in demodulator
-        // NOTE: this is different in tx allocation_src!
-        for(int i=0;i<d_subcarriers;i++)
-        {
-            d_bitloading_out.push_back(0);
-        }
-        // insert data symbol modulation at the end ONCE
-        d_bitloading_out.insert(d_bitloading_out.end(), bitloading.begin(), bitloading.end());
+        d_bitloading_out = bitloading;
 
         // clear and write power output vector
         d_power_out = power;
@@ -166,6 +158,7 @@ namespace gr {
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
     }
+
 
     int
     allocation_buffer_impl::general_work(int noutput_items,
@@ -185,17 +178,17 @@ namespace gr {
 
         set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
         // output
-        *out_bitcount = d_bitcount_out;
+        *out_bitcount = d_bitcount_out; 
         //FIXME: probably dirty hack
-        // output 2 vectors for id and data
-        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(uint8_t)*2*d_subcarriers);
+        // output vector for data (bpsk is used for id)
+        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(uint8_t)*d_subcarriers);
         // output 1 vector for id and the rest for data
         memcpy(out_power, &d_power_out[0], sizeof(float)*d_subcarriers);
 
         // Tell runtime system how many output items we produced.
         consume(0,1);
         produce(0,1);
-        produce(1,2);
+        produce(1,1);
         produce(2,1);
         return WORK_CALLED_PRODUCE;
     }

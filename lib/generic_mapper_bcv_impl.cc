@@ -40,20 +40,19 @@ namespace gr {
     namespace ofdm {
 
         generic_mapper_bcv::sptr
-        generic_mapper_bcv::make(int vlen, bool coding)
+        generic_mapper_bcv::make(int vlen, bool coding, const unsigned int frame_size)
         {
             return gnuradio::get_initial_sptr
-                (new generic_mapper_bcv_impl(vlen, coding));
+                (new generic_mapper_bcv_impl(vlen, coding, frame_size));
         }
 
         /*
          * The private constructor
          */
-        generic_mapper_bcv_impl::generic_mapper_bcv_impl(int vlen, bool coding)
+        generic_mapper_bcv_impl::generic_mapper_bcv_impl(int vlen, bool coding, const unsigned int frame_size)
             : gr::block("generic_mapper_bcv",
-                    gr::io_signature::make3(3, 3, sizeof(char),             // bit stream
-                        sizeof(char)*vlen,                                  // bitmap
-                        sizeof(char)),                                      // trigger
+                    gr::io_signature::make2(2, 2, sizeof(char),             // bit stream
+                        sizeof(char)*vlen),                                  // bitmap
                     gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen))  // ofdm blocks
               , d_vlen( vlen )
               , d_coding( coding )
@@ -61,11 +60,19 @@ namespace gr {
               , mod( new ofdmi_modem() )
               , d_need_bitmap( 1 )
               , d_bitmap( new char[vlen] )
+              , d_id_bitmap( new char[vlen] )
+              , d_symbol_counter(0)
+              , d_frame_size(frame_size)
 
         {
             for( int i = 0; i < vlen; ++i ){
                 d_bitmap[i] = 0;
             }
+            for(int i=0;i<d_vlen;i++)
+            {
+                d_id_bitmap[i]=1;
+            }
+
 
             if(DEBUG)
                 std::cout << "[mapper " << unique_id() << "] vlen=" << vlen << " coding=" << d_coding << std::endl;
@@ -114,7 +121,6 @@ namespace gr {
             /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
             ninput_items_required[0] = d_need_bits;
             ninput_items_required[1] = d_need_bitmap;
-            ninput_items_required[2] = noutput_items;
         }
 
         int
@@ -138,11 +144,7 @@ namespace gr {
                 return 0;
             }
 
-            if( ninput_items[2] == 0 && input_done[2] ){
-                return -1;
-            }
-
-            return std::min( available_space, ninput_items[2] );
+            return available_space;
 
         }
 
@@ -154,35 +156,27 @@ namespace gr {
         {
             const char *data = static_cast<const char*>(input_items[0]);
             const char *cv = static_cast<const char*>(input_items[1]);
-            const char *trig = static_cast<const char*>(input_items[2]);
             gr_complex *blk = static_cast<gr_complex*>(output_items[0]);
 
             int n_bits = ninput_items[0];
             int n_cv = ninput_items[1];
-            int n_trig = ninput_items[2];
             int nout = noutput_items;
 
-            /*
-               std::cout << "\tn_bits = " << n_bits
-               << "\n\tn_cv = " << n_cv
-               << "\n\tn_trig = " << n_trig
-               << "\n\tnout = " << nout << std::endl;
-               */
             int n_min = std::min( nout, n_cv );
-
 
             if(DEBUG)
                 std::cout << "[mapper " << unique_id() << "] entered, state is "
                     << "n_bits=" << n_bits << " n_cv=" << n_cv
-                    << " n_trig=" << n_trig << " nout=" << nout
                     << " d_need_bits=" << d_need_bits
                     << " d_need_bitmap=" << d_need_bitmap << std::endl;
 
             bool copy = false;
             const char *map = d_bitmap.get();
 
-            for( int i = 0; i < n_min; ++i, ++trig ){
-                if( *trig == 1 )
+            for( int i = 0; i < n_min; ++i){
+                
+                //get map for data
+                if(d_symbol_counter==1)
                 {
                     if( n_cv > 0 )
                     {
@@ -218,12 +212,36 @@ namespace gr {
                         break;
 
                     } // n_cv > 0
+                } // d_symbol_counter == 1
 
-                } // *trig == 1
+
+                //get map for id
+                if(d_symbol_counter==0){
+                    // update bitmap buffer
+                    map = d_id_bitmap;
+
+                    d_need_bits = calc_bit_amount( d_id_bitmap, d_vlen, d_coding );
+
+                    // if not enough input, won't consume trigger, therefore
+                    // don't consume bitmap item
+                    if( n_bits < d_need_bits ){
+                        d_need_bitmap = 1;
+                        break;
+                    }
+
+                    copy = true;
+                    d_need_bitmap = 0;
+
+                    if(DEBUG)
+                        std::cout << "Consume 0 bitmap item, leave " << n_cv << " items"
+                            << " and need " << d_need_bits << " bits while "
+                            << n_bits << " bits left" << std::endl;
+                } // d_symbol_counter == 0
+
+                if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
 
 
                 // check if we have enough bits
-
                 if( n_bits < d_need_bits ){
 
                     if(DEBUG)
@@ -280,7 +298,6 @@ namespace gr {
             consume(0, ninput_items[0]-n_bits);
 
             int p = noutput_items - nout;
-            consume(2, p); // trigger items
 
             return p;
         }

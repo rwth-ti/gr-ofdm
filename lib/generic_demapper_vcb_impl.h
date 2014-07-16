@@ -34,7 +34,6 @@
  * Input ports:
  *  1. data blocks
  *  2. bit maps
- *  3. update trigger
  *
  * Output ports:
  *  1. bit stream
@@ -54,15 +53,20 @@ namespace gr {
     {
      private:
       int d_vlen;
-	  int d_items_req;
-	  int d_need_bitmap;
+      int d_items_req;
+      int d_need_bitmap;
 
-	  // internal state
-	  boost::shared_array<char> d_bitmap;
-	  boost::shared_ptr<ofdmi_modem> d_demod;
+      // internal state
+      boost::shared_array<char> d_bitmap;
+      boost::shared_ptr<ofdmi_modem> d_demod;
+
+      unsigned int d_symbol_counter;
+      char* d_id_bitmap;
+      const unsigned int d_frame_size;
+
 
      public:
-      generic_demapper_vcb_impl(int vlen);
+      generic_demapper_vcb_impl(int vlen, const unsigned int frame_size);
       ~generic_demapper_vcb_impl();
 
       // Where all the action really happens
@@ -75,9 +79,9 @@ namespace gr {
       std::vector<gr_complex> get_constellation( int bits );
 
       int general_work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+               gr_vector_int &ninput_items,
+               gr_vector_const_void_star &input_items,
+               gr_vector_void_star &output_items);
     };
 
   } // namespace ofdm

@@ -47,7 +47,7 @@ namespace gr {
        * class. ofdm::generic_mapper_bcv::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen, bool coding);
+      static sptr make(int vlen, bool coding, const unsigned int frame_size);
     };
 
   } // namespace ofdm

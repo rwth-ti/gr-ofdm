@@ -59,8 +59,8 @@ namespace gr {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
-        out_sig[2] = sizeof(uint8_t)*subcarriers;                  // bitloading
-        out_sig[3] = sizeof(float)*subcarriers;            // power
+        out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
+        out_sig[3] = sizeof(float)*subcarriers;                 // power
         set_output_signature(io_signature::makev(4,4,out_sig));
 
 
@@ -144,11 +144,6 @@ namespace gr {
 
         // clear and write bitloading output vector
         d_allocation_out.bitloading.clear();
-        // push back ID symbol modulation
-        for(int i=0;i<d_subcarriers;i++)
-        {
-            d_allocation_out.bitloading.push_back(1);
-        }
         // insert data symbol modulation at the end ONCE
         d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), bitloading.begin(), bitloading.end());
 
@@ -187,9 +182,9 @@ namespace gr {
                 out_id[i] = d_allocation_out.id;
                 out_bitcount[i] = d_bitcount_out;
                 //FIXME: probably dirty hack
-                // output 2 vectors for id and data
-                int bl_idx = i*2*d_subcarriers;
-                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*2*d_subcarriers);
+                // output vectors data (bpsk is used for id)
+                int bl_idx = i*d_subcarriers;
+                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
                 // output 1 vector for id and the rest for data
                 int p_idx = i*d_subcarriers;
                 memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
@@ -204,7 +199,7 @@ namespace gr {
                 // Tell runtime system how many output items we produced.
                 produce(0,1);
                 produce(1,1);
-                produce(2,2);
+                produce(2,1);
                 produce(3,1);
             }
             

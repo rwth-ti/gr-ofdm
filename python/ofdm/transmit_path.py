@@ -180,10 +180,6 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, ber_ref_src, "data/ber_rec_src_tx.char")
 
-    ## Bitmap Update Trigger
-    bmaptrig_stream = [1, 1]+[0]*(config.frame_data_part-2)
-    btrig = self._bitmap_trigger = blocks.vector_source_b(bmaptrig_stream, True)
-
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
 
@@ -221,10 +217,9 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, dmux_f, "data/dmux_out.float")
 
     ## Modulator
-    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding)
+    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding, config.frame_data_part)
     self.connect(dmux,(mod,0))
     self.connect(bitloading_src,(mod,1))
-    self.connect(btrig,(mod,2))
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")

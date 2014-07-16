@@ -375,10 +375,6 @@ class receive_path(gr.hier_block2):
     self.connect(power_src,(pda,1))
 
     ## Demodulator
-    dm_trig = [0]*config.frame_data_part
-    dm_trig[0] = 1
-    dm_trig[1] = 2
-    dm_trig = blocks.vector_source_b(dm_trig,True) # TODO
 #    if 0:
 #          ac_vector = [0.0+0.0j]*208
 #          ac_vector[0] = (2*10**(-0.452))
@@ -406,8 +402,7 @@ class receive_path(gr.hier_block2):
             #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
         self.connect(dm_trig,(demod,3))
     else:
-        demod = self._data_demodulator = generic_demapper_vcb(dsubc)
-        self.connect(dm_trig,(demod,2))
+        demod = self._data_demodulator = generic_demapper_vcb(dsubc, config.frame_data_part)
     if options.benchmarking:
         # Do receiver benchmarking until the number of frames x symbols are collected
         self.connect(pda,blocks.head(gr.sizeof_gr_complex*dsubc, options.N*config.frame_data_blocks),demod)

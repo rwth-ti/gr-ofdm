@@ -35,14 +35,17 @@ namespace gr {
     {
      private:
       int d_vlen;
-	  int d_need_bits;
-	  ofdmi_modem *mod;
-	  bool d_coding;
-	  int d_need_bitmap;
-	  boost::shared_array<char> d_bitmap;
+      int d_need_bits;
+      ofdmi_modem *mod;
+      bool d_coding;
+      int d_need_bitmap;
+      boost::shared_array<char> d_bitmap;
+      unsigned int d_symbol_counter;
+      char* d_id_bitmap;
+      const unsigned int d_frame_size;
 
      public:
-      generic_mapper_bcv_impl(int vlen, bool coding);
+      generic_mapper_bcv_impl(int vlen, bool coding, const unsigned int frame_size);
       ~generic_mapper_bcv_impl();
 
       // Where all the action really happens
@@ -53,9 +56,9 @@ namespace gr {
           std::vector<bool> &input_done );
 
       int general_work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+               gr_vector_int &ninput_items,
+               gr_vector_const_void_star &input_items,
+               gr_vector_void_star &output_items);
     };
 
   } // namespace ofdm

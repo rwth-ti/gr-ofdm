@@ -47,7 +47,7 @@ namespace gr {
        * class. ofdm::generic_demapper_vcb::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen);
+      static sptr make(int vlen, const unsigned int frame_size);
       virtual std::vector<gr_complex> get_constellation( int bits ) = 0;
     };
 

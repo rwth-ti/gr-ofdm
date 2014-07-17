@@ -41,7 +41,7 @@ namespace gr {
      * The private constructor
      */
     allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols, char *address)
-        : gr::block("allocation_buffer",
+        : gr::sync_block("allocation_buffer",
                          gr::io_signature::make(1, 1, sizeof(short)),
                          gr::io_signature::make(0, 0, 0))
         ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_buffer(256) //TODO: id size hardcoded
@@ -161,10 +161,9 @@ namespace gr {
 
 
     int
-    allocation_buffer_impl::general_work(int noutput_items,
-                                         gr_vector_int &ninput_items,
-                                         gr_vector_const_void_star &input_items,
-                                         gr_vector_void_star &output_items)
+    allocation_buffer_impl::work(int noutput_items,
+                                 gr_vector_const_void_star &input_items,
+                                 gr_vector_void_star &output_items)
 
     {
         const short *in_id = (const short *) input_items[0];
@@ -172,25 +171,22 @@ namespace gr {
         uint8_t *out_bitloading = (uint8_t *) output_items[1];
         float *out_power = (float *) output_items[2];
 
-        // Receive allocation from Tx
-        recv_allocation();
-        // set new allocation
+        for(int i=0; i < noutput_items; i++)
+        {
+            // Receive allocation from Tx
+            recv_allocation();
+            // set new allocation
 
-        set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
-        // output
-        *out_bitcount = d_bitcount_out; 
-        //FIXME: probably dirty hack
-        // output vector for data (bpsk is used for id)
-        memcpy(out_bitloading, &d_bitloading_out[0], sizeof(uint8_t)*d_subcarriers);
-        // output 1 vector for id and the rest for data
-        memcpy(out_power, &d_power_out[0], sizeof(float)*d_subcarriers);
-
-        // Tell runtime system how many output items we produced.
-        consume(0,1);
-        produce(0,1);
-        produce(1,1);
-        produce(2,1);
-        return WORK_CALLED_PRODUCE;
+            set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
+            // output
+            out_bitcount[i] = d_bitcount_out; 
+            //FIXME: probably dirty hack
+            // output vector for data (bpsk is used for id)
+            memcpy(&out_bitloading[i*d_subcarriers], &d_bitloading_out[0], sizeof(uint8_t)*d_subcarriers);
+            // output 1 vector for id and the rest for data
+            memcpy(&out_power[i*d_subcarriers], &d_power_out[0], sizeof(float)*d_subcarriers);
+        }
+        return noutput_items;
     }
 
   } /* namespace ofdm */

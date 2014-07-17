@@ -171,40 +171,29 @@ namespace gr {
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
         float *out_power = (float *) output_items[3];
 
-        if (noutput_items < (1+d_data_symbols)) {
-            return 0;
-        } else {
-            for (int i = 0; i < (noutput_items / ((1+d_data_symbols))); i++) {
-                // send the allocation to Rx
-                send_allocation();
+        for (int i = 0; i < (noutput_items); i++) {
+            // send the allocation to Rx
+            send_allocation();
 
-                // now generate outputs
-                out_id[i] = d_allocation_out.id;
-                out_bitcount[i] = d_bitcount_out;
-                //FIXME: probably dirty hack
-                // output vectors data (bpsk is used for id)
-                int bl_idx = i*d_subcarriers;
-                memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
-                // output 1 vector for id and the rest for data
-                int p_idx = i*d_subcarriers;
-                memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
+            // now generate outputs
+            out_id[i] = d_allocation_out.id;
+            out_bitcount[i] = d_bitcount_out;
+            //FIXME: probably dirty hack
+            // output vectors data (bpsk is used for id)
+            int bl_idx = i*d_subcarriers;
+            memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
+            // output 1 vector for id and the rest for data
+            int p_idx = i*d_subcarriers;
+            memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
 
-                //increase frame id, [0..255]
-                d_allocation.id++;
-                if (d_allocation.id > 255) {
-                    d_allocation.id = 0;
-                }
-                d_allocation_out.id = d_allocation.id;
-
-                // Tell runtime system how many output items we produced.
-                produce(0,1);
-                produce(1,1);
-                produce(2,1);
-                produce(3,1);
+            //increase frame id, [0..255]
+            d_allocation.id++;
+            if (d_allocation.id > 255) {
+                d_allocation.id = 0;
             }
-            
-            return WORK_CALLED_PRODUCE;
-        }
+            d_allocation_out.id = d_allocation.id;
+        } 
+        return noutput_items;
     }
   } /* namespace ofdm */
 } /* namespace gr */

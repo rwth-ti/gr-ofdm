@@ -35,7 +35,7 @@ namespace gr {
          * \ingroup ofdm
          *
          */
-        class OFDM_API allocation_buffer : virtual public gr::block
+        class OFDM_API allocation_buffer : virtual public gr::sync_block
         {
             public:
                 typedef boost::shared_ptr<allocation_buffer> sptr;

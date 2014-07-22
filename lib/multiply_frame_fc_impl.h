@@ -36,7 +36,7 @@ namespace gr {
       std::vector<float> d_hold_power; 
 
     public:
-      multiply_frame_fc_impl(const unsigned int frame_size, size_t subc);
+      multiply_frame_fc_impl(size_t frame_size, size_t subc);
       ~multiply_frame_fc_impl();
 
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);

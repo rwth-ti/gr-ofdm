@@ -31,12 +31,12 @@
 namespace gr {
   namespace ofdm {
 
-    multiply_frame_fc::sptr multiply_frame_fc::make(const unsigned int frame_size, size_t subc)
+    multiply_frame_fc::sptr multiply_frame_fc::make(size_t frame_size, size_t subc)
     {
       return gnuradio::get_initial_sptr(new multiply_frame_fc_impl(frame_size, subc));
     }
 
-    multiply_frame_fc_impl::multiply_frame_fc_impl(const unsigned int frame_size, size_t subc)
+    multiply_frame_fc_impl::multiply_frame_fc_impl(size_t frame_size, size_t subc)
       : gr::block("multiply_frame_fc",
               gr::io_signature::make2 (2, 2,sizeof(gr_complex)*subc, sizeof(float)*subc),
               gr::io_signature::make (1,  1, sizeof(gr_complex)*subc)),

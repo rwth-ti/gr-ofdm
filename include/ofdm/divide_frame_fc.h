@@ -45,10 +45,10 @@ namespace gr {
 
       /*!
        * \brief Multiply streams of complex values
-       * \param vlen Vector length
+       * \param subc Subcarrier count
        * \ingroup math_blk
        */
-      static sptr make(const unsigned int frame_size, size_t subc=1);
+      static sptr make(size_t frame_size, size_t subc);
     };
 
   } /* namespace ofdm */

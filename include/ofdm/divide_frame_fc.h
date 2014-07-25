@@ -30,7 +30,7 @@ namespace gr {
   namespace ofdm {
 
     /*!
-     * \brief output = prod (input_0, input_1, ...)
+     * \brief output = prod (input_0, input_1)
      * \ingroup math_operators_blk
      *
      * \details
@@ -44,9 +44,10 @@ namespace gr {
       typedef boost::shared_ptr<divide_frame_fc> sptr;
 
       /*!
-       * \brief Multiply streams of complex values
-       * \param subc Subcarrier count
-       * \ingroup math_blk
+       * \brief Multiply OFDM frames with power allocation vector
+       * \param frame_size Number of OFDM symbols in frame
+       * \param subc Number of subcarriers per OFDM symbol
+       * \ingroup ofdm
        */
       static sptr make(size_t frame_size, size_t subc);
     };

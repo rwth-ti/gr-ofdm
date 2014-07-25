@@ -44,7 +44,7 @@ namespace gr {
       typedef boost::shared_ptr<divide_frame_fc> sptr;
 
       /*!
-       * \brief Multiply OFDM frames with power allocation vector
+       * \brief Divide OFDM frames with power allocation vector
        * \param frame_size Number of OFDM symbols in frame
        * \param subc Number of subcarriers per OFDM symbol
        * \ingroup ofdm

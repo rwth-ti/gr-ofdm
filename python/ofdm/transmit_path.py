@@ -298,6 +298,9 @@ class transmit_path(gr.hier_block2):
     bits = 8*config.data_subcarriers*config.frame_data_blocks # max. QAM256
     samples_per_frame = config.frame_length*config.block_length
     tb = samples_per_frame/bandwidth
+    # set dummy carrier frequency if none available due to baseband mode
+    if(options.tx_freq is None):
+        options.tx_freq = 0.0
     self.tx_parameters = {'carrier_frequency':options.tx_freq/1e9,'fft_size':config.fft_length, 'cp_size':config.cp_length \
                           , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
                           ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \

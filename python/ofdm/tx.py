@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, filter
+from gnuradio import gr, filter, zeromq
 from gnuradio import eng_notation
 from configparse import OptionParser
 
@@ -30,7 +30,6 @@ from uhd_interface import uhd_transmitter
 from transmit_path import transmit_path
 
 import os
-import zmqblocks
 
 import channel
 
@@ -80,7 +79,7 @@ class tx_top_block(gr.top_block):
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Transmitter
-        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx = zeromq.rpc_manager()
         self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
         self.rpc_mgr_tx.start_watcher()
 

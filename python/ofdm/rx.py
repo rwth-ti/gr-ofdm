@@ -22,6 +22,7 @@
 
 from gnuradio import gr
 from gnuradio import eng_notation
+from gnuradio import zeromq
 from configparse import OptionParser
 
 from gnuradio import blocks
@@ -31,7 +32,6 @@ from receive_path import receive_path
 from gr_tools import log_to_file
 
 import os
-import zmqblocks
 
 
 class rx_top_block(gr.top_block):
@@ -59,7 +59,7 @@ class rx_top_block(gr.top_block):
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Receiver
-      self.rpc_mgr_rx = zmqblocks.rpc_manager()
+      self.rpc_mgr_rx = zeromq.rpc_manager()
       self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
       self.rpc_mgr_rx.start_watcher()
 

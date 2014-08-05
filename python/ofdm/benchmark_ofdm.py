@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blocks, analog
+from gnuradio import gr, blocks, analog, zeromq
 from gnuradio import eng_notation
 from configparse import OptionParser
 from gnuradio import filter
@@ -51,7 +51,6 @@ import numpy
 
 import copy
 
-import zmqblocks
 
 import channel
 
@@ -226,12 +225,12 @@ class ofdm_benchmark (gr.top_block):
 
   def _setup_rpc_manager(self):
    ## Adding rpc manager for Transmitter
-    self.rpc_mgr_tx = zmqblocks.rpc_manager()
+    self.rpc_mgr_tx = zeromq.rpc_manager()
     self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
     self.rpc_mgr_tx.start_watcher()
 
     ## Adding rpc manager for Receiver
-    self.rpc_mgr_rx = zmqblocks.rpc_manager()
+    self.rpc_mgr_rx = zeromq.rpc_manager()
     self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
     self.rpc_mgr_rx.start_watcher()
 

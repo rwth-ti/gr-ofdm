@@ -22,7 +22,7 @@
 
 from numpy import concatenate, log10
 from gnuradio import eng_notation
-from gnuradio import gr, filter
+from gnuradio import gr, filter, zeromq
 from gnuradio import blocks
 from gr_tools import log_to_file, terminate_stream
 
@@ -52,7 +52,6 @@ import preambles
 from os import getenv
 import os
 
-import zmqblocks
 
 import numpy
 
@@ -470,7 +469,7 @@ class receive_path(gr.hier_block2):
               #self.connect(map_src,(scatter_sink,1))
               #self.connect(dm_trig,(scatter_sink,2))
               #print "Enabled scatterplot gui interface"
-            self.zmq_probe_scatter = zmqblocks.sink_pubsub(gr.sizeof_gr_complex*config.frame_data_blocks, "tcp://*:5560")
+            self.zmq_probe_scatter = zeromq.pub_sink(gr.sizeof_gr_complex,config.frame_data_blocks, "tcp://*:5560")
             self.connect(scatter_s2v, blocks.keep_one_in_n(gr.sizeof_gr_complex*config.frame_data_blocks,20), self.zmq_probe_scatter)
         else:
             print "Enabling Scatterplot for data before phase tracking"
@@ -576,15 +575,6 @@ class receive_path(gr.hier_block2):
     #output branches
     self.publish_rx_performance_measure()
 
-#    ## Adding rpc manager for Receiver
-#    self.rpc_mgr_rx = zmqblocks.rpc_manager()
-#    self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
-#    self.rpc_mgr_rx.start_watcher()
-  
-#    if options.scatterplot:
-#      print "Scatterplot enabled"
-#      self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.set_scatterplot_subc)
-
 
   def filter_constellation_samples_to_file( self ):
 
@@ -635,7 +625,7 @@ class receive_path(gr.hier_block2):
 
     ctf = self.filter_ctf()
 
-    self.zmq_probe_ctf = zmqblocks.sink_pubsub(gr.sizeof_float*config.data_subcarriers, "tcp://*:5559")
+    self.zmq_probe_ctf = zeromq.pub_sink(gr.sizeof_float,config.data_subcarriers, "tcp://*:5559")
     self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,20) ,self.zmq_probe_ctf)
 #    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
 #                                    config.ns_port,vlen,config.rx_station_id)
@@ -666,10 +656,10 @@ class receive_path(gr.hier_block2):
 
 
       if self._options.sinr_est is False:
-          self.zmq_probe_ber = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5556")
+          self.zmq_probe_ber = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5556")
           self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_ber)
 
-          self.zmq_probe_snr = zmqblocks.sink_pubsub(gr.sizeof_float, "tcp://*:5555")
+          self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
           self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_snr)
 
 

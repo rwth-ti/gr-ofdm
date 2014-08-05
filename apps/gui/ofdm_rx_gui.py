@@ -25,13 +25,13 @@ import PyQt4.Qt as Qt
 import PyQt4.Qwt5 as Qwt
 from gnuradio import eng_notation
 from gnuradio import gr
+from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 import sys
 import os
 import signal
 import numpy
-import zmqblocks
 
 class OFDMRxGUI(QtGui.QMainWindow):
     """ All of this controls the actual GUI. """
@@ -47,16 +47,16 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.update_timer = Qt.QTimer()
 
         # ZeroMQ
-        self.probe_manager = zmqblocks.probe_manager()
+        self.probe_manager = zeromq.probe_manager()
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5555", 'float32', self.plot_snr)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5556", 'float32', self.plot_ber)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5557", 'float32', self.plot_freqoffset)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'uint8', self.plot_rate)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5560", 'complex64', self.plot_scatter)
-        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx = zeromq.rpc_manager()
         self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
-        self.rpc_mgr_rx = zmqblocks.rpc_manager()
+        self.rpc_mgr_rx = zeromq.rpc_manager()
         self.rpc_mgr_rx.set_request_socket("tcp://"+self.options.rx_hostname+":5550")
 
 

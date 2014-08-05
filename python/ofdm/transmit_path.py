@@ -21,7 +21,7 @@
 #
 
 from gnuradio import eng_notation
-from gnuradio import gr, blocks, analog, filter
+from gnuradio import gr, blocks, analog, filter, zeromq
 from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
@@ -43,7 +43,6 @@ from station_configuration import *
 
 from random import seed,randint, getrandbits
 
-import zmqblocks
 
 class transmit_path(gr.hier_block2):
   """
@@ -150,12 +149,12 @@ class transmit_path(gr.hier_block2):
         log_to_file(self, power_src, "data/power_src.cmplx")
 
     ## GUI probe output
-    zmq_probe_bitloading = zmqblocks.sink_pubsub(gr.sizeof_char*dsubc, "tcp://*:4445")
+    zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
     # also skip ID symbol bitloading with keep_one_in_n (side effect)
     # factor 2 for bitloading because we have two vectors per frame, one for id symbol and one for all payload/data symbols
     # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
     self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
-    zmq_probe_power = zmqblocks.sink_pubsub(gr.sizeof_float*dsubc, "tcp://*:4444")
+    zmq_probe_power = zeromq.pub_sink(gr.sizeof_float,dsubc, "tcp://*:4444")
     #self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,40), blocks.complex_to_real(dsubc), zmq_probe_power)
     self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,40), zmq_probe_power)
 

@@ -25,13 +25,13 @@ import PyQt4.Qt as Qt
 import PyQt4.Qwt5 as Qwt
 from gnuradio import eng_notation
 from gnuradio import gr
+from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 import sys
 import os
 import signal
 import numpy
-import zmqblocks
 
 
 class OFDMRxGUI(QtGui.QMainWindow):
@@ -48,10 +48,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.plot_timer = Qt.QTimer()
 
         # ZeroMQ
-        self.probe_manager = zmqblocks.probe_manager()
+        self.probe_manager = zeromq.probe_manager()
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4444", 'f', self.plot_powerallocation)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'B', self.plot_bitloading)
-        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx = zeromq.rpc_manager()
         self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
 
 

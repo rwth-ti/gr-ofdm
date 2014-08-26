@@ -26,7 +26,8 @@ include(GrPlatform) #define LIB_SUFFIX
 include_directories(${Boost_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/../include
-    ${VOLK_INCLUDE_DIRS})
+    ${VOLK_INCLUDE_DIRS}
+    ${ZEROMQ_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND ofdm_sources
     accumulator_cc_impl.cc
@@ -150,15 +151,10 @@ target_link_libraries(gnuradio-ofdm
     ${GNURADIO_FEC_LIBRARIES}
     ${GNURADIO_TRELLIS_LIBRARIES}
     ${ITPP_LIBRARIES}
-    ${ZeroMQ_LIBRARIES}
+    ${ZEROMQ_LIBRARIES}
     )
 
 add_dependencies(gnuradio-ofdm gnuradio-runtime gnuradio-fft gnuradio-blocks gnuradio-filter gnuradio-fec gnuradio -trellis)
-# tao_ofdmti)
-message(STATUS "gnuradio-fft: ${gnuradio-fft}")
-message(STATUS "Boost_LIBRARIES at: ${Boost_LIBRARIES}")
-message(STATUS "GNURADIO_RUNTIME_LIBRARIES at: ${GNURADIO_RUNTIME_LIBRARIES}")
-message(STATUS "TAO_LIBRARIES at: ${CMAKE_BINARY_DIR}/tao_skeleton/libtao_ofdmti.a")
 
 set_target_properties(gnuradio-ofdm PROPERTIES DEFINE_SYMBOL "gnuradio_ofdm_EXPORTS")
 

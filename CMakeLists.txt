@@ -126,7 +126,10 @@ if(NOT ITPP_FOUND)
     message(FATAL_ERROR "IT++ required for to build gr-ofdm")
 endif()
 
-if(NOT ZEROMQ_FOUND)
+
+if(ZEROMQ_FOUND)
+    message(STATUS "ZEROMQ_INCLUDE_DIRS at: ${ZEROMQ_INCLUDE_DIRS}")
+else()
     message(FATAL_ERROR "ZeroMQ required to build gr-ofdm")
 endif()
 
@@ -154,10 +157,9 @@ include_directories(
     ${ITPP_INCLUDE_DIR}/itpp
     ${QWT_INCLUDE_DIRS}
     ${QT_INCLUDE_DIRS}
-    ${ZeroMQ_INCLUDE_DIRS}
+    ${ZEROMQ_INCLUDE_DIRS}
 
 )
-message(STATUS "GR_FFT_INCLUDE_DIRS at: ${GR_FFT_INCLUDE_DIRS}")
 link_directories(
     ${Boost_LIBRARY_DIRS}
     ${CPPUNIT_LIBRARY_DIRS}

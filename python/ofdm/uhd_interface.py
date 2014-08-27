@@ -43,7 +43,7 @@ def add_freq_option(parser):
 
 class uhd_interface:
     def __init__(self, istx, args, bandwidth, freq=None, lo_offset=None,
-                 gain=None, spec=None, antenna=None, clock_source=None):
+                 gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
         
         if(istx):
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
@@ -53,6 +53,9 @@ class uhd_interface:
         # Set clock source to external.
         if(clock_source):        
             self.u.set_clock_source(clock_source, 0)
+            
+        if(time_source):        
+            self.u.set_time_source(time_source, 0)
 
         # Set the subdevice spec
         if(spec):
@@ -70,6 +73,7 @@ class uhd_interface:
         self._freq = self.set_freq(freq, lo_offset)
         self._rate = self.set_sample_rate(bandwidth)
         self._clock_source = clock_source
+        self._time_source = time_source
 
     def set_sample_rate(self, bandwidth):
         self.u.set_samp_rate(bandwidth)
@@ -113,7 +117,7 @@ class uhd_interface:
 
 class uhd_transmitter(uhd_interface, gr.hier_block2):
     def __init__(self, args, bandwidth, freq=None, lo_offset=None, gain=None,
-                 spec=None, antenna=None, clock_source=None, verbose=False):
+                 spec=None, antenna=None, clock_source=None, time_source=None, verbose=False):
         gr.hier_block2.__init__(self, "uhd_transmitter",
                                 gr.io_signature(1,1,gr.sizeof_gr_complex),
                                 gr.io_signature(0,0,0))
@@ -125,7 +129,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
 
         # Set up the UHD interface as a transmitter
         uhd_interface.__init__(self, True, args, bandwidth,
-                               freq, lo_offset, gain, spec, antenna, clock_source)
+                               freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         self.connect(self, self.u)
 
@@ -148,7 +152,9 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         parser.add_option("", "--tx-gain", type="eng_float", default=None,
                           help="set transmit gain in dB (default is midpoint)")
         parser.add_option("-C", "--clock-source", type="string", default=None,
-                          help="select clock source (e.g. 'external') [default=%default]")
+                          help="select clock source (e.g. 'external', 'mimo') [default=%default]")
+        parser.add_option("-T", "--time-source", type="string", default=None,
+                          help="select time source (e.g. 'external') [default=%default]")
         parser.add_option("-v", "--verbose", action="store_true", default=False)
 
     # Make a static method to call before instantiation
@@ -167,6 +173,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         print "Antenna:      %s"    % (self._ant)
         print "Subdev Sec:   %s"    % (self._spec)
         print "Clock Source: %s"    % (self._clock_source)
+        print "TimeSource: %s"    % (self._time_source)
 
 
 
@@ -177,14 +184,14 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
 
 class uhd_receiver(uhd_interface, gr.hier_block2):
     def __init__(self, args, bandwidth, freq=None, lo_offset=None, gain=None,
-                 spec=None, antenna=None, clock_source=None, verbose=False):
+                 spec=None, antenna=None, clock_source=None, time_source=None, verbose=False):
         gr.hier_block2.__init__(self, "uhd_receiver",
                                 gr.io_signature(0,0,0),
                                 gr.io_signature(1,1,gr.sizeof_gr_complex))
       
         # Set up the UHD interface as a receiver
         uhd_interface.__init__(self, False, args, bandwidth,
-                               freq, lo_offset, gain, spec, antenna, clock_source)
+                               freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         self.connect(self.u, self)
 
@@ -207,7 +214,9 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
         parser.add_option("", "--rx-gain", type="eng_float", default=None,
                           help="set receive gain in dB (default is midpoint)")
         parser.add_option("-C", "--clock-source", type="string", default=None,
-                          help="select clock source (e.g. 'external') [default=%default]")
+                          help="select clock source (e.g. 'external', 'mimo') [default=%default]")
+        parser.add_option("-T", "--time-source", type="string", default=None,
+                          help="select time source (e.g. 'external') [default=%default]")
         if not parser.has_option("--verbose"):
             parser.add_option("-v", "--verbose", action="store_true", default=False)
 
@@ -227,4 +236,5 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
         print "Antenna:      %s"    % (self._ant)
         print "Subdev Sec:   %s"    % (self._spec)
         print "Clock Source: %s"    % (self._clock_source)
+        print "Time Source: %s"    % (self._time_source)
 

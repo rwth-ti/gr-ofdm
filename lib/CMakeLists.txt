@@ -139,7 +139,17 @@ list(APPEND ofdm_sources
     reference_data_source_02_ib_impl.cc
     allocation_src_impl.cc
     allocation_buffer_impl.cc
-    tx_mux_ctrl_impl.cc )
+    tx_mux_ctrl_impl.cc
+    fbmc_oqam_preprocessing_vcvc_impl.cc
+    fbmc_oqam_postprocessing_vcvc_impl.cc
+    fbmc_beta_multiplier_vcvc_impl.cc
+    fbmc_separate_vcvc_impl.cc
+    fbmc_polyphase_network_vcvc_impl.cc
+    fbmc_vector_copy_vcvc_impl.cc
+    fbmc_junction_vcvc_impl.cc
+    fbmc_subchannel_processing_vcvc_impl.cc
+    fbmc_weighted_spreading_vcvc_impl.cc
+    fbmc_weighted_despreading_vcvc_impl.cc )
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm

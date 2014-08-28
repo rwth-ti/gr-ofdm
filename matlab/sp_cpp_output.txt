@@ -1,0 +1,4 @@
+M=128
+syms_per_frame=20
+sel_eq=1
+preamble_length=384

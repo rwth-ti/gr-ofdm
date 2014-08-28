@@ -33,7 +33,16 @@ GR_PYTHON_INSTALL(
     benchmark_ofdm.py
     rx.py
     tx.py
-    DESTINATION bin
+    fbmc_insert_preamble_vcvc.py
+    fbmc_overlapping_parallel_to_serial_vcc.py
+    fbmc_overlapping_serial_to_parallel_cvc.py
+    fbmc_vector_reshape_vcvc.py
+    fbmc_remove_preamble_vcvc.py
+    fbmc_channel_hier_cc.py
+    fbmc_receiver_hier_cb.py
+    fbmc_transmitter_hier_bc.py
+    fbmc_symbol_estimation_vcb.py
+    fbmc_symbol_creation_bvc.py DESTINATION bin
 )
 
 GR_PYTHON_INSTALL(
@@ -78,3 +87,25 @@ include(GrTest)
 set(GR_TEST_TARGET_DEPS gnuradio-test1)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
 GR_ADD_TEST(qa_multiply_frame_fc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multiply_frame_fc.py)
+GR_ADD_TEST(qa_fbmc_oqam_preprocessing_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_oqam_preprocessing_vcvc.py)
+GR_ADD_TEST(qa_oqam_preprocessing_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_oqam_preprocessing_vcvc.py)
+GR_ADD_TEST(qa_fbmc_oqam_preprocessing_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_oqam_preprocessing_vcvc.py)
+GR_ADD_TEST(qa_fbmc_oqam_postprocessing_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_oqam_postprocessing_vcvc.py)
+GR_ADD_TEST(qa_fbmc_insert_preamble_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_insert_preamble_vcvc.py)
+GR_ADD_TEST(qa_fbmc_beta_multiplier_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_beta_multiplier_vcvc.py)
+GR_ADD_TEST(qa_fbmc_separate_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_separate_vcvc.py)
+GR_ADD_TEST(qa_fbmc_polyphase_network_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_polyphase_network_vcvc.py)
+GR_ADD_TEST(qa_fbmc_overlapping_parallel_to_serial_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_overlapping_parallel_to_serial_vcc.py)
+GR_ADD_TEST(qa_fbmc_overlapping_serial_to_parallel_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_overlapping_serial_to_parallel_cvc.py)
+GR_ADD_TEST(qa_fbmc_vector_reshape_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_vector_reshape_vcvc.py)
+GR_ADD_TEST(qa_fbmc_vector_copy_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_vector_copy_vcvc.py)
+GR_ADD_TEST(qa_fbmc_junction_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_junction_vcvc.py)
+GR_ADD_TEST(qa_fbmc_remove_preamble_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_remove_preamble_vcvc.py)
+GR_ADD_TEST(qa_fbmc_subchannel_processing_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_subchannel_processing_vcvc.py)
+GR_ADD_TEST(qa_fbmc_weighted_spreading_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_weighted_spreading_vcvc.py)
+GR_ADD_TEST(qa_fbmc_weighted_despreading_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_weighted_despreading_vcvc.py)
+GR_ADD_TEST(qa_fbmc_channel_hier_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_channel_hier_cc.py)
+GR_ADD_TEST(qa_fbmc_receiver_hier_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_receiver_hier_cb.py)
+GR_ADD_TEST(qa_fbmc_transmitter_hier_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_transmitter_hier_bc.py)
+GR_ADD_TEST(qa_fbmc_symbol_estimation_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_symbol_estimation_vcb.py)
+GR_ADD_TEST(qa_fbmc_symbol_creation_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_symbol_creation_bvc.py)

@@ -3,6 +3,7 @@
 from gnuradio import gr
 from gnuradio import gr, blocks, analog, filter
 import ofdm
+# import fbmc_swig as transmitter_hier_bc
 import numpy
 
 from numpy import sqrt
@@ -21,6 +22,7 @@ class test_demapper:
     assert( len( const ) == 2**arity )
     
     symsrc = ofdm.symbol_random_src( const, vlen )
+    # tx = transmitter_hier_bc(M=M,K=K,qam_size=qam_size,syms_per_frame=syms_per_frame,theta_sel=theta_sel,exclude_preamble=exclude_preamble,sel_preamble=None)
     acc = ofdm.accumulator_cc()
     skiphead = blocks.skiphead( gr.sizeof_gr_complex, N-1 )
     limit = blocks.head( gr.sizeof_gr_complex, 1 )

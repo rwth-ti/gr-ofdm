@@ -132,5 +132,15 @@ install(FILES
     reference_data_source_02_ib.h
     allocation_src.h
     allocation_buffer.h
-    tx_mux_ctrl.h DESTINATION include/ofdm
+    tx_mux_ctrl.h
+    fbmc_oqam_preprocessing_vcvc.h
+    fbmc_oqam_postprocessing_vcvc.h
+    fbmc_beta_multiplier_vcvc.h
+    fbmc_separate_vcvc.h
+    fbmc_polyphase_network_vcvc.h
+    fbmc_vector_copy_vcvc.h
+    fbmc_junction_vcvc.h
+    fbmc_subchannel_processing_vcvc.h
+    fbmc_weighted_spreading_vcvc.h
+    fbmc_weighted_despreading_vcvc.h DESTINATION include/ofdm
 )

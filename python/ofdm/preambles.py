@@ -47,6 +47,8 @@ class default_block_header (object):
     self.pilotsym_pos = []
     self.pilot_tones = []
     self.pilot_tone_map = []
+    
+    self.fbmc = options.fbmc
 
     self._prepare_pilot_subcarriers(data_subcarriers, fft_length)
 
@@ -118,7 +120,11 @@ class default_block_header (object):
   def _prepare_pilot_subcarriers(self,data_subcarriers,fft_length):
     # FIXME make this parameterisable
     # FIXME pilot subcarriers fixed to 1.0
-    self.pilot_subcarriers = 8
+    
+    if self.fbmc:
+        self.pilot_subcarriers = 0
+    else:
+        self.pilot_subcarriers = 8
     self.subcarriers = subc = self.pilot_subcarriers+data_subcarriers
     self.pilot_subc_sym = [2.0]*(self.pilot_subcarriers)
 
@@ -183,6 +189,7 @@ class pilot_block_inserter(gr.hier_block2):
     fft_length = config.fft_length
     block_length = config.block_length
     cp_length = config.cp_length
+    fbmc = config.fbmc
     
     if add_cyclic_prefix:
       vlen = block_length
@@ -193,7 +200,11 @@ class pilot_block_inserter(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen),
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen))
 
-    mux = ofdm.frame_mux( vlen, config.frame_length )
+
+    if fbmc:
+        mux = ofdm.frame_mux( vlen, config.frame_length +1)
+    else:
+        mux = ofdm.frame_mux( vlen, config.frame_length)
     
     if ant==1:
         for x in range( config.training_data.no_pilotsyms ):
@@ -261,7 +272,11 @@ class pilot_block_filter(gr.hier_block2):
   def __init__ (self):
 
     config = station_configuration()
-    subcarriers = config.subcarriers
+    
+    if config.fbmc:
+        subcarriers = config.data_subcarriers
+    else:
+        subcarriers = config.subcarriers
     frame_length = config.frame_length
 
     gr.hier_block2.__init__(self, "pilot_block_filter",

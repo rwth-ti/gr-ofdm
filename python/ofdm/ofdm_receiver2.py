@@ -43,7 +43,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     config = station_configuration()
     
     fft_length    = config.fft_length
-    cp_length     = config.cp_length
+    #cp_length     = config.cp_length
     block_header  = config.training_data
     data_subc     = config.data_subcarriers
     virtual_subc  = config.virtual_subcarriers
@@ -52,6 +52,18 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     frame_length  = config.frame_length
     
     L             = block_header.mm_periodic_parts
+    
+    if config.fbmc:
+        config.cp_length = 1 #fix later to 0 (sync wont work)
+        config.null_block = 1
+        
+    cp_length     = config.cp_length
+
+
+    
+    print "data_subc: ", config.data_subcarriers
+    print "total_subc: ", config.subcarriers
+    print "frame_lengthframe_length: ", cp_length
     
     
     ## Set Input/Output signature
@@ -83,8 +95,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     
     self._sc_metric = sc_metric = autocorrelator( fft_length/2, fft_length/2 )
     self._gi_metric = gi_metric = autocorrelator( fft_length, cp_length )
-    #log_to_file(self, sc_metric, "data/sc_metric12_1.float")
-    #log_to_file(self, gi_metric, "data/gi_metric12_1.float")
+    log_to_file(self, sc_metric, "data/sc_metric.float")
+    log_to_file(self, gi_metric, "data/gi_metric.float")
     
     self.connect( rx_input, sc_metric )
     self.connect( rx_input, gi_metric )
@@ -159,6 +171,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     fft = fft_blocks.fft_vcc( fft_length, True, [], True )
     self.connect( ofdm_blocks, fft )
     ofdm_blocks = fft
+    
+    log_to_file( self, ofdm_blocks, "data/OFDM_Blocks.compl" )
     
     
     
@@ -323,29 +337,32 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     pilot_subc = block_header.pilot_tones
     pilot_subcarriers = block_header.pilot_subc_sym
     print "PILOT SUBCARRIERS: ", pilot_subcarriers
-        
-    phase_tracking2 = ofdm.lms_phase_tracking_02( total_subc, pilot_subc,
+     
+    if config.fbmc:
+        print "FBMC"
+    else:
+        phase_tracking2 = ofdm.lms_phase_tracking_02( total_subc, pilot_subc,
                                                nondata_blocks )
-    self.connect( ofdm_blocks, ( phase_tracking2, 0 ) )
-    self.connect( frame_start, ( phase_tracking2, 1 ) ) ##
+        self.connect( ofdm_blocks, ( phase_tracking2, 0 ) )
+        self.connect( frame_start, ( phase_tracking2, 1 ) ) ##
+        
+        if options.disable_phase_tracking or options.ideal:
+            terminate_stream(self, phase_tracking2)
+            print "Disabled phase tracking stage"
+        else:
+            ofdm_blocks = phase_tracking2
     
     if options.scatter_plot_before_phase_tracking:
       self.before_phase_tracking = equalizer
-      
-    
-    if options.disable_phase_tracking or options.ideal:
-      terminate_stream(self, phase_tracking2)
-      print "Disabled phase tracking stage"
-    else:
-      ofdm_blocks = phase_tracking2
         
-
 
     ## Output connections
 
     self.connect( ofdm_blocks, out_ofdm_blocks )
     self.connect( frame_start, out_frame_start )
     self.connect( disp_CTF, out_disp_ctf )
+    
+    log_to_file( self, equalizer, "data/equalizer.compl" )
     
 
     if log:

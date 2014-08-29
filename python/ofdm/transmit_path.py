@@ -26,7 +26,7 @@ from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
 import ofdm as ofdm
-from ofdm import generic_mapper_bcv
+from ofdm import generic_mapper_bcv, midamble_insert
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
 from ofdm import multiply_frame_fc
@@ -66,6 +66,7 @@ class transmit_path(gr.hier_block2):
     config.training_data       = default_block_header(config.data_subcarriers,
                                           config.fft_length,options)
     config.coding              = options.coding
+    config.fbmc                = options.fbmc
 
 
     config.frame_id_blocks     = 1 # FIXME
@@ -74,6 +75,8 @@ class transmit_path(gr.hier_block2):
     rms_amp                    = options.rms_amplitude
     self._options              = copy.copy(options)
 
+    if config.fbmc:
+        config.cp_length = 1 #fix later to 0 (sync wont work)
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
@@ -124,7 +127,7 @@ class transmit_path(gr.hier_block2):
         bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # power loading, here same for all symbols
         power_vec = [1]*config.data_subcarriers
-        power_src = blocks.vector_source_c(power_vec,True,dsubc)
+        power_src = blocks.vector_source_f(power_vec,True,dsubc)
         # mux control stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
@@ -135,6 +138,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
+        self.allocation_src.set_allocation([6]*config.data_subcarriers,[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
@@ -147,6 +151,8 @@ class transmit_path(gr.hier_block2):
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
         log_to_file(self, power_src, "data/power_src.cmplx")
+        
+    log_to_file(self, mux_ctrl, "data/mux_ctrl.char")    
 
     ## GUI probe output
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
@@ -219,6 +225,9 @@ class transmit_path(gr.hier_block2):
     mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding, config.frame_data_part)
     self.connect(dmux,(mod,0))
     self.connect(bitloading_src,(mod,1))
+    log_to_file(self, bitloading_src, "data/bitloading_src.char")
+    
+    log_to_file(self, mod, "data/mod_out.compl")
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")
@@ -236,23 +245,36 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
-
-    # Standard Transmitter Parts
-
-    ## Pilot subcarriers
-    psubc = self._pilot_subcarrier_inserter = pilot_subcarrier_inserter()
-    self.connect(pa,psubc)
-
-    if options.log:
-      log_to_file(self, psubc, "data/psubc_out.compl")
+      
+    if options.fbmc:    
+        midam_ins = self._midamble_inserter = midamble_insert(config.data_subcarriers, config.frame_data_part)
+        self.connect(pa,midam_ins)
+        
+        tx_out_01 = midam_ins
+        subcarriers = config.data_subcarriers
+        
+        if options.log:
+            log_to_file(self, midam_ins, "data/midamble_out.compl")
+    
+    else:
+        psubc = self._pilot_subcarrier_inserter = pilot_subcarrier_inserter()
+        self.connect(pa,psubc)
+        
+        if options.log:
+            log_to_file(self, psubc, "data/psubc_out.compl")
+            
+        tx_out_01 = psubc
+        subcarriers = config.subcarriers  
+        
+    
 
     ## Add virtual subcarriers
-    if config.fft_length > config.subcarriers:
+    if config.fft_length > subcarriers:
       vsubc = self._virtual_subcarrier_extender = \
-              vector_padding(config.subcarriers, config.fft_length)
-      self.connect(psubc,vsubc)
+              vector_padding(subcarriers, config.fft_length)
+      self.connect(tx_out_01,vsubc)
     else:
-      vsubc = self._virtual_subcarrier_extender = psubc
+      vsubc = self._virtual_subcarrier_extender = tx_out_01
 
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")
@@ -270,6 +292,8 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
+      
+    log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")  
 
     ## Cyclic Prefix
     cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
@@ -365,6 +389,8 @@ class transmit_path(gr.hier_block2):
                       help='For lab exercise, use only half of the subcarriers and multipath')
     expert.add_option('', '--benchmarking', action='store_true', default=False,
                       help='Modify transmitter for the benchmarking mode')
+    expert.add_option('', '--fbmc', action='store_true', default=False,
+                      help='Enable FBMC')
 
 
   # Make a static method to call before instantiation

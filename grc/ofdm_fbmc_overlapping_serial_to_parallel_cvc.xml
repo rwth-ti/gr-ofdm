@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>fbmc_overlapping_serial_to_parallel_cvc</name>
+  <name>Overlapping S/P</name>
   <key>ofdm_fbmc_overlapping_serial_to_parallel_cvc</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.fbmc_overlapping_serial_to_parallel_cvc($M)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
@@ -11,9 +11,10 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +24,8 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>1</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +35,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>M</vlen>
   </source>
 </block>

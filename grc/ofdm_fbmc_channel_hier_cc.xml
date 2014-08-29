@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>fbmc_channel_hier_cc</name>
+  <name>Channel (FBMC)</name>
   <key>ofdm_fbmc_channel_hier_cc</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.fbmc_channel_hier_cc($channel_excluded, $sel_taps, $freq_offset, $noise_excluded, $sel_noise_type, $SNR)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
@@ -11,10 +11,87 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Channel</name>
+    <key>channel_excluded</key>
+    <type>enum</type>
+    <option>
+      <name>On</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Off</name>
+      <key>1</key>
+    </option>
   </param>
+
+  <param>
+    <name>Channel Type</name>
+    <key>sel_taps</key>
+    <type>enum</type>
+    <option>
+      <name>EPA</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>EVA</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>ETU</name>
+      <key>2</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Frequency Offset</name>
+    <key>freq_offset</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Noise</name>
+    <key>noise_excluded</key>
+    <type>enum</type>
+    <option>
+      <name>On</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Off</name>
+      <key>1</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Noise Type</name>
+    <key>sel_noise_type</key>
+    <type>enum</type>
+    <option>
+      <name>Gaussian</name>
+      <key>201</key>
+    </option>
+    <option>
+      <name>Uniform</name>
+      <key>200</key>
+    </option>
+    <option>
+      <name>Laplacian</name>
+      <key>202</key>
+    </option>
+    <option>
+      <name>Impulse</name>
+      <key>203</key>
+    </option>
+  </param>
+
+  <param>
+    <name>SNR</name>
+    <key>SNR</key>
+    <value>SNR</value>
+    <type>float</type>
+  </param>
+
 
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
@@ -23,7 +100,8 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>1</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +111,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>1</vlen>
   </source>
 </block>

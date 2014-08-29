@@ -1,38 +1,35 @@
-<?xml version="1.0"?>
 <block>
-  <name>fbmc_oqam_postprocessing_vcvc</name>
+  <name>OQAM postprocessing</name>
   <key>ofdm_fbmc_oqam_postprocessing_vcvc</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.fbmc_oqam_postprocessing_vcvc($M, $offset, $theta_sel)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Offset</name>
+    <key>offset</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Theta selection</name>
+    <key>theta_sel</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
   </source>
 </block>

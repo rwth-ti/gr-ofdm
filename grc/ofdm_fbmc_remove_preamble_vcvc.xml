@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>fbmc_remove_preamble_vcvc</name>
+  <name>Remove Preamble</name>
   <key>ofdm_fbmc_remove_preamble_vcvc</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.fbmc_remove_preamble_vcvc($M, $syms_per_frame, $preamble_length)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
@@ -11,9 +11,22 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>syms_per_frame</name>
+    <key>syms_per_frame</key>
+    <value>syms_per_frame</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Preamble Length</name>
+    <key>preamble_length</key>
+    <value>3*M</value>
+    <type>raw</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +36,8 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +47,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
   </source>
 </block>

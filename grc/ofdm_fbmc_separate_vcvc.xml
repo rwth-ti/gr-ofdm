@@ -1,38 +1,30 @@
-<?xml version="1.0"?>
 <block>
-  <name>fbmc_separate_vcvc</name>
+  <name>Separate</name>
   <key>ofdm_fbmc_separate_vcvc</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.fbmc_separate_vcvc($M, $num_output)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>    
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Num_output</name>
+    <key>num_output</key>
+    <value>2</value>
+    <type>raw</type>    
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$M</vlen>
+    <nports>2</nports>
   </source>
 </block>

@@ -34,7 +34,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
     """
     docstring for block fbmc_receiver_hier_cb
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, sel_eq=0, exclude_preamble=0, sel_preamble=None):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, sel_eq=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
         gr.hier_block2.__init__(self,
             "fbmc_receiver_hier_cb",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
@@ -46,7 +46,6 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         ##################################################
         self.theta_sel = theta_sel
         self.exclude_preamble = exclude_preamble
-        self.sel_preamble = sel_preamble
         self.sel_eq = sel_eq
         self.M = M
         self.K = K
@@ -56,10 +55,13 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         ##################################################
         # Variables
         ##################################################
-        if self.sel_preamble is None:
-            self.preamble = preamble = [0]*M+[1, -1j, -1, 1j]*(M/4)+[0]*M
+        # only zero_pads|center preamble|zero_pads type of preambles are supported.
+        # center preambles are assumed to be normalized to 1.
+        if center_preamble is None:
+            self.center_preamble = center_preamble = [1, -1j, -1, 1j]
         else:
-            self.preamble = preamble = self.sel_preamble
+            self.center_preamble = center_preamble
+        self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
 
         if self.exclude_preamble == 1 and self.sel_eq != 3:
             self.sel_eq = sel_eq = 3
@@ -74,7 +76,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
 
         # Assertions
         assert(M>0 and K>0 and qam_size>0), "M, K and qam_size should be bigger than 0"
-        assert((math.log(M)/math.log(2))==int(math.log(M)/math.log(2))), "M shouldbe a power of 2"
+        assert((math.log(M)/math.log(2))==int(math.log(M)/math.log(2))), "M should be a power of 2"
         assert(K==4), "for now only K=4 s supported."
         assert(qam_size==4 or qam_size==16 or qam_size==64 or qam_size==128 or qam_size==256 ), "Only 4-,16-,64-,128-,256-qam constellations are supported."
         assert(theta_sel==0 or theta_sel==1)
@@ -92,7 +94,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, preamble_length)
         self.fbmc_polyphase_network_vcvc_0_1 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
         self.fbmc_polyphase_network_vcvc_0_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
-        self.fbmc_overlap_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
+        self.fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
         self.fbmc_oqam_postprocessing_vcvc_0 = ofdm.fbmc_oqam_postprocessing_vcvc(M, 0, theta_sel)
         self.fbmc_junction_vcvc_0 = ofdm.fbmc_junction_vcvc(M, 2)
         self.fbmc_beta_multiplier_vcvc_1 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
@@ -116,7 +118,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.connect((self.fbmc_beta_multiplier_vcvc_1, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.fbmc_separate_vcvc_1, 1), (self.fbmc_polyphase_network_vcvc_0_0_0, 0))
         self.connect((self.fbmc_separate_vcvc_1, 0), (self.fbmc_polyphase_network_vcvc_0_1, 0))
-        self.connect((self.fbmc_overlap_serial_to_parallel_cvc_0, 0), (self.fbmc_separate_vcvc_1, 0))
+        self.connect((self.fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.fbmc_separate_vcvc_1, 0))
         self.connect((self.blocks_skiphead_0_0, 0), (self.fbmc_oqam_postprocessing_vcvc_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.fbmc_beta_multiplier_vcvc_1, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.fbmc_subchannel_processing_vcvc_0, 0))
@@ -126,5 +128,5 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.connect((self.fbmc_junction_vcvc_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.fbmc_subchannel_processing_vcvc_0, 0), (self.blks2_selector_0, 1))
         self.connect((self.fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
-        self.connect((self, 0), (self.fbmc_overlap_serial_to_parallel_cvc_0, 0))
+        self.connect((self, 0), (self.fbmc_overlapping_serial_to_parallel_cvc_0, 0))
         self.connect((self.fft_vxx_0, 0), (self.blocks_multiply_const_vxx_0, 0))

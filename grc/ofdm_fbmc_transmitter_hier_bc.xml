@@ -4,7 +4,7 @@
   <key>ofdm_fbmc_transmitter_hier_bc</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_transmitter_hier_bc($M, $K, $qam_size, $syms_per_frame, $theta_sel, $exclude_preamble, $sel_preamble)</make>
+  <make>ofdm.fbmc_transmitter_hier_bc($M, $K, $qam_size, $syms_per_frame, $theta_sel, $exclude_preamble, $center_preamble, $zero_pads)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -41,17 +41,24 @@
     <type>int</type>
   </param>
   <param>
-    <name>preamble</name>
-    <key>sel_preamble</key>
-    <value>[0]*M+[1, -1j, -1, 1j]*(M/4)+[0]*M</value>
-    <type>raw</type>
-  </param>
-  <param>
     <name>exclude_preamble</name>
     <key>exclude_preamble</key>
     <value>exclude_preamble</value>
     <type>int</type>
   </param>
+  <param>
+    <name>center_preamble</name>
+    <key>center_preamble</key>
+    <value>center_preamble</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Zero padding</name>
+    <key>zero_pads</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  
 
 
   <!-- Make one 'sink' node per input. Sub-nodes:

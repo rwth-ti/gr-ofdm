@@ -31,7 +31,7 @@ class fbmc_channel_hier_cc(gr.hier_block2):
     """
     docstring for block fbmc_channel_hier_cc
     """
-    def __init__(self, channel_excluded=0, sel_taps=0, freq_offset=0, noise_excluded=0, sel_noise_type=0, SNR=20):
+    def __init__(self, M=1024, K=4, syms_per_frame=10, exclude_multipath=0, sel_taps=0, freq_offset=0, exclude_noise=0, sel_noise_type=0, SNR=20, exclude_preamble=0, zero_pads=1):
         gr.hier_block2.__init__(self,
             "fbmc_channel_hier_cc",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
@@ -45,29 +45,39 @@ class fbmc_channel_hier_cc(gr.hier_block2):
         self.sel_noise_type = sel_noise_type
         self.sel_taps = sel_taps
         self.SNR = SNR
-        self.channel_excluded = channel_excluded
-        self.noise_excluded = noise_excluded
+        self.exclude_multipath = exclude_multipath
+        self.exclude_noise = exclude_noise
+        self.exclude_preamble = exclude_preamble
+        self.K = K
+        self.M = M
+        self.syms_per_frame = syms_per_frame
+        self.zero_pads =zero_pads
 
         ##################################################
         # Variables
         ##################################################
         self.taps = taps = (1)
-        if sel_taps == 0:
+        if sel_taps == 0: #epa
             self.taps = taps = (0.998160541385960,0.0605566335500750,0.00290305927764350)
-        elif sel_taps == 1:
+        elif sel_taps == 1: #eva
             self.taps = taps = (0.748212004186014,0.317358833370450,0.572776845645705,0,0.0538952624324030,0.0874078808126807,0,0,0,0.0276407988816600,0,0,0,0.00894438719057275)
-        elif sel_taps ==2:
+        elif sel_taps ==2: #etu
             self.taps = taps = (0.463990169152204,0.816124099344485,0,0.292064507384192,0,0,0,0,0.146379002496595,0,0,0,0.0923589067029112,0,0,0,0,0,0,0,0,0,0,0,0,0.0582745305123628)
         
-        noise_type = analog.GR_GAUSSIAN
+        self.noise_type = analog.GR_GAUSSIAN
         if sel_noise_type == 200:
-            noise_type = analog.GR_UNIFORM
+            self.noise_type = analog.GR_UNIFORM
         elif sel_noise_type ==201:
-            noise_type = analog.GR_GAUSSIAN
+            self.noise_type = analog.GR_GAUSSIAN
         elif sel_noise_type == 202:
-            noise_type = analog.GR_LAPLACIAN
+            self.noise_type = analog.GR_LAPLACIAN
         elif sel_noise_type ==203:
-            noise_type = analog.GR_IMPULSE
+            self.noise_type = analog.GR_IMPULSE
+
+        if exclude_preamble:
+            self.amp = math.sqrt((10**(float(-1*SNR)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+        else:
+            self.amp = math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
 
         ##################################################
         # Blocks
@@ -86,26 +96,46 @@ class fbmc_channel_hier_cc(gr.hier_block2):
             item_size=gr.sizeof_gr_complex*1,
             num_inputs=2,
             num_outputs=1,
-            input_index=noise_excluded,
+            input_index=exclude_noise,
             output_index=0,
         )
         self.blks2_selector_0 = grc_blks2.selector(
             item_size=gr.sizeof_gr_complex*1,
             num_inputs=2,
             num_outputs=1,
-            input_index=channel_excluded,
+            input_index=exclude_multipath,
             output_index=0,
         )
-        self.analog_fastnoise_source_x_0 = analog.fastnoise_source_c(noise_type, math.pow(10,-1*SNR/10), 0, 8192)
+        self.analog_fastnoise_source_x_0 = analog.fastnoise_source_c(self.noise_type, self.amp, 0, 8192)
 
         ##################################################
         # Connections
         ##################################################
         self.connect((self, 0), (self.channels_channel_model_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self, 0))
-        self.connect((self.blks2_selector_0, 0), (self.blocks_add_xx_0, 0))
-        self.connect((self.channels_channel_model_0, 0), (self.blks2_selector_0, 0))
         self.connect((self, 0), (self.blks2_selector_0, 1))
+        self.connect((self.channels_channel_model_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.blks2_selector_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.analog_fastnoise_source_x_0, 0), (self.blks2_selector_1, 0))
         self.connect((self.blocks_null_source_0, 0), (self.blks2_selector_1, 1))
         self.connect((self.blks2_selector_1, 0), (self.blocks_add_xx_0, 1))
+        self.connect((self.blocks_add_xx_0, 0), (self, 0))
+
+    def set_SNR(self, SNR):
+        self.SNR = SNR
+        if self.exclude_preamble:
+            self.amp = math.sqrt((10**(float(-1*self.SNR)/10))*(2*self.K*self.M+(2*self.syms_per_frame-1)*self.M)/(4*self.syms_per_frame))/math.sqrt(2)
+        else:
+            self.amp = math.sqrt((10**(float(-1*self.SNR)/10))*(self.M*(self.syms_per_frame+1)/(self.syms_per_frame+1+2*self.zero_pads))*((self.K*self.M+(2*self.syms_per_frame-1)*self.M/2)/(self.M*self.syms_per_frame)))/math.sqrt(2)
+        self.analog_fastnoise_source_x_0.set_amplitude(self.amp)
+        # print self.analog_fastnoise_source_x_0
+        # ##################################################
+        # # Connections
+        # ##################################################
+        # self.connect((self, 0), (self.channels_channel_model_0, 0))
+        # self.connect((self, 0), (self.blks2_selector_0, 1))
+        # self.connect((self.channels_channel_model_0, 0), (self.blks2_selector_0, 0))
+        # self.connect((self.blks2_selector_0, 0), (self.blocks_add_xx_0, 0))
+        # self.connect((self.analog_fastnoise_source_x_0, 0), (self.blks2_selector_1, 0))
+        # self.connect((self.blocks_null_source_0, 0), (self.blks2_selector_1, 1))
+        # self.connect((self.blks2_selector_1, 0), (self.blocks_add_xx_0, 1))
+        # self.connect((self.blocks_add_xx_0, 0), (self, 0))

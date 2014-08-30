@@ -34,7 +34,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
     """
     docstring for block fbmc_transmitter_hier_bc
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, exclude_preamble=0, sel_preamble=None):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
         gr.hier_block2.__init__(self,
             "fbmc_transmitter_hier_bc",
             gr.io_signature(1, 1, gr.sizeof_char*1),
@@ -50,15 +50,18 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         self.M = M
         self.exclude_preamble = exclude_preamble
         self.theta_sel = theta_sel
-        self.sel_preamble = sel_preamble
+        self.zero_pads = zero_pads
 
         ##################################################
         # Variables
         ##################################################
-        if sel_preamble is None:
-            self.preamble = preamble = [0]*M+[1, -1j, -1, 1j]*(M/4)+[0]*M
+        # only zero_pads|center preamble|zero_pads type of preambles are supported.
+        # center preambles are assumed to be normalized to 1.
+        if center_preamble is None:
+            self.center_preamble = center_preamble = [1, -1j, -1, 1j]
         else:
-            self.preamble = preamble = sel_preamble
+            self.center_preamble = center_preamble
+        self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
 
         # Assertions
         assert(M>0 and K>0 and qam_size>0), "M, K and qam_size should be bigger than 0"
@@ -73,7 +76,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         # Blocks
         ##################################################
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
-        self.fbmc_symbol_creation_bvc_0 = fbmc_symbol_creation_bvc(M, qam_size)
+        self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(M, qam_size)
         self.fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
         self.fbmc_polyphase_network_vcvc_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
         self.fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)

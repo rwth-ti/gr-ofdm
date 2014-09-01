@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<block>
+  <name>Channel Model (FBMC)</name>
+  <key>ofdm_fbmc_channel_hier_cc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_channel_hier_cc($M, $K, $syms_per_frame, $exclude_multipath, $sel_taps, $freq_offset, $exclude_noise, $sel_noise_type, $SNR, $exclude_preamble, $zero_pads)</make>
+    <callback>set_SNR($SNR)</callback>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>K</name>
+    <key>K</key>
+    <value>K</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>syms_per_frame</name>
+    <key>syms_per_frame</key>
+    <value>syms_per_frame</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Multipath Effects</name>
+    <key>exclude_multipath</key>
+    <type>enum</type>
+    <option>
+      <name>On</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Off</name>
+      <key>1</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Channel Type</name>
+    <key>sel_taps</key>
+    <type>enum</type>
+    <option>
+      <name>EPA</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>EVA</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>ETU</name>
+      <key>2</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Frequency Offset</name>
+    <key>freq_offset</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Noise</name>
+    <key>exclude_noise</key>
+    <type>enum</type>
+    <option>
+      <name>On</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Off</name>
+      <key>1</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Noise Type</name>
+    <key>sel_noise_type</key>
+    <type>enum</type>
+    <option>
+      <name>Gaussian</name>
+      <key>201</key>
+    </option>
+    <option>
+      <name>Uniform</name>
+      <key>200</key>
+    </option>
+    <option>
+      <name>Laplacian</name>
+      <key>202</key>
+    </option>
+    <option>
+      <name>Impulse</name>
+      <key>203</key>
+    </option>
+  </param>
+
+  <param>
+    <name>SNR</name>
+    <key>SNR</key>
+    <value>SNR</value>
+    <type>real</type>
+  </param>
+  <param>
+    <name>exclude_preamble</name>
+    <key>exclude_preamble</key>
+    <value>exclude_preamble</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Zero padding</name>
+    <key>zero_pads</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </source>
+</block>

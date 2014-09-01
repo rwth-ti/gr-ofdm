@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<block>
+  <name>Symbol Estimation</name>
+  <key>ofdm_fbmc_symbol_estimation_vcb</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_symbol_estimation_vcb($M, $qam_size)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>qam_size</name>
+    <key>qam_size</key>
+    <value>qam_size</value>
+    <type>int</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </source>
+</block>

@@ -125,6 +125,16 @@
 #include "ofdm/allocation_buffer.h"
 #include "ofdm/tx_mux_ctrl.h"
 #include "ofdm/midamble_insert.h"
+#include "ofdm/fbmc_oqam_preprocessing_vcvc.h"
+#include "ofdm/fbmc_oqam_postprocessing_vcvc.h"
+#include "ofdm/fbmc_beta_multiplier_vcvc.h"
+#include "ofdm/fbmc_separate_vcvc.h"
+#include "ofdm/fbmc_polyphase_network_vcvc.h"
+#include "ofdm/fbmc_vector_copy_vcvc.h"
+#include "ofdm/fbmc_junction_vcvc.h"
+#include "ofdm/fbmc_subchannel_processing_vcvc.h"
+#include "ofdm/fbmc_weighted_spreading_vcvc.h"
+#include "ofdm/fbmc_weighted_despreading_vcvc.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -407,3 +417,23 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_buffer);
 GR_SWIG_BLOCK_MAGIC2(ofdm, tx_mux_ctrl);
 %include "ofdm/midamble_insert.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, midamble_insert);
+%include "ofdm/fbmc_oqam_preprocessing_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_oqam_preprocessing_vcvc);
+%include "ofdm/fbmc_oqam_postprocessing_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_oqam_postprocessing_vcvc);
+%include "ofdm/fbmc_beta_multiplier_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_beta_multiplier_vcvc);
+%include "ofdm/fbmc_separate_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_separate_vcvc);
+%include "ofdm/fbmc_polyphase_network_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_polyphase_network_vcvc);
+%include "ofdm/fbmc_vector_copy_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_vector_copy_vcvc);
+%include "ofdm/fbmc_junction_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_junction_vcvc);
+%include "ofdm/fbmc_subchannel_processing_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_subchannel_processing_vcvc);
+%include "ofdm/fbmc_weighted_spreading_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_weighted_spreading_vcvc);
+%include "ofdm/fbmc_weighted_despreading_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_weighted_despreading_vcvc);

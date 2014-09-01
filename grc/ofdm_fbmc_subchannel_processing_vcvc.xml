@@ -1,0 +1,56 @@
+<block>
+  <name>Subchannel Processing</name>
+  <key>ofdm_fbmc_subchannel_processing_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_subchannel_processing_vcvc($M, $syms_per_frame, $preamble, $sel_eq)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Syms_per_frame</name>
+    <key>syms_per_frame</key>
+    <value>syms_per_frame</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Preamble</name>
+    <key>preamble</key>
+    <value>preamble</value>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Equalizer</name>
+    <key>sel_eq</key>
+    <type>enum</type>
+    <option>
+      <name>One Tap</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Three taps, linear interpolation</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Three taps, geometric interpolation</name>
+      <key>2</key>
+    </option>
+    <option>
+      <name>No equalizer</name>
+      <key>3</key>
+    </option>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </source>
+</block>

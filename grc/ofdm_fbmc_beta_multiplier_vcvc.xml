@@ -1,0 +1,41 @@
+<block>
+  <name>Beta Multiplier</name>
+  <key>ofdm_fbmc_beta_multiplier_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_beta_multiplier_vcvc($M, $K, $lp, $offset)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>K</name>
+    <key>K</key>
+    <value>K</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Filter Length</name>
+    <key>lp</key>
+    <value>K*M-1</value>
+    <type>raw</type>    
+  </param>
+  <param>
+    <name>Offset</name>
+    <key>offset</key>
+    <value>0</value>
+    <type>raw</type>    
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </source>
+</block>

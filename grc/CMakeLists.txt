@@ -119,5 +119,27 @@ install(FILES
     ofdm_allocation_src.xml
     ofdm_allocation_buffer.xml
     ofdm_tx_mux_ctrl.xml
-    ofdm_midamble_insert.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_midamble_insert.xml 
+    ofdm_fbmc_oqam_preprocessing_vcvc.xml
+    ofdm_fbmc_oqam_postprocessing_vcvc.xml
+    ofdm_fbmc_insert_preamble_vcvc.xml
+    ofdm_fbmc_beta_multiplier_vcvc.xml
+    ofdm_fbmc_separate_vcvc.xml
+    ofdm_fbmc_polyphase_network_vcvc.xml
+    ofdm_fbmc_overlapping_parallel_to_serial_vcc.xml
+    ofdm_fbmc_overlapping_serial_to_parallel_cvc.xml
+    ofdm_fbmc_vector_reshape_vcvc.xml
+    ofdm_fbmc_vector_copy_vcvc.xml
+    ofdm_fbmc_junction_vcvc.xml
+    ofdm_fbmc_remove_preamble_vcvc.xml
+    ofdm_fbmc_subchannel_processing_vcvc.xml
+    ofdm_fbmc_weighted_spreading_vcvc.xml
+    ofdm_fbmc_weighted_despreading_vcvc.xml
+    ofdm_fbmc_channel_hier_cc.xml
+    ofdm_fbmc_receiver_hier_cb.xml
+    ofdm_fbmc_transmitter_hier_bc.xml
+    ofdm_fbmc_symbol_estimation_vcb.xml
+    ofdm_fbmc_symbol_creation_bvc.xml 
+    DESTINATION share/gnuradio/grc/blocks
+
 )

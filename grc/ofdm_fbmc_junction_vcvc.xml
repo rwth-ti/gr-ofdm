@@ -1,0 +1,30 @@
+<block>
+  <name>Junction</name>
+  <key>ofdm_fbmc_junction_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_junction_vcvc($M, $num_input)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Num_input</name>
+    <key>num_input</key>
+    <value>2</value>
+    <type>raw</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+    <nports>2</nports>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </source>
+</block>

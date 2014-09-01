@@ -45,6 +45,16 @@ if _RTLD_GLOBAL != 0:
 from ofdm_swig import *
 
 # import any pure python here
+from fbmc_insert_preamble_vcvc import fbmc_insert_preamble_vcvc
+from fbmc_overlapping_parallel_to_serial_vcc import fbmc_overlapping_parallel_to_serial_vcc
+from fbmc_overlapping_serial_to_parallel_cvc import fbmc_overlapping_serial_to_parallel_cvc
+from fbmc_vector_reshape_vcvc import fbmc_vector_reshape_vcvc
+from fbmc_remove_preamble_vcvc import fbmc_remove_preamble_vcvc
+from fbmc_channel_hier_cc import fbmc_channel_hier_cc
+from fbmc_receiver_hier_cb import fbmc_receiver_hier_cb
+from fbmc_transmitter_hier_bc import fbmc_transmitter_hier_bc
+from fbmc_symbol_estimation_vcb import fbmc_symbol_estimation_vcb
+from fbmc_symbol_creation_bvc import fbmc_symbol_creation_bvc
 #
 
 # ----------------------------------------------------------------

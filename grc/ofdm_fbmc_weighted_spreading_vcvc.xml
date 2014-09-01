@@ -1,0 +1,29 @@
+<block>
+  <name>Weighted Spreading</name>
+  <key>ofdm_fbmc_weighted_spreading_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_weighted_spreading_vcvc($M, $K)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>K</name>
+    <key>K</key>
+    <value>K</value>
+    <type>raw</type>
+  </param>
+  <sink>
+    <name>in(M)</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out(KM)</name>
+    <type>complex</type>
+    <vlen>$K*M</vlen>
+  </source>
+</block>

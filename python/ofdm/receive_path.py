@@ -386,8 +386,6 @@ class receive_path(gr.hier_block2):
     pda = self._power_deallocator = divide_frame_fc(config.frame_data_part, dsubc)
     self.connect(pda_in,(pda,0))
     self.connect(power_src,(pda,1))
-    
-    log_to_file(self, pda, "data/demapper_input.compl")
 
     ## Demodulator
 #    if 0:

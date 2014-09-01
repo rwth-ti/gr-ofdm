@@ -28,6 +28,7 @@ from gnuradio import blocks
 from uhd_interface import uhd_transmitter
 
 from transmit_path import transmit_path
+from fbmc_transmit_path import transmit_path as fbmc_transmit_path
 
 import os
 
@@ -47,6 +48,8 @@ class tx_top_block(gr.top_block):
             self.sink = blocks.file_sink(gr.sizeof_gr_complex, options.to_file)
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
+            
+            
 
 
 
@@ -75,7 +78,11 @@ class tx_top_block(gr.top_block):
 
     def _setup_tx_path(self,options):
         print "OPTIONS", options
-        self.txpath = transmit_path(options)
+        if options.fbmc:
+            print "fbmc_transmit_path"
+            self.txpath = fbmc_transmit_path(options)
+        else:
+            self.txpath = transmit_path(options)
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Transmitter
@@ -95,6 +102,8 @@ class tx_top_block(gr.top_block):
                           help="Output file for modulated samples")
         parser.add_option("", "--multipath", action="store_true", default=False,
                           help="Enable multipath channel")
+        parser.add_option('', '--fbmc', action='store_true', default=False,
+                      help='Enable FBMC')
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

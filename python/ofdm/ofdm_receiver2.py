@@ -95,8 +95,6 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     
     self._sc_metric = sc_metric = autocorrelator( fft_length/2, fft_length/2 )
     self._gi_metric = gi_metric = autocorrelator( fft_length, cp_length )
-    log_to_file(self, sc_metric, "data/sc_metric.float")
-    log_to_file(self, gi_metric, "data/gi_metric.float")
     
     self.connect( rx_input, sc_metric )
     self.connect( rx_input, gi_metric )
@@ -171,8 +169,6 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     fft = fft_blocks.fft_vcc( fft_length, True, [], True )
     self.connect( ofdm_blocks, fft )
     ofdm_blocks = fft
-    
-    log_to_file( self, ofdm_blocks, "data/OFDM_Blocks.compl" )
     
     
     
@@ -361,8 +357,6 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( ofdm_blocks, out_ofdm_blocks )
     self.connect( frame_start, out_frame_start )
     self.connect( disp_CTF, out_disp_ctf )
-    
-    log_to_file( self, equalizer, "data/equalizer.compl" )
     
 
     if log:

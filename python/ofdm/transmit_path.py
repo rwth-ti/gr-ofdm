@@ -150,9 +150,7 @@ class transmit_path(gr.hier_block2):
         log_to_file(self, id_src, "data/id_src.short")
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
-        log_to_file(self, power_src, "data/power_src.cmplx")
-        
-    log_to_file(self, mux_ctrl, "data/mux_ctrl.char")    
+        log_to_file(self, power_src, "data/power_src.cmplx")   
 
     ## GUI probe output
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
@@ -225,9 +223,6 @@ class transmit_path(gr.hier_block2):
     mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding, config.frame_data_part)
     self.connect(dmux,(mod,0))
     self.connect(bitloading_src,(mod,1))
-    log_to_file(self, bitloading_src, "data/bitloading_src.char")
-    
-    log_to_file(self, mod, "data/mod_out.compl")
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")
@@ -293,8 +288,6 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
       
-    log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")  
-
     ## Cyclic Prefix
     cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
                                                  config.block_length)

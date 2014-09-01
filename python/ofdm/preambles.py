@@ -201,10 +201,7 @@ class pilot_block_inserter(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen))
 
 
-    if fbmc:
-        mux = ofdm.frame_mux( vlen, config.frame_length +1)
-    else:
-        mux = ofdm.frame_mux( vlen, config.frame_length)
+    mux = ofdm.frame_mux( vlen, config.frame_length)
     
     if ant==1:
         for x in range( config.training_data.no_pilotsyms ):
@@ -273,10 +270,7 @@ class pilot_block_filter(gr.hier_block2):
 
     config = station_configuration()
     
-    if config.fbmc:
-        subcarriers = config.data_subcarriers
-    else:
-        subcarriers = config.subcarriers
+    subcarriers = config.subcarriers
     frame_length = config.frame_length
 
     gr.hier_block2.__init__(self, "pilot_block_filter",

@@ -101,7 +101,6 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.fbmc_beta_multiplier_vcvc_1 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
         self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, skip)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
         self.blks2_selector_0 = grc_blks2.selector(
             item_size=gr.sizeof_gr_complex*M,
             num_inputs=2,
@@ -123,7 +122,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.connect((self.fbmc_separate_vcvc_1, 0), (self.fbmc_polyphase_network_vcvc_0_1, 0))
         self.connect((self.fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.fbmc_separate_vcvc_1, 0))
         self.connect((self.blocks_skiphead_0_0, 0), (self.fbmc_oqam_postprocessing_vcvc_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.fbmc_beta_multiplier_vcvc_1, 0))
+        self.connect((self.fft_vxx_0, 0), (self.fbmc_beta_multiplier_vcvc_1, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.fbmc_subchannel_processing_vcvc_0, 0))
         self.connect((self.fbmc_polyphase_network_vcvc_0_1, 0), (self.fbmc_junction_vcvc_0, 0))
         self.connect((self.fbmc_polyphase_network_vcvc_0_0_0, 0), (self.fbmc_junction_vcvc_0, 1))
@@ -133,4 +132,3 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.connect((self.fbmc_subchannel_processing_vcvc_0, 1), (self.blocks_null_sink_0, 0))
         self.connect((self.fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
         self.connect((self, 0), (self.fbmc_overlapping_serial_to_parallel_cvc_0, 0))
-        self.connect((self.fft_vxx_0, 0), (self.blocks_multiply_const_vxx_0, 0))

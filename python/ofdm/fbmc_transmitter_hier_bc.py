@@ -24,6 +24,7 @@ from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio.filter import firdes
 from grc_gnuradio import blks2 as grc_blks2
+from gnuradio import blocks
 
 import ofdm
 import math
@@ -76,6 +77,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         # Blocks
         ##################################################
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
         self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(carriers, qam_size)
         self.vector_padding_0 = ofdm.vector_padding(carriers,M,-1)
         self.fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
@@ -100,7 +102,8 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         self.connect((self.vector_padding_0,0),(self.fbmc_oqam_preprocessing_vcvc_0, 0))
         self.connect((self, 0), (self.fbmc_symbol_creation_bvc_0, 0))
         self.connect((self.fbmc_beta_multiplier_vcvc_0, 0), (self.fft_vxx_0_0, 0))
-        self.connect((self.fft_vxx_0_0, 0), (self.fbmc_separate_vcvc_0, 0))
+        self.connect((self.fft_vxx_0_0, 0), (self.blocks_multiply_const_vxx_0,0))
+        self.connect((self.blocks_multiply_const_vxx_0,0), (self.fbmc_separate_vcvc_0, 0))
         self.connect((self.fbmc_polyphase_network_vcvc_0, 0), (self.fbmc_overlapping_parallel_to_serial_vcc_0, 0))
         self.connect((self.fbmc_polyphase_network_vcvc_0_0, 0), (self.fbmc_overlapping_parallel_to_serial_vcc_0, 1))
         self.connect((self.fbmc_separate_vcvc_0, 1), (self.fbmc_polyphase_network_vcvc_0_0, 0))

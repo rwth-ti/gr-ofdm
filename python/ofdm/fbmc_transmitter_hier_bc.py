@@ -34,7 +34,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
     """
     docstring for block fbmc_transmitter_hier_bc
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
         gr.hier_block2.__init__(self,
             "fbmc_transmitter_hier_bc",
             gr.io_signature(1, 1, gr.sizeof_char*1),
@@ -76,7 +76,8 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         # Blocks
         ##################################################
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
-        self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(M, qam_size)
+        self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(carriers, qam_size)
+        self.vector_padding_0 = ofdm.vector_padding(carriers,M,-1)
         self.fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
         self.fbmc_polyphase_network_vcvc_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
         self.fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
@@ -95,7 +96,8 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.fbmc_symbol_creation_bvc_0, 0), (self.fbmc_oqam_preprocessing_vcvc_0, 0))
+        self.connect((self.fbmc_symbol_creation_bvc_0, 0), (self.vector_padding_0,0))
+        self.connect((self.vector_padding_0,0),(self.fbmc_oqam_preprocessing_vcvc_0, 0))
         self.connect((self, 0), (self.fbmc_symbol_creation_bvc_0, 0))
         self.connect((self.fbmc_beta_multiplier_vcvc_0, 0), (self.fft_vxx_0_0, 0))
         self.connect((self.fft_vxx_0_0, 0), (self.fbmc_separate_vcvc_0, 0))

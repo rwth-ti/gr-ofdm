@@ -34,7 +34,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
     """
     docstring for block fbmc_receiver_hier_cb
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, theta_sel=0, sel_eq=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, sel_eq=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
         gr.hier_block2.__init__(self,
             "fbmc_receiver_hier_cb",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
@@ -88,13 +88,14 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         # Blocks
         ##################################################
         self.fft_vxx_0 = fft.fft_vcc(M, True, (), True, 1)
-        self.fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(M, qam_size)
+        self.fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers, qam_size)
         self.fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, (preamble), sel_eq)
         self.fbmc_separate_vcvc_1 = ofdm.fbmc_separate_vcvc(M, 2)
         self.fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, preamble_length)
         self.fbmc_polyphase_network_vcvc_0_1 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
         self.fbmc_polyphase_network_vcvc_0_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
         self.fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
+        self.vector_mask_0 = ofdm.vector_mask(M,int((M-carriers)/2),carriers,[])
         self.fbmc_oqam_postprocessing_vcvc_0 = ofdm.fbmc_oqam_postprocessing_vcvc(M, 0, theta_sel)
         self.fbmc_junction_vcvc_0 = ofdm.fbmc_junction_vcvc(M, 2)
         self.fbmc_beta_multiplier_vcvc_1 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
@@ -108,11 +109,13 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
             input_index=exclude_preamble,
             output_index=0,
         )
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*M)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.fbmc_oqam_postprocessing_vcvc_0, 0), (self.fbmc_symbol_estimation_vcb_0, 0))
+        self.connect((self.fbmc_oqam_postprocessing_vcvc_0, 0), (self.vector_mask_0, 0))
+        self.connect((self.vector_mask_0, 0), (self.fbmc_symbol_estimation_vcb_0, 0))
         self.connect((self.fbmc_symbol_estimation_vcb_0, 0), (self, 0))
         self.connect((self.blks2_selector_0, 0), (self.blocks_skiphead_0_0, 0))
         self.connect((self.fbmc_beta_multiplier_vcvc_1, 0), (self.blocks_skiphead_0, 0))
@@ -127,6 +130,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         self.connect((self.fbmc_subchannel_processing_vcvc_0, 0), (self.fbmc_remove_preamble_vcvc_0, 0))
         self.connect((self.fbmc_junction_vcvc_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.fbmc_subchannel_processing_vcvc_0, 0), (self.blks2_selector_0, 1))
+        self.connect((self.fbmc_subchannel_processing_vcvc_0, 1), (self.blocks_null_sink_0, 0))
         self.connect((self.fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
         self.connect((self, 0), (self.fbmc_overlapping_serial_to_parallel_cvc_0, 0))
         self.connect((self.fft_vxx_0, 0), (self.blocks_multiply_const_vxx_0, 0))

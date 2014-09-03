@@ -4,7 +4,7 @@
   <key>ofdm_fbmc_receiver_hier_cb</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_receiver_hier_cb($M, $K, $qam_size, $syms_per_frame, $theta_sel, $sel_eq, $exclude_preamble, $center_preamble, $zero_pads)</make>
+  <make>ofdm.fbmc_receiver_hier_cb($M, $K, $qam_size, $syms_per_frame, $carriers, $theta_sel, $sel_eq, $exclude_preamble, $center_preamble, $zero_pads)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -38,6 +38,12 @@
     <name>theta_sel</name>
     <key>theta_sel</key>
     <value>theta_sel</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Number of Carriers</name>
+    <key>carriers</key>
+    <value>carriers</value>
     <type>int</type>
   </param>
   <param>

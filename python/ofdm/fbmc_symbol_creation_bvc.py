@@ -43,7 +43,7 @@ class fbmc_symbol_creation_bvc(gr.hier_block2):
 
         # Assertions
         assert (M>0 and qam_size>0), "M and qam_size should be larger than zero!"
-        assert ( int(math.log(M,2))==math.log(M,2)), "M should be of 2^n!"
+        # assert ( int(math.log(M,2))==math.log(M,2)), "M should be of 2^n!"
         assert (qam_size==4 or qam_size==16 or qam_size==64 or qam_size==256 ), "Only 4-,16-,64-,256-qam constellations are supported."
         ##################################################
         # Blocks

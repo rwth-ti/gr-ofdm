@@ -35,7 +35,7 @@ class qa_fbmc_overlapping_serial_to_parallel_cvc (gr_unittest.TestCase):
 
     def test_001_t (self):
         M = 2**10
-        num = 2**12
+        num = 2**10
         src_data = list()
         for i in range(M*num):
             src_data.append(int(random.random()*10))

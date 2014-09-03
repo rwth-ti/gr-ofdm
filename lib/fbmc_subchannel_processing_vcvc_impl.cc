@@ -41,7 +41,7 @@ namespace gr {
 		fbmc_subchannel_processing_vcvc_impl::fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, const std::vector<gr_complex> preamble, int sel_eq)
 			: gr::sync_block("fbmc_subchannel_processing_vcvc",
 				gr::io_signature::make(1, 1, sizeof(gr_complex)*M),
-				gr::io_signature::make(1, 1, sizeof(gr_complex)*M)),
+				gr::io_signature::make(2, 2, sizeof(gr_complex)*M)),
 		d_M(M),
 		d_syms_per_frame(syms_per_frame),
 		d_preamble(preamble),
@@ -54,26 +54,25 @@ namespace gr {
 		fr(0),
 		estimation_point((((int(preamble.size()/M)-1)/2)+1)*M-1)
 		{
-			// std::vector<gr_complex> d_estimation(d_M,1); // estimation is initialized.
 			if(d_sel_eq==1 || d_sel_eq==2){ //three taps
 				set_history(3);
 			}
-			equalizer_data.open ("../../matlab/sp_equ_cpp_output.txt",std::ios::out); //|std::ios::app
-			estimation_data.open("../../matlab/sp_est_cpp_output.txt",std::ios::out);
+			// equalizer_data.open ("../../matlab/sp_equ_cpp_output.txt",std::ios::out); //|std::ios::app
+			// estimation_data.open("../../matlab/sp_est_cpp_output.txt",std::ios::out);
 			
-			equalizer_data<<"M="<<d_M<<"\n";
-			equalizer_data<<"syms_per_frame="<<d_syms_per_frame<<"\n";
-			equalizer_data<<"sel_eq="<<d_sel_eq<<"\n";
-			equalizer_data<<"preamble_length="<<d_preamble_length<<"\n";
+			// equalizer_data<<"M="<<d_M<<"\n";
+			// equalizer_data<<"syms_per_frame="<<d_syms_per_frame<<"\n";
+			// equalizer_data<<"sel_eq="<<d_sel_eq<<"\n";
+			// equalizer_data<<"preamble_length="<<d_preamble_length<<"\n";
 
-			estimation_data<<"M="<<d_M<<"\n";
-			estimation_data<<"syms_per_frame="<<d_syms_per_frame<<"\n";
-			estimation_data<<"sel_eq="<<d_sel_eq<<"\n";
-			estimation_data<<"preamble_length="<<d_preamble_length<<"\n";
-			estimation_data<<"estimation_point="<<estimation_point<<"\n";
-			// equalizer_data<<"estimation="<<d_estimation<<"\n";
-			// std::cout<<preamble.size()<<std::endl;
-			// for(int i=0;i<3*d_M;i++) std::cout<<d_eq_coef[i]<<std::endl;
+			// estimation_data<<"M="<<d_M<<"\n";
+			// estimation_data<<"syms_per_frame="<<d_syms_per_frame<<"\n";
+			// estimation_data<<"sel_eq="<<d_sel_eq<<"\n";
+			// estimation_data<<"preamble_length="<<d_preamble_length<<"\n";
+			// estimation_data<<"estimation_point="<<estimation_point<<"\n";
+			// // equalizer_data<<"estimation="<<d_estimation<<"\n";
+			// // std::cout<<preamble.size()<<std::endl;
+			// // for(int i=0;i<3*d_M;i++) std::cout<<d_eq_coef[i]<<std::endl;
 		}
 
 		/*
@@ -81,8 +80,8 @@ namespace gr {
 		 */
 		fbmc_subchannel_processing_vcvc_impl::~fbmc_subchannel_processing_vcvc_impl()
 		{
-			equalizer_data.close();
-			estimation_data.close();
+			// equalizer_data.close();
+			// estimation_data.close();
 		}
 
 		void 
@@ -91,10 +90,11 @@ namespace gr {
 			int offset = estimation_point - d_M+1;
 			for(int i=0;i<d_M;i++){
 				d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i+offset]);//*gr_complex(0.6863,0));
-				//logging
-				estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
+				// // *(start-d_M+i+1) = d_estimation[i];
+				// //logging
+				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
 			}
-			// equalizer_data<<"----------------------------------"<<"\n";
+			// // equalizer_data<<"----------------------------------"<<"\n";
 			fr++;		
 		}
 
@@ -130,11 +130,11 @@ namespace gr {
 					d_eq_coef[i+2*d_M]= pow(gr_complex(-1,0),i)*((EQ1-gr_complex(2,0)*EQi+EQ2)-gr_complex(0,1)*(EQ2-EQ1))/gr_complex(4,0);
 				}
 
-				//logging
-				equalizer_data<<(fr-1)<<"\t"<<i<<"\t"<<real(d_estimation[i])<<"\t"<<imag(d_estimation[i])<<"j\t";//((imag(d_estimation[i])>0)?"+":"-")
-				equalizer_data<<real(d_eq_coef[i])<<"\t"<<imag(d_eq_coef[i])<<"j\t";
-				equalizer_data<<real(d_eq_coef[i+d_M])<<"\t"<<imag(d_eq_coef[i+d_M])<<"j\t";
-				equalizer_data<<real(d_eq_coef[i+2*d_M])<<"\t"<<imag(d_eq_coef[i+2*d_M])<<"j\n"; //<<"fr " est: "
+				// //logging
+				// equalizer_data<<(fr-1)<<"\t"<<i<<"\t"<<real(d_estimation[i])<<"\t"<<imag(d_estimation[i])<<"j\t";//((imag(d_estimation[i])>0)?"+":"-")
+				// equalizer_data<<real(d_eq_coef[i])<<"\t"<<imag(d_eq_coef[i])<<"j\t";
+				// equalizer_data<<real(d_eq_coef[i+d_M])<<"\t"<<imag(d_eq_coef[i+d_M])<<"j\t";
+				// equalizer_data<<real(d_eq_coef[i+2*d_M])<<"\t"<<imag(d_eq_coef[i+2*d_M])<<"j\n"; //<<"fr " est: "
 			}
 			// fr++;
 		}
@@ -146,6 +146,7 @@ namespace gr {
 		{
 			const gr_complex *in = (const gr_complex *) input_items[0];
 			gr_complex *out = (gr_complex *) output_items[0];
+			gr_complex *out_estimation = (gr_complex *) output_items[1];
 
 			// Do <+signal processing+>
 			for(int i=0;i<noutput_items*d_M;i++){
@@ -153,13 +154,16 @@ namespace gr {
 				if(d_sel_eq==0){
 					// one tap zero forcing equalizer
 					out[i] = in[i]/(d_estimation[i%(int)(d_M)]); //sumfactor?????
+					out_estimation[i] = d_estimation[i%(int)(d_M)];
 					// std::cout<<out[i]<<"\t"<<d_estimation[i%d_M]<<"\t"<<in[i]<<std::endl;
 				}else if(d_sel_eq==1 || d_sel_eq==2){
 					// three taps with linear(=1) or geometric(=2) interpolation
 					out[i] = (d_eq_coef[i%d_M]*in[i+2*d_M]+d_eq_coef[(i%d_M)+d_M]*in[i+d_M]+d_eq_coef[(i%d_M)+2*d_M]*in[i]);///gr_complex(3,0);
+					out_estimation[i] = d_estimation[i%(int)(d_M)];
 				}else{
 					// no equalization
 					out[i] = in[i];
+					out_estimation[i] = d_estimation[i%(int)(d_M)];
 				}
 
 				// old implementation

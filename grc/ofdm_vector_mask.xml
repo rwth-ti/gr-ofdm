@@ -1,38 +1,41 @@
-<?xml version="1.0"?>
 <block>
-  <name>vector_mask</name>
+  <name>Vector mask</name>
   <key>ofdm_vector_mask</key>
-  <category>ofdm</category>
+  <category>FBMC</category>
   <import>import ofdm</import>
   <make>ofdm.vector_mask($vlen, $cut_left, $mask_len, $mask)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Vlen</name>
+    <key>vlen</key>
+    <value>M</value>
+    <type>raw</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Cut_left</name>
+    <key>cut_left</key>
+    <value>(M-carriers)/2</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Mask_len</name>
+    <key>mask_len</key>
+    <value>carriers</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Mask</name>
+    <key>mask</key>
+    <value>[]</value>
+    <type>raw</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$mask_len</vlen>
   </source>
 </block>

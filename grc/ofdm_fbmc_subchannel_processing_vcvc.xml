@@ -53,4 +53,9 @@
     <type>complex</type>
     <vlen>$M</vlen>
   </source>
+  <source>
+    <name>estimation</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </source>
 </block>

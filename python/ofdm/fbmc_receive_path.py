@@ -31,7 +31,7 @@ from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, ve
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
 from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
-from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
+from preambles import pilot_subcarrier_filter,fbmc_pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
 from ofdm import divide_frame_fc
@@ -74,7 +74,7 @@ class receive_path(gr.hier_block2):
   Input: Baseband signal
   """
   def __init__(self, options):
-    gr.hier_block2.__init__(self, "receive_path",
+    gr.hier_block2.__init__(self, "fbmc_receive_path",
         gr.io_signature(1,1,gr.sizeof_gr_complex),
         gr.io_signature(0,0,0))
 
@@ -105,7 +105,9 @@ class receive_path(gr.hier_block2):
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
-    config.frame_length = config.frame_data_part + \
+    config.frame_length = 3 + 2*config.frame_data_part + \
+                          2*config.training_data.no_pilotsyms
+    config.postpro_frame_length = config.frame_data_part + \
                           config.training_data.no_pilotsyms
     config.subcarriers = dsubc + \
                          config.training_data.pilot_subcarriers
@@ -141,6 +143,7 @@ class receive_path(gr.hier_block2):
 
 
 
+
     # for ID decoder
     used_id_bits = config.used_id_bits = 8 #TODO: constant in source code!
     rep_id_bits = config.rep_id_bits = dsubc/used_id_bits #BPSK
@@ -173,7 +176,8 @@ class receive_path(gr.hier_block2):
 
     self.ctf = disp_ctf
 
-    frame_sampler = ofdm_frame_sampler(options)
+    #frame_sampler = ofdm_frame_sampler(options)
+    frame_sampler = fbmc_frame_sampler(options)
 
     self.connect( ofdm_blocks, frame_sampler)
     self.connect( frame_start, (frame_sampler,1) )
@@ -212,6 +216,7 @@ class receive_path(gr.hier_block2):
     orig_frame_start = frame_start
     frame_start = (frame_sampler,1)
     self.frame_trigger = frame_start
+    #terminate_stream(self, self.frame_trigger)
 
 
 
@@ -221,23 +226,24 @@ class receive_path(gr.hier_block2):
 
 
     ## Pilot block filter
-    pb_filt = self._pilot_block_filter = pilot_block_filter()
-    self.connect(self.symbol_output,pb_filt)
-    self.connect(self.frame_trigger,(pb_filt,1))
+    #pb_filt = self._pilot_block_filter = fbmc_pilot_block_filter()
+    #self.connect(self.symbol_output,pb_filt)
+    #self.connect(self.frame_trigger,(pb_filt,1))
 
-    self.frame_data_trigger = (pb_filt,1)
+    #self.frame_data_trigger = (pb_filt,1)
+    
 
-    if options.log:
-      log_to_file(self, pb_filt, "data/pb_filt_out.compl")
+    #if options.log:
+      #log_to_file(self, pb_filt, "data/pb_filt_out.compl")
 
 
     if config.fbmc:
-        pda_in = pb_filt
+        pda_in = self.symbol_output
 
     else:
         ## Pilot subcarrier filter
         ps_filt = self._pilot_subcarrier_filter = pilot_subcarrier_filter()
-        self.connect(pb_filt,ps_filt)
+        self.connect(self.symbol_output,ps_filt)
 
         if options.log:
             log_to_file(self, ps_filt, "data/ps_filt_out.compl")
@@ -264,14 +270,16 @@ class receive_path(gr.hier_block2):
         raise SystemExit, "# ID Blocks > 1 not supported"
 
       self.connect(   pda_in     ,   id_bfilt      )
-      self.connect( ( pb_filt, 1 ), ( id_bfilt, 1 ) ) # trigger
+      self.connect( self.frame_trigger, ( id_bfilt, 1 ) ) # trigger
 
-
+      log_to_file( self, id_bfilt, "data/id_bfilt.compl" )
 
       ## ID Demapper and Decoder, soft decision
       self.id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( dsubc,
           used_id_bits, whitener_pn )
       self.connect( id_bfilt, self.id_dec )
+      
+      log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
 
       print "Using coded BPSK soft decoder for ID detection"
 
@@ -492,7 +500,7 @@ class receive_path(gr.hier_block2):
             self.connect( inner_rx, new_framesampler )
             self.connect( orig_frame_start, (new_framesampler,1) )
             new_ps_filter = pilot_subcarrier_filter()
-            new_pb_filter = pilot_block_filter()
+            new_pb_filter = fbmc_pilot_block_filter()
 
             self.connect( (new_framesampler,1), (new_pb_filter,1) )
             self.connect( new_framesampler, new_pb_filter,
@@ -1210,7 +1218,8 @@ class ofdm_frame_sampler( gr.hier_block2 ):
                                               config.frame_length )
     delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length - 1 )
     damn_static_frame_trigger = blocks.vector_source_b( ft, True )
-
+    
+    #oqam_postpro = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc,0,0)
     if options.enable_erasure_decision:
       self.frame_gate = vector_sampler(
         gr.sizeof_gr_complex * total_subc * config.frame_length, 1 )
@@ -1223,3 +1232,38 @@ class ofdm_frame_sampler( gr.hier_block2 ):
 
     self.connect( damn_static_frame_trigger, (self,1) )
 
+class fbmc_frame_sampler( gr.hier_block2 ):
+  def __init__(self,options):
+    config = station_configuration()
+
+    total_subc = config.subcarriers
+    vlen = total_subc
+
+    gr.hier_block2.__init__(self,"fbmc_frame_sampler",
+      gr.io_signature2(2,2,gr.sizeof_gr_complex*vlen,
+                       gr.sizeof_char),
+      gr.io_signature2(2,2,gr.sizeof_gr_complex*vlen,
+                 gr.sizeof_char))
+
+
+    ft = [0] * config.frame_data_part
+    ft[0] = 1
+
+    # The next block ensures that only complete frames find their way into
+    # the old outer receiver. The dynamic frame start trigger is hence
+    # replaced with a static one, fixed to the frame length.
+
+    frame_sampler = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc,
+                                              config.frame_data_part )
+    symbol_output = blocks.vector_to_stream( gr.sizeof_gr_complex * total_subc,
+                                              config.frame_data_part )
+    delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length-1 - config.training_data.fbmc_no_preambles_td - config.training_data.fbmc_no_preambles )
+    damn_static_frame_trigger = blocks.vector_source_b( ft, True )
+    
+    #oqam_postpro = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc,0,0)
+
+    self.connect( self, frame_sampler, symbol_output, self )
+
+    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part+7,0),delayed_frame_start, ( frame_sampler, 1 ) )
+
+    self.connect( damn_static_frame_trigger, (self,1) )

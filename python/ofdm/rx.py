@@ -46,7 +46,9 @@ class rx_top_block(gr.top_block):
                                        options.spec, options.antenna,
                                        options.clock_source, options.verbose)
         elif(options.from_file is not None):
-            self.source = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
+            self.file = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
+            self.source = blocks.throttle(gr.sizeof_gr_complex,1e6)
+            self.connect( self.file, self.source )
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
 
@@ -80,6 +82,8 @@ class rx_top_block(gr.top_block):
                           help="input file of samples to demod")
         parser.add_option('', '--fbmc', action='store_true', default=False,
                       help='Enable FBMC')
+        parser.add_option("", "--from-file", type="string", default=None,
+                      help="Run Receiver on recorded stream")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

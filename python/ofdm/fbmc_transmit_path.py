@@ -30,8 +30,10 @@ from ofdm import generic_mapper_bcv, midamble_insert
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
 from ofdm import multiply_frame_fc
+from ofdm import fbmc_oqam_preprocessing_vcvc, fbmc_beta_multiplier_vcvc, fbmc_separate_vcvc, fbmc_polyphase_network_vcvc
+from ofdm import fbmc_overlapping_parallel_to_serial_vcc, fbmc_insert_preamble_vcvc
 from preambles import default_block_header
-from preambles import pilot_subcarrier_inserter,pilot_block_inserter
+from preambles import pilot_subcarrier_inserter,pilot_block_inserter, pilot_block_inserter2, fbmc_pilot_block_inserter
 import common_options
 import math, copy
 import numpy
@@ -50,7 +52,7 @@ class transmit_path(gr.hier_block2):
   - ofdm blocks, time domain (complex stream)
   """
   def __init__(self, options):
-    gr.hier_block2.__init__(self, "transmit_path",
+    gr.hier_block2.__init__(self, "fbmc_transmit_path",
         gr.io_signature(0,0,0),
         gr.io_signature(1,1,gr.sizeof_gr_complex))
 
@@ -136,7 +138,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        self.allocation_src.set_allocation([6]*config.data_subcarriers,[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
@@ -251,14 +253,30 @@ class transmit_path(gr.hier_block2):
             log_to_file(self, psubc, "data/psubc_out.compl")
         
     subcarriers = config.subcarriers
+    
+    oqam_prep = self._oqam_prep = fbmc_oqam_preprocessing_vcvc(config.subcarriers, 0, 0)
+    self.connect(psubc,oqam_prep)
+    
+    
+    fbmc_pblocks = self._fbmc_pilot_block_inserter = fbmc_pilot_block_inserter(5,False)
+    self.connect(oqam_prep,fbmc_pblocks)
+    log_to_file(self, fbmc_pblocks, "data/fbmc_pblocks_out.compl")
+    #fbmc_insert_pream = self._fbmc_insert_pream = fbmc_insert_preamble_vcvc(M, syms_per_frame, preamble)
+    #log_to_file(self, oqam_prep, "data/oqam_prep.compl")
+    #log_to_file(self, psubc, "data/psubc_out.compl")
+    
+    
+    
+    beta_mult = self._beta_mult = fbmc_beta_multiplier_vcvc(config.subcarriers, 4, 4*config.subcarriers-1, 0)
+    self.connect(fbmc_pblocks, beta_mult)
 
     ## Add virtual subcarriers
     if config.fft_length > subcarriers:
       vsubc = self._virtual_subcarrier_extender = \
               vector_padding(subcarriers, config.fft_length)
-      self.connect(psubc,vsubc)
+      self.connect(beta_mult,vsubc)
     else:
-      vsubc = self._virtual_subcarrier_extender = psubc
+      vsubc = self._virtual_subcarrier_extender = beta_mult
 
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")
@@ -269,10 +287,25 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, ifft, "data/ifft_out.compl")
+      
+      
+    #FBMC separate stream + filterbanks
+    separate_oqam = self._separate_oqam = fbmc_separate_vcvc(config.fft_length, 2)
+    poly_netw_1 = self._poly_netw_1 = fbmc_polyphase_network_vcvc(config.fft_length, 4, 4*config.fft_length-1, False)
+    poly_netw_2 = self._poly_netw_2 = fbmc_polyphase_network_vcvc(config.fft_length, 4, 4*config.fft_length-1, False)
+    overlap_p2s = self._overlap_p2s = fbmc_overlapping_parallel_to_serial_vcc(config.fft_length)
+      
+    self.connect(ifft,(separate_oqam,0),poly_netw_1)
+    self.connect((separate_oqam,1),poly_netw_2)
+    self.connect(poly_netw_1,(overlap_p2s,0))
+    self.connect(poly_netw_2,(overlap_p2s,1))
+    
 
     ## Pilot blocks (preambles)
-    pblocks = self._pilot_block_inserter = pilot_block_inserter(5,False)
-    self.connect( ifft, pblocks )
+    pblocks = self._pilot_block_inserter = pilot_block_inserter2(5,False)
+    self.connect( overlap_p2s, blocks.stream_to_vector(gr.sizeof_gr_complex,config.fft_length/2),  pblocks )
+    
+    log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
 
     if options.log:
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
@@ -281,8 +314,10 @@ class transmit_path(gr.hier_block2):
     cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
                                                 config.block_length)
 
-    #cp= blocks.vector_to_stream(gr.sizeof_gr_complex, config.fft_length)
-    self.connect( pblocks, cp )
+    cp= blocks.vector_to_stream(gr.sizeof_gr_complex, config.fft_length/2)
+    self.connect(pblocks, cp )
+    #self.connect( overlap_p2s,blocks.stream_to_vector(gr.sizeof_gr_complex,config.fft_length), cp )
+
 
     lastblock = cp
 

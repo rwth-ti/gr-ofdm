@@ -45,7 +45,9 @@ class tx_top_block(gr.top_block):
                                         options.spec, options.antenna,
                                         options.clock_source, options.verbose)
         elif(options.to_file is not None):
-            self.sink = blocks.file_sink(gr.sizeof_gr_complex, options.to_file)
+            self.file = blocks.file_sink(gr.sizeof_gr_complex, options.to_file)
+            self.sink = blocks.throttle(gr.sizeof_gr_complex,1e6)
+            self.connect( self.sink, self.file )
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
             
@@ -104,6 +106,8 @@ class tx_top_block(gr.top_block):
                           help="Enable multipath channel")
         parser.add_option('', '--fbmc', action='store_true', default=False,
                       help='Enable FBMC')
+        parser.add_option("", "--to-file", type="string", default=None,
+                      help="Record transmitter to disk, not being sent to usrp")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

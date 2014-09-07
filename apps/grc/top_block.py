@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Sat Aug 30 17:14:53 2014
+# Generated: Wed Sep  3 17:42:11 2014
 ##################################################
 
 from gnuradio import blocks
@@ -33,11 +33,11 @@ class top_block(grc_wxgui.top_block_gui):
         ##################################################
         self.zero_pads = zero_pads = 1
         self.center_preamble = center_preamble = [1, -1j, -1, 1j]
-        self.M = M = 1024
+        self.M = M = 2048
         self.theta_sel = theta_sel = 0
         self.syms_per_frame = syms_per_frame = 10
-        self.samp_rate = samp_rate = 32000
-        self.qam_size = qam_size = 4
+        self.samp_rate = samp_rate = 20000
+        self.qam_size = qam_size = 256
         self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
         self.exclude_preamble = exclude_preamble = 1
         self.SNR = SNR = 10
@@ -86,26 +86,31 @@ class top_block(grc_wxgui.top_block_gui):
         	show_gauge=True,
         )
         self.Add(self.wxgui_numbersink2_0.win)
-        self.ofdm_fbmc_weighted_spreading_vcvc_0 = ofdm.fbmc_weighted_spreading_vcvc(M, K)
-        self.ofdm_fbmc_weighted_despreading_vcvc_0 = ofdm.fbmc_weighted_despreading_vcvc(M, K)
-        self.ofdm_fbmc_vector_reshape_vcvc_1 = ofdm.fbmc_vector_reshape_vcvc(M, K*M)
-        self.ofdm_fbmc_vector_reshape_vcvc_0 = ofdm.fbmc_vector_reshape_vcvc(K*M, M)
         self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(M, qam_size)
         self.ofdm_fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(M, qam_size)
-        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, (preamble), 0)
+        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, (preamble), 1)
         self.ofdm_fbmc_separate_vcvc_1 = ofdm.fbmc_separate_vcvc(M, 2)
+        self.ofdm_fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
         self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, 3*M)
+        self.ofdm_fbmc_polyphase_network_vcvc_3 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_polyphase_network_vcvc_2 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_polyphase_network_vcvc_1 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
+        self.ofdm_fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
         self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
         self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0 = ofdm.fbmc_overlapping_parallel_to_serial_vcc(M)
         self.ofdm_fbmc_oqam_preprocessing_vcvc_0 = ofdm.fbmc_oqam_preprocessing_vcvc(M, 0, 0)
         self.ofdm_fbmc_oqam_postprocessing_vcvc_0 = ofdm.fbmc_oqam_postprocessing_vcvc(M, 0, 0)
+        self.ofdm_fbmc_junction_vcvc_0 = ofdm.fbmc_junction_vcvc(M, 2)
         self.ofdm_fbmc_insert_preamble_vcvc_0 = ofdm.fbmc_insert_preamble_vcvc(M, syms_per_frame, preamble)
-        self.ofdm_fbmc_channel_hier_cc_0 = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, 0, 0, 0, 1, 201, SNR, exclude_preamble, 1)
-        self.fft_vxx_1 = fft.fft_vcc(K*M, True, ([]), True, 1)
-        self.fft_vxx_0 = fft.fft_vcc(M*K, False, ([]), True, 1)
+        self.ofdm_fbmc_channel_hier_cc_0 = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, 1, 0, 0, 0, 201, SNR, exclude_preamble, 1)
+        self.ofdm_fbmc_beta_multiplier_vcvc_1 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
+        self.ofdm_fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
+        self.fft_vxx_1 = fft.fft_vcc(M, True, ([]), True, 1)
+        self.fft_vxx_0 = fft.fft_vcc(M, False, ([]), True, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
         self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 0)
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*K*0.6863)]*M*K))
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
         self.blks2_selector_0_0 = grc_blks2.selector(
         	item_size=gr.sizeof_gr_complex*M,
         	num_inputs=2,
@@ -125,39 +130,45 @@ class top_block(grc_wxgui.top_block_gui):
         	win_size=1000,
         	bits_per_symbol=(int)(math.log(qam_size)/math.log(2)),
         )
-        self.analog_random_source_x_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 1000000)), True)
+        self.analog_random_source_x_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.analog_random_source_x_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.ofdm_fbmc_symbol_creation_bvc_0, 0))
+        self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_0, 0), (self.fft_vxx_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_0, 0), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_1, 0), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 1))
+        self.connect((self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0), (self.ofdm_fbmc_channel_hier_cc_0, 0))
+        self.connect((self.ofdm_fbmc_channel_hier_cc_0, 0), (self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0))
+        self.connect((self.fft_vxx_0, 0), (self.ofdm_fbmc_separate_vcvc_1, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_1, 0), (self.ofdm_fbmc_polyphase_network_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_1, 1), (self.ofdm_fbmc_polyphase_network_vcvc_1, 0))
+        self.connect((self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.ofdm_fbmc_separate_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 1), (self.ofdm_fbmc_polyphase_network_vcvc_3, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 0), (self.ofdm_fbmc_polyphase_network_vcvc_2, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_2, 0), (self.ofdm_fbmc_junction_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_3, 0), (self.ofdm_fbmc_junction_vcvc_0, 1))
+        self.connect((self.ofdm_fbmc_junction_vcvc_0, 0), (self.fft_vxx_1, 0))
+        self.connect((self.fft_vxx_1, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_1, 0))
+        self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_1, 0), (self.blocks_skiphead_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.ofdm_fbmc_subchannel_processing_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.ofdm_fbmc_remove_preamble_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.ofdm_fbmc_insert_preamble_vcvc_0, 0))
         self.connect((self.blocks_skiphead_0_0, 0), (self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0))
         self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_fbmc_symbol_estimation_vcb_0, 0))
-        self.connect((self.blks2_selector_0_0, 0), (self.blocks_skiphead_0_0, 0))
-        self.connect((self.ofdm_fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0_0, 0))
-        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.blks2_selector_0_0, 1))
-        self.connect((self.ofdm_fbmc_insert_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
-        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.blks2_selector_0, 1))
-        self.connect((self.blks2_error_rate_0, 0), (self.wxgui_numbersink2_0, 0))
-        self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0, 0), (self.blks2_error_rate_0, 1))
         self.connect((self.blocks_throttle_0, 0), (self.blks2_error_rate_0, 0))
-        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.ofdm_fbmc_insert_preamble_vcvc_0, 0))
-        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.ofdm_fbmc_remove_preamble_vcvc_0, 0))
-        self.connect((self.fft_vxx_1, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0), (self.ofdm_fbmc_channel_hier_cc_0, 0))
-        self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.ofdm_fbmc_symbol_creation_bvc_0, 0))
-        self.connect((self.analog_random_source_x_0, 0), (self.blocks_throttle_0, 0))
-        self.connect((self.blks2_selector_0, 0), (self.ofdm_fbmc_weighted_spreading_vcvc_0, 0))
-        self.connect((self.ofdm_fbmc_weighted_spreading_vcvc_0, 0), (self.fft_vxx_0, 0))
-        self.connect((self.fft_vxx_0, 0), (self.ofdm_fbmc_vector_reshape_vcvc_0, 0))
-        self.connect((self.ofdm_fbmc_vector_reshape_vcvc_0, 0), (self.ofdm_fbmc_separate_vcvc_1, 0))
-        self.connect((self.ofdm_fbmc_separate_vcvc_1, 0), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0))
-        self.connect((self.ofdm_fbmc_separate_vcvc_1, 1), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 1))
-        self.connect((self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.ofdm_fbmc_vector_reshape_vcvc_1, 0))
-        self.connect((self.ofdm_fbmc_vector_reshape_vcvc_1, 0), (self.fft_vxx_1, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.ofdm_fbmc_weighted_despreading_vcvc_0, 0))
-        self.connect((self.ofdm_fbmc_weighted_despreading_vcvc_0, 0), (self.ofdm_fbmc_subchannel_processing_vcvc_0, 0))
-        self.connect((self.ofdm_fbmc_channel_hier_cc_0, 0), (self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0))
+        self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0, 0), (self.blks2_error_rate_0, 1))
+        self.connect((self.blks2_error_rate_0, 0), (self.wxgui_numbersink2_0, 0))
+        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.blks2_selector_0, 1))
+        self.connect((self.ofdm_fbmc_insert_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.blks2_selector_0, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.blks2_selector_0_0, 1))
+        self.connect((self.ofdm_fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0_0, 0))
+        self.connect((self.blks2_selector_0_0, 0), (self.blocks_skiphead_0_0, 0))
 
 
 
@@ -181,7 +192,7 @@ class top_block(grc_wxgui.top_block_gui):
     def set_M(self, M):
         self.M = M
         self.set_preamble([0]*self.M*self.zero_pads+self.center_preamble*((int)(self.M/len(self.center_preamble)))+[0]*self.M*self.zero_pads)
-        self.blocks_multiply_const_vxx_0.set_k(([1.0/(self.M*self.K*0.6863)]*self.M*self.K))
+        self.blocks_multiply_const_vxx_0.set_k(([1.0/(self.M*0.6863)]*self.M))
 
     def get_theta_sel(self):
         return self.theta_sel
@@ -219,24 +230,23 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_exclude_preamble(self, exclude_preamble):
         self.exclude_preamble = exclude_preamble
-        self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
         self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
+        self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
 
     def get_SNR(self):
         return self.SNR
 
     def set_SNR(self, SNR):
         self.SNR = SNR
+        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
         self._SNR_slider.set_value(self.SNR)
         self._SNR_text_box.set_value(self.SNR)
-        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
 
     def get_K(self):
         return self.K
 
     def set_K(self, K):
         self.K = K
-        self.blocks_multiply_const_vxx_0.set_k(([1.0/(self.M*self.K*0.6863)]*self.M*self.K))
 
 if __name__ == '__main__':
     import ctypes

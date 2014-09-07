@@ -2,22 +2,25 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Wed Sep  3 22:01:39 2014
+# Generated: Sat Sep  6 16:17:47 2014
 ##################################################
 
 from gnuradio import blocks
 from gnuradio import eng_notation
+from gnuradio import fft
 from gnuradio import gr
-from gnuradio import uhd
+from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
+from gnuradio.fft import window
 from gnuradio.filter import firdes
 from gnuradio.wxgui import forms
+from gnuradio.wxgui import numbersink2
+from grc_gnuradio import blks2 as grc_blks2
 from grc_gnuradio import wxgui as grc_wxgui
 from optparse import OptionParser
 import math
 import numpy
 import ofdm
-import time
 import wx
 
 class top_block(grc_wxgui.top_block_gui):
@@ -28,66 +31,175 @@ class top_block(grc_wxgui.top_block_gui):
         ##################################################
         # Variables
         ##################################################
-        self.theta_sel = theta_sel = 0
-        self.syms_per_frame = syms_per_frame = 10
-        self.samp_rate = samp_rate = 3.125e6
-        self.qam_size = qam_size = 4
-        self.multi = multi = 1
-        self.exclude_preamble = exclude_preamble = 1
+        self.zero_pads = zero_pads = 1
         self.center_preamble = center_preamble = [1, -1j, -1, 1j]
-        self.carriers = carriers = 100
-        self.M = M = 256
+        self.M = M = 2048
+        self.theta_sel = theta_sel = 0
+        self.syms_per_frame = syms_per_frame = 20
+        self.samp_rate = samp_rate = 3.125e6*2
+        self.qam_size = qam_size = 4
+        self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
+        self.exclude_preamble = exclude_preamble = 1
+        self.carriers = carriers = 1500
+        self.SNR = SNR = 10
         self.K = K = 4
 
         ##################################################
         # Blocks
         ##################################################
-        _multi_sizer = wx.BoxSizer(wx.VERTICAL)
-        self._multi_text_box = forms.text_box(
+        _SNR_sizer = wx.BoxSizer(wx.VERTICAL)
+        self._SNR_text_box = forms.text_box(
         	parent=self.GetWin(),
-        	sizer=_multi_sizer,
-        	value=self.multi,
-        	callback=self.set_multi,
-        	label='multi',
+        	sizer=_SNR_sizer,
+        	value=self.SNR,
+        	callback=self.set_SNR,
+        	label='SNR',
         	converter=forms.float_converter(),
         	proportion=0,
         )
-        self._multi_slider = forms.slider(
+        self._SNR_slider = forms.slider(
         	parent=self.GetWin(),
-        	sizer=_multi_sizer,
-        	value=self.multi,
-        	callback=self.set_multi,
-        	minimum=0,
-        	maximum=40,
-        	num_steps=1000,
+        	sizer=_SNR_sizer,
+        	value=self.SNR,
+        	callback=self.set_SNR,
+        	minimum=-50,
+        	maximum=150,
+        	num_steps=400,
         	style=wx.SL_HORIZONTAL,
         	cast=float,
         	proportion=1,
         )
-        self.Add(_multi_sizer)
-        self.uhd_usrp_sink_0 = uhd.usrp_sink(
-        	",".join(("", "")),
-        	uhd.stream_args(
-        		cpu_format="fc32",
-        		channels=range(1),
-        	),
+        self.Add(_SNR_sizer)
+        self.wxgui_numbersink2_0 = numbersink2.number_sink_f(
+        	self.GetWin(),
+        	unit="%",
+        	minval=0,
+        	maxval=100,
+        	factor=100,
+        	decimal_places=10,
+        	ref_level=0,
+        	sample_rate=samp_rate,
+        	number_rate=15,
+        	average=False,
+        	avg_alpha=None,
+        	label="BER",
+        	peak_hold=False,
+        	show_gauge=True,
         )
-        self.uhd_usrp_sink_0.set_time_source("external", 0)
-        self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_sink_0.set_center_freq(2.43e9, 0)
-        self.uhd_usrp_sink_0.set_gain(0, 0)
-        self.ofdm_fbmc_transmitter_hier_bc_0 = ofdm.fbmc_transmitter_hier_bc(M, K, qam_size, syms_per_frame, carriers, theta_sel, exclude_preamble, center_preamble, 1)
-        self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vcc((multi, ))
+        self.Add(self.wxgui_numbersink2_0.win)
+        self.ofdm_vector_padding_0 = ofdm.vector_padding(carriers, M,  -1)
+        self.ofdm_vector_mask_0 = ofdm.vector_mask(M, (M-carriers)/2, carriers, [])
+        self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers, qam_size)
+        self.ofdm_fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(carriers, qam_size)
+        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, (preamble), 3)
+        self.ofdm_fbmc_separate_vcvc_1 = ofdm.fbmc_separate_vcvc(M, 2)
+        self.ofdm_fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
+        self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, 3*M)
+        self.ofdm_fbmc_polyphase_network_vcvc_3 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_polyphase_network_vcvc_2 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_polyphase_network_vcvc_1 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
+        self.ofdm_fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
+        self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
+        self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0 = ofdm.fbmc_overlapping_parallel_to_serial_vcc(M)
+        self.ofdm_fbmc_oqam_preprocessing_vcvc_0 = ofdm.fbmc_oqam_preprocessing_vcvc(M, 0, 0)
+        self.ofdm_fbmc_oqam_postprocessing_vcvc_0 = ofdm.fbmc_oqam_postprocessing_vcvc(M, 0, 0)
+        self.ofdm_fbmc_junction_vcvc_0 = ofdm.fbmc_junction_vcvc(M, 2)
+        self.ofdm_fbmc_insert_preamble_vcvc_0 = ofdm.fbmc_insert_preamble_vcvc(M, syms_per_frame, preamble)
+        self.ofdm_fbmc_channel_hier_cc_0 = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, 1, 0, 0, 0, 201, SNR, exclude_preamble, 1)
+        self.ofdm_fbmc_beta_multiplier_vcvc_1 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
+        self.ofdm_fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
+        self.fft_vxx_1 = fft.fft_vcc(M, True, ([]), True, 1)
+        self.fft_vxx_0 = fft.fft_vcc(M, False, ([]), True, 1)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
+        self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 0)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*M)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
+        self.blks2_selector_0_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_gr_complex*M,
+        	num_inputs=2,
+        	num_outputs=1,
+        	input_index=exclude_preamble,
+        	output_index=0,
+        )
+        self.blks2_selector_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_gr_complex*M,
+        	num_inputs=2,
+        	num_outputs=1,
+        	input_index=exclude_preamble,
+        	output_index=0,
+        )
+        self.blks2_error_rate_0 = grc_blks2.error_rate(
+        	type='BER',
+        	win_size=1000,
+        	bits_per_symbol=(int)(math.log(qam_size)/math.log(2)),
+        )
         self.analog_random_source_x_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_random_source_x_0, 0), (self.ofdm_fbmc_transmitter_hier_bc_0, 0))
-        self.connect((self.ofdm_fbmc_transmitter_hier_bc_0, 0), (self.blocks_multiply_const_vxx_1, 0))
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.uhd_usrp_sink_0, 0))
+        self.connect((self.analog_random_source_x_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.ofdm_fbmc_symbol_creation_bvc_0, 0))
+        self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_0, 0), (self.fft_vxx_0, 0))
+        self.connect((self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0), (self.ofdm_fbmc_channel_hier_cc_0, 0))
+        self.connect((self.ofdm_fbmc_channel_hier_cc_0, 0), (self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0))
+        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.ofdm_fbmc_insert_preamble_vcvc_0, 0))
+        self.connect((self.blocks_skiphead_0_0, 0), (self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blks2_error_rate_0, 0))
+        self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0, 0), (self.blks2_error_rate_0, 1))
+        self.connect((self.blks2_error_rate_0, 0), (self.wxgui_numbersink2_0, 0))
+        self.connect((self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0), (self.blks2_selector_0, 1))
+        self.connect((self.ofdm_fbmc_insert_preamble_vcvc_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.blks2_selector_0, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_1, 1), (self.ofdm_fbmc_polyphase_network_vcvc_1, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_1, 0), (self.ofdm_fbmc_polyphase_network_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_1, 0), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 1))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_0, 0), (self.ofdm_fbmc_overlapping_parallel_to_serial_vcc_0, 0))
+        self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.ofdm_vector_padding_0, 0))
+        self.connect((self.ofdm_vector_padding_0, 0), (self.ofdm_fbmc_oqam_preprocessing_vcvc_0, 0))
+        self.connect((self.fft_vxx_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.ofdm_fbmc_separate_vcvc_1, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 0), (self.ofdm_fbmc_polyphase_network_vcvc_2, 0))
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 1), (self.ofdm_fbmc_polyphase_network_vcvc_3, 0))
+        self.connect((self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.ofdm_fbmc_separate_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 1), (self.blocks_null_sink_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_2, 0), (self.ofdm_fbmc_junction_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_3, 0), (self.ofdm_fbmc_junction_vcvc_0, 1))
+        self.connect((self.ofdm_fbmc_junction_vcvc_0, 0), (self.fft_vxx_1, 0))
+        self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_1, 0), (self.blocks_skiphead_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.ofdm_fbmc_subchannel_processing_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.ofdm_fbmc_remove_preamble_vcvc_0, 0))
+        self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 0), (self.blks2_selector_0_0, 1))
+        self.connect((self.ofdm_fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0_0, 0))
+        self.connect((self.blks2_selector_0_0, 0), (self.blocks_skiphead_0_0, 0))
+        self.connect((self.ofdm_vector_mask_0, 0), (self.ofdm_fbmc_symbol_estimation_vcb_0, 0))
+        self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_vector_mask_0, 0))
+        self.connect((self.fft_vxx_1, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_1, 0))
 
 
+
+    def get_zero_pads(self):
+        return self.zero_pads
+
+    def set_zero_pads(self, zero_pads):
+        self.zero_pads = zero_pads
+        self.set_preamble([0]*self.M*self.zero_pads+self.center_preamble*((int)(self.M/len(self.center_preamble)))+[0]*self.M*self.zero_pads)
+
+    def get_center_preamble(self):
+        return self.center_preamble
+
+    def set_center_preamble(self, center_preamble):
+        self.center_preamble = center_preamble
+        self.set_preamble([0]*self.M*self.zero_pads+self.center_preamble*((int)(self.M/len(self.center_preamble)))+[0]*self.M*self.zero_pads)
+
+    def get_M(self):
+        return self.M
+
+    def set_M(self, M):
+        self.M = M
+        self.set_preamble([0]*self.M*self.zero_pads+self.center_preamble*((int)(self.M/len(self.center_preamble)))+[0]*self.M*self.zero_pads)
+        self.blocks_multiply_const_vxx_0.set_k(([1.0/(self.M*0.6863)]*self.M))
 
     def get_theta_sel(self):
         return self.theta_sel
@@ -106,7 +218,7 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
 
     def get_qam_size(self):
         return self.qam_size
@@ -114,26 +226,19 @@ class top_block(grc_wxgui.top_block_gui):
     def set_qam_size(self, qam_size):
         self.qam_size = qam_size
 
-    def get_multi(self):
-        return self.multi
+    def get_preamble(self):
+        return self.preamble
 
-    def set_multi(self, multi):
-        self.multi = multi
-        self.blocks_multiply_const_vxx_1.set_k((self.multi, ))
-        self._multi_slider.set_value(self.multi)
-        self._multi_text_box.set_value(self.multi)
+    def set_preamble(self, preamble):
+        self.preamble = preamble
 
     def get_exclude_preamble(self):
         return self.exclude_preamble
 
     def set_exclude_preamble(self, exclude_preamble):
         self.exclude_preamble = exclude_preamble
-
-    def get_center_preamble(self):
-        return self.center_preamble
-
-    def set_center_preamble(self, center_preamble):
-        self.center_preamble = center_preamble
+        self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
+        self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
 
     def get_carriers(self):
         return self.carriers
@@ -141,11 +246,14 @@ class top_block(grc_wxgui.top_block_gui):
     def set_carriers(self, carriers):
         self.carriers = carriers
 
-    def get_M(self):
-        return self.M
+    def get_SNR(self):
+        return self.SNR
 
-    def set_M(self, M):
-        self.M = M
+    def set_SNR(self, SNR):
+        self.SNR = SNR
+        self._SNR_slider.set_value(self.SNR)
+        self._SNR_text_box.set_value(self.SNR)
+        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
 
     def get_K(self):
         return self.K

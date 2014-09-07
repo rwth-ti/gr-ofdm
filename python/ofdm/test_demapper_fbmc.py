@@ -69,30 +69,33 @@ class test_demapper_fbmc:
     qam_size = 2**arity
     preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
     # num_symbols = 2**12
-    exclude_preamble = 0
-    exclude_multipath =0
+    exclude_preamble = 1
+    exclude_multipath =1
     sel_taps = 0 # epa=0, eva = 1, etu=3
-    freq_offset=0
-    exclude_noise = 0
+    freq_offset= 0
+    exclude_noise = 1
     sel_noise_type =0 # gaussian
     eq_select = 3
+    carriers = M
     # SNR = 20
     K = 4
     N = int( N ) # num of !samples!
     num_bits = N*arity
+    normalizing_factor = float(1)/(M*.6863)#*.6863)
+    # print normalizing_factor
     # amp = math.sqrt(M/(10**(float(snr_db)/10)))/math.sqrt(2)
     # amp = math.sqrt((10**(float(-1*snr_db)/20))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
     if exclude_preamble:
-      amp = math.sqrt((10**(float(-1*snr_db)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+      amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
     else:
-      amp = math.sqrt((10**(float(-1*snr_db)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
+      amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
     # print amp
     # print amp2
-    tx = ofdm.fbmc_transmitter_hier_bc(M, K, qam_size, syms_per_frame, theta_sel, exclude_preamble, center_preamble,1)
-    rx = ofdm.fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, theta_sel, eq_select, exclude_preamble, center_preamble,1)
+    tx = ofdm.fbmc_transmitter_hier_bc(M, K, qam_size, syms_per_frame, carriers, theta_sel, exclude_preamble, center_preamble,1)
+    rx = ofdm.fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, carriers, theta_sel, eq_select, exclude_preamble, center_preamble,1)
     ch = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, exclude_multipath, sel_taps, freq_offset, exclude_noise, sel_noise_type, snr_db, exclude_preamble, zero_pads)
 
-    # # src = blocks.vector_source_b(src_data, vlen=1)
+    # src = blocks.vector_source_b(src_data, vlen=1)
     xor_block = blocks.xor_bb()
     head1 = blocks.head(gr.sizeof_char*1, N)
     head0 = blocks.head(gr.sizeof_char*1, N)
@@ -140,14 +143,14 @@ class test_demapper_fbmc:
     
     ber_curves = dict()
     
-    # narity_range = [2, 4, 6, 8]
-    narity_range = [6, 8]
+    narity_range = [2, 4, 6, 8]
+    # narity_range = [6, 8]
     
     for arity in narity_range:
       # min_ber = 0
       min_ber = 100. / (N*arity)
       ber_arr = []
-      snr_range = range(0, 100, 1)
+      snr_range = range(0, 30, 1)
       for snr_db in snr_range:
         ber = self.sim( arity, snr_db, N )
         ber_arr.append( ber )

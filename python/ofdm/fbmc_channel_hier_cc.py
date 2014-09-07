@@ -74,10 +74,12 @@ class fbmc_channel_hier_cc(gr.hier_block2):
         elif sel_noise_type ==203:
             self.noise_type = analog.GR_IMPULSE
 
+        # normalizing factor to be added if normalization takes place in transmitter
+        normalizing_factor = float(1)/(M*.6863)
         if exclude_preamble:
-            self.amp = math.sqrt((10**(float(-1*SNR)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+            self.amp = normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
         else:
-            self.amp = math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
+            self.amp = normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
 
         ##################################################
         # Blocks

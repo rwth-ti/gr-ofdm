@@ -222,14 +222,13 @@ namespace gr {
               d_need_bitmap = 0;
             } // d_symbol_counter==0
 
-            ++d_symbol_counter%=d_frame_size;
-
-
             if( nout < bps )
             {
               set_output_multiple( bps );
               break;
             }
+
+            ++d_symbol_counter%=d_frame_size;
 
             // demodulation
             for( int x = 0; x < d_vlen; ++x ) {

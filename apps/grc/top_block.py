@@ -35,9 +35,15 @@ class top_block(grc_wxgui.top_block_gui):
         self.center_preamble = center_preamble = [1, -1j, -1, 1j]
         self.M = M = 2048
         self.theta_sel = theta_sel = 0
+<<<<<<< HEAD
         self.syms_per_frame = syms_per_frame = 20
         self.samp_rate = samp_rate = 3.125e6*2
         self.qam_size = qam_size = 4
+=======
+        self.syms_per_frame = syms_per_frame = 10
+        self.samp_rate = samp_rate = 20000
+        self.qam_size = qam_size = 256
+>>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
         self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
         self.exclude_preamble = exclude_preamble = 1
         self.carriers = carriers = 1500
@@ -237,8 +243,8 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_exclude_preamble(self, exclude_preamble):
         self.exclude_preamble = exclude_preamble
-        self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
         self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
+        self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
 
     def get_carriers(self):
         return self.carriers
@@ -251,9 +257,9 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_SNR(self, SNR):
         self.SNR = SNR
+        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
         self._SNR_slider.set_value(self.SNR)
         self._SNR_text_box.set_value(self.SNR)
-        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
 
     def get_K(self):
         return self.K

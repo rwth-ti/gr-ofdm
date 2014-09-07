@@ -42,7 +42,7 @@ class fbmc_remove_preamble_vcvc(gr.hier_block2):
 
         # Assertions
         assert (M>0 and syms_per_frame>0), "M and syms_per_frame should be larger than zero!"
-        assert ( int(math.log(M,2))==math.log(M,2)), "M should be of 2^n!"
+        #assert ( int(math.log(M,2))==math.log(M,2)), "M should be of 2^n!"
         assert (self.preamble_length>0), "Preamble should be predefined."
         assert (self.preamble_length%M == 0), "preamble should be a multiple of M"
 

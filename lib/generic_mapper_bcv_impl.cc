@@ -250,7 +250,6 @@ namespace gr {
 
                 if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
                                         
-
                 // check if we have enough bits
                 if( n_bits < d_need_bits ){
 
@@ -262,10 +261,11 @@ namespace gr {
 
                 } // n_bits < d_need_bits
 
+                //increment symbol counter if everything went fine
+                if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
 
                 if(DEBUG)
                     std::cout << ".";
-
 
                 // modulate block
                 for( int i = 0; i < d_vlen; ++i, ++blk ){

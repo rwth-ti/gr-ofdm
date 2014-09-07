@@ -28,6 +28,7 @@ from optparse import OptionParser
 from gr_tools import log_to_file,terminate_stream
 
 import ofdm as ofdm
+from preambles import fbmc_inner_pilot_block_filter
 import numpy
 import math
 
@@ -60,7 +61,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     print "data_subc: ", config.data_subcarriers
     print "total_subc: ", config.subcarriers
-    print "frame_lengthframe_length: ", cp_length
+    print "frame_lengthframe_length: ", frame_length
     
     
     ## Set Input/Output signature
@@ -92,19 +93,26 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     self._sc_metric = sc_metric = autocorrelator( fft_length/2, fft_length/2 )
     self._gi_metric = gi_metric = autocorrelator( fft_length, cp_length )
-
     
     self.connect( rx_input, sc_metric )
     self.connect( rx_input, gi_metric )
     
     ## Sync. Output contains OFDM blocks
-    sync = ofdm.time_sync( fft_length, cp_length )
+    sync = ofdm.time_sync( fft_length/2, cp_length)
     self.connect( rx_input, ( sync, 0 ) )
     self.connect( sc_metric, ( sync, 1 ) )
     self.connect( gi_metric, ( sync, 2 ) )
-    ofdm_blocks = ( sync, 0 )
+    
+    stv_help = blocks.stream_to_vector(gr.sizeof_gr_complex*config.fft_length/2, 1)
+    self.connect(( sync, 0 ), stv_help)
+    ofdm_blocks = stv_help
+    #ofdm_blocks = ( sync, 0 )
     frame_start = ( sync, 1 )
     #log_to_file(self, frame_start, "data/frame_start.compl")
+    
+    #log_to_file( self, sc_metric, "data/sc_metric.float" )
+    #log_to_file( self, gi_metric, "data/gi_metric.float" )
+    #log_to_file( self, (sync,1), "data/sync.float" )
     
 #    log_to_file(self,ofdm_blocks,"data/ofdm_blocks_original.compl")
     
@@ -112,10 +120,14 @@ class fbmc_inner_receiver( gr.hier_block2 ):
       terminate_stream(self, ofdm_blocks)
       terminate_stream(self, frame_start)
       
-      serial_to_parallel = blocks.stream_to_vector(gr.sizeof_gr_complex,block_length)
-      discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
-      ofdm_blocks = discard_cp
-      self.connect( rx_input, serial_to_parallel, discard_cp )
+      serial_to_parallel = blocks.stream_to_vector(gr.sizeof_gr_complex,fft_length/2)
+      #discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
+      #serial_to_parallel = blocks.stream_to_vector(gr.sizeof_gr_complex,block_length)
+      #discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
+      
+      self.connect( rx_input, serial_to_parallel)
+      ofdm_blocks = serial_to_parallel
+      #self.connect( rx_input, serial_to_parallel, discard_cp )
       
       frame_start = [0]*frame_length
       frame_start[0] = 1
@@ -128,13 +140,16 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     ## Extract preamble, feed to Morelli & Mengali frequency offset estimator
     assert( block_header.mm_preamble_pos == 0 )
-    morelli_foe = ofdm.mm_frequency_estimator( fft_length, L )
-    sampler_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length,
+    morelli_foe = ofdm.mm_frequency_estimator( fft_length/2, L/2 )
+    sampler_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length/2,
                                             1 )
     self.connect( ofdm_blocks, ( sampler_preamble, 0 ) )
     self.connect( frame_start, ( sampler_preamble, 1 ) )
     self.connect( sampler_preamble, morelli_foe )
     freq_offset = morelli_foe
+    print "FRAME_LENGTH: ", frame_length
+    log_to_file( self, sampler_preamble, "data/sampler_preamble.compl" )
+    #log_to_file( self, rx_input, "data/rx_input.compl" )
     
     
     ## Adaptive LMS FIR filtering of frequency offset
@@ -153,57 +168,129 @@ class fbmc_inner_receiver( gr.hier_block2 ):
       print "Disabled frequency synchronization stage"
     
     ## Correct frequency shift, feed-forward structure
-    frequency_shift = ofdm.frequency_shift_vcc( fft_length, -1.0/fft_length,
+    frequency_shift = ofdm.frequency_shift_vcc( fft_length/2, -2.0/fft_length,
                                                 cp_length )
     self.connect( ofdm_blocks, ( frequency_shift, 0 ) )
     self.connect( freq_offset, ( frequency_shift, 1 ) )
     self.connect( frame_start, ( frequency_shift, 2 ) )
-    ofdm_blocks = frequency_shift
+    #ofdm_blocks = frequency_shift
+    terminate_stream(self, frequency_shift)
+    
+    
+    
+    inner_pb_filt = self._inner_pilot_block_filter = fbmc_inner_pilot_block_filter()
+    self.connect(ofdm_blocks,inner_pb_filt)
+    self.connect(frame_start,(inner_pb_filt,1))
+    self.connect((inner_pb_filt,1),blocks.null_sink(gr.sizeof_char))
+    
+    
+    ofdm_blocks = (inner_pb_filt,0)
+    
+    
+    overlap_ser_to_par = ofdm.fbmc_overlapping_serial_to_parallel_cvc(fft_length)
+    self.separate_vcvc = ofdm.fbmc_separate_vcvc(fft_length, 2)
+    self.polyphase_network_vcvc_1 = ofdm.fbmc_polyphase_network_vcvc(fft_length, 4, 4*fft_length-1, True)
+    self.polyphase_network_vcvc_2 = ofdm.fbmc_polyphase_network_vcvc(fft_length, 4, 4*fft_length-1, True)
+    self.junction_vcvc = ofdm.fbmc_junction_vcvc(fft_length, 2)
+    self.fft_fbmc = fft_blocks.fft_vcc(fft_length, True, [], True)
+    
+    center_preamble = [1, -1j, -1, 1j]
+    self.preamble = preamble = [0]*total_subc + center_preamble*((int)(total_subc/len(center_preamble)))+[0]*total_subc
+    self.multiply_const= blocks.multiply_const_vcc(([1.0/(fft_length*0.6863)]*total_subc))    
+    self.beta_multiplier_vcvc = ofdm.fbmc_beta_multiplier_vcvc(total_subc, 4, 4*total_subc-1, 0)
+    self.skiphead = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 2*4-1-1)
+    self.skiphead_1 = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 1)
+    self.remove_preamble_vcvc = ofdm.fbmc_remove_preamble_vcvc(total_subc, config.frame_data_part, 3*total_subc)
+    self.subchannel_processing_vcvc = ofdm.fbmc_subchannel_processing_vcvc(total_subc, config.frame_data_part, (preamble), 1)
+    self.oqam_postprocessing_vcvc = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc, 0, 0)
+    
+    log_to_file( self, ofdm_blocks, "data/PRE_FBMC.compl" )
+    log_to_file( self, self.fft_fbmc, "data/FFT_FBMC.compl" )
+    
+
+    self.connect(ofdm_blocks, blocks.vector_to_stream(gr.sizeof_gr_complex, fft_length/2),overlap_ser_to_par)
+    self.connect(overlap_ser_to_par, self.separate_vcvc)
+    self.connect((self.separate_vcvc, 1), (self.polyphase_network_vcvc_2, 0))
+    self.connect((self.separate_vcvc, 0), (self.polyphase_network_vcvc_1, 0))
+    self.connect((self.polyphase_network_vcvc_1, 0), (self.junction_vcvc, 0))
+    self.connect((self.polyphase_network_vcvc_2, 0), (self.junction_vcvc, 1))
+    self.connect(self.junction_vcvc, self.fft_fbmc)
+    
+    ofdm_blocks = self.fft_fbmc
+    
+    
+    if fft_length > data_subc:
+      subcarrier_mask_fbmc = ofdm.vector_mask( fft_length, virtual_subc/2,
+                                           total_subc, [] )
+      self.connect( self.fft_fbmc, subcarrier_mask_fbmc )
+      ofdm_blocks = subcarrier_mask_fbmc
+      #log_to_file(self, ofdm_blocks, "data/vec_mask.compl")
+       ## Least Squares estimator for channel transfer function (CTF)
+      #log_to_file( self, subcarrier_mask, "data/OFDM_Blocks.compl" )
+    
+    
+    self.connect(ofdm_blocks, self.multiply_const)
+    self.connect(self.multiply_const, self.beta_multiplier_vcvc)
+    self.connect((self.beta_multiplier_vcvc, 0), (self.skiphead, 0))
+    self.connect((self.skiphead, 0), (self.subchannel_processing_vcvc, 0))
+    self.connect((self.subchannel_processing_vcvc, 0), (self.remove_preamble_vcvc, 0))
+    self.connect((self.remove_preamble_vcvc, 0), (self.skiphead_1, 0))
+    self.connect((self.skiphead_1, 0), (self.oqam_postprocessing_vcvc, 0))
+    
+    ofdm_blocks = self.oqam_postprocessing_vcvc
+    
+    log_to_file( self, self.skiphead, "data/SKIP_HEAD_FBMC.compl" )
+    log_to_file( self, self.oqam_postprocessing_vcvc, "data/REC_OUT_FBMC.compl" )
+        
+    
+
     
     
     
     
+    
+    
+    #TAKING THE CHANNEL ESTIMATION PREAMBLE
+    chest_pre_trigger = blocks.delay( gr.sizeof_char, 3 )
+    sampled_chest_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length/2, 2 )
+      
+    self.connect( frame_start,       chest_pre_trigger )
+    self.connect( chest_pre_trigger, ( sampled_chest_preamble, 1 ) )
+    self.connect( frequency_shift,       ( sampled_chest_preamble, 0 ) )
+    #ofdm_blocks = sampled_chest_preamble
+    
+        
     ## FFT
     fft = fft_blocks.fft_vcc( fft_length, True, [], True )
-    self.connect( ofdm_blocks, fft )
-    ofdm_blocks = fft
-    
-    
+    self.connect( sampled_chest_preamble, fft )
+    ofdm_blocks_est = fft
+    log_to_file( self, sampled_chest_preamble, "data/SAMPLED_EST_PREAMBLE.compl" )
+    log_to_file( self, ofdm_blocks_est, "data/FFT.compl" )
     
     
     ## Remove virtual subcarriers
     if fft_length > data_subc:
       subcarrier_mask = ofdm.vector_mask( fft_length, virtual_subc/2,
                                            total_subc, [] )
-      self.connect( ofdm_blocks, subcarrier_mask )
-      ofdm_blocks = subcarrier_mask
+      self.connect( ofdm_blocks_est, subcarrier_mask )
+      ofdm_blocks_est = subcarrier_mask
       #log_to_file(self, ofdm_blocks, "data/vec_mask.compl")
        ## Least Squares estimator for channel transfer function (CTF)
+      log_to_file( self, subcarrier_mask, "data/OFDM_Blocks.compl" )
     
-    
-      if options.logcir:
-          log_to_file( self, ofdm_blocks, "data/OFDM_Blocks.compl" )
-          
-          inv_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
-            block_header.channel_estimation_pilot[0] ] )
-          #print "Channel estimation pilot: ", inv_preamble_fd
-          inv_preamble_fd = 1. / inv_preamble_fd
-          LS_channel_estimator0 = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
-          self.connect( ofdm_blocks, LS_channel_estimator0, gr.null_sink(gr.sizeof_gr_complex*total_subc))
-          log_to_file( self, LS_channel_estimator0, "data/OFDM_Blocks_eq.compl" )
           
     ## post-FFT processing
       
     
     
     ## extract channel estimation preamble from frame
-    chest_pre_trigger = blocks.delay( gr.sizeof_char, 
-                                  1 )
-    sampled_chest_preamble = \
-      ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc, 1 )
-    self.connect( frame_start,       chest_pre_trigger )
-    self.connect( chest_pre_trigger, ( sampled_chest_preamble, 1 ) )
-    self.connect( ofdm_blocks,       ( sampled_chest_preamble, 0 ) )
+    ##chest_pre_trigger = blocks.delay( gr.sizeof_char, 
+                                  ##1 )
+    ##sampled_chest_preamble = \
+     ## ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc, 1 )
+    ##self.connect( frame_start,       chest_pre_trigger )
+    ##self.connect( chest_pre_trigger, ( sampled_chest_preamble, 1 ) )
+    ##self.connect( ofdm_blocks,       ( sampled_chest_preamble, 0 ) )
     
 
     
@@ -214,7 +301,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     inv_preamble_fd = 1. / inv_preamble_fd
     
     LS_channel_estimator = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
-    self.connect( sampled_chest_preamble, LS_channel_estimator )
+    self.connect( ofdm_blocks_est, LS_channel_estimator )
     estimated_CTF = LS_channel_estimator
     
     if options.logcir:
@@ -269,6 +356,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     self.connect( estimated_CTF, ctf_postprocess )
     inv_estimated_CTF = ( ctf_postprocess, 0 )
     disp_CTF = ( ctf_postprocess, 1 )
+    terminate_stream(self, inv_estimated_CTF)
     
     if options.disable_equalization or options.ideal:
       terminate_stream(self, inv_estimated_CTF)
@@ -310,11 +398,11 @@ class fbmc_inner_receiver( gr.hier_block2 ):
       ofdm_blocks = phase_tracking
     '''
     ## Channel Equalizer
-    equalizer = ofdm.channel_equalizer( total_subc )
-    self.connect( ofdm_blocks,       ( equalizer, 0 ) )
-    self.connect( inv_estimated_CTF, ( equalizer, 1 ) )
-    self.connect( frame_start,       ( equalizer, 2 ) )
-    ofdm_blocks = equalizer
+    ##equalizer = ofdm.channel_equalizer( total_subc )
+    ##self.connect( ofdm_blocks,       ( equalizer, 0 ) )
+    ##self.connect( inv_estimated_CTF, ( equalizer, 1 ) )
+    ##self.connect( frame_start,       ( equalizer, 2 ) )
+    ##ofdm_blocks = equalizer
     #log_to_file(self, equalizer,"data/equalizer_siso.compl")
     
     
@@ -423,4 +511,3 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     
   add_options = staticmethod(add_options)
-

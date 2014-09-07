@@ -51,6 +51,41 @@ class default_block_header (object):
     self.fbmc = options.fbmc
 
     self._prepare_pilot_subcarriers(data_subcarriers, fft_length)
+    
+    #FBMC preambles
+    self.fbmc_no_preambles = 3 #fixed for now
+    self.fbmc_no_pilotsyms = self.fbmc_no_preambles
+    self.fbmc_pilotsym_fd = []
+    
+    fbmc_fd_1 = numpy.array([0 + 0j]*data_subcarriers)
+    fbmc_fd_2_list = [1, -1j, -1, 1j]* (int)(data_subcarriers/4)
+    fbmc_fd_2 = numpy.array(fbmc_fd_2_list)
+    self.fbmc_pilotsym_pos = []
+    
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(0)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2)
+    self.fbmc_pilotsym_pos.append(1)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(2)
+    #self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    #self.fbmc_pilotsym_pos.append(3)
+    
+    self.fbmc_no_preambles_td = 4 #fixed for now
+    self.fbmc_no_pilotsyms_td = self.fbmc_no_preambles_td
+    self.fbmc_pilotsym_td = []
+    self.fbmc_pilotsym_pos_td = []
+    
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(0)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2)
+    self.fbmc_pilotsym_pos.append(1)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(2)
+    
+    
+    
+    
 
     # symbol position inside ofdm block!
     self.mm_preamble_pos = self.sc_preamble_pos = 0 # restricted to 0!
@@ -60,6 +95,8 @@ class default_block_header (object):
     # Morelli & Mengali + Schmidl & Cox Preamble
     self.mm_periodic_parts = L = 8
     td,fd = morellimengali_designer.create(self.subcarriers, fft_length, L)
+    
+    
     
 
     assert(len(td) == fft_length)
@@ -72,6 +109,11 @@ class default_block_header (object):
     self.pilotsym_fd_1.append(fd)
     self.pilotsym_fd_2.append(fd)
     self.pilotsym_pos.append(0)
+    
+    self.fbmc_pilotsym_td.append(td[0:len(td)/2])
+    self.fbmc_pilotsym_pos_td.append(0)
+    self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
+    self.fbmc_pilotsym_pos_td.append(1)
 
 
     # Known pilot block to ease estimation of CTF
@@ -83,6 +125,12 @@ class default_block_header (object):
     assert(len(fd_1) == self.subcarriers)
     assert(len(td_2) == fft_length)
     assert(len(fd_2) == self.subcarriers)
+    
+    self.fbmc_pilotsym_td.append(td[0:len(td)/2])
+    self.fbmc_pilotsym_pos_td.append(2)
+    self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
+    self.fbmc_pilotsym_pos_td.append(3)
+
     
 
     self.pilotsym_td.append(td)
@@ -257,6 +305,94 @@ class pilot_block_inserter(gr.hier_block2):
 
 ################################################################################
 
+################################################################################
+
+# time domain
+class pilot_block_inserter2(gr.hier_block2):
+  """
+  Multiplex pilot blocks to time domain signal.
+  """
+  def __init__ (self, ant, add_cyclic_prefix = False):
+
+    config = station_configuration()
+    fft_length = config.fft_length
+    block_length = config.block_length
+    cp_length = config.cp_length
+    fbmc = config.fbmc
+    
+    if add_cyclic_prefix:
+      vlen = block_length
+    else:
+      vlen = fft_length
+
+    gr.hier_block2.__init__(self, "pilot_block_inserter2",
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen/2),
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen/2))
+
+
+    mux = ofdm.frame_mux( vlen/2, 2*config.frame_length+3)
+    
+    if ant==1:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_1[ x ] )
+    elif ant==2:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_2[ x ] )
+    else:
+       
+        for x in range( config.training_data.fbmc_no_pilotsyms_td ):
+          ####print "fd", config.training_data.pilotsym_fd[ x ]
+          ####print "td", config.training_data.pilotsym_td[ x ]
+          mux.add_preamble( config.training_data.fbmc_pilotsym_td[ x ] ) 
+
+    self.connect( self, mux, self )
+    return
+
+################################################################################
+
+# FBMC frequency domain
+class fbmc_pilot_block_inserter(gr.hier_block2):
+  """
+  Multiplex pilot blocks to time domain signal.
+  """
+  def __init__ (self, ant, add_cyclic_prefix = False):
+
+    config = station_configuration()
+    fft_length = config.fft_length
+    block_length = config.block_length
+    cp_length = config.cp_length
+    fbmc = config.fbmc
+    
+    if add_cyclic_prefix:
+      vlen = block_length
+    else:
+      vlen = fft_length
+      
+    vlen = config.subcarriers
+
+    gr.hier_block2.__init__(self, "fbmc_pilot_block_inserter",
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen),
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen))
+
+
+    mux = ofdm.frame_mux( vlen, 2*config.frame_data_part+config.training_data.fbmc_no_preambles)
+    
+    if ant==1:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_1[ x ] )
+    elif ant==2:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_2[ x ] )
+    else:
+       
+        for x in range( config.training_data.fbmc_no_pilotsyms ):
+          ####print "fd", config.training_data.pilotsym_fd[ x ]
+          print "fbmc_fd", config.training_data.fbmc_pilotsym_fd[ x ]
+          mux.add_preamble( config.training_data.fbmc_pilotsym_fd[ x ] ) 
+
+    self.connect( self, mux, self )
+    return
+
 class pilot_block_filter(gr.hier_block2):
   """
   Remove pilot blocks from ofdm block stream. Frequency domain operation.
@@ -284,6 +420,68 @@ class pilot_block_filter(gr.hier_block2):
     self.connect(self,filt)
     self.connect(filt,self)
     self.connect((self,1),(filt,1),(self,1))
+
+
+################################################################################
+
+class fbmc_inner_pilot_block_filter(gr.hier_block2):
+  """
+  Remove pilot blocks from ofdm block stream. Frequency domain operation.
+
+  Input 0: ofdm frames
+  Input 1: frame trigger
+  Output 0: data blocks
+  Output 1: frame trigger for data blocks
+  """
+  def __init__ (self):
+
+    config = station_configuration()
+    
+    vlen = config.fft_length/2
+    frame_length = config.frame_length
+
+    gr.hier_block2.__init__(self, "fbmc_inner_pilot_block_filter",
+        gr.io_signature2(2,2,gr.sizeof_gr_complex*vlen,gr.sizeof_char),
+        gr.io_signature2(2,2,gr.sizeof_gr_complex*vlen,gr.sizeof_char))
+
+    filt = skip(gr.sizeof_gr_complex*vlen,frame_length)# skip_known_symbols(frame_length,subcarriers)
+    for x in config.training_data.fbmc_pilotsym_pos_td:
+      filt.skip_call(x)
+
+    self.connect(self,filt)
+    self.connect(filt,self)
+    self.connect((self,1),(filt,1),(self,1))
+
+
+################################################################################
+
+class fbmc_pilot_block_filter(gr.hier_block2):
+  """
+  Remove pilot blocks from ofdm block stream. Frequency domain operation.
+
+  Input 0: ofdm frames
+  Input 1: frame trigger
+  Output 0: data blocks
+  Output 1: frame trigger for data blocks
+  """
+  def __init__ (self):
+
+    config = station_configuration()
+    
+    subcarriers = config.subcarriers
+    frame_length = config.frame_length
+
+    gr.hier_block2.__init__(self, "fbmc_pilot_block_filter",
+        gr.io_signature2(2,2,gr.sizeof_gr_complex*subcarriers,gr.sizeof_char),
+        gr.io_signature2(2,2,gr.sizeof_gr_complex*subcarriers,gr.sizeof_char))
+
+    filt = skip(gr.sizeof_gr_complex*subcarriers,frame_length)# skip_known_symbols(frame_length,subcarriers)
+    for x in config.training_data.pilotsym_pos:
+      filt.skip_call(x)
+
+    self.connect(self,filt)
+    self.connect(filt,ofdm.fbmc_beta_multiplier_vcvc(subcarriers, 4, 4*subcarriers-1, 0),ofdm.fbmc_oqam_postprocessing_vcvc(subcarriers,0,0),self)
+    self.connect((self,1),(filt,1),blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part,0),  (self,1))
 
 
 ################################################################################

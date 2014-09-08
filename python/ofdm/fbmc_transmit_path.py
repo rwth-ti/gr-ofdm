@@ -138,7 +138,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 

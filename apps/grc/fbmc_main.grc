@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='ASCII'?>
 <?grc format='1' created='3.7.5'?>
 <flow_graph>
-  <timestamp>Sat Sep  6 03:04:28 2014</timestamp>
+  <timestamp>Mon Sep  8 14:06:36 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -96,33 +96,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>carriers</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1500</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(568, -5)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>exclude_preamble</value>
     </param>
     <param>
@@ -150,7 +123,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>samp_rate</value>
+      <value>syms_per_frame</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -166,37 +139,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(0, -5)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2048</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(80, -5)</value>
-=======
-      <value>(1104, -5)</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
+      <value>(312, -5)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -319,7 +262,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>value</key>
@@ -386,6 +329,60 @@
     <param>
       <key>_coordinate</key>
       <value>(232, -5)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(80, -5)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>carriers</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>208</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(568, -5)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -700,8 +697,9 @@
   </block>
   <block>
     <key>fft_vxx</key>
-    m>
-    
+    <param>
+      <key>id</key>
+      <value>fft_vxx_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -757,8 +755,6 @@
     </param>
   </block>
   <block>
-=======
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     <key>blocks_multiply_const_vxx</key>
     <param>
       <key>id</key>
@@ -944,8 +940,9 @@
   </block>
   <block>
     <key>ofdm_vector_padding</key>
-    m>
-    
+    <param>
+      <key>id</key>
+      <value>ofdm_vector_padding_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -990,9 +987,6 @@
   </block>
   <block>
     <key>ofdm_fbmc_separate_vcvc</key>
-=======
-    <key>ofdm_fbmc_polyphase_network_vcvc</key>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     <param>
       <key>id</key>
       <value>ofdm_fbmc_separate_vcvc_1</value>
@@ -1229,8 +1223,9 @@
   </block>
   <block>
     <key>variable_slider</key>
-    m>
-    
+    <param>
+      <key>id</key>
+      <value>SNR</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1287,9 +1282,6 @@
   </block>
   <block>
     <key>ofdm_fbmc_polyphase_network_vcvc</key>
-=======
-    <key>blocks_skiphead</key>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     <param>
       <key>id</key>
       <value>ofdm_fbmc_polyphase_network_vcvc_3</value>
@@ -1419,8 +1411,9 @@
   </block>
   <block>
     <key>ofdm_fbmc_junction_vcvc</key>
-    m>
-    
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_junction_vcvc_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1461,9 +1454,6 @@
   </block>
   <block>
     <key>blocks_skiphead</key>
-=======
-    <key>ofdm_fbmc_separate_vcvc</key>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     <param>
       <key>id</key>
       <value>blocks_skiphead_0</value>
@@ -1546,57 +1536,6 @@
     <param>
       <key>_coordinate</key>
       <value>(1104, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_vector_mask</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_vector_mask_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>cut_left</key>
-      <value>(M-carriers)/2</value>
-    </param>
-    <param>
-      <key>mask_len</key>
-      <value>carriers</value>
-    </param>
-    <param>
-      <key>mask</key>
-      <value>[]</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(936, 67)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1855,49 +1794,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_null_sink</key>
-    <param>
-      <key>id</key>
-      <value>blocks_null_sink_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>bus_conns</key>
-      <value>[[0,],]</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1072, 147)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>fft_vxx</key>
     <param>
       <key>id</key>
@@ -1958,8 +1854,9 @@
   </block>
   <block>
     <key>ofdm_fbmc_beta_multiplier_vcvc</key>
-    m>
-    
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_beta_multiplier_vcvc_1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2683,48 +2580,6 @@
     <param>
       <key>_coordinate</key>
       <value>(688, 859)</value>
-=======
-    <key>ofdm_fbmc_oqam_preprocessing_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_oqam_preprocessing_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>offset</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>theta_sel</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(224, 115)</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     </param>
     <param>
       <key>_rotation</key>
@@ -2733,14 +2588,9 @@
   </block>
   <block>
     <key>ofdm_fbmc_channel_hier_cc</key>
-    m>
-    
-=======
-    <key>ofdm_fbmc_beta_multiplier_vcvc</key>
     <param>
       <key>id</key>
-      <value>ofdm_fbmc_beta_multiplier_vcvc_0</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
+      <value>ofdm_fbmc_channel_hier_cc_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2756,8 +2606,9 @@
     </param>
     <param>
       <key>syms_per_frame</key>
-      e>syms_per_frame</value>
-  
+      <value>syms_per_frame</value>
+    </param>
+    <param>
       <key>exclude_multipath</key>
       <value>1</value>
     </param>
@@ -2790,16 +2641,6 @@
       <value>1</value>
     </param>
     <param>
-=======
-      <key>lp</key>
-      <value>K*M-1</value>
-    </param>
-    <param>
-      <key>offset</key>
-      <value>0</value>
-    </param>
-    <param>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
       <key>alias</key>
       <value></value>
     </param>
@@ -2818,8 +2659,9 @@
     <param>
       <key>_coordinate</key>
       <value>(328, 587)</value>
-    </
-    
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
     </param>
   </block>
@@ -2828,20 +2670,6 @@
     <param>
       <key>id</key>
       <value>ofdm_fbmc_overlapping_serial_to_parallel_cvc_0</value>
-=======
-      <value>(272, 203)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_fbmc_symbol_estimation_vcb</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_symbol_estimation_vcb_0</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     </param>
     <param>
       <key>_enabled</key>
@@ -2852,11 +2680,6 @@
       <value>M</value>
     </param>
     <param>
-=======
-      <qam_size</key>
-  
-    <param>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
       <key>alias</key>
       <value></value>
     </param>
@@ -2883,14 +2706,9 @@
   </block>
   <block>
     <key>ofdm_fbmc_separate_vcvc</key>
-    m>
-    
-=======
-    <key>ofdm_fbmc_subchannel_processing_vcvc</key>
     <param>
       <key>id</key>
-      <value>ofdm_fbmc_subchannel_processing_vcvc_0</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
+      <value>ofdm_fbmc_separate_vcvc_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2902,8 +2720,9 @@
     </param>
     <param>
       <key>num_output</key>
-      e>2</value>
-  
+      <value>2</value>
+    </param>
+    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -2948,17 +2767,6 @@
     </param>
     <param>
       <key>vlen</key>
-=======
-      <key>syms_per_frame</key>
-      <value>syms_per_frame</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>preamble</value>
-    </param>
-    <param>
-      <key>sel_eq</key>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
       <value>1</value>
     </param>
     <param>
@@ -2980,8 +2788,9 @@
     <param>
       <key>_coordinate</key>
       <value>(680, 755)</value>
-    </
-    
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
     </param>
   </block>
@@ -3042,25 +2851,239 @@
     <param>
       <key>_rotation</key>
       <value>0</value>
-=======
-      <value>(976, 171)</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>id</key>
+      <value>blocks_null_sink_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1072, 147)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>180</value>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
+    </param>
+  </block>
+  <block>
+    <key>ofdm_vector_mask</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_vector_mask_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>cut_left</key>
+      <value>(M-carriers)/2</value>
+    </param>
+    <param>
+      <key>mask_len</key>
+      <value>carriers</value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(936, 67)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_vector_to_stream</key>
+    <param>
+      <key>id</key>
+      <value>blocks_vector_to_stream_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_items</key>
+      <value>carriers</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(608, 400)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>wxgui_constellationsink2</key>
+    <param>
+      <key>id</key>
+      <value>wxgui_constellationsink2_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>Constellation Plot</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>frame_rate</key>
+      <value>5</value>
+    </param>
+    <param>
+      <key>const_size</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>theta</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>loop_bw</key>
+      <value>6.28/100.0</value>
+    </param>
+    <param>
+      <key>fmax</key>
+      <value>0.06</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>gain_mu</key>
+      <value>0.005</value>
+    </param>
+    <param>
+      <key>symbol_rate</key>
+      <value>samp_rate/4.</value>
+    </param>
+    <param>
+      <key>omega_limit</key>
+      <value>0.005</value>
+    </param>
+    <param>
+      <key>win_size</key>
+      <value></value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>notebook</key>
+      <value></value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(728, 491)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
     </param>
   </block>
   <connection>
     <source_block_id>analog_random_source_x_0</source_block_id>
     <sink_block_id>blocks_throttle_0</sink_block_id>
-=======
-    <source_key>0</
-
-  <connection>
-    <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>ofdm_fbmc_symbol_creation_bvc_0</sink_block_id>
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3289,6 +3312,18 @@
   <connection>
     <source_block_id>fft_vxx_1</source_block_id>
     <sink_block_id>ofdm_fbmc_beta_multiplier_vcvc_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_vector_to_stream_0</source_block_id>
+    <sink_block_id>wxgui_constellationsink2_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_vector_mask_0</source_block_id>
+    <sink_block_id>blocks_vector_to_stream_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Sat Sep  6 16:17:47 2014
+# Generated: Mon Sep  8 14:06:36 2014
 ##################################################
 
 from gnuradio import blocks
@@ -13,6 +13,7 @@ from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
 from gnuradio.fft import window
 from gnuradio.filter import firdes
+from gnuradio.wxgui import constsink_gl
 from gnuradio.wxgui import forms
 from gnuradio.wxgui import numbersink2
 from grc_gnuradio import blks2 as grc_blks2
@@ -33,20 +34,14 @@ class top_block(grc_wxgui.top_block_gui):
         ##################################################
         self.zero_pads = zero_pads = 1
         self.center_preamble = center_preamble = [1, -1j, -1, 1j]
-        self.M = M = 2048
+        self.M = M = 256
         self.theta_sel = theta_sel = 0
-<<<<<<< HEAD
         self.syms_per_frame = syms_per_frame = 20
         self.samp_rate = samp_rate = 3.125e6*2
         self.qam_size = qam_size = 4
-=======
-        self.syms_per_frame = syms_per_frame = 10
-        self.samp_rate = samp_rate = 20000
-        self.qam_size = qam_size = 256
->>>>>>> 74c62f0f25e87dae745d1a018fc932db817d183e
         self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
         self.exclude_preamble = exclude_preamble = 1
-        self.carriers = carriers = 1500
+        self.carriers = carriers = 208
         self.SNR = SNR = 10
         self.K = K = 4
 
@@ -93,6 +88,22 @@ class top_block(grc_wxgui.top_block_gui):
         	show_gauge=True,
         )
         self.Add(self.wxgui_numbersink2_0.win)
+        self.wxgui_constellationsink2_0 = constsink_gl.const_sink_c(
+        	self.GetWin(),
+        	title="Constellation Plot",
+        	sample_rate=samp_rate,
+        	frame_rate=5,
+        	const_size=qam_size,
+        	M=4,
+        	theta=0,
+        	loop_bw=6.28/100.0,
+        	fmax=0.06,
+        	mu=0.5,
+        	gain_mu=0.005,
+        	symbol_rate=samp_rate/4.,
+        	omega_limit=0.005,
+        )
+        self.Add(self.wxgui_constellationsink2_0.win)
         self.ofdm_vector_padding_0 = ofdm.vector_padding(carriers, M,  -1)
         self.ofdm_vector_mask_0 = ofdm.vector_mask(M, (M-carriers)/2, carriers, [])
         self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers, qam_size)
@@ -116,6 +127,7 @@ class top_block(grc_wxgui.top_block_gui):
         self.ofdm_fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
         self.fft_vxx_1 = fft.fft_vcc(M, True, ([]), True, 1)
         self.fft_vxx_0 = fft.fft_vcc(M, False, ([]), True, 1)
+        self.blocks_vector_to_stream_0 = blocks.vector_to_stream(gr.sizeof_gr_complex*1, carriers)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
         self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 0)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
@@ -182,6 +194,8 @@ class top_block(grc_wxgui.top_block_gui):
         self.connect((self.ofdm_vector_mask_0, 0), (self.ofdm_fbmc_symbol_estimation_vcb_0, 0))
         self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_vector_mask_0, 0))
         self.connect((self.fft_vxx_1, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_1, 0))
+        self.connect((self.blocks_vector_to_stream_0, 0), (self.wxgui_constellationsink2_0, 0))
+        self.connect((self.ofdm_vector_mask_0, 0), (self.blocks_vector_to_stream_0, 0))
 
 
 
@@ -225,6 +239,7 @@ class top_block(grc_wxgui.top_block_gui):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
+        self.wxgui_constellationsink2_0.set_sample_rate(self.samp_rate)
 
     def get_qam_size(self):
         return self.qam_size
@@ -243,8 +258,8 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_exclude_preamble(self, exclude_preamble):
         self.exclude_preamble = exclude_preamble
-        self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
         self.blks2_selector_0.set_input_index(int(self.exclude_preamble))
+        self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
 
     def get_carriers(self):
         return self.carriers
@@ -257,9 +272,9 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_SNR(self, SNR):
         self.SNR = SNR
-        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
         self._SNR_slider.set_value(self.SNR)
         self._SNR_text_box.set_value(self.SNR)
+        self.ofdm_fbmc_channel_hier_cc_0.set_SNR(self.SNR)
 
     def get_K(self):
         return self.K

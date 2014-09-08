@@ -201,11 +201,17 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     self.skiphead = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 2*4-1-1)
     self.skiphead_1 = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 1)
     self.remove_preamble_vcvc = ofdm.fbmc_remove_preamble_vcvc(total_subc, config.frame_data_part, 3*total_subc)
-    self.subchannel_processing_vcvc = ofdm.fbmc_subchannel_processing_vcvc(total_subc, config.frame_data_part, (preamble), 1)
+    self.subchannel_processing_vcvc = ofdm.fbmc_subchannel_processing_vcvc(total_subc, config.frame_data_part, (preamble), 2)
     self.oqam_postprocessing_vcvc = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc, 0, 0)
     
     log_to_file( self, ofdm_blocks, "data/PRE_FBMC.compl" )
     log_to_file( self, self.fft_fbmc, "data/FFT_FBMC.compl" )
+    
+    help2 = blocks.keep_one_in_n(gr.sizeof_gr_complex*total_subc,23)
+    self.connect ((self.subchannel_processing_vcvc,1),help2)
+
+    
+    #terminate_stream(self, help2)
     
 
     self.connect(ofdm_blocks, blocks.vector_to_stream(gr.sizeof_gr_complex, fft_length/2),overlap_ser_to_par)
@@ -303,6 +309,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     LS_channel_estimator = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
     self.connect( ofdm_blocks_est, LS_channel_estimator )
     estimated_CTF = LS_channel_estimator
+    terminate_stream(self,estimated_CTF)
     
     if options.logcir:
          log_to_file( self, sampled_chest_preamble, "data/PREAM.compl" )
@@ -353,7 +360,8 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     ## CTF -> inverse CTF (for equalizer)
     ## CTF -> norm |.|^2 (for CTF display)
     ctf_postprocess = ofdm.postprocess_CTF_estimate( total_subc )
-    self.connect( estimated_CTF, ctf_postprocess )
+    
+    self.connect( help2, ctf_postprocess )
     inv_estimated_CTF = ( ctf_postprocess, 0 )
     disp_CTF = ( ctf_postprocess, 1 )
     terminate_stream(self, inv_estimated_CTF)

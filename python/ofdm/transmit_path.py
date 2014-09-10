@@ -120,13 +120,17 @@ class transmit_path(gr.hier_block2):
         id_src = blocks.vector_source_s(id_vec,True,1)
         # bitloading for ID symbol and then once for data symbols
         #bitloading_vec = [1]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
-        bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        
+        test_allocation = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
+        #bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        bitloading_vec = [1]*dsubc+test_allocation
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         # bitcount for frames
-        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        bitcount_vec = [config.frame_data_blocks*sum(test_allocation)]
         bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # power loading, here same for all symbols
-        power_vec = [1]*config.data_subcarriers
+        power_vec = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
         power_src = blocks.vector_source_f(power_vec,True,dsubc)
         # mux control stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
@@ -138,7 +142,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 

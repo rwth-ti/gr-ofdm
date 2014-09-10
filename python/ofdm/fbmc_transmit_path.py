@@ -120,13 +120,17 @@ class transmit_path(gr.hier_block2):
         id_src = blocks.vector_source_s(id_vec,True,1)
         # bitloading for ID symbol and then once for data symbols
         #bitloading_vec = [1]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
-        bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        
+        test_allocation = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
+        #bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        bitloading_vec = [1]*dsubc+test_allocation
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         # bitcount for frames
-        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        bitcount_vec = [config.frame_data_blocks*sum(test_allocation)]
         bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # power loading, here same for all symbols
-        power_vec = [1]*config.data_subcarriers
+        power_vec = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
         power_src = blocks.vector_source_f(power_vec,True,dsubc)
         # mux control stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
@@ -138,7 +142,10 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)
+        test_allocation = [6]*(int)(config.data_subcarriers) #+ [0]*(int)(config.data_subcarriers/2) + [2]*(int)(config.data_subcarriers/4)
+        #test_allocation = [2]*(int)(config.data_subcarriers/16) + [0]*(int)(config.data_subcarriers/16*15)# + [2]*(int)(config.data_subcarriers/8)
+
+        self.allocation_src.set_allocation(test_allocation,[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
@@ -260,30 +267,32 @@ class transmit_path(gr.hier_block2):
     
     fbmc_pblocks = self._fbmc_pilot_block_inserter = fbmc_pilot_block_inserter(5,False)
     self.connect(oqam_prep,fbmc_pblocks)
-    log_to_file(self, fbmc_pblocks, "data/fbmc_pblocks_out.compl")
+    #log_to_file(self, fbmc_pblocks, "data/fbmc_pblocks_out.compl")
     #fbmc_insert_pream = self._fbmc_insert_pream = fbmc_insert_preamble_vcvc(M, syms_per_frame, preamble)
     #log_to_file(self, oqam_prep, "data/oqam_prep.compl")
     #log_to_file(self, psubc, "data/psubc_out.compl")
     
     
     
-    beta_mult = self._beta_mult = fbmc_beta_multiplier_vcvc(config.subcarriers, 4, 4*config.subcarriers-1, 0)
-    self.connect(fbmc_pblocks, beta_mult)
+
 
     ## Add virtual subcarriers
     if config.fft_length > subcarriers:
       vsubc = self._virtual_subcarrier_extender = \
               vector_padding(subcarriers, config.fft_length)
-      self.connect(beta_mult,vsubc)
+      self.connect(fbmc_pblocks,vsubc)
     else:
-      vsubc = self._virtual_subcarrier_extender = beta_mult
+      vsubc = self._virtual_subcarrier_extender = fbmc_pblocks
+      
+    beta_mult = self._beta_mult = fbmc_beta_multiplier_vcvc(config.fft_length, 4, 4*config.fft_length-1, 0)
+    self.connect(vsubc, beta_mult)
 
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")
 
     ## IFFT, no window, block shift
     ifft = self._ifft = fft_blocks.fft_vcc(config.fft_length,False,[],True)
-    self.connect(vsubc,ifft)
+    self.connect(beta_mult,ifft)
 
     if options.log:
       log_to_file(self, ifft, "data/ifft_out.compl")
@@ -305,7 +314,7 @@ class transmit_path(gr.hier_block2):
     pblocks = self._pilot_block_inserter = pilot_block_inserter2(5,False)
     self.connect( overlap_p2s, blocks.stream_to_vector(gr.sizeof_gr_complex,config.fft_length/2),  pblocks )
     
-    log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
+    #log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
 
     if options.log:
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")

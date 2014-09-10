@@ -248,7 +248,7 @@ namespace gr {
                             << n_bits << " bits left" << std::endl;
                 } // d_symbol_counter == 0
 
-                if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
+                //if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
                                         
                 // check if we have enough bits
                 if( n_bits < d_need_bits ){

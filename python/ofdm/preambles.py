@@ -53,25 +53,59 @@ class default_block_header (object):
     self._prepare_pilot_subcarriers(data_subcarriers, fft_length)
     
     #FBMC preambles
-    self.fbmc_no_preambles = 3 #fixed for now
-    self.fbmc_no_pilotsyms = self.fbmc_no_preambles
     self.fbmc_pilotsym_fd = []
     
-    fbmc_fd_1 = numpy.array([0 + 0j]*data_subcarriers)
-    fbmc_fd_2_list = [1, -1j, -1, 1j]* (int)(data_subcarriers/4)
+    vlen = data_subcarriers # padding AFTER oqam processing
+    #vlen = fft_length # padding BEFORE oqam processing
+    
+    norm_fact = 3
+    fbmc_fd_1 = numpy.array([0 + 0j]*vlen)
+    fbmc_fd_2_list = [1, -1j, -1, 1j]* (int)(vlen/4)
+    fbmc_fd_2_l_list = [1j, -1, -1j, 1]* (int)(vlen/4)
+    fbmc_fd_2_r_list = [-1j, 1, 1j, -1]* (int)(vlen/4)
+    fbmc_fd_2_list_norm = [1.0/math.sqrt(norm_fact), -1.0j/math.sqrt(norm_fact), -1.0/math.sqrt(norm_fact), 1.0j/math.sqrt(norm_fact)]* (int)(vlen/4)
+    fbmc_fd_2_l_list_norm = [1.0j/math.sqrt(norm_fact), -1.0/math.sqrt(norm_fact), -1.0j/math.sqrt(norm_fact), 1.0/math.sqrt(norm_fact)]* (int)(vlen/4)
+    fbmc_fd_2_r_list_norm = [-1.0j/math.sqrt(norm_fact), 1.0/math.sqrt(norm_fact), 1.0j/math.sqrt(norm_fact), -1.0/math.sqrt(norm_fact)]* (int)(vlen/4)
+
+    if norm_fact !=1:
+        norm_fact=norm_fact+2
+    
     fbmc_fd_2 = numpy.array(fbmc_fd_2_list)
+    fbmc_fd_2_l = numpy.array(fbmc_fd_2_l_list)
+    fbmc_fd_2_r = numpy.array(fbmc_fd_2_r_list)
+    fbmc_fd_2_norm = numpy.array(fbmc_fd_2_list_norm)
+    fbmc_fd_2_l_norm = numpy.array(fbmc_fd_2_l_list_norm)
+    fbmc_fd_2_r_norm = numpy.array(fbmc_fd_2_r_list_norm)
+    
     self.fbmc_pilotsym_pos = []
+    #fbmc_fd_2_norm = fbmc_fd_1
+    
     
     self.fbmc_pilotsym_fd.append(fbmc_fd_1)
     self.fbmc_pilotsym_pos.append(0)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_2)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
     self.fbmc_pilotsym_pos.append(1)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
     self.fbmc_pilotsym_pos.append(2)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
+    self.fbmc_pilotsym_pos.append(3)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(4)
     #self.fbmc_pilotsym_fd.append(fbmc_fd_1)
-    #self.fbmc_pilotsym_pos.append(3)
+    #self.fbmc_pilotsym_pos.append(4)
     
-    self.fbmc_no_preambles_td = 4 #fixed for now
+    self.fbmc_no_preambles = len(array(self.fbmc_pilotsym_fd).tolist()[0:]) #fixed for now
+    self.fbmc_no_pilotsyms = self.fbmc_no_preambles
+    
+    print "Number of channel estimation preambles", self.fbmc_no_pilotsyms
+    
+    x = math.sqrt(norm_fact)*array(self.fbmc_pilotsym_fd)
+    #x=math.sqrt(3)*array(self.fbmc_pilotsym_fd)
+    fbmc_pilotsym_fd_list = x.tolist()[0:]
+    self.fbmc_pilotsym_fd_list = [item for sublist in fbmc_pilotsym_fd_list for item in sublist]
+    print "self.fbmc_pilotsym_fd_list", self.fbmc_pilotsym_fd_list
+    
+    self.fbmc_no_preambles_td = 2 #fixed for now # 4 for includin channel estimation
     self.fbmc_no_pilotsyms_td = self.fbmc_no_preambles_td
     self.fbmc_pilotsym_td = []
     self.fbmc_pilotsym_pos_td = []
@@ -95,7 +129,7 @@ class default_block_header (object):
     # Morelli & Mengali + Schmidl & Cox Preamble
     self.mm_periodic_parts = L = 8
     td,fd = morellimengali_designer.create(self.subcarriers, fft_length, L)
-    
+    #td = numpy.array([0 + 0j]*fft_length)
     
     
 
@@ -103,9 +137,11 @@ class default_block_header (object):
     assert(len(fd) == self.subcarriers)
 
     self.pilotsym_td.append(td)
+    self.pilotsym_fd.append(fd)
+    
     self.pilotsym_td_1.append(td)
     self.pilotsym_td_2.append(td)
-    self.pilotsym_fd.append(fd)
+    
     self.pilotsym_fd_1.append(fd)
     self.pilotsym_fd_2.append(fd)
     self.pilotsym_pos.append(0)
@@ -118,7 +154,9 @@ class default_block_header (object):
 
     # Known pilot block to ease estimation of CTF
     td,fd,td_1,fd_1,td_2,fd_2 = schmidl_ifo_designer.create(self.subcarriers, fft_length)
-
+    td = numpy.array([0 + 0j]*fft_length)
+                     
+                     
     assert(len(td) == fft_length)
     assert(len(fd) == self.subcarriers)
     assert(len(td_1) == fft_length)
@@ -126,10 +164,10 @@ class default_block_header (object):
     assert(len(td_2) == fft_length)
     assert(len(fd_2) == self.subcarriers)
     
-    self.fbmc_pilotsym_td.append(td[0:len(td)/2])
-    self.fbmc_pilotsym_pos_td.append(2)
-    self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
-    self.fbmc_pilotsym_pos_td.append(3)
+    #self.fbmc_pilotsym_td.append(td[0:len(td)/2])
+    #self.fbmc_pilotsym_pos_td.append(2)
+    #self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
+    #self.fbmc_pilotsym_pos_td.append(3)
 
     
 
@@ -159,10 +197,10 @@ class default_block_header (object):
 
 
     #assert(self.no_pilotsyms == len(self.pilotsym_fd))
-    assert(self.no_pilotsyms == len(self.pilotsym_fd_1))
-    assert(self.no_pilotsyms == len(self.pilotsym_fd_2))
+    #assert(self.no_pilotsyms == len(self.pilotsym_fd_1))
+    #assert(self.no_pilotsyms == len(self.pilotsym_fd_2))
     #assert(self.no_pilotsyms == len(self.pilotsym_td))
-    assert(self.no_pilotsyms == len(self.pilotsym_pos))
+    #assert(self.no_pilotsyms == len(self.pilotsym_pos))
 
 
   def _prepare_pilot_subcarriers(self,data_subcarriers,fft_length):
@@ -172,7 +210,7 @@ class default_block_header (object):
     if self.fbmc:
         self.pilot_subcarriers = 0
     else:
-        self.pilot_subcarriers = 8
+        self.pilot_subcarriers = 0
     self.subcarriers = subc = self.pilot_subcarriers+data_subcarriers
     self.pilot_subc_sym = [2.0]*(self.pilot_subcarriers)
 
@@ -330,7 +368,7 @@ class pilot_block_inserter2(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen/2))
 
 
-    mux = ofdm.frame_mux( vlen/2, 2*config.frame_length+3)
+    mux = ofdm.frame_mux( vlen/2, 2*config.frame_length + config.training_data.fbmc_no_preambles)
     
     if ant==1:
         for x in range( config.training_data.no_pilotsyms ):
@@ -368,7 +406,8 @@ class fbmc_pilot_block_inserter(gr.hier_block2):
     else:
       vlen = fft_length
       
-    vlen = config.subcarriers
+    vlen = config.subcarriers # padding AFTER oqam processing
+    #vlen = fft_length # padding BEFORE oqam processing
 
     gr.hier_block2.__init__(self, "fbmc_pilot_block_inserter",
         gr.io_signature(1,1,gr.sizeof_gr_complex*vlen),

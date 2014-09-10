@@ -39,22 +39,23 @@ namespace gr {
   namespace ofdm {
 
     mm_frequency_estimator::sptr
-    mm_frequency_estimator::make(int vlen, int identical_parts)
+    mm_frequency_estimator::make(int vlen, int identical_parts, int scale)
     {
       return gnuradio::get_initial_sptr
-        (new mm_frequency_estimator_impl(vlen, identical_parts));
+        (new mm_frequency_estimator_impl(vlen, identical_parts, scale));
     }
 
     /*
      * The private constructor
      */
-    mm_frequency_estimator_impl::mm_frequency_estimator_impl(int vlen, int identical_parts)
+    mm_frequency_estimator_impl::mm_frequency_estimator_impl(int vlen, int identical_parts, int scale=1)
       : gr::sync_block("mm_frequency_estimator",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen),
               gr::io_signature::make(1, 1, sizeof(float)))
     	, d_vlen(vlen)
     	, d_L(identical_parts)
     	, d_M(vlen/identical_parts)
+    	, d_O(scale)
     	, d_weights(identical_parts/2, 0.0)
     {
     	assert(d_M*d_L == vlen);
@@ -114,7 +115,7 @@ namespace gr {
     	      est += d_weights[m-1] * phase_diff; // (argR[m] - argR[m-1]);
     	    }
 
-    	    est = d_L / two_pi * est;
+    	    est = d_L / two_pi * est*d_O;
 
     	    out[i] = static_cast<float>(est);
 

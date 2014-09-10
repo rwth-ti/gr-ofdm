@@ -105,7 +105,7 @@ class receive_path(gr.hier_block2):
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
-    config.frame_length = 3 + 2*config.frame_data_part + \
+    config.frame_length = config.training_data.fbmc_no_preambles + 2*config.frame_data_part + \
                           2*config.training_data.no_pilotsyms
     config.postpro_frame_length = config.frame_data_part + \
                           config.training_data.no_pilotsyms
@@ -137,9 +137,11 @@ class receive_path(gr.hier_block2):
     ## Phase Tracking for sampling clock frequency offset correction
     inner_receiver = self.inner_receiver = fbmc_inner_receiver( options, options.log )
     self.connect( self.input, inner_receiver )
-    ofdm_blocks = ( inner_receiver, 0 )
+    ofdm_blocks = ( inner_receiver, 2 )
     frame_start = ( inner_receiver, 1 )
-    disp_ctf = ( inner_receiver, 2 )
+    disp_ctf = ( inner_receiver, 0 )
+    self.snr_est_preamble = ( inner_receiver, 3 )
+    #terminate_stream(self,snr_est_preamble)
 
 
 
@@ -468,7 +470,7 @@ class receive_path(gr.hier_block2):
         self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
 
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
-        scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
+        scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,40)
         scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
 
         scatter_id_filt = skip(gr.sizeof_gr_complex*dsubc,config.frame_data_blocks)
@@ -842,14 +844,14 @@ class receive_path(gr.hier_block2):
     frame_length = config.frame_length
     L = config.periodic_parts
 
-    snr_est_filt = skip(gr.sizeof_gr_complex*vlen,frame_length)
-    for x in range(1,frame_length):
-      snr_est_filt.skip_call(x)
+    #snr_est_filt = skip(gr.sizeof_gr_complex*vlen,frame_length)
+    #for x in range(1,frame_length):
+      #snr_est_filt.skip_call(x)
 
     ## NOTE HACK!! first preamble is not equalized
 
-    self.connect(self.symbol_output,snr_est_filt)
-    self.connect(self.frame_trigger,(snr_est_filt,1))
+    #self.connect(self.symbol_output,snr_est_filt)
+    #self.connect(self.frame_trigger,(snr_est_filt,1))
 
 #    snrm = self._snr_measurement = milans_snr_estimator( vlen, vlen, L )
 #
@@ -881,7 +883,7 @@ class receive_path(gr.hier_block2):
         snr_estim = snr_estimator( vlen, L )
         scsnrdb = filter.single_pole_iir_filter_ff(0.1)
         snrm = self._snr_measurement = blocks.nlog10_ff(10,1,0)
-        self.connect(snr_est_filt,snr_estim,scsnrdb,snrm)
+        self.connect(self.snr_est_preamble,snr_estim,scsnrdb,snrm)
         self.connect((snr_estim,1),blocks.null_sink(gr.sizeof_float))
         #log_to_file(self, snrm, "data/snrm.float")
 
@@ -1264,6 +1266,6 @@ class fbmc_frame_sampler( gr.hier_block2 ):
 
     self.connect( self, frame_sampler, symbol_output, self )
 
-    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part+7,0),delayed_frame_start, ( frame_sampler, 1 ) )
+    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part+config.training_data.fbmc_no_preambles_td + config.training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
 
     self.connect( damn_static_frame_trigger, (self,1) )

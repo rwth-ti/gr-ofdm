@@ -106,6 +106,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( gi_metric, ( sync, 2 ) )
     ofdm_blocks = ( sync, 0 )
     frame_start = ( sync, 1 )
+    
+    #log_to_file( self, sc_metric, "data/sc_metric_ofdm.float" )
     #log_to_file(self, frame_start, "data/frame_start.compl")
     
 #    log_to_file(self,ofdm_blocks,"data/ofdm_blocks_original.compl")
@@ -130,7 +132,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     
     ## Extract preamble, feed to Morelli & Mengali frequency offset estimator
     assert( block_header.mm_preamble_pos == 0 )
-    morelli_foe = ofdm.mm_frequency_estimator( fft_length, L )
+    morelli_foe = ofdm.mm_frequency_estimator( fft_length, L,1 )
     sampler_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length,
                                             1 )
     self.connect( ofdm_blocks, ( sampler_preamble, 0 ) )

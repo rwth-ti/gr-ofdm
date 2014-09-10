@@ -47,7 +47,7 @@ namespace gr {
        * class. ofdm::mm_frequency_estimator::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen, int identical_parts);
+      static sptr make(int vlen, int identical_parts, int scale);
     };
 
   } // namespace ofdm

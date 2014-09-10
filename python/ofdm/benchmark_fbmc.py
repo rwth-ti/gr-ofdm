@@ -75,6 +75,9 @@ class fbmc_benchmark (gr.top_block):
     self._verbose            = options.verbose
 
     self._options = copy.copy( options )
+    
+    #Disable OFDM channel estimation preamble -> Still experimental
+    options.est_preamble = 0
 
     self._interpolation = 1
 
@@ -143,8 +146,8 @@ class fbmc_benchmark (gr.top_block):
 
     if options.snr is not None:
       if options.berm is not None:
-          #noise_sigma = 0.0001/32767.0
-          noise_sigma = 380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
+          noise_sigma = 0.0001/32767.0
+          #noise_sigma = 380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
           #check for fading channel
       else:
           snr_db = options.snr

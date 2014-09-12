@@ -2,6 +2,7 @@
 
 from gnuradio import gr
 from gnuradio import gr, blocks, analog, filter
+from gnuradio import channels
 # import ofdm
 import numpy
 # from fbmc_transmitter_hier_bc import fbmc_transmitter_hier_bc
@@ -63,19 +64,20 @@ class test_demapper_fbmc:
   def sim ( self, arity, snr_db, N ):
     M = 1024
     theta_sel = 0
-    syms_per_frame = 10
-    zero_pads = 1
+    syms_per_frame = 20
+    zero_pads = 2
     center_preamble = [1, -1j, -1, 1j] # assumed to be normalized to 1
     qam_size = 2**arity
     preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
+    # print preamble
     # num_symbols = 2**12
-    exclude_preamble = 1
+    exclude_preamble = 0
     exclude_multipath =1
-    sel_taps = 0 # epa=0, eva = 1, etu=3
+    sel_taps = 2 # epa=0, eva = 1, etu=2
     freq_offset= 0
     exclude_noise = 1
     sel_noise_type =0 # gaussian
-    eq_select = 3
+    eq_select = 2 # 0=1-tap 1=3-taps w/linear intrp 2=3-taps w/ geo. intrp. 3= no eq.
     carriers = M
     # SNR = 20
     K = 4
@@ -91,9 +93,16 @@ class test_demapper_fbmc:
       amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
     # print amp
     # print amp2
-    tx = ofdm.fbmc_transmitter_hier_bc(M, K, qam_size, syms_per_frame, carriers, theta_sel, exclude_preamble, center_preamble,1)
-    rx = ofdm.fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, carriers, theta_sel, eq_select, exclude_preamble, center_preamble,1)
-    ch = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, exclude_multipath, sel_taps, freq_offset, exclude_noise, sel_noise_type, snr_db, exclude_preamble, zero_pads)
+    taps = (1)
+    if sel_taps == 0: #epa
+        taps = (0.998160541385960,0.0605566335500750,0.00290305927764350)
+    elif sel_taps == 1: #eva
+        taps = (0.748212004186014,0.317358833370450,0.572776845645705,0,0.0538952624324030,0.0874078808126807,0,0,0,0.0276407988816600,0,0,0,0.00894438719057275)
+    elif sel_taps ==2: #etu
+        taps = (0.463990169152204,0.816124099344485,0,0.292064507384192,0,0,0,0,0.146379002496595,0,0,0,0.0923589067029112,0,0,0,0,0,0,0,0,0,0,0,0,0.0582745305123628)
+    tx = ofdm.fbmc_transmitter_hier_bc(M, K, qam_size, syms_per_frame, carriers, theta_sel, exclude_preamble, center_preamble,zero_pads)
+    rx = ofdm.fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, carriers, theta_sel, eq_select, exclude_preamble, center_preamble,zero_pads)
+    # ch = ofdm.fbmc_channel_hier_cc(M, K, syms_per_frame, exclude_multipath, sel_taps, freq_offset, exclude_noise, sel_noise_type, snr_db, exclude_preamble, zero_pads)
 
     # src = blocks.vector_source_b(src_data, vlen=1)
     xor_block = blocks.xor_bb()
@@ -103,14 +112,23 @@ class test_demapper_fbmc:
     src = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 100000)), True)
     noise = analog.fastnoise_source_c(analog.GR_GAUSSIAN, amp, 0, 8192)
     dst = blocks.vector_sink_b(vlen=1)
+    ch_model = channels.channel_model(
+            noise_voltage=0.0,
+            frequency_offset=freq_offset,
+            epsilon=1.0,
+            taps=taps,
+            noise_seed=0,
+            block_tags=False
+        )
 
     tb = gr.top_block ( "test_block" )
     tb.connect((src, 0), (head1, 0)) #esas
     tb.connect((head1, 0), (xor_block, 0)) #esas
     tb.connect((src, 0), (tx, 0)) #esas
-    tb.connect((tx, 0), (add_block, 0)) #esas
+    # tb.connect((tx, 0), (add_block, 0)) #esas
+    tb.connect((tx, 0), (ch_model, 0))
+    tb.connect((ch_model, 0), (add_block, 0)) 
     tb.connect((noise, 0), (add_block, 1)) #esas
-    # tb.connect((head0, 0), (add_block, 1)) #esas
     tb.connect((add_block, 0), (rx, 0)) #esas
     tb.connect((rx, 0),(head0, 0)) #esas
     tb.connect((head0, 0), (xor_block, 1)) #esas
@@ -139,7 +157,7 @@ class test_demapper_fbmc:
     # for i in range(1,9):
     #   test_symbol_src( i )
     
-    N = 2**20 #!! we take this as number of samples, not bits.
+    N = 2**22 #!! we take this as number of samples, not bits.
     
     ber_curves = dict()
     
@@ -150,7 +168,7 @@ class test_demapper_fbmc:
       # min_ber = 0
       min_ber = 100. / (N*arity)
       ber_arr = []
-      snr_range = range(0, 30, 1)
+      snr_range = range(0, 31, 1)
       for snr_db in snr_range:
         ber = self.sim( arity, snr_db, N )
         ber_arr.append( ber )

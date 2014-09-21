@@ -36,7 +36,11 @@ from ofdm import static_mux_c, static_mux_v
 
 class default_block_header (object):
   def __init__(self,data_subcarriers,fft_length,options):
-    self.no_preambles = options.est_preamble + 1
+    self.fbmc = options.fbmc
+    if self.fbmc:
+        self.no_preambles = options.est_preamble
+    else:
+        self.no_preambles = options.est_preamble + 1
     self.no_pilotsyms = self.no_preambles
     self.pilotsym_td = []
     self.pilotsym_fd = []
@@ -48,8 +52,6 @@ class default_block_header (object):
     self.pilot_tones = []
     self.pilot_tone_map = []
     
-    self.fbmc = options.fbmc
-
     self._prepare_pilot_subcarriers(data_subcarriers, fft_length)
     
     #FBMC preambles
@@ -83,14 +85,20 @@ class default_block_header (object):
     
     self.fbmc_pilotsym_fd.append(fbmc_fd_1)
     self.fbmc_pilotsym_pos.append(0)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
     self.fbmc_pilotsym_pos.append(1)
     self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
     self.fbmc_pilotsym_pos.append(2)
     self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
     self.fbmc_pilotsym_pos.append(3)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_2_norm)
     self.fbmc_pilotsym_pos.append(4)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(5)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(6)
+    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    self.fbmc_pilotsym_pos.append(7)
     #self.fbmc_pilotsym_fd.append(fbmc_fd_1)
     #self.fbmc_pilotsym_pos.append(4)
     
@@ -105,17 +113,20 @@ class default_block_header (object):
     self.fbmc_pilotsym_fd_list = [item for sublist in fbmc_pilotsym_fd_list for item in sublist]
     print "self.fbmc_pilotsym_fd_list", self.fbmc_pilotsym_fd_list
     
-    self.fbmc_no_preambles_td = 2 #fixed for now # 4 for includin channel estimation
+    self.fbmc_no_preambles_td = 2*self.no_pilotsyms #fixed for now # 4 for includin channel estimation
     self.fbmc_no_pilotsyms_td = self.fbmc_no_preambles_td
     self.fbmc_pilotsym_td = []
     self.fbmc_pilotsym_pos_td = []
     
-    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
-    self.fbmc_pilotsym_pos.append(0)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_2)
-    self.fbmc_pilotsym_pos.append(1)
-    self.fbmc_pilotsym_fd.append(fbmc_fd_1)
-    self.fbmc_pilotsym_pos.append(2)
+    self.fbmc_pilotsym_fd_timing = []
+    self.fbmc_pilotsym_pos_fd_timing = []
+    
+    #self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    #self.fbmc_pilotsym_pos.append(0)
+    #self.fbmc_pilotsym_fd.append(fbmc_fd_2)
+    #self.fbmc_pilotsym_pos.append(1)
+    #self.fbmc_pilotsym_fd.append(fbmc_fd_1)
+    #self.fbmc_pilotsym_pos.append(2)
     
     
     
@@ -150,11 +161,19 @@ class default_block_header (object):
     self.fbmc_pilotsym_pos_td.append(0)
     self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
     self.fbmc_pilotsym_pos_td.append(1)
+    
+    self.fbmc_pilotsym_fd_timing.append(fd)
+    self.fbmc_pilotsym_pos_fd_timing.append(0)
+    
+    self.fbmc_no_timing_preambles = len(array(self.fbmc_pilotsym_fd_timing).tolist()[0:]) #fixed for now
+    self.fbmc_no_timing_pilotsyms = self.fbmc_no_timing_preambles
+    
+    
 
 
     # Known pilot block to ease estimation of CTF
     td,fd,td_1,fd_1,td_2,fd_2 = schmidl_ifo_designer.create(self.subcarriers, fft_length)
-    td = numpy.array([0 + 0j]*fft_length)
+    #td = numpy.array([0 + 0j]*fft_length)
                      
                      
     assert(len(td) == fft_length)
@@ -164,10 +183,11 @@ class default_block_header (object):
     assert(len(td_2) == fft_length)
     assert(len(fd_2) == self.subcarriers)
     
-    #self.fbmc_pilotsym_td.append(td[0:len(td)/2])
-    #self.fbmc_pilotsym_pos_td.append(2)
-    #self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
-    #self.fbmc_pilotsym_pos_td.append(3)
+    if self.fbmc is not True:
+        self.fbmc_pilotsym_td.append(td[0:len(td)/2])
+        self.fbmc_pilotsym_pos_td.append(2)
+        self.fbmc_pilotsym_td.append(td[len(td)/2:len(td)])
+        self.fbmc_pilotsym_pos_td.append(3)
 
     
 
@@ -210,7 +230,7 @@ class default_block_header (object):
     if self.fbmc:
         self.pilot_subcarriers = 0
     else:
-        self.pilot_subcarriers = 0
+        self.pilot_subcarriers = 8
     self.subcarriers = subc = self.pilot_subcarriers+data_subcarriers
     self.pilot_subc_sym = [2.0]*(self.pilot_subcarriers)
 
@@ -428,6 +448,49 @@ class fbmc_pilot_block_inserter(gr.hier_block2):
           ####print "fd", config.training_data.pilotsym_fd[ x ]
           print "fbmc_fd", config.training_data.fbmc_pilotsym_fd[ x ]
           mux.add_preamble( config.training_data.fbmc_pilotsym_fd[ x ] ) 
+
+    self.connect( self, mux, self )
+    return
+
+class fbmc_timing_pilot_block_inserter(gr.hier_block2):
+  """
+  Multiplex pilot blocks to time domain signal.
+  """
+  def __init__ (self, ant, add_cyclic_prefix = False):
+
+    config = station_configuration()
+    fft_length = config.fft_length
+    block_length = config.block_length
+    cp_length = config.cp_length
+    fbmc = config.fbmc
+    
+    if add_cyclic_prefix:
+      vlen = block_length
+    else:
+      vlen = fft_length
+      
+    vlen = config.subcarriers # padding AFTER oqam processing
+    #vlen = fft_length # padding BEFORE oqam processing
+
+    gr.hier_block2.__init__(self, "fbmc_timing_pilot_block_inserter",
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen),
+        gr.io_signature(1,1,gr.sizeof_gr_complex*vlen))
+
+
+    mux = ofdm.frame_mux( vlen,2*config.frame_data_part+config.training_data.fbmc_no_preambles+1)
+    
+    if ant==1:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_1[ x ] )
+    elif ant==2:
+        for x in range( config.training_data.no_pilotsyms ):
+          mux.add_preamble( config.training_data.pilotsym_td_2[ x ] )
+    else:
+       
+        for x in range( config.training_data.fbmc_no_timing_pilotsyms ):
+          ####print "fd", config.training_data.pilotsym_fd[ x ]
+          print "fbmc_fd", config.training_data.fbmc_pilotsym_fd_timing[ x ]
+          mux.add_preamble( config.training_data.fbmc_pilotsym_fd_timing[ x ] ) 
 
     self.connect( self, mux, self )
     return

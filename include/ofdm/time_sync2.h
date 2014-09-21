@@ -20,34 +20,38 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_SCHMIDL_TM_REC_STAGE2_IMPL_H
-#define INCLUDED_OFDM_SCHMIDL_TM_REC_STAGE2_IMPL_H
+#ifndef INCLUDED_OFDM_time_sync2_H
+#define INCLUDED_OFDM_time_sync2_H
 
-#include <ofdm/schmidl_tm_rec_stage2.h>
+#include <ofdm/api.h>
+#include <gnuradio/block.h>
 
 namespace gr {
   namespace ofdm {
 
-    class schmidl_tm_rec_stage2_impl : public schmidl_tm_rec_stage2
+    /*!
+     * \brief <+description of block+>
+     * \ingroup ofdm
+     *
+     */
+    class OFDM_API time_sync2 : virtual public gr::block
     {
-     private:
-        int         d_delay;
-        gr_complex  d_acc1;
-        float       d_acc2;
-        float       d_acc3;
-
      public:
-      schmidl_tm_rec_stage2_impl(int window);
-      ~schmidl_tm_rec_stage2_impl();
+      typedef boost::shared_ptr<time_sync2> sptr;
 
-      // Where all the action really happens
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
+      /*!
+       * \brief Return a shared_ptr to a new instance of ofdm::time_sync2.
+       *
+       * To avoid accidental use of raw pointers, ofdm::time_sync2's
+       * constructor is in a private implementation
+       * class. ofdm::time_sync2::make is the public interface for
+       * creating new instances.
+       */
+      static sptr make(int vlen, int cplen);
     };
 
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_SCHMIDL_TM_REC_STAGE2_IMPL_H */
+#endif /* INCLUDED_OFDM_time_sync2_H */
 

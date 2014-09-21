@@ -45,7 +45,7 @@ namespace gr {
     schmidl_tm_rec_stage1_impl::schmidl_tm_rec_stage1_impl(int fft_length)
       : gr::sync_block("schmidl_tm_rec_stage1",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make2(2, 2, sizeof(gr_complex), sizeof(float)))
+              gr::io_signature::make2(3, 3, sizeof(gr_complex), sizeof(float)))
     	, d_fft_length( fft_length )
     	, d_delay( fft_length/2 )
     {
@@ -71,6 +71,7 @@ namespace gr {
 
     	  gr_complex * p = static_cast<gr_complex*>(output_items[0]);
     	  float * r = static_cast<float*>(output_items[1]);
+    	  float * q = static_cast<float*>(output_items[2]);
 
 
 
@@ -79,8 +80,14 @@ namespace gr {
     	    float const x = in[i].real();
     	    float const y = in[i].imag();
 
+    	    float const x_del = in_del[i].real();
+    	    float const y_del = in_del[i].imag();
+
     	    float const x2 = x*x;
     	    float const y2 = y*y;
+
+    	    float const x1 = x_del*x_del;
+    	    float const y1 = y_del*y_del;
 
 
     	    gr_complex const id = in_del[i];
@@ -91,6 +98,8 @@ namespace gr {
     	    p[i] = cid * in_t;
 
     	    r[i] = x2 + y2;
+
+    	    q[i] = x1 + y1;
 
     	  } // for-loop
 

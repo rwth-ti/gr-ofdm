@@ -55,7 +55,9 @@ class rx_top_block(gr.top_block):
 
         if options.fbmc:
             print "fbmc_transmit_path"
+            options.est_preamble = 0
             self.rxpath = fbmc_receive_path(options)
+            
         else:
             self.rxpath = receive_path(options)
             

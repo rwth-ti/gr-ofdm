@@ -58,6 +58,7 @@ install(FILES
     depuncture_bb.h
     depuncture_ff.h
     time_sync.h
+    time_sync2.h
     dynamic_trigger_ib.h
     extract_block_from_frame.h
     find_cir_shift.h

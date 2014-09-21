@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blocks, zeromq
+from gnuradio import gr, blocks, zeromq, filter
 from gnuradio import fft as fft_blocks
 from gnuradio.eng_option import eng_option
 
@@ -30,6 +30,8 @@ from gr_tools import log_to_file,terminate_stream
 import ofdm as ofdm
 import numpy
 import math
+
+import schmidl
 
 from autocorrelator import autocorrelator
 from station_configuration import station_configuration
@@ -89,23 +91,67 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     
     ## pre-FFT processing
     
+    if options.old_receiver is False:
+        ## Compute autocorrelations for S&C preamble
+        ## and cyclic prefix
+        
+        self._sc_metric = sc_metric = autocorrelator( fft_length/2, fft_length/2 )
+        self._gi_metric = gi_metric = autocorrelator( fft_length, cp_length )
+        
+        self.connect( rx_input, sc_metric )
+        self.connect( rx_input, gi_metric )    
+        
+        ## Sync. Output contains OFDM blocks
+        sync = ofdm.time_sync2( fft_length, cp_length )
+        self.connect( rx_input, ( sync, 0 ) )
+        self.connect( sc_metric, ( sync, 1 ) )
+        self.connect( gi_metric, ( sync, 2 ) )
+        ofdm_blocks = ( sync, 0 )
+        frame_start = ( sync, 1 )
+        #log_to_file( self, ( sync, 1 ), "data/peak_detector.char" )
+    else:
+
+        #Testing old/new metric
+        self.tm = schmidl.recursive_timing_metric(fft_length)
+        self.connect( self.input, self.tm)
+        log_to_file( self, self.tm, "data/rec_sc_metric_ofdm.float" )
+        
+        timingmetric_shift = -2#int(-cp_length/4)# 0#-2 #int(-cp_length * 0.8)
+        tmfilter = filter.fir_filter_fff(1, [1./cp_length]*cp_length)
+        self.connect( self.tm, tmfilter )
+        self.tm = tmfilter
     
-    ## Compute autocorrelations for S&C preamble
-    ## and cyclic prefix
+        
+        
+        self._pd_thres = 0.2
+        self._pd_lookahead = fft_length / 2 # empirically chosen
+        peak_detector = ofdm.peak_detector_02_fb(self._pd_lookahead, self._pd_thres)
+        self.connect(self.tm, peak_detector)
+        log_to_file( self, peak_detector, "data/rec_peak_detector.char" )
+        
+        
+        frame_start = [0]*frame_length
+        frame_start[0] = 1
+        frame_start = self.frame_trigger_old = blocks.vector_source_b(frame_start,True)
+        
+        
+        delayed_timesync = blocks.delay(gr.sizeof_char,
+                                    (frame_length-1)*block_length + timingmetric_shift)
+        self.connect( peak_detector, delayed_timesync )
+        
+        self.block_sampler = ofdm.vector_sampler(gr.sizeof_gr_complex,block_length*frame_length)
+        self.discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
+        
+        self.connect(self.input,self.block_sampler)
+        self.connect(delayed_timesync,(self.block_sampler,1))
     
-    self._sc_metric = sc_metric = autocorrelator( fft_length/2, fft_length/2 )
-    self._gi_metric = gi_metric = autocorrelator( fft_length, cp_length )
+        # TODO: dynamic solution
+        vt2s = blocks.vector_to_stream(gr.sizeof_gr_complex*block_length,
+                                                frame_length)
+        self.connect(self.block_sampler,vt2s,self.discard_cp)
+        #terminate_stream(self,ofdm_blocks)
+        ofdm_blocks = self.discard_cp
     
-    self.connect( rx_input, sc_metric )
-    self.connect( rx_input, gi_metric )
-    
-    ## Sync. Output contains OFDM blocks
-    sync = ofdm.time_sync( fft_length, cp_length )
-    self.connect( rx_input, ( sync, 0 ) )
-    self.connect( sc_metric, ( sync, 1 ) )
-    self.connect( gi_metric, ( sync, 2 ) )
-    ofdm_blocks = ( sync, 0 )
-    frame_start = ( sync, 1 )
     
     #log_to_file( self, sc_metric, "data/sc_metric_ofdm.float" )
     #log_to_file(self, frame_start, "data/frame_start.compl")
@@ -436,6 +482,10 @@ class ofdm_inner_receiver( gr.hier_block2 ):
                        action="store_true",
                        default=False,
                        help="Disabling inner receiver estimations")
+    expert.add_option( "", "--old-receiver",
+                       action="store_true",
+                       default=False,
+                       help="Using old timing synchronization with filtered metric")
     
     
   add_options = staticmethod(add_options)

@@ -10,4 +10,4 @@ fi
 
 ofdm_rx_gui.py  --tx-hostname=tabur&
 
-rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
+rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=208 --fft-length=256 --scatterplot --ber-window=50000 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12

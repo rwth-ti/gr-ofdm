@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, blocks, zeromq
+from gnuradio import gr, blocks, zeromq, filter
 from gnuradio import fft as fft_blocks
 from gnuradio.eng_option import eng_option
 
@@ -31,6 +31,8 @@ import ofdm as ofdm
 from preambles import fbmc_inner_pilot_block_filter
 import numpy
 import math
+
+import schmidl
 
 from autocorrelator import autocorrelator
 from station_configuration import station_configuration
@@ -88,7 +90,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     ## pre-FFT processing
     
-    
+    '''
     ## Compute autocorrelations for S&C preamble
     ## and cyclic prefix
     
@@ -105,12 +107,70 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     self.connect( sc_metric, ( sync, 1 ) )
     self.connect( sc_metric, ( sync, 2 ) )
     
-    stv_help = blocks.stream_to_vector(gr.sizeof_gr_complex*config.fft_length/2, 1)
-    #stv_help = blocks.vector_to_stream(gr.sizeof_gr_complex*config.fft_length/2, 2)
-    self.connect(( sync, 0 ), stv_help)
-    ofdm_blocks = stv_help
-    #ofdm_blocks = ( sync, 0 )
+    ofdm_blocks = ( sync, 0 )
     frame_start = ( sync, 1 )
+    log_to_file( self, ( sync, 1 ), "data/fbmc_peak_detector.char" )
+    '''
+    
+     #Testing old/new metric
+    self.tm = schmidl.recursive_timing_metric(2*fft_length)
+    self.connect( self.input, self.tm)
+    #log_to_file( self, self.tm, "data/fbmc_rec_sc_metric_ofdm.float" )
+    
+    timingmetric_shift = 0 #-2 #int(-cp_length * 0.8)
+    tmfilter = filter.fir_filter_fff(1, [1./fft_length]*fft_length)
+    self.connect( self.tm, tmfilter )
+    self.tm = tmfilter
+    log_to_file( self, self.tm, "data/fbmc_rec_sc_metric_ofdm.float" )
+    
+    self._pd_thres = 0.4
+    self._pd_lookahead = 2*fft_length # empirically chosen
+    peak_detector = ofdm.peak_detector_02_fb(self._pd_lookahead, self._pd_thres)
+    self.connect(self.tm, peak_detector)
+    log_to_file( self, peak_detector, "data/fbmc_rec_peak_detector.char" )
+    
+    
+    #frame_start = [0]*frame_length
+    #frame_start[0] = 1
+    #frame_start = blocks.vector_source_b(frame_start,True)
+    
+    
+    delayed_timesync = blocks.delay(gr.sizeof_char,
+                                (frame_length-10)*fft_length/2 - fft_length/4  + timingmetric_shift)
+    self.connect( peak_detector, delayed_timesync )
+    
+    self.block_sampler = ofdm.vector_sampler(gr.sizeof_gr_complex,fft_length/2*frame_length)
+    
+    self.connect(self.input,self.block_sampler)
+    self.connect(delayed_timesync,(self.block_sampler,1))
+    log_to_file( self, self.block_sampler, "data/fbmc_block_sampler.compl" )
+    
+    vt2s = blocks.vector_to_stream(gr.sizeof_gr_complex*fft_length/2,
+                                            frame_length)
+    self.connect(self.block_sampler,vt2s)
+    #terminate_stream(self,ofdm_blocks)
+    
+    ofdm_blocks = vt2s
+    
+    '''
+    # TODO: dynamic solution
+    vt2s = blocks.vector_to_stream(gr.sizeof_gr_complex*block_length/2,
+                                            frame_length)
+    self.connect(self.block_sampler,vt2s)
+    terminate_stream(self,( sync, 0 ))
+    ofdm_blocks = vt2s
+    '''
+    
+    
+    
+    
+    
+    ##stv_help = blocks.stream_to_vector(gr.sizeof_gr_complex*config.fft_length/2, 1)
+    #stv_help = blocks.vector_to_stream(gr.sizeof_gr_complex*config.fft_length/2, 2)
+   ##self.connect(ofdm_blocks, stv_help)
+    ##ofdm_blocks = stv_help
+    #ofdm_blocks = ( sync, 0 )
+    #frame_start = ( sync, 1 )
     #log_to_file(self, frame_start, "data/frame_start.compl")
     
     #log_to_file( self, sc_metric, "data/sc_metric.float" )
@@ -118,6 +178,9 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     #log_to_file( self, (sync,1), "data/sync.float" )
     
 #    log_to_file(self,ofdm_blocks,"data/ofdm_blocks_original.compl")
+    frame_start = [0]*frame_length
+    frame_start[0] = 1
+    frame_start = blocks.vector_source_b(frame_start,True)
     
     if options.disable_time_sync or options.ideal:
       terminate_stream(self, ofdm_blocks)
@@ -127,8 +190,8 @@ class fbmc_inner_receiver( gr.hier_block2 ):
       #discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
       #serial_to_parallel = blocks.stream_to_vector(gr.sizeof_gr_complex,block_length)
       #discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
-      
-      self.connect( rx_input, serial_to_parallel)
+      #self.connect( rx_input,serial_to_parallel)
+      self.connect( rx_input, blocks.delay(gr.sizeof_gr_complex,0),serial_to_parallel)
       ofdm_blocks = serial_to_parallel
       #self.connect( rx_input, serial_to_parallel, discard_cp )
       
@@ -147,7 +210,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     sampler_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length/2,
                                             1 )
     self.connect( ofdm_blocks, ( sampler_preamble, 0 ) )
-    self.connect( frame_start, ( sampler_preamble, 1 ) )
+    self.connect( frame_start,blocks.delay( gr.sizeof_char, 22 ), ( sampler_preamble, 1 ) )
     self.connect( sampler_preamble, morelli_foe )
     freq_offset = morelli_foe
     print "FRAME_LENGTH: ", frame_length
@@ -196,13 +259,12 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     
     
-    inner_pb_filt = self._inner_pilot_block_filter = fbmc_inner_pilot_block_filter()
-    self.connect(ofdm_blocks,inner_pb_filt)
-    self.connect(frame_start,(inner_pb_filt,1))
-    self.connect((inner_pb_filt,1),blocks.null_sink(gr.sizeof_char))
+    #inner_pb_filt = self._inner_pilot_block_filter = fbmc_inner_pilot_block_filter()
+    #self.connect(ofdm_blocks,inner_pb_filt)
+    #self.connect(frame_start,(inner_pb_filt,1))
+    #self.connect((inner_pb_filt,1),blocks.null_sink(gr.sizeof_char))
     
-    
-    ofdm_blocks = (inner_pb_filt,0)
+    #ofdm_blocks = (inner_pb_filt,0)
     
     
     overlap_ser_to_par = ofdm.fbmc_overlapping_serial_to_parallel_cvc(fft_length)
@@ -226,9 +288,9 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     self.multiply_const= blocks.multiply_const_vcc(([1.0/(fft_length*0.6863)]*total_subc))    
     self.beta_multiplier_vcvc = ofdm.fbmc_beta_multiplier_vcvc(fft_length, 4, 4*fft_length-1, 0)
     self.skiphead = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 2*4-1-1)
-    self.skiphead_1 = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 1)
+    self.skiphead_1 = blocks.skiphead(gr.sizeof_gr_complex*total_subc, 0)
     self.remove_preamble_vcvc = ofdm.fbmc_remove_preamble_vcvc(total_subc, config.frame_data_part, config.training_data.fbmc_no_preambles*total_subc)
-    self.subchannel_processing_vcvc = ofdm.fbmc_subchannel_processing_vcvc(total_subc, config.frame_data_part, (preamble), 1)
+    self.subchannel_processing_vcvc = ofdm.fbmc_subchannel_processing_vcvc(total_subc, config.frame_data_part, (preamble), 0)
     self.oqam_postprocessing_vcvc = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc, 0, 0)
     
     #log_to_file( self, ofdm_blocks, "data/PRE_FBMC.compl" )
@@ -266,6 +328,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     self.connect(ofdm_blocks,self.multiply_const)
     self.connect(self.multiply_const, (self.skiphead, 0))
+    log_to_file( self, self.skiphead, "data/fbmc_skiphead_4.compl" )
     
     
     #self.connect(ofdm_blocks, self.multiply_const)

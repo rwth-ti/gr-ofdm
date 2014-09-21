@@ -1264,8 +1264,11 @@ class fbmc_frame_sampler( gr.hier_block2 ):
     
     #oqam_postpro = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc,0,0)
 
-    self.connect( self, frame_sampler, symbol_output, self )
+    self.connect( self, frame_sampler, symbol_output ,self)
 
     self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part+config.training_data.fbmc_no_preambles_td + config.training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
+
+    #self.connect( self, blocks.multiply_const_vcc(([1.0]*total_subc)) ,self)
+    #terminate_stream(self,frame_sampler)
 
     self.connect( damn_static_frame_trigger, (self,1) )

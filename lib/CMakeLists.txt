@@ -65,6 +65,7 @@ list(APPEND ofdm_sources
     depuncture_bb_impl.cc
     depuncture_ff_impl.cc
     time_sync_impl.cc
+    time_sync2_impl.cc
     dynamic_trigger_ib_impl.cc
     extract_block_from_frame_impl.cc
     find_cir_shift_impl.cc

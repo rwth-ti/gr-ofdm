@@ -34,7 +34,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
     """
     docstring for block fbmc_receiver_hier_cb
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, sel_eq=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, sel_eq=0, exclude_preamble=0, sel_preamble=0, zero_pads=1, extra_pad=False):
         gr.hier_block2.__init__(self,
             "fbmc_receiver_hier_cb",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
@@ -55,14 +55,6 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         ##################################################
         # Variables
         ##################################################
-        # only zero_pads|center preamble|zero_pads type of preambles are supported.
-        # center preambles are assumed to be normalized to 1.
-        if center_preamble is None:
-            self.center_preamble = center_preamble = [1, -1j, -1, 1j]
-        else:
-            self.center_preamble = center_preamble
-        self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
-
         if self.exclude_preamble == 1 and self.sel_eq != 3:
             self.sel_eq = sel_eq = 3
             warnings.warn("Since exclude_preamble is set as 1, sel_eq is forced to be 3 (no equalizer)")
@@ -72,7 +64,6 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
             self.skip = skip = 0
         else:
             self.skip = skip = 1
-        self.preamble_length = preamble_length = len(preamble)
 
         # Assertions
         assert(M>0 and K>0 and qam_size>0), "M, K and qam_size should be bigger than 0"
@@ -81,7 +72,7 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         assert(qam_size==4 or qam_size==16 or qam_size==64 or qam_size==128 or qam_size==256 ), "Only 4-,16-,64-,128-,256-qam constellations are supported."
         assert(theta_sel==0 or theta_sel==1)
         assert(exclude_preamble==0 or exclude_preamble==1)
-        assert((preamble_length/M)==int((preamble_length/M))), "Preamble length should be xM"
+        
 
 
         ##################################################
@@ -89,9 +80,10 @@ class fbmc_receiver_hier_cb(gr.hier_block2):
         ##################################################
         self.ofdm_vector_mask_0 = ofdm.vector_mask(M, (M-carriers)/2, carriers, [])
         self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers, qam_size)
-        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, (preamble), sel_eq)
+        # unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq
+        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, sel_preamble, zero_pads, extra_pad, sel_eq)
         self.ofdm_fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
-        self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, len(preamble))
+        self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, sel_preamble, zero_pads, extra_pad)
         self.ofdm_fbmc_polyphase_network_vcvc_3 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
         self.ofdm_fbmc_polyphase_network_vcvc_2 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
         self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)

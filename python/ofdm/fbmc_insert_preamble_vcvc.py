@@ -28,7 +28,7 @@ class fbmc_insert_preamble_vcvc(gr.hier_block2):
     """
     docstring for block fbmc_insert_preamble_vcvc
     """
-    def __init__(self, M, syms_per_frame, preamble):
+    def __init__(self, M, syms_per_frame, sel_preamble, zero_pads, extra_pad=False):
         gr.hier_block2.__init__(self,
             "insert_preamble_vcvc",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*M),
@@ -37,8 +37,20 @@ class fbmc_insert_preamble_vcvc(gr.hier_block2):
 
         # Parameters
         self.M = M
-        self.preamble = preamble
         self.syms_per_frame = syms_per_frame;
+        if sel_preamble == 0: # standard one vector center preamble [1,-j,-1,j]
+            self.center_preamble = center_preamble = [1, -1j, -1, 1j]*((int)(M/4))
+        elif sel_preamble == 1: # standard preamble with triple repetition
+            self.center_preamble = center_preamble = [1/math.sqrt(3), -1j/math.sqrt(3), -1/math.sqrt(3), 1j/math.sqrt(3)]*((int)(M/4))*3
+        elif sel_preamble ==2: # IAM-R preamble [1, -1,-1, 1]
+            self.center_preamble = center_preamble = [1, -1, -1, 1]*((int)(M/4))
+        else: # standard one vector center preamble [1,-j,-1,j]
+            self.center_preamble = center_preamble = [1, -1j, -1, 1j]*((int)(M/4))
+
+        self.preamble = preamble = [0]*M*zero_pads+center_preamble+[0]*M*zero_pads
+
+        if extra_pad:
+            self.preamble = preamble = preamble + [0]*M
 
         # Variables
         self.preamble_length = len(preamble)

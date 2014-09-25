@@ -4,7 +4,7 @@
   <key>ofdm_fbmc_insert_preamble_vcvc</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_insert_preamble_vcvc($M, $syms_per_frame, $preamble)</make>
+  <make>ofdm.fbmc_insert_preamble_vcvc($M, $syms_per_frame, $sel_preamble, $zero_pads, $extra_pad)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -23,9 +23,40 @@
     <type>raw</type>
   </param>
   <param>
-    <name>preamble</name>
-    <key>preamble</key>
-    <type>raw</type>
+    <name>sel_preamble</name>
+    <key>sel_preamble</key>
+    <type>enum</type>
+    <option>
+      <name>Standard IAM-C</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Standard with triple rep.</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Standard IAM-R</name>
+      <key>2</key>
+    </option>
+  </param>
+  <param>
+    <name>Zero padding</name>
+    <key>zero_pads</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Extra padding</name>
+    <key>extra_pad</key>
+    <type>enum</type>
+    <option>
+      <name>Off</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>On</name>
+      <key>1</key>
+    </option>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:

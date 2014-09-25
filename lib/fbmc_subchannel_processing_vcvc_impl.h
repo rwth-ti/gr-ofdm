@@ -43,9 +43,16 @@ namespace gr {
       int ii;
       int fr;
       int estimation_point;
+      float normalization_factor;
+      int d_sel_preamble;
+      // std::vector<gr_complex> d_zero_v;
+      // std::vector<gr_complex> d_center;
+      int d_zero_pads;
+      bool d_extra_pad;
+
 
      public:
-      fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, const std::vector<gr_complex> preamble, int sel_eq);
+      fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq);
       ~fbmc_subchannel_processing_vcvc_impl();
 
       // Where all the action really happens

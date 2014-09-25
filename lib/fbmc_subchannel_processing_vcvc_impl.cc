@@ -29,34 +29,107 @@ namespace gr {
 	namespace ofdm {
 
 		fbmc_subchannel_processing_vcvc::sptr
-		fbmc_subchannel_processing_vcvc::make(unsigned int M, unsigned int syms_per_frame, const std::vector<gr_complex> preamble, int sel_eq)
+		fbmc_subchannel_processing_vcvc::make(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq)
 		{
 			return gnuradio::get_initial_sptr
-				(new fbmc_subchannel_processing_vcvc_impl(M, syms_per_frame, preamble, sel_eq));
+				(new fbmc_subchannel_processing_vcvc_impl(M, syms_per_frame, sel_preamble, zero_pads, extra_pad, sel_eq));
 		}
 
 		/*
 		 * The private constructor
 		 */
-		fbmc_subchannel_processing_vcvc_impl::fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, const std::vector<gr_complex> preamble, int sel_eq)
+		fbmc_subchannel_processing_vcvc_impl::fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq)
 			: gr::sync_block("fbmc_subchannel_processing_vcvc",
 				gr::io_signature::make(1, 1, sizeof(gr_complex)*M),
 				gr::io_signature::make(2, 2, sizeof(gr_complex)*M)),
 		d_M(M),
 		d_syms_per_frame(syms_per_frame),
-		d_preamble(preamble),
+		d_preamble(),
 		d_sel_eq(sel_eq),
-		d_preamble_length(preamble.size()),
-		d_frame_length(preamble.size()+2*syms_per_frame*d_M),
+		d_sel_preamble(sel_preamble),
 		d_estimation(M,1),
 		d_eq_coef(3*d_M,1),
 		ii(0),
 		fr(0),
-		estimation_point((((int(preamble.size()/M)-1)/2)+1)*M-1)
+		// ,
+		normalization_factor(1),
+		// d_zero_v(M,0),
+		// d_center
+		d_zero_pads(zero_pads),
+		d_extra_pad(extra_pad)
 		{
 			if(d_sel_eq==1 || d_sel_eq==2){ //three taps
 				set_history(3);
 			}
+
+			//prepare preamble
+			//prepare center
+			if(d_sel_preamble == 0){ // standard one vector center preamble [1,-j,-1,j]
+				normalization_factor = 1;
+				std::vector<gr_complex> dummy;
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(0,-1));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(0,1));				
+				for(int i=0;i<(int)(d_M/4);i++){
+					d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
+				}
+				d_preamble_length = d_M*(1+2*d_zero_pads);
+				if(d_extra_pad){
+					d_preamble_length+=d_M;
+				}
+			}else if(d_sel_preamble == 1){ // standard preamble with triple repetition
+				normalization_factor = 2.128;
+				std::vector<gr_complex> dummy;
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(0,-1));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(0,1));				
+				for(int i=0;i<(int)(d_M/4);i++){
+					d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
+				}
+				d_preamble_length = d_M*(3+2*d_zero_pads);
+				if(d_extra_pad){
+					d_preamble_length+=d_M;
+				}
+			}else if(d_sel_preamble == 2){ // IAM-R preamble [1, -1,-1, 1]
+				normalization_factor = 1;
+				std::vector<gr_complex> dummy;
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(1,0));
+				
+				for(int i=0;i<(int)(d_M/4);i++){
+					d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
+				}
+				d_preamble_length = d_M*(1+2*d_zero_pads);
+				if(d_extra_pad){
+					d_preamble_length+=d_M;
+				}
+			}else{ // standard one vector center preamble [1,-j,-1,j]
+				normalization_factor = 1;
+				std::vector<gr_complex> dummy;
+				dummy.push_back(gr_complex(0,1));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(0,-1));
+				dummy.push_back(gr_complex(1,0));
+				
+				for(int i=0;i<(int)(d_M/4);i++){
+					d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
+				}
+				d_preamble_length = d_M*(1+2*d_zero_pads);
+				if(d_extra_pad){
+					d_preamble_length+=d_M;
+				}
+			}
+
+			d_frame_length=d_preamble_length+2*syms_per_frame*d_M;
+			estimation_point=(((int(d_preamble_length/d_M)-1)/2)+1)*d_M-1;
+			// if(extra_pad){
+			// 	estimation_point = estimation_point;
+			// }
+
 			// equalizer_data.open ("../../matlab/sp_equ_cpp_output.txt",std::ios::out); //|std::ios::app
 			// estimation_data.open("../../matlab/sp_est_cpp_output.txt",std::ios::out);
 			
@@ -73,6 +146,7 @@ namespace gr {
 			// // equalizer_data<<"estimation="<<d_estimation<<"\n";
 			// // std::cout<<preamble.size()<<std::endl;
 			// // for(int i=0;i<3*d_M;i++) std::cout<<d_eq_coef[i]<<std::endl;
+			// for(int i=0;i<d_M;i++) std::cout<<i<<"\t"<<d_preamble[i]<<std::endl;
 		}
 
 		/*
@@ -87,12 +161,13 @@ namespace gr {
 		void 
 		fbmc_subchannel_processing_vcvc_impl::get_estimation(const gr_complex * start)
 		{
-			int offset = estimation_point - d_M+1;
+			// int offset = estimation_point - d_M+1;
 			for(int i=0;i<d_M;i++){
-				d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i+offset]);//*gr_complex(0.6863,0));
+				d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i]*normalization_factor);//*gr_complex(0.6863,0));
 				// // *(start-d_M+i+1) = d_estimation[i];
 				// //logging
 				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
+				
 			}
 			// // equalizer_data<<"----------------------------------"<<"\n";
 			fr++;		

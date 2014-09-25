@@ -46,7 +46,7 @@ namespace gr {
        * class. ofdm::fbmc_subchannel_processing_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(unsigned int M, unsigned int syms_per_frame, const std::vector<gr_complex> preamble, int sel_eq);
+      static sptr make(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq);
     };
 
   } // namespace ofdm

@@ -35,7 +35,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
     """
     docstring for block fbmc_transmitter_hier_bc
     """
-    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, exclude_preamble=0, center_preamble=None, zero_pads=1):
+    def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, carriers=924, theta_sel=0, exclude_preamble=0, sel_preamble=0, zero_pads=1, extra_pad=False):
         gr.hier_block2.__init__(self,
             "fbmc_transmitter_hier_bc",
             gr.io_signature(1, 1, gr.sizeof_char*1),
@@ -56,13 +56,6 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         ##################################################
         # Variables
         ##################################################
-        # only zero_pads|center preamble|zero_pads type of preambles are supported.
-        # center preambles are assumed to be normalized to 1.
-        if center_preamble is None:
-            self.center_preamble = center_preamble = [1, -1j, -1, 1j]
-        else:
-            self.center_preamble = center_preamble
-        self.preamble = preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
 
         # Assertions
         assert(M>0 and K>0 and qam_size>0), "M, K and qam_size should be bigger than 0"
@@ -71,7 +64,6 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         assert(qam_size==4 or qam_size==16 or qam_size==64 or qam_size==256 ), "Only 4-,16-,64-,256-qam constellations are supported."
         assert(theta_sel==0 or theta_sel==1)
         assert(exclude_preamble==0 or exclude_preamble==1)
-        assert((len(preamble)/M)==int((len(preamble)/M))), "Preamble length should be xM"
 
         ##################################################
         # Blocks
@@ -85,7 +77,7 @@ class fbmc_transmitter_hier_bc(gr.hier_block2):
         self.fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)
         self.fbmc_overlapping_parallel_to_serial_vcc_0 = ofdm.fbmc_overlapping_parallel_to_serial_vcc(M)
         self.fbmc_oqam_preprocessing_vcvc_0 = ofdm.fbmc_oqam_preprocessing_vcvc(M, 0, theta_sel)
-        self.fbmc_insert_preamble_vcvc_0 = ofdm.fbmc_insert_preamble_vcvc(M, syms_per_frame, preamble)
+        self.fbmc_insert_preamble_vcvc_0 = ofdm.fbmc_insert_preamble_vcvc(M, syms_per_frame, sel_preamble, zero_pads,extra_pad)
         self.fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
         self.blks2_selector_0 = grc_blks2.selector(
             item_size=gr.sizeof_gr_complex*M,

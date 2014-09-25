@@ -3,7 +3,7 @@
   <key>ofdm_fbmc_subchannel_processing_vcvc</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_subchannel_processing_vcvc($M, $syms_per_frame, $preamble, $sel_eq)</make>
+  <make>ofdm.fbmc_subchannel_processing_vcvc($M, $syms_per_frame, $sel_preamble, $zero_pads, $extra_pad, $sel_eq)</make>
   <param>
     <name>M</name>
     <key>M</key>
@@ -16,11 +16,53 @@
     <value>syms_per_frame</value>
     <type>raw</type>
   </param>
-  <param>
+<!--   <param>
     <name>Preamble</name>
     <key>preamble</key>
     <value>preamble</value>
     <type>complex_vector</type>
+  </param> -->
+<!--   <param>
+    <name>sel_preamble</name>
+    <key>sel_preamble</key>
+    <value>sel_preamble</value>
+    <type>raw</type>
+  </param> -->
+  <param>
+    <name>sel_preamble</name>
+    <key>sel_preamble</key>
+    <type>enum</type>
+    <option>
+      <name>Standard IAM-C</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Standard with triple rep.</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Standard IAM-R</name>
+      <key>2</key>
+    </option>
+  </param>
+  <param>
+    <name>Zero padding</name>
+    <key>zero_pads</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Extra padding</name>
+    <key>extra_pad</key>
+    <type>enum</type>
+    <option>
+      <name>Off</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>On</name>
+      <key>1</key>
+    </option>
   </param>
   <param>
     <name>Equalizer</name>

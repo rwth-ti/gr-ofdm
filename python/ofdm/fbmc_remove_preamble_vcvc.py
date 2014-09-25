@@ -28,7 +28,7 @@ class fbmc_remove_preamble_vcvc(gr.hier_block2):
     """
     docstring for block fbmc_remove_preamble_vcvc
     """
-    def __init__(self, M, syms_per_frame, preamble_length):
+    def __init__(self, M, syms_per_frame, sel_preamble, zero_pads, extra_pad=False):
         gr.hier_block2.__init__(self,
             "fbmc_remove_preamble_vcvc",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*M),
@@ -38,7 +38,20 @@ class fbmc_remove_preamble_vcvc(gr.hier_block2):
         # Parameters
         self.M = M
         self.syms_per_frame = syms_per_frame
-        self.preamble_length = preamble_length
+        preamble_length = M*(2*zero_pads)
+        if sel_preamble == 0: # standard one vector center preamble [1,-j,-1,j]
+            preamble_length  = preamble_length+M
+        elif sel_preamble == 1: # standard preamble with triple repetition
+            preamble_length  = preamble_length+M*3
+        elif sel_preamble ==2: # IAM-R preamble [1, -1,-1, 1]
+            preamble_length  = preamble_length+M
+        else: # standard one vector center preamble [1,-j,-1,j]
+            preamble_length  = preamble_length+M
+
+        if extra_pad:
+            self.preamble_length = preamble_length=preamble_length+M
+        else:
+            self.preamble_length = preamble_length
 
         # Assertions
         assert (M>0 and syms_per_frame>0), "M and syms_per_frame should be larger than zero!"

@@ -31,7 +31,7 @@ class fbmc_channel_hier_cc(gr.hier_block2):
     """
     docstring for block fbmc_channel_hier_cc
     """
-    def __init__(self, M=1024, K=4, syms_per_frame=10, exclude_multipath=0, sel_taps=0, freq_offset=0, exclude_noise=0, sel_noise_type=0, SNR=20, exclude_preamble=0, zero_pads=1):
+    def __init__(self, M=1024, K=4, syms_per_frame=10, exclude_multipath=0, sel_taps=0, freq_offset=0, exclude_noise=0, sel_noise_type=0, SNR=20, exclude_preamble=0, sel_preamble=0, zero_pads=1, extra_pad=False):
         gr.hier_block2.__init__(self,
             "fbmc_channel_hier_cc",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
@@ -74,12 +74,30 @@ class fbmc_channel_hier_cc(gr.hier_block2):
         elif sel_noise_type ==203:
             self.noise_type = analog.GR_IMPULSE
 
-        # normalizing factor to be added if normalization takes place in transmitter
-        normalizing_factor = float(1)/(M*.6863)
-        if exclude_preamble:
-            self.amp = normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+        if sel_preamble == 0: # standard one vector center preamble [1,-j,-1,j]
+            self.num_center_vectors = num_center_vectors = 1
+        elif sel_preamble == 1: # standard preamble with triple repetition
+            self.num_center_vectors = num_center_vectors = 3
+        elif sel_preamble ==2: # IAM-R preamble [1, -1,-1, 1]
+            self.num_center_vectors = num_center_vectors = 1
+        else: # standard one vector center preamble [1,-j,-1,j]
+            self.num_center_vectors = num_center_vectors = 1
+
+        if extra_pad:
+            self.total_zeros = total_zeros = 1+2*zero_pads
         else:
-            self.amp = normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
+            self.total_zeros = total_zeros = 2*zero_pads
+
+        
+
+        # normalizing factor to be added if normalization takes place in transmitter
+        self.normalizing_factor = float(1)/(M*.6863)
+        if exclude_preamble:
+            self.amp = self.normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+        else:
+            syms_per_frame_2 = syms_per_frame + (self.num_center_vectors+self.total_zeros)/2
+            self.amp = self.normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+self.num_center_vectors)/(syms_per_frame+self.num_center_vectors+self.total_zeros))*((K*M+(2*syms_per_frame_2-1)*M/2)/(M*syms_per_frame_2)))/math.sqrt(2)
+            # self.amp = self.normalizing_factor*math.sqrt((10**(float(-1*SNR)/10))*(M*(syms_per_frame+self.num_center_vectors)/(syms_per_frame+self.num_center_vectors+self.total_zeros))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
 
         ##################################################
         # Blocks
@@ -125,9 +143,9 @@ class fbmc_channel_hier_cc(gr.hier_block2):
     def set_SNR(self, SNR):
         self.SNR = SNR
         if self.exclude_preamble:
-            self.amp = math.sqrt((10**(float(-1*self.SNR)/10))*(2*self.K*self.M+(2*self.syms_per_frame-1)*self.M)/(4*self.syms_per_frame))/math.sqrt(2)
+            self.amp = self.normalizing_factor*math.sqrt((10**(float(-1*self.SNR)/10))*(2*self.K*self.M+(2*self.syms_per_frame-1)*self.M)/(4*self.syms_per_frame))/math.sqrt(2)
         else:
-            self.amp = math.sqrt((10**(float(-1*self.SNR)/10))*(self.M*(self.syms_per_frame+1)/(self.syms_per_frame+1+2*self.zero_pads))*((self.K*self.M+(2*self.syms_per_frame-1)*self.M/2)/(self.M*self.syms_per_frame)))/math.sqrt(2)
+            self.amp = self.normalizing_factor*math.sqrt((10**(float(-1*self.SNR)/10))*(self.M*(self.syms_per_frame+self.num_center_vectors)/(self.syms_per_frame+self.num_center_vectors+self.total_zeros))*((self.K*self.M+(2*self.syms_per_frame-1)*self.M/2)/(self.M*self.syms_per_frame)))/math.sqrt(2)
         self.analog_fastnoise_source_x_0.set_amplitude(self.amp)
         # print self.analog_fastnoise_source_x_0
         # ##################################################

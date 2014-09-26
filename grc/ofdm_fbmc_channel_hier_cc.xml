@@ -127,15 +127,15 @@
     <key>sel_preamble</key>
     <type>enum</type>
     <option>
-      <name>Standard IAM-C</name>
+      <name>IAM-C</name>
       <key>0</key>
     </option>
     <option>
-      <name>Standard with triple rep.</name>
+      <name>IAM-C with triple rep.</name>
       <key>1</key>
     </option>
     <option>
-      <name>Standard IAM-R</name>
+      <name>IAM-R</name>
       <key>2</key>
     </option>
   </param>

@@ -79,6 +79,7 @@ namespace gr {
 					d_preamble_length+=d_M;
 				}
 			}else if(d_sel_preamble == 1){ // standard preamble with triple repetition
+				// normalization_factor = 1;
 				normalization_factor = 2.128;
 				std::vector<gr_complex> dummy;
 				dummy.push_back(gr_complex(1,0));

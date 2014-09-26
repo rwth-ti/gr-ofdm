@@ -41,7 +41,7 @@ class fbmc_insert_preamble_vcvc(gr.hier_block2):
         if sel_preamble == 0: # standard one vector center preamble [1,-j,-1,j]
             self.center_preamble = center_preamble = [1, -1j, -1, 1j]*((int)(M/4))
         elif sel_preamble == 1: # standard preamble with triple repetition
-            self.center_preamble = center_preamble = [1/math.sqrt(3), -1j/math.sqrt(3), -1/math.sqrt(3), 1j/math.sqrt(3)]*((int)(M/4))*3
+            self.center_preamble = center_preamble = [1, -1j, -1, 1j]*((int)(M/4))*3 #[1/math.sqrt(3), -1j/math.sqrt(3), -1/math.sqrt(3), 1j/math.sqrt(3)]*((int)(M/4))*3
         elif sel_preamble ==2: # IAM-R preamble [1, -1,-1, 1]
             self.center_preamble = center_preamble = [1, -1, -1, 1]*((int)(M/4))
         else: # standard one vector center preamble [1,-j,-1,j]

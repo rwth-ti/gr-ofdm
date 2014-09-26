@@ -30,7 +30,7 @@ from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
 from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
+from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator, fbmc_snr_estimator
 from preambles import pilot_subcarrier_filter,fbmc_pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
@@ -140,7 +140,7 @@ class receive_path(gr.hier_block2):
     ofdm_blocks = ( inner_receiver, 2 )
     frame_start = ( inner_receiver, 1 )
     disp_ctf = ( inner_receiver, 0 )
-    self.snr_est_preamble = ( inner_receiver, 3 )
+    #self.snr_est_preamble = ( inner_receiver, 3 )
     #terminate_stream(self,snr_est_preamble)
 
 
@@ -228,11 +228,13 @@ class receive_path(gr.hier_block2):
 
 
     ## Pilot block filter
-    #pb_filt = self._pilot_block_filter = fbmc_pilot_block_filter()
-    #self.connect(self.symbol_output,pb_filt)
-    #self.connect(self.frame_trigger,(pb_filt,1))
+    pb_filt = self._pilot_block_filter = fbmc_pilot_block_filter()
+    self.connect(self.symbol_output,pb_filt)
+    self.connect(self.frame_trigger,(pb_filt,1))
 
-    #self.frame_data_trigger = (pb_filt,1)
+    self.frame_data_trigger = (pb_filt,1)
+    
+    #self.symbol_output = pb_filt
     
 
     #if options.log:
@@ -240,7 +242,7 @@ class receive_path(gr.hier_block2):
 
 
     if config.fbmc:
-        pda_in = self.symbol_output
+        pda_in = pb_filt
 
     else:
         ## Pilot subcarrier filter
@@ -260,7 +262,7 @@ class receive_path(gr.hier_block2):
     seed(1)
     whitener_pn = [randint(0,1) for i in range(used_id_bits*rep_id_bits)]
 
-
+    
 
     if not options.enable_erasure_decision:
 
@@ -272,16 +274,16 @@ class receive_path(gr.hier_block2):
         raise SystemExit, "# ID Blocks > 1 not supported"
 
       self.connect(   pda_in     ,   id_bfilt      )
-      self.connect( self.frame_trigger, ( id_bfilt, 1 ) ) # trigger
+      self.connect( self.frame_data_trigger, ( id_bfilt, 1 ) ) # trigger
 
-      log_to_file( self, id_bfilt, "data/id_bfilt.compl" )
+      #log_to_file( self, id_bfilt, "data/id_bfilt.compl" )
 
       ## ID Demapper and Decoder, soft decision
       self.id_dec = self._id_decoder = ofdm.coded_bpsk_soft_decoder( dsubc,
           used_id_bits, whitener_pn )
       self.connect( id_bfilt, self.id_dec )
       
-      log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
+      #log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
 
       print "Using coded BPSK soft decoder for ID detection"
 
@@ -843,6 +845,11 @@ class receive_path(gr.hier_block2):
     vlen = config.subcarriers
     frame_length = config.frame_length
     L = config.periodic_parts
+    
+    snr_est_filt = skip(gr.sizeof_gr_complex*vlen,frame_length/2)
+    skipping_symbols = [0] + range(config.training_data.fbmc_no_preambles/2,frame_length/2)
+    for x in skipping_symbols:
+        snr_est_filt.skip_call(x)
 
     #snr_est_filt = skip(gr.sizeof_gr_complex*vlen,frame_length)
     #for x in range(1,frame_length):
@@ -850,8 +857,8 @@ class receive_path(gr.hier_block2):
 
     ## NOTE HACK!! first preamble is not equalized
 
-    #self.connect(self.symbol_output,snr_est_filt)
-    #self.connect(self.frame_trigger,(snr_est_filt,1))
+    self.connect(self.symbol_output,snr_est_filt)
+    self.connect(self.frame_trigger,(snr_est_filt,1))
 
 #    snrm = self._snr_measurement = milans_snr_estimator( vlen, vlen, L )
 #
@@ -880,15 +887,22 @@ class receive_path(gr.hier_block2):
 
     else:
         #snrm = self._snr_measurement = milans_snr_estimator( vlen, vlen, L )
-        snr_estim = snr_estimator( vlen, L )
+        snr_estim = fbmc_snr_estimator( vlen, config.training_data.fbmc_no_preambles/2 -1 )
         scsnrdb = filter.single_pole_iir_filter_ff(0.1)
         snrm = self._snr_measurement = blocks.nlog10_ff(10,1,0)
-        self.connect(self.snr_est_preamble,snr_estim,scsnrdb,snrm)
-        self.connect((snr_estim,1),blocks.null_sink(gr.sizeof_float))
+        #self.connect(self.snr_est_preamble,scsnrdb,snrm)
+        #terminate_stream(self,self.snr_est_preamble)
+        #self.connect(self.snr_est_preamble,snr_estim,scsnrdb,snrm)
+        #self.connect((snr_estim,1),blocks.null_sink(gr.sizeof_float))
         #log_to_file(self, snrm, "data/snrm.float")
+        
+        #log_to_file(self, snrm, "data/snrm.float")
+        collect_preambles = blocks.stream_to_vector(gr.sizeof_gr_complex*vlen, config.training_data.fbmc_no_preambles/2 -1)
+        self.connect(snr_est_filt, collect_preambles)
+        self.connect(collect_preambles,snr_estim,scsnrdb,snrm)
+        self.connect((snr_estim,1),blocks.null_sink(gr.sizeof_float))
 
-        if self._options.log:
-            log_to_file(self, self._snr_measurement, "data/milan_snr.float")
+        #log_to_file(self, collect_preambles, "data/fbmc_estimation_symb.compl")
 
 
   def measuring_snr(self):
@@ -1247,8 +1261,9 @@ class fbmc_frame_sampler( gr.hier_block2 ):
       gr.io_signature2(2,2,gr.sizeof_gr_complex*vlen,
                  gr.sizeof_char))
 
-
-    ft = [0] * config.frame_data_part
+    frame_size = config.frame_data_part + config.training_data.fbmc_no_preambles/2
+    print "frame_size: ", frame_size
+    ft = [0] * frame_size
     ft[0] = 1
 
     # The next block ensures that only complete frames find their way into
@@ -1256,17 +1271,19 @@ class fbmc_frame_sampler( gr.hier_block2 ):
     # replaced with a static one, fixed to the frame length.
 
     frame_sampler = ofdm.vector_sampler( gr.sizeof_gr_complex * total_subc,
-                                              config.frame_data_part )
+                                              frame_size )
     symbol_output = blocks.vector_to_stream( gr.sizeof_gr_complex * total_subc,
-                                              config.frame_data_part )
-    delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length-1 - config.training_data.fbmc_no_preambles_td - config.training_data.fbmc_no_preambles )
+                                              frame_size )
+    #delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length-1  - config.training_data.fbmc_no_preambles/2 )
+    delayed_frame_start = blocks.delay( gr.sizeof_char, config.frame_length/2-1)
+
     damn_static_frame_trigger = blocks.vector_source_b( ft, True )
     
     #oqam_postpro = ofdm.fbmc_oqam_postprocessing_vcvc(total_subc,0,0)
 
     self.connect( self, frame_sampler, symbol_output ,self)
 
-    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part,2*config.frame_data_part+config.training_data.fbmc_no_preambles_td + config.training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
+    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,config.frame_data_part + config.training_data.fbmc_no_preambles/2,2*config.frame_data_part + config.training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
 
     #self.connect( self, blocks.multiply_const_vcc(([1.0]*total_subc)) ,self)
     #terminate_stream(self,frame_sampler)

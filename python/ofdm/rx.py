@@ -47,7 +47,7 @@ class rx_top_block(gr.top_block):
                                        options.clock_source, options.verbose)
         elif(options.from_file is not None):
             self.file = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
-            self.source = blocks.throttle(gr.sizeof_gr_complex,1e6)
+            self.source = blocks.throttle(gr.sizeof_gr_complex,1e7)
             self.connect( self.file, self.source )
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
@@ -64,6 +64,7 @@ class rx_top_block(gr.top_block):
         self._setup_rpc_manager()
 
         self.connect(self.source, self.rxpath)
+        #log_to_file( self, self.source, "data/fbmc_rx_input.compl" )
   
         if options.scatterplot:
           print "Scatterplot enabled"

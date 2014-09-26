@@ -26,7 +26,7 @@ from gnuradio import fft as fft_blocks
 from gnuradio import trellis
 from gr_tools import log_to_file,unpack_array, terminate_stream
 import ofdm as ofdm
-from ofdm import generic_mapper_bcv, midamble_insert
+from ofdm import generic_mapper_bcv
 from ofdm import puncture_bb, cyclic_prefixer, vector_padding, skip
 from ofdm import stream_controlled_mux, reference_data_source_02_ib #reference_data_source_ib
 from ofdm import multiply_frame_fc
@@ -75,8 +75,6 @@ class transmit_path(gr.hier_block2):
     rms_amp                    = options.rms_amplitude
     self._options              = copy.copy(options)
 
-    if config.fbmc:
-        config.cp_length = 1 #fix later to 0 (sync wont work)
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
@@ -154,7 +152,7 @@ class transmit_path(gr.hier_block2):
         log_to_file(self, id_src, "data/id_src.short")
         log_to_file(self, bitcount_src, "data/bitcount_src.int")
         log_to_file(self, bitloading_src, "data/bitloading_src.char")
-        log_to_file(self, power_src, "data/power_src.cmplx")   
+        log_to_file(self, power_src, "data/power_src.cmplx")
 
     ## GUI probe output
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
@@ -244,36 +242,24 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, pa, "data/pa_out.compl")
-      
-    if options.fbmc:    
-        midam_ins = self._midamble_inserter = midamble_insert(config.data_subcarriers, config.frame_data_part)
-        self.connect(pa,midam_ins)
-        
-        tx_out_01 = midam_ins
-        subcarriers = config.data_subcarriers
-        
-        if options.log:
-            log_to_file(self, midam_ins, "data/midamble_out.compl")
+
+    # Standard Transmitter Parts
+
+    ## Pilot subcarriers
+    psubc = self._pilot_subcarrier_inserter = pilot_subcarrier_inserter()
+    self.connect(pa,psubc)
     
-    else:
-        psubc = self._pilot_subcarrier_inserter = pilot_subcarrier_inserter()
-        self.connect(pa,psubc)
+    if options.log:
+        log_to_file(self, psubc, "data/psubc_out.compl")
         
-        if options.log:
-            log_to_file(self, psubc, "data/psubc_out.compl")
-            
-        tx_out_01 = psubc
-        subcarriers = config.subcarriers  
-        
-    
 
     ## Add virtual subcarriers
-    if config.fft_length > subcarriers:
+    if config.fft_length > config.subcarriers:
       vsubc = self._virtual_subcarrier_extender = \
-              vector_padding(subcarriers, config.fft_length)
-      self.connect(tx_out_01,vsubc)
+              vector_padding(config.subcarriers, config.fft_length)
+      self.connect(psubc,vsubc)
     else:
-      vsubc = self._virtual_subcarrier_extender = tx_out_01
+      vsubc = self._virtual_subcarrier_extender = psubc
 
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")

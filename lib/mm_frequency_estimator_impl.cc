@@ -115,7 +115,7 @@ namespace gr {
     	      est += d_weights[m-1] * phase_diff; // (argR[m] - argR[m-1]);
     	    }
 
-    	    est = d_L / two_pi * est*d_O;
+    	    est = d_L / two_pi * est*d_O + (d_O-1)/2.0;
 
     	    out[i] = static_cast<float>(est);
 

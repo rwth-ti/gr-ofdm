@@ -130,7 +130,9 @@
 #include "ofdm/fbmc_oqam_postprocessing_vcvc.h"
 #include "ofdm/fbmc_beta_multiplier_vcvc.h"
 #include "ofdm/fbmc_separate_vcvc.h"
+#include "ofdm/fbmc_snr_estimator.h"
 #include "ofdm/fbmc_polyphase_network_vcvc.h"
+#include "ofdm/fbmc_postprocess_CTF_estimate.h"
 #include "ofdm/fbmc_vector_copy_vcvc.h"
 #include "ofdm/fbmc_junction_vcvc.h"
 #include "ofdm/fbmc_subchannel_processing_vcvc.h"
@@ -430,6 +432,8 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_beta_multiplier_vcvc);
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_separate_vcvc);
 %include "ofdm/fbmc_polyphase_network_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_polyphase_network_vcvc);
+%include "ofdm/fbmc_postprocess_CTF_estimate.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_postprocess_CTF_estimate);
 %include "ofdm/fbmc_vector_copy_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_vector_copy_vcvc);
 %include "ofdm/fbmc_junction_vcvc.h"
@@ -440,3 +444,5 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_subchannel_processing_vcvc);
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_weighted_spreading_vcvc);
 %include "ofdm/fbmc_weighted_despreading_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_weighted_despreading_vcvc);
+%include "ofdm/fbmc_snr_estimator.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_snr_estimator);

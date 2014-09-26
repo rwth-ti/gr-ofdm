@@ -143,11 +143,11 @@ class fbmc_benchmark (gr.top_block):
       self.connect( self.m, self.dst )
       self.dst = self.m
 
-
+    
     if options.snr is not None:
       if options.berm is not None:
-          noise_sigma = 0.0001/32767.0
-          #noise_sigma = 380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
+          #noise_sigma = 0.0001/32767.0
+          noise_sigma = 250/32767.0 #380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
           #check for fading channel
       else:
           snr_db = options.snr
@@ -161,6 +161,7 @@ class fbmc_benchmark (gr.top_block):
       self.connect( awgn_noise_src, (awgn_chan,1) )
       self.connect( awgn_chan, self.dst )
       self.dst = awgn_chan
+      
 
 
     if options.freqoff is not None:
@@ -169,7 +170,7 @@ class fbmc_benchmark (gr.top_block):
       self.connect(freq_off, dst) 
       self.dst = freq_off
       self.rpc_mgr_tx.add_interface("set_freq_offset",self.freq_off.set_freqoff)
-      log_to_file( self, self.freq_off, "data/TRANSMITTER_OUT.compl" )
+      #log_to_file( self, self.freq_off, "data/TRANSMITTER_OUT.compl" )
 
 
 
@@ -203,7 +204,6 @@ class fbmc_benchmark (gr.top_block):
       self.dst = self.tx_filter
     if options.record:
       log_to_file( self, self.txpath, "data/txpath_out.compl" )
-    log_to_file( self, self.txpath, "data/txpath_out.compl" )
 
     if options.scatterplot:
       print "Scatterplot enabled"

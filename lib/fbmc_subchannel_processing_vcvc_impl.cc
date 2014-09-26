@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_subchannel_processing_vcvc_impl.h"
+#include <volk/volk.h>
 
 namespace gr {
 	namespace ofdm {
@@ -73,6 +74,9 @@ namespace gr {
 			// // equalizer_data<<"estimation="<<d_estimation<<"\n";
 			// // std::cout<<preamble.size()<<std::endl;
 			// // for(int i=0;i<3*d_M;i++) std::cout<<d_eq_coef[i]<<std::endl;
+
+		    const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+		    set_alignment(std::max(1, alignment_multiple));
 		}
 
 		/*
@@ -88,12 +92,17 @@ namespace gr {
 		fbmc_subchannel_processing_vcvc_impl::get_estimation(const gr_complex * start)
 		{
 			int offset = estimation_point - d_M+1;
-			for(int i=0;i<d_M;i++){
-				d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i+offset]);//*gr_complex(0.6863,0));
-				// // *(start-d_M+i+1) = d_estimation[i];
+			int low, size;
+			  low = 0;
+			  size = d_M;
+			  volk_32fc_x2_multiply_32fc(&d_estimation[low], (start-d_M+low+1), &d_preamble[low+offset], size);
+
+			/*for(int i=0;i<d_M;i++){
+				d_estimation[i] = *(start-d_M+i+1)*(d_preamble[i+offset]);//*gr_complex(0.6863,0));
+				// *(start-d_M+i+1) = d_estimation[i];
 				// //logging
 				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
-			}
+			}*/
 			// // equalizer_data<<"----------------------------------"<<"\n";
 			fr++;		
 		}
@@ -148,6 +157,21 @@ namespace gr {
 			gr_complex *out = (gr_complex *) output_items[0];
 			gr_complex *out_estimation = (gr_complex *) output_items[1];
 
+			//gr_complex estimout = 1;
+			//int low, size;
+			//low = 0;
+			//size = noutput_items*d_M;
+
+			//volk_32fc_x2_multiply_conjugate_32fc(out, in, &d_estimation[low%(int)(d_M)], size);
+			//volk_32fc_s32fc_multiply_32fc(out_estimation, &d_estimation[low%(int)(d_M)],estimout, size);
+
+
+			//out_estimation[i] = d_estimation[i%(int)(d_M)];
+
+
+			//if(ii%d_frame_length == estimation_point)
+										//get_estimation(in+low);
+			//ii++;
 			// Do <+signal processing+>
 			for(int i=0;i<noutput_items*d_M;i++){
 				

@@ -1,6 +1,8 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2014 Institute for Theoretical Information Technology,
+ *                RWTH Aachen University
+ *                www.ti.rwth-aachen.de
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +20,29 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H
-#define INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H
+#ifndef INCLUDED_OFDM_FBMC_SNR_ESTIMATOR_IMPL_H
+#define INCLUDED_OFDM_FBMC_SNR_ESTIMATOR_IMPL_H
 
-#include <ofdm/fbmc_beta_multiplier_vcvc.h>
+#include <ofdm/fbmc_snr_estimator.h>
+
+/*!
+  Implementation of Milan's SNR estimation,
+  taking the 1st preamble as input and giving
+  SNR estimate at 1st output and noise estimate at 2nd output
+ */
 
 namespace gr {
   namespace ofdm {
 
-    class fbmc_beta_multiplier_vcvc_impl : public fbmc_beta_multiplier_vcvc
+    class fbmc_snr_estimator_impl : public fbmc_snr_estimator
     {
      private:
-      // Nothing to declare in this block.
-      unsigned int d_M;
-      unsigned int d_K;
-      unsigned int d_lp;
-      unsigned int d_offset;
-      bool alternating_flag;
-      std::vector<gr_complex> d_ones;
+    	  int   d_vlen;
+    	  int	d_skip;
 
      public:
-      fbmc_beta_multiplier_vcvc_impl(unsigned int M, unsigned int K, unsigned int lp, unsigned int offset);
-      ~fbmc_beta_multiplier_vcvc_impl();
+      fbmc_snr_estimator_impl(int vlen, int skip);
+      ~fbmc_snr_estimator_impl();
 
       // Where all the action really happens
       int work(int noutput_items,
@@ -50,5 +53,5 @@ namespace gr {
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H */
+#endif /* INCLUDED_OFDM_SNR_ESTIMATOR_IMPL_H */
 

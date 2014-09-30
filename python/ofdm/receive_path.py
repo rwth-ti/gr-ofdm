@@ -100,15 +100,9 @@ class receive_path(gr.hier_block2):
     self._options               = copy.copy(options) #FIXME: do we need this?
     
     config.fbmc                 = options.fbmc
-    config.null_block           = 0
     
-    if config.fbmc:
-        config.cp_length = 1 #fix later to 0 (sync wont work)
-        config.null_block = 1
-        config.subcarriers = dsubc
-
     config.block_length = config.fft_length + config.cp_length
-    config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks +config.null_block
+    config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
     config.frame_length = config.frame_data_part + \
                           config.training_data.no_pilotsyms
     config.subcarriers = dsubc + \
@@ -116,8 +110,6 @@ class receive_path(gr.hier_block2):
     config.virtual_subcarriers = config.fft_length - config.subcarriers
 
     total_subc = config.subcarriers
-    
-
 
     # check some bounds
     if config.fft_length < config.subcarriers:
@@ -235,22 +227,14 @@ class receive_path(gr.hier_block2):
       log_to_file(self, pb_filt, "data/pb_filt_out.compl")
 
 
+    ## Pilot subcarrier filter
+    ps_filt = self._pilot_subcarrier_filter = pilot_subcarrier_filter()
+    self.connect(pb_filt,ps_filt)
 
-
-    if config.fbmc:
-        pda_in = pb_filt
-    
-    else:
-        ## Pilot subcarrier filter
-        ps_filt = self._pilot_subcarrier_filter = pilot_subcarrier_filter()
-        self.connect(pb_filt,ps_filt)
-
-        if options.log:
-            log_to_file(self, ps_filt, "data/ps_filt_out.compl")
+    if options.log:
+        log_to_file(self, ps_filt, "data/ps_filt_out.compl")
             
-        pda_in = ps_filt
-
-    
+    pda_in = ps_filt
 
 
     ## Workaround to avoid periodic structure
@@ -269,7 +253,7 @@ class receive_path(gr.hier_block2):
       if not config.frame_id_blocks == 1:
         raise SystemExit, "# ID Blocks > 1 not supported"
 
-      self.connect(   pda_in     ,   id_bfilt      )
+      self.connect(   ps_filt     ,   id_bfilt      )
       self.connect( ( pb_filt, 1 ), ( id_bfilt, 1 ) ) # trigger
 
 
@@ -368,7 +352,7 @@ class receive_path(gr.hier_block2):
         bitloading_vec = [0]*dsubc+[bitloading]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         power_vec = [1]*config.data_subcarriers
-        power_src = blocks.vector_source_f(power_vec,True,dsubc)
+        power_src = blocks.vector_source_c(power_vec,True,dsubc)
     else:
         self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333")
         self.bitcount_src = (self.allocation_buffer,0)
@@ -411,10 +395,7 @@ class receive_path(gr.hier_block2):
             self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         else:
             dm_csi_filter = self.dm_csi_filter = filter.single_pole_iir_filter_ff(0.01,dsubc)
-            if config.fbmc:
-                self.connect(self.ctf, self.dm_csi_filter,(demod,2))
-            else:
-                self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
+            self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
             #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
         self.connect(dm_trig,(demod,3))
     else:
@@ -969,15 +950,11 @@ class receive_path(gr.hier_block2):
     # there is only one CTF estimate (display CTF) per frame ...
 
     #self.ctf_soft_dem
-    if config.fbmc:
-        self.rx_01 = self.ctf
-    else:
-        psubc_filt = pilot_subcarrier_filter(complex_value=False)
-        self.connect( self.ctf, psubc_filt )
-        self.rx_01 = psubc_filt
+    psubc_filt = pilot_subcarrier_filter(complex_value=False)
+    self.connect( self.ctf, psubc_filt )
 
     lp_filter = filter.single_pole_iir_filter_ff(0.1,vlen)
-    self.connect( self.rx_01, lp_filter )
+    self.connect( psubc_filt, lp_filter )
     #log_to_file(self,lp_filter,"data/filt_ctf.float")
 
     self.filtered_ctf = lp_filter

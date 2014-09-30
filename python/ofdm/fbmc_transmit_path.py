@@ -142,7 +142,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        test_allocation = [2]*(int)(config.data_subcarriers) #+ [0]*(int)(config.data_subcarriers/2) + [2]*(int)(config.data_subcarriers/4)
+        test_allocation = [4]*(int)(config.data_subcarriers) #+ [0]*(int)(config.data_subcarriers/2) + [2]*(int)(config.data_subcarriers/4)
         #test_allocation = [2]*(int)(config.data_subcarriers/16) + [0]*(int)(config.data_subcarriers/16*15)# + [2]*(int)(config.data_subcarriers/8)
 
         self.allocation_src.set_allocation(test_allocation,[1]*config.data_subcarriers)
@@ -274,7 +274,7 @@ class transmit_path(gr.hier_block2):
     #log_to_file(self, oqam_prep, "data/oqam_prep.compl")
     #log_to_file(self, psubc, "data/psubc_out.compl")
     #fbmc_pblocks = fbmc_pblocks_timing
-    log_to_file(self, fbmc_pblocks, "data/fbmc_pblocks_out.compl")
+    #log_to_file(self, fbmc_pblocks, "data/fbmc_pblocks_out.compl")
     
 
 
@@ -381,7 +381,7 @@ class transmit_path(gr.hier_block2):
     # if non amplified, the amplitude is sqrt(subcarriers).
 
     self.rms = max(0.0, min(ampl, 1.0))
-    scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
+    scaled_ampl = ampl/math.sqrt(self.config.subcarriers*0.6863)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
 

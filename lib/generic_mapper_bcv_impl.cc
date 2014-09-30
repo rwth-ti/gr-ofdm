@@ -172,13 +172,11 @@ namespace gr {
 
             bool copy = false;
             const char *map = d_bitmap.get();
-            
-            //map = d_id_bitmap;
 
             for( int i = 0; i < n_min; ++i){
                 
                 //get map for data
-                if(d_symbol_counter!=0)
+                if(d_symbol_counter==1)
                 {
                     if( n_cv > 0 )
                     {
@@ -189,20 +187,14 @@ namespace gr {
 
                         // if not enough input, won't consume trigger, therefore
                         // don't consume bitmap item
-                        
                         if( n_bits < d_need_bits ){
                             d_need_bitmap = 1;
                             break;
                         }
-                        
+
                         copy = true;
                         d_need_bitmap = 0;
-                        
-                        if(d_symbol_counter==1)
-                        {
-  
 
-                                             
                         --n_cv; cv += d_vlen;
                         consume(1, 1);
 
@@ -210,7 +202,6 @@ namespace gr {
                             std::cout << "Consume 1 bitmap item, leave " << n_cv << " items"
                                 << " and need " << d_need_bits << " bits while "
                                 << n_bits << " bits left" << std::endl;
-                         }
 
                     } else {
 
@@ -229,7 +220,7 @@ namespace gr {
                     // update bitmap buffer
                     map = d_id_bitmap;
 
-                    d_need_bits = calc_bit_amount( map, d_vlen, d_coding );
+                    d_need_bits = calc_bit_amount( d_id_bitmap, d_vlen, d_coding );
 
                     // if not enough input, won't consume trigger, therefore
                     // don't consume bitmap item
@@ -240,7 +231,6 @@ namespace gr {
 
                     copy = true;
                     d_need_bitmap = 0;
-                    
 
                     if(DEBUG)
                         std::cout << "Consume 0 bitmap item, leave " << n_cv << " items"
@@ -248,8 +238,6 @@ namespace gr {
                             << n_bits << " bits left" << std::endl;
                 } // d_symbol_counter == 0
 
-                //if(d_need_bitmap == 0) ++d_symbol_counter%=d_frame_size;
-                                        
                 // check if we have enough bits
                 if( n_bits < d_need_bits ){
 

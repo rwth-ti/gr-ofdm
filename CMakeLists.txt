@@ -94,7 +94,8 @@ find_package(CppUnit)
 #
  set(GR_REQUIRED_COMPONENTS RUNTIME FFT BLOCKS FILTER FEC TRELLIS UHD QTGUI)
  find_package(Gnuradio 3.7.1)
-  find_package(Gnuradio 3.8)
+ find_package(Gnuradio 3.8)
+
 
 if(NOT GNURADIO_RUNTIME_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile ofdm")

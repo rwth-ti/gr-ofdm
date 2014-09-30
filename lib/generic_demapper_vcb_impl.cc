@@ -177,7 +177,7 @@ namespace gr {
           for( i = 0; i < n_sym; ++i ){
 
             //get map for data
-            if(d_symbol_counter != 0)
+            if(d_symbol_counter==1)
             {
               if( n_cv == 0 )
               {
@@ -195,13 +195,9 @@ namespace gr {
               cv = cv_in;
               do_copy = true;
               d_need_bitmap = 0;
-
-              if(d_symbol_counter==1)
-              {
-				  --n_cv;
-				  cv_in += d_vlen;
-				  consume( 1, 1 );
-              }
+              --n_cv;
+              cv_in += d_vlen;
+              consume( 1, 1 );
 
             } // d_symbol_counter==1
 

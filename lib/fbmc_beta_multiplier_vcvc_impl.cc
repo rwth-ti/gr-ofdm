@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_beta_multiplier_vcvc_impl.h"
+#include <volk/volk.h>
 
 namespace gr {
   namespace ofdm {
@@ -46,12 +47,15 @@ namespace gr {
       d_K(K),
       d_lp(lp),
       d_offset(offset),
+      d_ones(M,1),
       alternating_flag(false)
     {
       assert(M>0 && (log(M)/log(2)) == (round(log(M)/log(2))));
       assert(K==4); //later we might also support K=3
       d_lp = K*M-1; //for now we will only support for this filter length, which will make the process less complex.
       // bool alternating_flag = false; //indicates alternating vector
+      for (int i = 0; i< M/2;i++)
+    	  d_ones[2*i+1]=-1;
     }
 
     /*
@@ -68,6 +72,27 @@ namespace gr {
     {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
+
+
+        //std::copy(in,in+noutput_items*d_M,out);
+        //volk_32fc_32f_multiply_32fc(out, in,&d_ones[0], d_M*);
+
+
+/*        if(!alternating_flag)
+        	{
+        	std::copy(in,in+noutput_items*d_M,out);
+        	//out+=d_M;
+        	in+=d_M;
+        	alternating_flag=!alternating_flag;
+        	}
+        else
+        	{
+        	volk_32fc_32f_multiply_32fc(out, in,&d_ones[0], d_M);
+        	alternating_flag=!alternating_flag;
+        	}*/
+
+        //volk_32fc_32f_multiply_32fc(out, in,&d_ones[0], d_M);
+
 
         // Do <+signal processing+>
         // beta = (-1)^kn * (-1)^kK

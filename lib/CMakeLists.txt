@@ -146,7 +146,9 @@ list(APPEND ofdm_sources
     fbmc_oqam_postprocessing_vcvc_impl.cc
     fbmc_beta_multiplier_vcvc_impl.cc
     fbmc_separate_vcvc_impl.cc
+    fbmc_snr_estimator_impl.cc
     fbmc_polyphase_network_vcvc_impl.cc
+    fbmc_postprocess_CTF_estimate_impl.cc
     fbmc_vector_copy_vcvc_impl.cc
     fbmc_junction_vcvc_impl.cc
     fbmc_subchannel_processing_vcvc_impl.cc
@@ -164,6 +166,7 @@ target_link_libraries(gnuradio-ofdm
     ${GNURADIO_TRELLIS_LIBRARIES}
     ${ITPP_LIBRARIES}
     ${ZEROMQ_LIBRARIES}
+    ${VOLK_LIBRARIES}
     )
 
 add_dependencies(gnuradio-ofdm gnuradio-runtime gnuradio-fft gnuradio-blocks gnuradio-filter gnuradio-fec gnuradio -trellis)

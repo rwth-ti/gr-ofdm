@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_subchannel_processing_vcvc_impl.h"
+#include <volk/volk.h>
 
 namespace gr {
 	namespace ofdm {
@@ -148,6 +149,7 @@ namespace gr {
 			// // std::cout<<preamble.size()<<std::endl;
 			// // for(int i=0;i<3*d_M;i++) std::cout<<d_eq_coef[i]<<std::endl;
 			// for(int i=0;i<d_M;i++) std::cout<<i<<"\t"<<d_preamble[i]<<std::endl;
+
 		}
 
 		/*
@@ -170,6 +172,7 @@ namespace gr {
 				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
 				
 			}
+
 			// // equalizer_data<<"----------------------------------"<<"\n";
 			fr++;		
 		}
@@ -224,6 +227,21 @@ namespace gr {
 			gr_complex *out = (gr_complex *) output_items[0];
 			gr_complex *out_estimation = (gr_complex *) output_items[1];
 
+			//gr_complex estimout = 1;
+			//int low, size;
+			//low = 0;
+			//size = noutput_items*d_M;
+
+			//volk_32fc_x2_multiply_conjugate_32fc(out, in, &d_estimation[low%(int)(d_M)], size);
+			//volk_32fc_s32fc_multiply_32fc(out_estimation, &d_estimation[low%(int)(d_M)],estimout, size);
+
+
+			//out_estimation[i] = d_estimation[i%(int)(d_M)];
+
+
+			//if(ii%d_frame_length == estimation_point)
+										//get_estimation(in+low);
+			//ii++;
 			// Do <+signal processing+>
 			for(int i=0;i<noutput_items*d_M;i++){
 				

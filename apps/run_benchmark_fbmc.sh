@@ -8,4 +8,4 @@ else
     . $PWD/environment_release
 fi
 
-benchmark_fbmc.py --snr=10 --scatterplot --ber-window=50000 --disable-ctf-enhancer --freqoff=0 --fft-length=256 --subcarriers=200 $1 $2 $3
+benchmark_fbmc.py --snr=10 --scatterplot --ber-window=100000 --disable-ctf-enhancer --freqoff=0 --fft-length=256 --subcarriers=208 --disable-freq-sync $1 $2 $3

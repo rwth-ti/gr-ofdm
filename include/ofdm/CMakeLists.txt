@@ -139,7 +139,9 @@ install(FILES
     fbmc_oqam_postprocessing_vcvc.h
     fbmc_beta_multiplier_vcvc.h
     fbmc_separate_vcvc.h
+    fbmc_snr_estimator.h
     fbmc_polyphase_network_vcvc.h
+    fbmc_postprocess_CTF_estimate.h
     fbmc_vector_copy_vcvc.h
     fbmc_junction_vcvc.h
     fbmc_subchannel_processing_vcvc.h

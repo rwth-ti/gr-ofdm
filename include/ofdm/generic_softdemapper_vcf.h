@@ -47,7 +47,7 @@ namespace gr {
        * class. ofdm::generic_softdemapper_vcf::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen,bool coding);
+      static sptr make(int vlen, const unsigned int frame_size, bool coding);
     };
 
   } // namespace ofdm

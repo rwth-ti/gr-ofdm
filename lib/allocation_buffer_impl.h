@@ -44,6 +44,8 @@ namespace gr {
                 int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
+                bool d_coding;
+                int d_bitspermode[9];
 
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
@@ -52,7 +54,7 @@ namespace gr {
                                     std::vector<float> power);
 
             public:
-                allocation_buffer_impl(int subcarriers, int data_symbols, char *address);
+                allocation_buffer_impl(int subcarriers, int data_symbols, char *address, bool coding);
                 ~allocation_buffer_impl();
 
                 void recv_allocation();

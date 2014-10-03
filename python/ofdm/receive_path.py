@@ -24,6 +24,7 @@ from numpy import concatenate, log10
 from gnuradio import eng_notation
 from gnuradio import gr, filter, zeromq
 from gnuradio import blocks
+from gnuradio import trellis
 from gr_tools import log_to_file, terminate_stream
 
 from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
@@ -359,7 +360,7 @@ class receive_path(gr.hier_block2):
         power_vec = [1]*config.data_subcarriers
         power_src = blocks.vector_source_c(power_vec,True,dsubc)
     else:
-        self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333")
+        self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333",config.coding)
         self.bitcount_src = (self.allocation_buffer,0)
         bitloading_src = (self.allocation_buffer,1)
         power_src = (self.allocation_buffer,2)
@@ -395,14 +396,15 @@ class receive_path(gr.hier_block2):
 
 
     if(options.coding):
-        demod = self._data_demodulator = generic_softdemapper_vcf(dsubc,options.coding)
+        fo=ofdm.fsm(1,2,[91,121])
+        demod = self._data_demodulator = generic_softdemapper_vcf(dsubc, config.frame_data_part, config.coding)
         if(options.ideal):
             self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         else:
             dm_csi_filter = self.dm_csi_filter = filter.single_pole_iir_filter_ff(0.01,dsubc)
             self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
             #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
-        self.connect(dm_trig,(demod,3))
+        #self.connect(dm_trig,(demod,3))
     else:
         demod = self._data_demodulator = generic_demapper_vcb(dsubc, config.frame_data_part)
     if options.benchmarking:
@@ -415,8 +417,8 @@ class receive_path(gr.hier_block2):
     if(options.coding):
         ## Depuncturing
         if not options.nopunct:
-            bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
-            bitmap_filter.skip_call(0)
+            ##bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
+           ## bitmap_filter.skip_call(0)
             depuncturing = depuncture_ff(dsubc,0)
 
             frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
@@ -426,13 +428,15 @@ class receive_path(gr.hier_block2):
             bsrc_depuncturing = self._bitmap_src_depuncturing = blocks.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
 
             #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
-            self.connect(self._map_src,bitmap_filter,(depuncturing,1))
+            #self.connect(self._map_src,bitmap_filter,(depuncturing,1))
+            self.connect(bitloading_src,(depuncturing,1))
+            self.connect(dp_trig,(depuncturing,2))
             #bmt = gr.char_to_float()
             #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,dsubc), bmt)
             #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
 
-            self.connect(dp_trig,(depuncturing,2))
-            self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
+            
+            ##self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
 
         ## Decoding
         chunkdivisor = int(numpy.ceil(config.frame_data_blocks/5.0))
@@ -449,7 +453,7 @@ class receive_path(gr.hier_block2):
             #self.connect(sah_trigger, (sah,1))
         else:
             self.connect(demod,decoding)
-        self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
+        self.connect(self.bitcount_src, multiply_const_ii(1./chunkdivisor), (decoding,1))
 
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
         scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)

@@ -64,8 +64,12 @@ namespace gr {
 
 	  boost::shared_ptr<ofdmi_modem> d_demod;
 
+      unsigned int d_symbol_counter;
+      char* d_id_bitmap;
+      const unsigned int d_frame_size;
+
      public:
-      generic_softdemapper_vcf_impl(int vlen,bool coding);
+      generic_softdemapper_vcf_impl(int vlen, const unsigned int frame_size,bool coding);
       ~generic_softdemapper_vcf_impl();
 
       // Where all the action really happens

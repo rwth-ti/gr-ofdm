@@ -33,10 +33,10 @@ namespace gr {
   namespace ofdm {
 
     allocation_src::sptr
-    allocation_src::make(int subcarriers, int data_symbols, char *address)
+    allocation_src::make(int subcarriers, int data_symbols, char *address, bool coding)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_src_impl(subcarriers, data_symbols, address));
+        (new allocation_src_impl(subcarriers, data_symbols, address, coding));
     }
 
     /*
@@ -50,18 +50,38 @@ namespace gr {
      * power: vector containing power allocation vectors for id symbol and every data symbol
      *
      */
-    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols, char *address)
+    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols, char *address, bool coding)
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
+    	,d_bitcount_out(2000)
+        ,d_subcarriers(subcarriers)
+        ,d_data_symbols(data_symbols)
+    	,d_coding( coding )
+    	,d_bitspermode( {1,2,3,4,6,8,9,10,12})
+    	,d_modulbitspermode( {1,2,2,4,4,6,6,6,8} )
+    	,d_modulbitcount_out(2000)
+
     {
-        std::vector<int> out_sig(4);
+    	if (d_coding)
+        {
+    	std::vector<int> out_sig(5);
+        out_sig[0] = sizeof(short);                             // id
+        out_sig[1] = sizeof(int);                               // bitcount
+        out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
+        out_sig[3] = sizeof(float)*subcarriers;                 // power
+        out_sig[4] = sizeof(int);                               // bitcount
+        set_output_signature(io_signature::makev(5,5,out_sig));
+        }
+    	else
+        {
+    	std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
         out_sig[3] = sizeof(float)*subcarriers;                 // power
         set_output_signature(io_signature::makev(4,4,out_sig));
+        }
 
 
         std::vector<uint8_t> bitloading_vec;
@@ -151,9 +171,27 @@ namespace gr {
         d_allocation_out.power = power;
 
         int sum_of_elems = 0;
-        for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+        int modul_sum_of_elems = 0;
+        if (d_coding)
+        {
+			for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+			{
+				//std::cout << "Bitcount_src bits: " <<  (d_bitspermode[*j-1]) << std::endl;
+				sum_of_elems += d_bitspermode[*j-1];
+				modul_sum_of_elems += d_modulbitspermode[*j-1];
+			}
+
+			d_bitcount_out = sum_of_elems*d_data_symbols/2;
+			d_modulbitcount_out = modul_sum_of_elems*d_data_symbols;
+			//std::cout << "d_bitcount_out: " << d_bitcount_out << std::endl;
+        }
+        else
+        {
+        	for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
             sum_of_elems += *j;
-        d_bitcount_out = sum_of_elems*d_data_symbols;
+        	d_bitcount_out = sum_of_elems*d_data_symbols;
+        }
+
     }
 
 
@@ -170,31 +208,62 @@ namespace gr {
         int *out_bitcount = (int *) output_items[1];
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
         float *out_power = (float *) output_items[3];
+        int *out_modulbitcount = (int *) output_items[4];
 
-        for (int i = 0; i < (noutput_items); i++) {
-            // send the allocation to Rx
-            send_allocation();
+        if (d_coding)
+			for (int i = 0; i < (noutput_items); i++) {
+				// send the allocation to Rx
+				send_allocation();
 
-            // now generate outputs
-            out_id[i] = d_allocation_out.id;
-            out_bitcount[i] = d_bitcount_out;
-            //FIXME: probably dirty hack
-            // output vectors data (bpsk is used for id)
-            int bl_idx = i*d_subcarriers;
-            memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
-            // output 1 vector for id and the rest for data
-            int p_idx = i*d_subcarriers;
-            memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
+				// now generate outputs
+				out_id[i] = d_allocation_out.id;
+				out_bitcount[i] = d_bitcount_out;
+				// Bit count for mapper and data before coding is different
+				out_modulbitcount[i] = d_modulbitcount_out;
+				//FIXME: probably dirty hack
+				// output vectors data (bpsk is used for id)
+				int bl_idx = i*d_subcarriers;
+				memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
+				// output 1 vector for id and the rest for data
+				int p_idx = i*d_subcarriers;
+				memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
 
-            //increase frame id, [0..255]
-            d_allocation.id++;
-            if (d_allocation.id > 255) {
-                d_allocation.id = 0;
-            }
-            d_allocation_out.id = d_allocation.id;
-        } 
+				//increase frame id, [0..255]
+				d_allocation.id++;
+				if (d_allocation.id > 255) {
+					d_allocation.id = 0;
+				}
+				d_allocation_out.id = d_allocation.id;
+			}
+        else
+		for (int i = 0; i < (noutput_items); i++) {
+					// send the allocation to Rx
+					send_allocation();
+
+					// now generate outputs
+					out_id[i] = d_allocation_out.id;
+					out_bitcount[i] = d_bitcount_out;
+					//FIXME: probably dirty hack
+					// output vectors data (bpsk is used for id)
+					int bl_idx = i*d_subcarriers;
+					memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
+					// output 1 vector for id and the rest for data
+					int p_idx = i*d_subcarriers;
+					memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
+
+					//increase frame id, [0..255]
+					d_allocation.id++;
+					if (d_allocation.id > 255) {
+						d_allocation.id = 0;
+					}
+					d_allocation_out.id = d_allocation.id;
+				}
+
+
         return noutput_items;
     }
+
+
   } /* namespace ofdm */
 } /* namespace gr */
 

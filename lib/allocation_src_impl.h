@@ -48,13 +48,17 @@ namespace gr {
                 int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;
+                bool d_coding;
+                int d_modulbitcount_out;
+                int d_bitspermode[9];
+                int d_modulbitspermode[9];
                 gr::thread::mutex d_mutex;
 
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
             public:
-                allocation_src_impl(int subcarriers, int data_symbols, char *address);
+                allocation_src_impl(int subcarriers, int data_symbols, char *address, bool coding);
                 ~allocation_src_impl();
 
                 void send_allocation();

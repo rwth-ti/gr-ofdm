@@ -44,6 +44,7 @@ from station_configuration import *
 from random import seed,randint, getrandbits
 
 
+
 class transmit_path(gr.hier_block2):
   """
   output:
@@ -112,7 +113,7 @@ class transmit_path(gr.hier_block2):
     self.keep_frame_n = int(1.0 / ( config.frame_length * (config.cp_length + config.fft_length) / config.bandwidth ) / config.gui_frame_rate)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", config.coding)
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
         bitloading = 1
@@ -137,12 +138,18 @@ class transmit_path(gr.hier_block2):
         bitcount_src = (self.allocation_src,1)
         bitloading_src = (self.allocation_src,2)
         power_src = (self.allocation_src,3)
+        if options.coding: 
+            modul_bitcount_src = (self.allocation_src,4)
+        else:
+            modul_bitcount_src = bitcount_src
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
-        self.connect(bitcount_src,mux_ctrl)
+        self.connect(modul_bitcount_src,mux_ctrl)
+        
+        self.allocation_src.set_allocation([1]*config.data_subcarriers,[1]*config.data_subcarriers)   
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
 
-
+    
     if options.lab_special_case:
         self.allocation_src.set_allocation([0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4),[0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4))
 
@@ -183,12 +190,14 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, btrig, "data/bitmap_trig.char")
 
     ## Bitmap Update Trigger for puncturing
+    '''
     if not options.nopunct:
         bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
 
         btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
         bmapsrc_stream_puncturing = [1]*dsubc + [2]*dsubc
         bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing, True, dsubc)
+        '''
 
     if options.log and options.coding and not options.nopunct:
       log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
@@ -204,10 +213,36 @@ class transmit_path(gr.hier_block2):
     dmux = self._data_multiplexer = stream_controlled_mux_b()
     self.connect(mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
-    if options.benchmarking:
-        self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+    
+    
+    if options.coding:    
+        bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
+        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
+
+        fo=trellis.fsm(1,2,[91,121])       
+        encoder = self._encoder = trellis.encoder_bb(fo,0)
+        unpack = self._unpack = blocks.unpack_k_bits_bb(2)
+        puncturing = self._puncturing = puncture_bb(config.data_subcarriers)
+        #frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
+        #bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*config.data_subcarriers,2)# skip_known_symbols(frame_length,subcarriers)
+        #bitmap_filter.skip_call(0)
+        
+        self.connect(self._bitmap_trigger_puncturing,(puncturing,2))
+        #self.connect(bitloading_src,bitmap_filter,(puncturing,1))
+        self.connect(bitloading_src,(puncturing,1))
+        #self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
+        self.connect(ber_ref_src,encoder,unpack,puncturing)
+        
+        if options.benchmarking:
+            self.connect(puncturing,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+        else:
+            self.connect(puncturing,(dmux,2))
+        
     else:
-        self.connect(ber_ref_src,(dmux,2))
+        if options.benchmarking:
+            self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+        else:
+            self.connect(ber_ref_src,(dmux,2))
         
 
     if options.log:
@@ -216,9 +251,10 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, dmux_f, "data/dmux_out.float")
 
     ## Modulator
-    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding, config.frame_data_part)
+    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,config.coding, config.frame_data_part)
     self.connect(dmux,(mod,0))
     self.connect(bitloading_src,(mod,1))
+    log_to_file(self, mod, "data/mod_out.compl")
 
     if options.log:
       log_to_file(self, mod, "data/mod_out.compl")

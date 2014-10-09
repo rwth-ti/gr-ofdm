@@ -93,6 +93,7 @@ class receive_path(gr.hier_block2):
     config.dc_null              = options.dc_null
     config.training_data        = default_block_header(dsubc,
                                           config.fft_length, config.dc_null, options)
+    config.coding              = options.coding
     config.ber_window           = options.ber_window
     config.bandwidth            = options.bandwidth
     config.gui_frame_rate       = options.gui_frame_rate

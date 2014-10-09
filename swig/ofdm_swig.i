@@ -124,6 +124,10 @@
 #include "ofdm/allocation_src.h"
 #include "ofdm/allocation_buffer.h"
 #include "ofdm/tx_mux_ctrl.h"
+#include "ofdm/vector_padding_dc_null.h"
+#include "ofdm/snr_estimator_dc_null.h"
+#include "ofdm/vector_mask_dc_null.h"
+#include "ofdm/lms_phase_tracking_dc_null.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -404,3 +408,12 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_src);
 GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_buffer);
 %include "ofdm/tx_mux_ctrl.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, tx_mux_ctrl);
+
+%include "ofdm/vector_padding_dc_null.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, vector_padding_dc_null);
+%include "ofdm/snr_estimator_dc_null.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, snr_estimator_dc_null);
+%include "ofdm/vector_mask_dc_null.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, vector_mask_dc_null);
+%include "ofdm/lms_phase_tracking_dc_null.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, lms_phase_tracking_dc_null);

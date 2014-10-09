@@ -139,7 +139,11 @@ list(APPEND ofdm_sources
     reference_data_source_02_ib_impl.cc
     allocation_src_impl.cc
     allocation_buffer_impl.cc
-    tx_mux_ctrl_impl.cc )
+    tx_mux_ctrl_impl.cc
+    vector_padding_dc_null_impl.cc
+    snr_estimator_dc_null_impl.cc
+    vector_mask_dc_null_impl.cc
+    lms_phase_tracking_dc_null_impl.cc )
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm

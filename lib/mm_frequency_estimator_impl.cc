@@ -100,7 +100,8 @@ namespace gr {
     	      const int shift = m*d_M;
 
     	      for(int k = shift; k < d_vlen; ++k){
-    	        acc += in[k]*std::conj(in[k-shift]);
+    	        acc += in[k]*std::conj(in[k-shift])*static_cast<gr_complex>(pow(-1, m));
+    	        //*static_cast<gr_complex>(pow(-1, m)) added due to DC nulling and shifting of the M&M sequence
     	      }
 
     	      R[m] = acc;

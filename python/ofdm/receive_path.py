@@ -31,7 +31,7 @@ from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
 from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator
+from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator_dc_null
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
@@ -90,8 +90,9 @@ class receive_path(gr.hier_block2):
     config.frame_data_blocks    = options.data_blocks
     config._verbose             = options.verbose #TODO: update
     config.fft_length           = options.fft_length
+    config.dc_null              = options.dc_null
     config.training_data        = default_block_header(dsubc,
-                                          config.fft_length,options)
+                                          config.fft_length, config.dc_null, options)
     config.ber_window           = options.ber_window
     config.bandwidth            = options.bandwidth
     config.gui_frame_rate       = options.gui_frame_rate
@@ -108,7 +109,7 @@ class receive_path(gr.hier_block2):
                           config.training_data.no_pilotsyms
     config.subcarriers = dsubc + \
                          config.training_data.pilot_subcarriers
-    config.virtual_subcarriers = config.fft_length - config.subcarriers
+    config.virtual_subcarriers = config.fft_length - config.subcarriers - config.dc_null
 
     total_subc = config.subcarriers
 
@@ -349,8 +350,15 @@ class receive_path(gr.hier_block2):
 
     ## Allocation Control
     if options.static_allocation: #DEBUG
-        bitloading = 1
-        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        
+        if options.coding:
+            mode = 1 # Coding mode 1-9
+            bitspermode = [0.5,1,1.5,2,3,4,4.5,5,6] # Information bits per mode
+            bitcount_vec = [(int)(config.data_subcarriers*config.frame_data_blocks*bitspermode[mode-1])]
+            bitloading = mode
+        else:
+            bitloading = 1
+            bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
         self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # 0s for ID block, then data
@@ -358,7 +366,7 @@ class receive_path(gr.hier_block2):
         bitloading_vec = [0]*dsubc+[bitloading]*dsubc
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         power_vec = [1]*config.data_subcarriers
-        power_src = blocks.vector_source_c(power_vec,True,dsubc)
+        power_src = blocks.vector_source_f(power_vec,True,dsubc)
     else:
         self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333",config.coding)
         self.bitcount_src = (self.allocation_buffer,0)
@@ -391,13 +399,17 @@ class receive_path(gr.hier_block2):
     ## Depuncturer
     dp_trig = [0]*(config.frame_data_blocks/2)
     dp_trig[0] = 1
-    dp_trig = blocks.vector_source_b(dp_trig,True) # TODO
-
+    dp_trig = blocks.vector_source_b(dp_trig,True) # TODO   
 
 
     if(options.coding):
         fo=ofdm.fsm(1,2,[91,121])
+        if options.interleave:
+            int_object=trellis.interleaver(2000,666)
+            deinterlv = trellis.permutation(int_object.K(),int_object.DEINTER(),1,gr.sizeof_float)
+        
         demod = self._data_demodulator = generic_softdemapper_vcf(dsubc, config.frame_data_part, config.coding)
+        #self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         if(options.ideal):
             self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         else:
@@ -417,44 +429,31 @@ class receive_path(gr.hier_block2):
     if(options.coding):
         ## Depuncturing
         if not options.nopunct:
-            ##bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
-           ## bitmap_filter.skip_call(0)
             depuncturing = depuncture_ff(dsubc,0)
-
             frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
-            #sah = gr.sample_and_hold_ff()
-            #sah_trigger = blocks.vector_source_b([1,0],True)
-            bmapsrc_stream_depuncturing = concatenate([[1]*dsubc,[2]*dsubc])
-            bsrc_depuncturing = self._bitmap_src_depuncturing = blocks.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
-
-            #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
-            #self.connect(self._map_src,bitmap_filter,(depuncturing,1))
             self.connect(bitloading_src,(depuncturing,1))
             self.connect(dp_trig,(depuncturing,2))
-            #bmt = gr.char_to_float()
-            #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,dsubc), bmt)
-            #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
-
-            
-            ##self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
 
         ## Decoding
         chunkdivisor = int(numpy.ceil(config.frame_data_blocks/5.0))
         print "Number of chunks at Viterbi decoder: ", chunkdivisor
         decoding = self._data_decoder = ofdm.viterbi_combined_fb(fo,dsubc,-1,-1,2,chunkdivisor,[-1,-1,-1,1,1,-1,1,1],ofdm.TRELLIS_EUCLIDEAN)
 
+        
         if options.log and options.coding:
             log_to_file(self, decoding, "data/decoded.char")
             if not options.nopunct:
                 log_to_file(self, depuncturing, "data/vit_in.float")
-
+                    
         if not options.nopunct:
-            self.connect(demod,depuncturing,decoding)
-            #self.connect(sah_trigger, (sah,1))
+            if options.interleave:
+                self.connect(demod,deinterlv,depuncturing,decoding)
+            else:
+                self.connect(demod,depuncturing,decoding)
         else:
             self.connect(demod,decoding)
         self.connect(self.bitcount_src, multiply_const_ii(1./chunkdivisor), (decoding,1))
-
+        
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
         scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
         scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
@@ -866,7 +865,7 @@ class receive_path(gr.hier_block2):
 
     else:
         #snrm = self._snr_measurement = milans_snr_estimator( vlen, vlen, L )
-        snr_estim = snr_estimator( vlen, L )
+        snr_estim = snr_estimator_dc_null(vlen, L, config.dc_null)
         scsnrdb = filter.single_pole_iir_filter_ff(0.1)
         snrm = self._snr_measurement = blocks.nlog10_ff(10,1,0)
         self.connect(snr_est_filt,snr_estim,scsnrdb,snrm)
@@ -1080,6 +1079,9 @@ class receive_path(gr.hier_block2):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
+    normal.add_option("", "--interleave", action="store_true",
+              default=False,
+              help="Enable interleaving")
     expert.add_option('', '--benchmarking', action='store_true', default=False,
                       help='Modify transmitter for the benchmarking mode')
 

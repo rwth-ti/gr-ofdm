@@ -10,5 +10,5 @@ fi
 
 ofdm_tx_gui.py &
 ofdm_rx_gui.py &
-benchmark_ofdm.py --snr=10 --scatterplot --ber-window=50000 --disable-ctf-enhancer --freqoff=0 --fft-length=256 --subcarriers=200 $1 $2 $3
+benchmark_ofdm.py --snr=10 --scatterplot --ber-window=50000 --disable-ctf-enhancer --freqoff=0 --fft-length=256 --subcarriers=200 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 

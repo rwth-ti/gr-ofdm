@@ -45,7 +45,8 @@ def add_options(normal,expert):
             help="enable file logs [default=%default]")
     expert.add_option("", "--static-allocation", action="store_true", default=False,
             help="Enable static resource allocation mode [default=%default]")
-
+    expert.add_option("", "--dc-null", type="intx", default=0,
+                      help="set the number of nulled DC subcarries (has to be even number). Default: NO DC null - 0")
     preambles.default_block_header.add_options(normal,expert)
 
 def defaults(options):

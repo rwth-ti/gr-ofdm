@@ -50,6 +50,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     total_subc    = config.subcarriers
     block_length  = config.block_length
     frame_length  = config.frame_length
+    dc_null       = config.dc_null
     
     L             = block_header.mm_periodic_parts
     
@@ -105,7 +106,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
       terminate_stream(self, frame_start)
       
       serial_to_parallel = blocks.stream_to_vector(gr.sizeof_gr_complex,block_length)
-      discard_cp = ofdm.vector_mask(block_length,cp_length,fft_length,[])
+      discard_cp = ofdm.vector_mask_dc_null(block_length,cp_length,fft_length,dc_null, [])
       ofdm_blocks = discard_cp
       self.connect( rx_input, serial_to_parallel, discard_cp )
       
@@ -161,24 +162,24 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     ofdm_blocks = fft
     
     
-    
     ## Remove virtual subcarriers
     if fft_length > data_subc:
-      subcarrier_mask = ofdm.vector_mask( fft_length, virtual_subc/2,
-                                           total_subc, [] )
+      subcarrier_mask = ofdm.vector_mask_dc_null( fft_length, virtual_subc/2,
+                                           total_subc, dc_null, [] )
       self.connect( ofdm_blocks, subcarrier_mask )
       ofdm_blocks = subcarrier_mask
       #log_to_file(self, ofdm_blocks, "data/vec_mask.compl")
-       ## Least Squares estimator for channel transfer function (CTF)
+       ## Least Squares estimator for channel transfer function (CTF) 
     
     
-      if options.logcir:
+    if options.logcir:
           log_to_file( self, ofdm_blocks, "data/OFDM_Blocks.compl" )
           
-          inv_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
-            block_header.channel_estimation_pilot[0] ] )
-          #print "Channel estimation pilot: ", inv_preamble_fd
-          inv_preamble_fd = 1. / inv_preamble_fd
+          chest_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
+                block_header.channel_estimation_pilot[0] ] )
+          chest_preamble_fd = numpy.concatenate([chest_preamble_fd[:total_subc/2],chest_preamble_fd[total_subc/2+dc_null:]])
+          print "Channel estimation pilot: ", chest_preamble_fd
+          inv_preamble_fd = 1. / chest_preamble_fd
           LS_channel_estimator0 = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
           self.connect( ofdm_blocks, LS_channel_estimator0, gr.null_sink(gr.sizeof_gr_complex*total_subc))
           log_to_file( self, LS_channel_estimator0, "data/OFDM_Blocks_eq.compl" )
@@ -199,10 +200,11 @@ class ofdm_inner_receiver( gr.hier_block2 ):
 
     
     ## Least Squares estimator for channel transfer function (CTF)
-    inv_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
+    chest_preamble_fd = numpy.array( block_header.pilotsym_fd[ 
         block_header.channel_estimation_pilot[0] ] )
-    #print "Channel estimation pilot: ", inv_preamble_fd
-    inv_preamble_fd = 1. / inv_preamble_fd
+    chest_preamble_fd = numpy.concatenate([chest_preamble_fd[:total_subc/2],chest_preamble_fd[total_subc/2+dc_null:]])
+    print "Channel estimation pilot: ", chest_preamble_fd
+    inv_preamble_fd = 1. / chest_preamble_fd
     
     LS_channel_estimator = ofdm.multiply_const_vcc( list( inv_preamble_fd ) )
     self.connect( sampled_chest_preamble, LS_channel_estimator )
@@ -306,7 +308,6 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( inv_estimated_CTF, ( equalizer, 1 ) )
     self.connect( frame_start,       ( equalizer, 2 ) )
     ofdm_blocks = equalizer
-    #log_to_file(self, equalizer,"data/equalizer_siso.compl")
     
     
     #log_to_file(self, ofdm_blocks, "data/equalizer.compl")
@@ -324,8 +325,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     pilot_subcarriers = block_header.pilot_subc_sym
     print "PILOT SUBCARRIERS: ", pilot_subcarriers
         
-    phase_tracking2 = ofdm.lms_phase_tracking_02( total_subc, pilot_subc,
-                                               nondata_blocks )
+    phase_tracking2 = ofdm.lms_phase_tracking_dc_null( total_subc, pilot_subc,
+                                               nondata_blocks, pilot_subcarriers, dc_null  )
     self.connect( ofdm_blocks, ( phase_tracking2, 0 ) )
     self.connect( frame_start, ( phase_tracking2, 1 ) ) ##
     

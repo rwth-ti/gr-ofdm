@@ -335,6 +335,8 @@ namespace gr {
 	              cv = d_id_bitmap;
 	              do_copy = true;
 	              d_need_bitmap = 0;
+				  d_need_csi = 0;
+				  do_copy_csi=true;
 	            } // d_symbol_counter==0
 
     	    if( nout < bps )
@@ -343,6 +345,7 @@ namespace gr {
     	      //std::cout << "BPS_2: " << bps <<std::endl;
     	      break;
     	    }
+    	    ++d_symbol_counter%=d_frame_size;
 
     	    // demodulation
 
@@ -374,7 +377,7 @@ namespace gr {
     	  assert( n_cv <= ninput_items[1] && n_cv >= 0 );
     	  assert( n_csi <= ninput_items[2] && n_csi >= 0 );
     	  //consume( 1, ninput_items[1] - n_cv );
-    	  //consume( 2, ninput_items[2] - n_csi );
+    	  consume( 2, ninput_items[2] - n_csi );
     	  consume( 0, i );
     	  //consume( 3, i );
 

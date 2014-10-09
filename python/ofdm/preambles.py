@@ -35,7 +35,7 @@ from numpy import *
 from ofdm import static_mux_c, static_mux_v
 
 class default_block_header (object):
-  def __init__(self,data_subcarriers,fft_length,options):
+  def __init__(self,data_subcarriers,fft_length,dc_null,options):
     self.no_preambles = options.est_preamble + 1
     self.no_pilotsyms = self.no_preambles
     self.pilotsym_td = []
@@ -73,14 +73,14 @@ class default_block_header (object):
 
 
     # Known pilot block to ease estimation of CTF
-    td,fd,td_1,fd_1,td_2,fd_2 = schmidl_ifo_designer.create(self.subcarriers, fft_length)
+    td,fd,td_1,fd_1,td_2,fd_2 = schmidl_ifo_designer.create(self.subcarriers, fft_length, dc_null)
 
     assert(len(td) == fft_length)
-    assert(len(fd) == self.subcarriers)
+    assert(len(fd) == self.subcarriers +  dc_null)
     assert(len(td_1) == fft_length)
-    assert(len(fd_1) == self.subcarriers)
+    assert(len(fd_1) == self.subcarriers +  dc_null)
     assert(len(td_2) == fft_length)
-    assert(len(fd_2) == self.subcarriers)
+    assert(len(fd_2) == self.subcarriers +  dc_null)
     
 
     self.pilotsym_td.append(td)
@@ -108,10 +108,10 @@ class default_block_header (object):
         self.pilotsym_pos.append(1)
 
 
-    #assert(self.no_pilotsyms == len(self.pilotsym_fd))
+    assert(self.no_pilotsyms == len(self.pilotsym_fd))
     assert(self.no_pilotsyms == len(self.pilotsym_fd_1))
     assert(self.no_pilotsyms == len(self.pilotsym_fd_2))
-    #assert(self.no_pilotsyms == len(self.pilotsym_td))
+    assert(self.no_pilotsyms == len(self.pilotsym_td))
     assert(self.no_pilotsyms == len(self.pilotsym_pos))
 
 
@@ -120,7 +120,7 @@ class default_block_header (object):
     # FIXME pilot subcarriers fixed to 1.0
     self.pilot_subcarriers = 8
     self.subcarriers = subc = self.pilot_subcarriers+data_subcarriers
-    self.pilot_subc_sym = [2.0]*(self.pilot_subcarriers)
+    self.pilot_subc_sym = [sqrt(2.0) + 0.0j]*(self.pilot_subcarriers)
 
     # compute pilot subcarriers
     pilot_dist = subc/2/(self.pilot_subcarriers/2+1)
@@ -488,7 +488,7 @@ Creates a preamble that is used by the Schmidl's integer frequency offset
 estimator.
 """
 class schmidl_ifo_designer:
-  def create(subcarriers,fft_length):
+  def create(subcarriers,fft_length, dc_null):
     assert(subcarriers%2==0)
     assert((fft_length-subcarriers)%2==0)
 
@@ -498,6 +498,8 @@ class schmidl_ifo_designer:
     seq1 = [(fixed_real_pn1[2*i]+1)/2+(fixed_real_pn1[2*i+1]+1) for i in range(subcarriers)]
     seq1 = [mod[seq1[i]] for i in range(subcarriers)]
     
+    
+    
     #seq1 = [fixed_real_pn1[i] + ((1j)**(2*i+1))*fixed_real_pn1[i] for i in range(208)]/numpy.sqrt(2)
     
     mimo_mask_1 = zeros(subcarriers,int)
@@ -506,11 +508,15 @@ class schmidl_ifo_designer:
     mimo_mask_2[1::2]=sqrt(2.0)
     fd_1 = seq1*mimo_mask_1
     fd_2 = seq1*mimo_mask_2
+    
+    seq1 =concatenate([seq1[:subcarriers/2],[0]*dc_null,seq1[subcarriers/2:]])
+    fd_1 =concatenate([fd_1[:subcarriers/2],[0]*dc_null,fd_1[subcarriers/2:]])
+    fd_2 =concatenate([fd_2[:subcarriers/2],[0]*dc_null,fd_2[subcarriers/2:]])
  
-    td_1 = ifft(fd_1, (fft_length-subcarriers)/2)
-    td_2 = ifft(fd_2, (fft_length-subcarriers)/2)
+    td_1 = ifft(fd_1, (fft_length-subcarriers-dc_null)/2)
+    td_2 = ifft(fd_2, (fft_length-subcarriers-dc_null)/2)
     # transform to time domain
-    td = ifft(seq1, (fft_length-subcarriers)/2)
+    td = ifft(seq1, (fft_length-subcarriers-dc_null)/2)
     fd = seq1
 
     return (td,fd,td_1,fd_1,td_2,fd_2)
@@ -578,6 +584,9 @@ class morellimengali_designer:
       seq2.append([mod[seq1[i]]])
       seq2.append([0.0]*(L-1))
     seq1 = concatenate(seq2)
+    
+    #Addition to have null central subcarriers
+    seq1 =concatenate([seq1[4:].tolist(),seq1[:4].tolist()])
 
     # transform to time domain
     td = ifft(seq1, (fft_length-subcarriers)/2)

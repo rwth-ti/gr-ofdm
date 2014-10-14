@@ -150,7 +150,8 @@ class ofdm_benchmark (gr.top_block):
           snr = 10.0**(snr_db/10.0)
           noise_sigma = sqrt( config.rms_amplitude**2 / snr )
 
-      print " Noise St. Dev. %d" % (noise_sigma)
+      print " Noise St. Dev. %f" % (noise_sigma)
+      print " Noise St. Dev.", noise_sigma
       awgn_chan = blocks.add_cc()
       #awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
       awgn_noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma, 0, 8192)

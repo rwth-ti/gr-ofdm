@@ -79,7 +79,7 @@ class receive_path(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex),
         gr.io_signature(0,0,0))
 
-    print "This is receive path 2"
+    print "This is receive path 1x1"
 
     common_options.defaults(options)
 
@@ -138,6 +138,11 @@ class receive_path(gr.hier_block2):
     ofdm_blocks = ( inner_receiver, 0 )
     frame_start = ( inner_receiver, 1 )
     disp_ctf = ( inner_receiver, 2 )
+    disp_cfo =  ( inner_receiver, 3 )
+    
+    self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
+    self.connect(disp_cfo, self.zmq_probe_freqoff)
+    
 
 
 
@@ -510,7 +515,7 @@ class receive_path(gr.hier_block2):
 
 
     if options.sfo_feedback:
-      used_id_bits = 10
+      used_id_bits = 8
       rep_id_bits = config.data_subcarriers/used_id_bits
 
       seed(1)
@@ -638,7 +643,7 @@ class receive_path(gr.hier_block2):
 #                                    config.ns_port,vlen,config.rx_station_id)
 
 
-    if self.__dict__.has_key('_img_xfer_inprog') is False:
+    #if self.__dict__.has_key('_img_xfer_inprog') is False:
 
 #      print "BER img xfer"
 #      self.connect(ber_mst,(rpsink,3))
@@ -646,23 +651,23 @@ class receive_path(gr.hier_block2):
       # 3. SNR
 
 
-      print "Normal BER measurement"
+    print "Normal BER measurement"
 
-      trig_src = dynamic_trigger_ib(False)
-      self.connect(self.bitcount_src,trig_src)
+    trig_src = dynamic_trigger_ib(False)
+    self.connect(self.bitcount_src,trig_src)
 
-      ber_sampler = vector_sampler(gr.sizeof_float,1)
-      self.connect(ber_mst,(ber_sampler,0))
-      self.connect(trig_src,(ber_sampler,1))
+    ber_sampler = vector_sampler(gr.sizeof_float,1)
+    self.connect(ber_mst,(ber_sampler,0))
+    self.connect(trig_src,(ber_sampler,1))
 
 
-      if self._options.log:
+    if self._options.log:
           trig_src_float = gr.char_to_float()
           self.connect(trig_src,trig_src_float)
           log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
 
 
-      if self._options.sinr_est is False:
+    if self._options.sinr_est is False:
           self.zmq_probe_ber = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5556")
           self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,self.keep_frame_n) ,self.zmq_probe_ber)
 
@@ -779,23 +784,6 @@ class receive_path(gr.hier_block2):
     max_buffered_windows = 3000 # FIXME: find better solution
     dist = config.ber_window
 
-    def new_servant(uid):
-      ## Message Sink
-      sampler = vector_sampler(gr.sizeof_float,1)
-      trigsrc = blocks.vector_source_b(concatenate([[0]*(int(dist)-1),[1]]),True)
-      msgq = gr.msg_queue(max_buffered_windows)
-      msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
-      self.connect(self._ber_measuring_tool,sampler,msg_sink)
-      self.connect(trigsrc,(sampler,1))
-      self.servants.append(corba_data_buffer_servant(uid,1,msgq))
-      print "Publishing BER under id: %s" % (uid)
-
-    try:
-      for x in unique_id:
-        new_servant(str(x))
-    except:
-      new_servant(str(unique_id))
-
 
 
   def measuring_ber(self):
@@ -883,41 +871,7 @@ class receive_path(gr.hier_block2):
     """
     return self.__dict__.has_key('_snr_measurement')
 
-  def publish_average_snr(self,unique_id):
-    """
-    Provide remote access to SNR data.
-    We use a CORBA servant providing the data buffer interface to distribute
-    the data. It is identified at the NameService with its unique_id. Its name
-    is "ofdm_ti"+unique_id.
-    The SNR data is low pass filtered. One SNR value per data block (none for
-    ids).
 
-    If the parameter unique_id is iterable, several CORBA servants using the
-    same signal processing chain are created.
-    """
-
-    self.setup_snr_measurement()
-
-    config = station_configuration()
-
-    snrm = self._snr_measurement
-    uid = str(unique_id)
-
-    max_buffered_frames = 3000 # FIXME: find better solution
-
-    def new_servant(uid):
-      ## Message Sink
-      msgq = gr.msg_queue(config.frame_ *max_buffered_frames)
-      msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
-      self.connect(snrm,msg_sink)
-      self.servants.append(corba_data_buffer_servant(uid,1,msgq))
-      print "Publishing SNR under id: %s" % (uid)
-
-    try:
-      for x in unique_id:
-        new_servant(str(x))
-    except:
-      new_servant(str(x))
 
   # ---------------------------------------------------------------------------#
 

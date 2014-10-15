@@ -238,3 +238,61 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
         print "Clock Source: %s"    % (self._clock_source)
         print "Time Source: %s"    % (self._time_source)
 
+class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
+    def __init__(self, args, bandwidth, freq=None, lo_offset=None, gain=None,
+                 spec=None, antenna=None, clock_source=None, time_source=None, verbose=False):
+        gr.hier_block2.__init__(self, "uhd_receiver",
+                                gr.io_signature(0,0,0),
+                                gr.io_signature(1,1,gr.sizeof_gr_complex))
+      
+        # Set up the UHD interface as a receiver
+        uhd_interface.__init__(self, False, args, bandwidth,
+                               freq, lo_offset, gain, spec, antenna, clock_source, time_source)
+
+        
+        self.u.set_clock_source("mimo", 1)
+        self.u.set_time_source("mimo", 1)
+        self.connect(self.u, self)
+
+        if(verbose):
+            self._print_verbage()
+
+    def add_options(parser):
+        add_freq_option(parser)
+        parser.add_option("-a", "--args", type="string", default="",
+                          help="UHD device address args [default=%default]")
+        parser.add_option("", "--spec", type="string", default=None,
+                          help="Subdevice of UHD device where appropriate")
+        parser.add_option("-A", "--antenna", type="string", default=None,
+                          help="select Rx Antenna where appropriate")
+        parser.add_option("", "--rx-freq", type="eng_float", default=None,
+                          help="set receive frequency to FREQ [default=%default]",
+                          metavar="FREQ")
+        parser.add_option("", "--lo-offset", type="eng_float", default=0,
+                          help="set local oscillator offset in Hz (default is 0)")
+        parser.add_option("", "--rx-gain", type="eng_float", default=None,
+                          help="set receive gain in dB (default is midpoint)")
+        parser.add_option("-C", "--clock-source", type="string", default=None,
+                          help="select clock source (e.g. 'external', 'mimo') [default=%default]")
+        parser.add_option("-T", "--time-source", type="string", default=None,
+                          help="select time source (e.g. 'external') [default=%default]")
+        if not parser.has_option("--verbose"):
+            parser.add_option("-v", "--verbose", action="store_true", default=False)
+
+    # Make a static method to call before instantiation
+    add_options = staticmethod(add_options)
+
+    def _print_verbage(self):
+        """
+        Prints information about the UHD transmitter
+        """
+        print "\nUHD Receiver:"
+        print "UHD Args:     %s"    % (self._args)
+        print "Freq:         %sHz"  % (eng_notation.num_to_str(self._freq))
+        print "LO Offset:    %sHz"  % (eng_notation.num_to_str(self._lo_offset))
+        print "Gain:         %f dB" % (self._gain)
+        print "Sample Rate:  %ssps" % (eng_notation.num_to_str(self._rate))
+        print "Antenna:      %s"    % (self._ant)
+        print "Subdev Sec:   %s"    % (self._spec)
+        print "Clock Source: %s"    % (self._clock_source)
+        print "Time Source: %s"    % (self._time_source)

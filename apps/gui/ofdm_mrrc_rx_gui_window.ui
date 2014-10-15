@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1152</width>
+    <height>699</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>SNR</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <property name="horizontalSpacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Rx 1 Estimate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="labelSNREstimate">
+             <property name="minimumSize">
+              <size>
+               <width>75</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="labelSNRAverage">
+             <property name="minimumSize">
+              <size>
+               <width>75</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Rx 2 Estimate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Rx 1 Average:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="labelSNR2Estimate">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Rx 2 Average:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="labelSNR2Average">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>BER</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_2">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Estimate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="labelBEREstimate">
+             <property name="minimumSize">
+              <size>
+               <width>75</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Average:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="labelBERAverage">
+             <property name="minimumSize">
+              <size>
+               <width>75</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Frequency Offset</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>Rx 1 Estimate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="labelFreqoffsetEstimate">
+             <property name="minimumSize">
+              <size>
+               <width>75</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Rx 2 Estimate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="labelFreqoffsetEstimate2">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonMeasure">
+          <property name="toolTip">
+           <string>Average over plotted values</string>
+          </property>
+          <property name="text">
+           <string>Measure Average</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotSNR"/>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotSNR2"/>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotBER"/>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotFreqoffset"/>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotFreqoffset2"/>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotRate"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
+      <item>
+       <widget class="QwtPlot" name="qwtPlotCSI">
+        <property name="toolTip">
+         <string>select subcarrier</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotCSI2">
+        <property name="toolTip">
+         <string>select subcarrier</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotScatter">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabTransmitter">
+       <attribute name="title">
+        <string>Transmitter</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Tx Amplitude:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="horizontalSliderAmplitude">
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+            <property name="singleStep">
+             <number>10</number>
+            </property>
+            <property name="pageStep">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>2000</number>
+            </property>
+            <property name="sliderPosition">
+             <number>2000</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
+            <property name="tickInterval">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEditAmplitude">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>0.2000</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Frequency Offset:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSlider" name="horizontalSliderOffset">
+            <property name="minimum">
+             <number>-100</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
+            <property name="tickInterval">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="lineEditOffset">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Modulation:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboBoxModulation">
+            <item>
+             <property name="text">
+              <string>BPSK</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>QPSK</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8-PSK</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>16-QAM</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>32-QAM</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>64-QAM</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>128-QAM</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>256-QAM</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="pushButtonUpdate">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Update</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabChannel">
+       <attribute name="title">
+        <string>Channel</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Channel Model:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBoxChannelModel">
+          <item>
+           <property name="text">
+            <string>ITU Vehicular A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ITU Vehicular B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ITU Pedestrian A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ITU Pedestrian B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 RA</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 RA6</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 TU</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 TU6alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 TU12</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 TU12alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 BU</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 BU6alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 BU12</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 BU12alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 HT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 HT6alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 HT12</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST207 HT12alt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST259 TUx</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST259 RAx</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COST259 HTx</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+   <zorder></zorder>
+   <zorder>tabWidget</zorder>
+   <zorder></zorder>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1152</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>PyQt4.Qwt5.Qwt</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -22,6 +22,7 @@ include(GrPython)
 GR_PYTHON_INSTALL(
     PROGRAMS
     gui/ofdm_rx_gui.py
+    gui/ofdm_mrrc_rx_gui.py
     gui/ofdm_tx_gui.py
     DESTINATION bin
 )
@@ -29,6 +30,7 @@ GR_PYTHON_INSTALL(
 install(
     PROGRAMS
     run_benchmark_gui.sh
+    run_benchmark_mrrc_gui.sh
     run_benchmark.sh
     run_usrp_rx_gui.sh
     run_usrp_rx.sh
@@ -41,6 +43,7 @@ install(
     FILES
     environment_release
     gui/ofdm_rx_gui_window.ui
+    gui/ofdm_mrrc_rx_gui_window.ui
     gui/ofdm_tx_gui_window.ui
     DESTINATION bin
 )

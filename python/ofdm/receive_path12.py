@@ -698,7 +698,6 @@ class receive_path(gr.hier_block2):
     else:
         snr_mst = self._snr_measurement
         snr_mst_2 = self._snr_measurement_2
-        self.connect(snr_mst_2,blocks.null_sink(gr.sizeof_float))
 
     # 1. frame id
 

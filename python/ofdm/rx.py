@@ -27,8 +27,10 @@ from configparse import OptionParser
 
 from gnuradio import blocks
 from uhd_interface import uhd_receiver
+from uhd_interface import uhd_mimo_receiver
 
-from receive_path import receive_path
+from receive_path import receive_path as receive_path
+from receive_path12 import receive_path as receive_path_12
 from gr_tools import log_to_file
 
 import os
@@ -39,7 +41,14 @@ class rx_top_block(gr.top_block):
         gr.top_block.__init__(self)
 
         if(options.rx_freq is not None):
-            self.source = uhd_receiver(options.args,
+            if options.rx_ant == 1:
+                self.source = uhd_receiver(options.args,
+                                       options.bandwidth, options.rx_freq, 
+                                       options.lo_offset, options.rx_gain,
+                                       options.spec, options.antenna,
+                                       options.clock_source, options.verbose)
+            else:
+                self.source = uhd_mimo_receiver(options.args,
                                        options.bandwidth, options.rx_freq, 
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
@@ -49,10 +58,20 @@ class rx_top_block(gr.top_block):
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
 
-        self.rxpath = receive_path(options)
-        self._setup_rpc_manager()
+        if options.tx_ant == 1:
+            if options.rx_ant == 1:
+                self.rxpath = receive_path(options)
+                self._setup_rpc_manager()
+                self.connect(self.source, self.rxpath)
+            else:
+                self.rxpath = receive_path_12(options)
+                self._setup_rpc_manager()
+                self.connect(self.source, self.rxpath)
+                self.connect((self.source,1), (self.rxpath,1))
+                
+        #self._setup_rpc_manager()
 
-        self.connect(self.source, self.rxpath)
+        #self.connect(self.source, self.rxpath)
   
         if options.scatterplot:
           print "Scatterplot enabled"
@@ -71,6 +90,10 @@ class rx_top_block(gr.top_block):
                           help="Specifiy configuration file, default: none")
         parser.add_option("","--from-file", default=None,
                           help="input file of samples to demod")
+        parser.add_option("", "--tx-ant", type="int", default=1,
+                      help="the number of transmit antennas")
+        parser.add_option("", "--rx-ant", type="int", default=1,
+                      help="the number of receive antennas")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

@@ -76,6 +76,9 @@ class tx_top_block(gr.top_block):
     def _setup_tx_path(self,options):
         print "OPTIONS", options
         self.txpath = transmit_path(options)
+        
+    def set_tx_gain(self, gain):
+        self.sink.set_gain(gain)
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Transmitter
@@ -86,7 +89,8 @@ class tx_top_block(gr.top_block):
        ## Adding interfaces
         self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
         self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
-        self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
+        self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
+        self.rpc_mgr_tx.add_interface("set_tx_gain",self.set_tx_gain)
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

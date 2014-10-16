@@ -92,6 +92,7 @@ class receive_path(gr.hier_block2):
     config = self.config = station_configuration()
 
     config.data_subcarriers     = dsubc = options.subcarriers
+    config.dc_null              = options.dc_null
     config.cp_length            = options.cp_length
     config.frame_data_blocks    = options.data_blocks
     config._verbose             = options.verbose #TODO: update
@@ -1223,6 +1224,8 @@ class receive_path(gr.hier_block2):
               help="Enable interleaving")
     expert.add_option('', '--benchmarking', action='store_true', default=False,
                       help='Modify transmitter for the benchmarking mode')
+    expert.add_option("", "--dc-null", type="intx", default=0,
+                      help="set the number of nulled DC subcarries (has to be even number). Default: NO DC null - 0")
 
 
   # Make a static method to call before instantiation

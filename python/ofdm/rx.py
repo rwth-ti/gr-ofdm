@@ -57,7 +57,7 @@ class rx_top_block(gr.top_block):
             self.source = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
-
+        '''
         if options.tx_ant == 1:
             if options.rx_ant == 1:
                 self.rxpath = receive_path(options)
@@ -67,7 +67,15 @@ class rx_top_block(gr.top_block):
                 self.rxpath = receive_path_12(options)
                 self._setup_rpc_manager()
                 self.connect(self.source, self.rxpath)
-                self.connect((self.source,1), (self.rxpath,1))
+                self.connect((self.source,1), (self.rxpath,1)) 
+                '''
+        self._setup_rx_path(options)        
+        self._setup_rpc_manager()
+        self.dst    = (self.rxpath,0)
+        self.dst2     = (self.rxpath,1)
+        self.connect((self.source,0), self.dst)
+        #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
+        #self.connect((self.source,1), self.dst2)        
                 
         #self._setup_rpc_manager()
 
@@ -75,6 +83,9 @@ class rx_top_block(gr.top_block):
   
         if options.scatterplot:
           print "Scatterplot enabled"
+    
+    def set_rx_gain(self, gain):
+        self.source.set_gain(gain)      
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Receiver
@@ -84,6 +95,19 @@ class rx_top_block(gr.top_block):
 
       ## Adding interfaces
       self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+      self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
+      
+    def _setup_rx_path(self,options):
+        if options.tx_ant == 1:
+            if options.rx_ant == 1:
+                self.rxpath = receive_path(options)
+                #self._setup_rpc_manager()
+                #self.connect(self.source, self.rxpath)
+            else:
+                self.rxpath = receive_path_12(options)
+                #self._setup_rpc_manager()
+                #self.connect(self.source, self.rxpath)
+                #self.connect((self.source,1), (self.rxpath,1)) 
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

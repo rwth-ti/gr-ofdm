@@ -48,6 +48,7 @@ class uhd_interface:
         if(istx):
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
+            #self.u = uhd.usrp_source(device_addr=" addr0=192.168.10.2, addr1=192.168.10.3", stream_args=uhd.stream_args('fc32',channels=range(2)))
             self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
         # Set clock source to external.
@@ -243,7 +244,7 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
                  spec=None, antenna=None, clock_source=None, time_source=None, verbose=False):
         gr.hier_block2.__init__(self, "uhd_receiver",
                                 gr.io_signature(0,0,0),
-                                gr.io_signature(1,1,gr.sizeof_gr_complex))
+                                gr.io_signature2(2,2,gr.sizeof_gr_complex,gr.sizeof_gr_complex))
       
         # Set up the UHD interface as a receiver
         uhd_interface.__init__(self, False, args, bandwidth,
@@ -252,7 +253,8 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
         
         self.u.set_clock_source("mimo", 1)
         self.u.set_time_source("mimo", 1)
-        self.connect(self.u, self)
+        self.connect((self.u,0), (self,0))
+        self.connect((self.u,1), (self,1))
 
         if(verbose):
             self._print_verbage()

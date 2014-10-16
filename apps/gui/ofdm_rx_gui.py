@@ -159,6 +159,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.lineEditOffset, QtCore.SIGNAL("editingFinished()"), self.edit_freq_offset)
         self.connect(self.plot_picker, QtCore.SIGNAL("selected(const QwtDoublePoint &)"), self.subcarrier_selected)
         self.connect(self.gui.comboBoxChannelModel, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_channel_profile)
+        self.connect(self.gui.horizontalSliderTxGain, QtCore.SIGNAL("valueChanged(int)"), self.slide_tx_gain)
+        self.connect(self.gui.lineEditTxGain, QtCore.SIGNAL("editingFinished()"), self.edit_tx_gain)
+        self.connect(self.gui.horizontalSliderRxGain, QtCore.SIGNAL("valueChanged(int)"), self.slide_rx_gain)
+        self.connect(self.gui.lineEditRxGain, QtCore.SIGNAL("editingFinished()"), self.edit_rx_gain)
 
         # start GUI update timer (33ms for 30 FPS)
         self.update_timer.start(33)
@@ -211,6 +215,44 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.horizontalSliderAmplitude.setValue(amplitude*10000.0)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
         self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
+        
+    def slide_tx_gain(self, tx_gain):
+        displayed_tx_gain = tx_gain
+        self.gui.lineEditTxGain.setText(QtCore.QString.number(displayed_tx_gain))
+        self.tx_gain = tx_gain
+        self.rpc_mgr_tx.request("set_tx_gain",[displayed_tx_gain])
+
+    def edit_tx_gain(self):
+        tx_gain = self.lineEditTxGain.text().toInt()[0]
+        tx_gain = min(tx_gain,-20)
+        tx_gain = max(tx_gain,0)
+        self.gui.lineEditTxGain.setText(QtCore.QString("%1").arg(tx_gain))
+        self.tx_gain = tx_gain
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderTxGain.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderTxGain.setValue(tx_gain*10000.0)
+        self.gui.horizontalSliderTxGain.blockSignals(False)
+        self.rpc_mgr_tx.request("set_tx_gain",[self.tx_gain])
+        
+    def slide_rx_gain(self, rx_gain):
+        displayed_rx_gain = rx_gain
+        self.gui.lineEditRxGain.setText(QtCore.QString.number(displayed_rx_gain))
+        self.rx_gain = rx_gain
+        self.rpc_mgr_tx.request("set_rx_gain",[displayed_rx_gain])
+
+    def edit_rx_gain(self):
+        rx_gain = self.lineEditRxGain.text().toInt()[0]
+        rx_gain = min(rx_gain,-20)
+        rx_gain = max(rx_gain,0)
+        self.gui.lineEditRxGain.setText(QtCore.QString("%1").arg(rx_gain))
+        self.rx_gain = rx_gain
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderRxGain.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderRxGain.setValue(rx_gain*10000.0)
+        self.gui.horizontalSliderRxGain.blockSignals(False)
+        self.rpc_mgr_tx.request("set_rx_gain",[self.rx_gain])          
 
     def slide_freq_offset(self, offset):
         # note slider positions are int (!)

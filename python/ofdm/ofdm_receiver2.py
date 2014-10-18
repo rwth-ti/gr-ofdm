@@ -264,6 +264,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( estimated_CTF, ctf_postprocess )
     inv_estimated_CTF = ( ctf_postprocess, 0 )
     disp_CTF = ( ctf_postprocess, 1 )
+    #terminate_stream(self, inv_estimated_CTF)
+    #terminate_stream(self, disp_CTF)
     
     if options.disable_equalization or options.ideal:
       terminate_stream(self, inv_estimated_CTF)

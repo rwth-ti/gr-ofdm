@@ -53,9 +53,11 @@ class uhd_interface:
 
         # Set clock source to external.
         if(clock_source):        
+            print "clock_source: ", clock_source
             self.u.set_clock_source(clock_source, 0)
             
-        if(time_source):        
+        if(time_source):
+            print "time_source: ", time_source        
             self.u.set_time_source(time_source, 0)
 
         # Set the subdevice spec
@@ -93,7 +95,8 @@ class uhd_interface:
             print "\nNo gain specified."
             print "Setting gain to %f (from [%f, %f])" % \
                 (gain, g.start(), g.stop())
-        
+                
+        print "Setting gain to %f " % gain
         self.u.set_gain(gain, 0)
         return gain
 
@@ -251,8 +254,15 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         
-        self.u.set_clock_source("mimo", 1)
-        self.u.set_time_source("mimo", 1)
+        #self.u.set_clock_source("mimo", 1)
+        #self.u.set_time_source("mimo", 1)
+        #self.u.set_clock_source("external", 1)
+        #self.u.set_time_source("external", 1)
+        #self.u.set_clock_source("external", 0)
+        #self.u.set_time_source("external", 0)
+        #self.u.set_samp_rate(bandwidth)
+        #self.u.set_center_freq(freq, 0)
+        #self.u.set_center_freq(freq, 1)
         self.connect((self.u,0), (self,0))
         self.connect((self.u,1), (self,1))
 

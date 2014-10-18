@@ -32,7 +32,6 @@ from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, ve
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
 from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator, snr_estimator_dc_null
-from ofdm_receiver import ofdm_receiver
 from preambles import pilot_subcarrier_filter,pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
@@ -143,7 +142,7 @@ class receive_path(gr.hier_block2):
     disp_ctf = ( inner_receiver, 2 )
     disp_cfo =  ( inner_receiver, 3 )
 
-    inner_receiver_2 = self.inner_receiver = ofdm_inner_receiver( options, options.log )
+    inner_receiver_2 = self.inner_receiver_2 = ofdm_inner_receiver( options, options.log )
     self.connect( self.input_2, inner_receiver_2 )
     ofdm_blocks_2 = ( inner_receiver_2, 0 )
     frame_start_2 = ( inner_receiver_2, 1 )
@@ -197,7 +196,8 @@ class receive_path(gr.hier_block2):
     frame_sampler_2 = ofdm_frame_sampler(options)
 
     self.connect( ofdm_blocks_2, frame_sampler_2)
-    self.connect( frame_start_2, (frame_sampler_2,1) )
+    self.connect( frame_start, (frame_sampler_2,1) )
+    terminate_stream(self,frame_start_2)
 
 
 #
@@ -668,7 +668,7 @@ class receive_path(gr.hier_block2):
       log_to_file( self, rxs_decimate_rate, "data/psd_input.float" )
 
 
-
+    self.publish_rx_performance_measure()
   # ---------------------------------------------------------------------------#
   # RX Performance Measure propagation through corba event channel
 

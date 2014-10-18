@@ -33,7 +33,7 @@ import os
 import signal
 import numpy
 
-class OFDMRxGUI(QtGui.QMainWindow):
+class OFDMMIMORxGUI(QtGui.QMainWindow):
     """ All of this controls the actual GUI. """
     def __init__(self, options, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
@@ -41,7 +41,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.options = options
 
         # load and uic the file right away, no additional step necessary
-        self.gui = uic.loadUi(os.path.join(os.path.dirname(__file__),'ofdm_rx_gui_window.ui'), self)
+        self.gui = uic.loadUi(os.path.join(os.path.dirname(__file__),'ofdm_mimo_rx_gui_window.ui'), self)
 
         # GUI update timer
         self.update_timer = Qt.QTimer()
@@ -49,10 +49,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         # ZeroMQ
         self.probe_manager = zeromq.probe_manager()
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5555", 'float32', self.plot_snr)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5554", 'float32', self.plot_snr2)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5556", 'float32', self.plot_ber)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5557", 'float32', self.plot_freqoffset)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5553", 'float32', self.plot_freqoffset2)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'uint8', self.plot_rate)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
+        self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5558", 'float32', self.plot_csi2)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5560", 'complex64', self.plot_scatter)
         self.rpc_mgr_tx = zeromq.rpc_manager()
         self.rpc_mgr_tx.set_request_socket("tcp://"+self.options.tx_hostname+":6660")
@@ -72,9 +75,14 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.snr_y = [0.0]
         self.curve_snr = Qwt.QwtPlotCurve()
         self.curve_snr.setPen(Qt.QPen(Qt.Qt.red, 1))
-        self.curve_snr.setBrush(Qt.Qt.red)
-        self.curve_snr.setStyle(Qwt.QwtPlotCurve.Steps)
+        self.snr2_x = range(0,128)
+        self.snr2_y = [0.0]
+        self.curve_snr2 = Qwt.QwtPlotCurve()
+        self.curve_snr2.setPen(Qt.QPen(Qt.Qt.blue, 1))
+        #self.curve_snr.setBrush(Qt.Qt.red)
+        #self.curve_snr.setStyle(Qwt.QwtPlotCurve.Steps)
         self.curve_snr.attach(self.gui.qwtPlotSNR)
+        self.curve_snr2.attach(self.gui.qwtPlotSNR)
 
         self.gui.qwtPlotBER.setAxisTitle(Qwt.QwtPlot.yLeft, "BER")
         self.gui.qwtPlotBER.setAxisScale(Qwt.QwtPlot.xBottom, 0, 127)
@@ -98,8 +106,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.freqoffset_x = range(0,128)
         self.freqoffset_y = [0.0]
         self.curve_freqoffset = Qwt.QwtPlotCurve()
-        self.curve_freqoffset.setPen(Qt.QPen(Qt.Qt.black, 1))
+        self.curve_freqoffset.setPen(Qt.QPen(Qt.Qt.red, 1))
+        self.freqoffset2_x = range(0,128)
+        self.freqoffset2_y = [0.0]
+        self.curve_freqoffset2 = Qwt.QwtPlotCurve()
+        self.curve_freqoffset2.setPen(Qt.QPen(Qt.Qt.blue, 1))
         self.curve_freqoffset.attach(self.gui.qwtPlotFreqoffset)
+        self.curve_freqoffset2.attach(self.gui.qwtPlotFreqoffset)
 
         self.gui.qwtPlotRate.setAxisTitle(Qwt.QwtPlot.yLeft, "Datarate[Mbits/s]")
         self.gui.qwtPlotRate.setAxisScale(Qwt.QwtPlot.xBottom, 0, 127)
@@ -113,17 +126,30 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.curve_rate.setStyle(Qwt.QwtPlotCurve.Steps)
         self.curve_rate.attach(self.gui.qwtPlotRate)
 
-        self.gui.qwtPlotCSI.setTitle("Normalized Channel State Information")
+        self.gui.qwtPlotCSI.setTitle("Rx 1 Normalized CTF")
         self.gui.qwtPlotCSI.setAxisTitle(Qwt.QwtPlot.xBottom, "Subcarrier")
         self.gui.qwtPlotCSI.setAxisScale(Qwt.QwtPlot.xBottom, -99, 100)
         self.gui.qwtPlotCSI.setAxisScale(Qwt.QwtPlot.yLeft, 0, 2)
         self.csi_x = range(-99,101)
         self.csi_y = [0]*len(self.csi_x)
         self.curve_csi = Qwt.QwtPlotCurve()
-        self.curve_csi.setPen(Qt.QPen(Qt.Qt.blue, 1))
-        self.curve_csi.setBrush(Qt.Qt.blue)
+        self.curve_csi.setPen(Qt.QPen(Qt.Qt.red, 1))
+        self.curve_csi.setBrush(Qt.Qt.red)
         self.curve_csi.setStyle(Qwt.QwtPlotCurve.Steps)
         self.curve_csi.attach(self.gui.qwtPlotCSI)
+        
+        self.gui.qwtPlotCSI2.setTitle("Rx 2 Normalized CTF")
+        self.gui.qwtPlotCSI2.setAxisTitle(Qwt.QwtPlot.xBottom, "Subcarrier")
+        self.gui.qwtPlotCSI2.setAxisScale(Qwt.QwtPlot.xBottom, -99, 100)
+        self.gui.qwtPlotCSI2.setAxisScale(Qwt.QwtPlot.yLeft, 0, 2)
+        #self.csi_x = range(-99,101)
+        #self.csi_y = [0]*len(self.csi_x)
+        self.curve_csi2 = Qwt.QwtPlotCurve()
+        self.curve_csi2.setPen(Qt.QPen(Qt.Qt.blue, 1))
+        self.curve_csi2.setBrush(Qt.Qt.blue)
+        self.curve_csi2.setStyle(Qwt.QwtPlotCurve.Steps)
+        self.curve_csi2.attach(self.gui.qwtPlotCSI2)
+        
 
         self.gui.qwtPlotScatter.setTitle("Scatterplot (Subcarrier -99)")
         self.gui.qwtPlotScatter.setAxisTitle(Qwt.QwtPlot.xBottom, "I")
@@ -164,7 +190,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.horizontalSliderRxGain, QtCore.SIGNAL("valueChanged(int)"), self.slide_rx_gain)
         self.connect(self.gui.lineEditRxGain, QtCore.SIGNAL("editingFinished()"), self.edit_rx_gain)
 
-        # start GUI update timer (33ms for 30 FPS)
+        # start GUI update timer
         self.update_timer.start(33)
 
         # get transmitter settings
@@ -291,6 +317,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotSNR.replot()
         self.gui.labelSNREstimate.setText(QtCore.QString.number(self.snr_y[0],'f',3))
 
+    def plot_snr2(self, samples):
+        self.snr2_y = numpy.append(samples,self.snr2_y)
+        self.snr2_y = self.snr2_y[:len(self.snr2_x)]
+        self.curve_snr2.setData(self.snr2_x, self.snr2_y)
+        self.gui.qwtPlotSNR.replot()
+        self.gui.labelSNREstimate.setText(QtCore.QString.number(self.snr2_y[0],'f',3))    
+    
     def plot_ber(self, samples):
         # clip samples to some low value
         samples[numpy.where(samples == 0)] = 1e-10
@@ -307,6 +340,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotFreqoffset.replot()
         self.gui.labelFreqoffsetEstimate.setText(QtCore.QString.number(self.freqoffset_y[0],'f',3))
 
+    def plot_freqoffset2(self, samples):
+        self.freqoffset2_y = numpy.append(samples,self.freqoffset2_y)
+        self.freqoffset2_y = self.freqoffset2_y[:len(self.freqoffset2_x)]
+        self.curve_freqoffset2.setData(self.freqoffset2_x, self.freqoffset2_y)
+        self.gui.qwtPlotFreqoffset.replot()
+        self.gui.labelFreqoffsetEstimate2.setText(QtCore.QString.number(self.freqoffset2_y[0],'f',3))
+    
     def plot_rate(self, samples):
         if self.tx_params != None:
             rate = sum(samples[:self.data_subcarriers])/self.symbol_time*(self.frame_length-3)/self.frame_length
@@ -322,6 +362,12 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.csi_y = samples
         self.curve_csi.setData(self.csi_x, self.csi_y)
         self.gui.qwtPlotCSI.replot()
+        
+    def plot_csi2(self, samples):
+        self.csi_x = range(-99,101)
+        self.csi_y = samples
+        self.curve_csi2.setData(self.csi_x, self.csi_y)
+        self.gui.qwtPlotCSI2.replot() 
 
     def plot_scatter(self, samples):
         self.scatter_buffer = numpy.append(samples,self.scatter_buffer)
@@ -347,7 +393,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     # start the Qt app
     qapp = Qt.QApplication(sys.argv)
-    qapp.main_box = OFDMRxGUI(options)
+    qapp.main_box = OFDMMIMORxGUI(options)
     qapp.main_box.show()
     qapp.exec_()
 

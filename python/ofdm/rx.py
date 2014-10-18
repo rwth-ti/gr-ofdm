@@ -46,13 +46,13 @@ class rx_top_block(gr.top_block):
                                        options.bandwidth, options.rx_freq, 
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
-                                       options.clock_source, options.verbose)
+                                       options.clock_source, options.time_source,options.verbose)
             else:
                 self.source = uhd_mimo_receiver(options.args,
                                        options.bandwidth, options.rx_freq, 
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
-                                       options.clock_source, options.verbose)
+                                       options.clock_source, options.time_source, options.verbose)
         elif(options.from_file is not None):
             self.source = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
         else:
@@ -72,7 +72,8 @@ class rx_top_block(gr.top_block):
         self._setup_rx_path(options)        
         self._setup_rpc_manager()
         self.dst    = (self.rxpath,0)
-        self.dst2     = (self.rxpath,1)
+
+        #self.dst2     = (self.rxpath,1)
         self.connect((self.source,0), self.dst)
         #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
         #self.connect((self.source,1), self.dst2)        
@@ -97,6 +98,7 @@ class rx_top_block(gr.top_block):
       self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
       self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
       
+      
     def _setup_rx_path(self,options):
         if options.tx_ant == 1:
             if options.rx_ant == 1:
@@ -104,6 +106,7 @@ class rx_top_block(gr.top_block):
                 #self._setup_rpc_manager()
                 #self.connect(self.source, self.rxpath)
             else:
+                print "1X21X21X21X2"
                 self.rxpath = receive_path_12(options)
                 #self._setup_rpc_manager()
                 #self.connect(self.source, self.rxpath)

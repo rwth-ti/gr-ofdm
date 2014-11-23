@@ -112,7 +112,7 @@ class transmit_path(gr.hier_block2):
     self.keep_frame_n = int(1.0 / ( config.frame_length * (config.cp_length + config.fft_length) / config.bandwidth ) / config.gui_frame_rate)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", "tcp://"+options.tx_hostname+":3322")
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
         bitloading = 1
@@ -139,6 +139,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
+        #self.allocation_src.set_allocation([1]*(config.data_subcarriers/2) + [1]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
 

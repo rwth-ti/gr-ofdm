@@ -77,4 +77,6 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-test1)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
-GR_ADD_TEST(qa_multiply_frame_fc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multiply_frame_fc.py)
+GR_ADD_TEST(qa_feedback_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_feedback_sink.py)
+GR_ADD_TEST(qa_feedback_sink_vf ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_feedback_sink_vf.py)
+GR_ADD_TEST(qa_vector_element_vff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_vector_element_vff.py)

@@ -118,5 +118,7 @@ install(FILES
     ofdm_reference_data_source_02_ib.xml
     ofdm_allocation_src.xml
     ofdm_allocation_buffer.xml
-    ofdm_tx_mux_ctrl.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_tx_mux_ctrl.xml
+    ofdm_feedback_sink_vf.xml
+    ofdm_vector_element_vff.xml DESTINATION share/gnuradio/grc/blocks
 )

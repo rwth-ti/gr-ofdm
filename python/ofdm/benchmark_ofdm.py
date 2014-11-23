@@ -239,7 +239,8 @@ class ofdm_benchmark (gr.top_block):
     self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
     self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
     self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
-  
+    self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
+
 
   def supply_rx_baseband(self):
     ## RX Spectrum

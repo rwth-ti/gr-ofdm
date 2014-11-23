@@ -41,6 +41,11 @@ namespace gr {
                     std::vector<uint8_t> bitloading;
                     std::vector<float> power;
                 };
+                struct d_feedback_information_struct {
+                    std::vector<float> snr;
+                    short id;
+                };
+
                 // local copy of allocation
                 d_allocation_struct d_allocation;
                 // output vectors have a different format, see set_allocation()
@@ -50,14 +55,21 @@ namespace gr {
                 int d_data_symbols;
                 gr::thread::mutex d_mutex;
 
+                d_feedback_information_struct d_feedback_information;
+
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
+                zmq::context_t  *d_context_feedback;
+                zmq::socket_t   *d_socket_feedback;
+
             public:
-                allocation_src_impl(int subcarriers, int data_symbols, char *address);
+                allocation_src_impl(int subcarriers, int data_symbols, char *address, char *fb_address);
                 ~allocation_src_impl();
 
                 void send_allocation();
+                void recv_snr();
+                void calculate_bitloading();
 
                 void set_allocation(std::vector<uint8_t> bitloading,
                         std::vector<float> power);

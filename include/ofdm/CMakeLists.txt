@@ -132,5 +132,7 @@ install(FILES
     reference_data_source_02_ib.h
     allocation_src.h
     allocation_buffer.h
-    tx_mux_ctrl.h DESTINATION include/ofdm
+    tx_mux_ctrl.h
+    feedback_sink_vf.h
+    vector_element_vff.h DESTINATION include/ofdm
 )

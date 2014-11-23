@@ -65,6 +65,7 @@ class rx_top_block(gr.top_block):
 
       ## Adding interfaces
       self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+      self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

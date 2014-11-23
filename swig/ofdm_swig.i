@@ -124,6 +124,8 @@
 #include "ofdm/allocation_src.h"
 #include "ofdm/allocation_buffer.h"
 #include "ofdm/tx_mux_ctrl.h"
+#include "ofdm/feedback_sink_vf.h"
+#include "ofdm/vector_element_vff.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -404,3 +406,7 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_src);
 GR_SWIG_BLOCK_MAGIC2(ofdm, allocation_buffer);
 %include "ofdm/tx_mux_ctrl.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, tx_mux_ctrl);
+%include "ofdm/feedback_sink_vf.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, feedback_sink_vf);
+%include "ofdm/vector_element_vff.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, vector_element_vff);

@@ -33,10 +33,10 @@ namespace gr {
   namespace ofdm {
 
     allocation_src::sptr
-    allocation_src::make(int subcarriers, int data_symbols, char *address)
+    allocation_src::make(int subcarriers, int data_symbols, char *address, char *fb_address)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_src_impl(subcarriers, data_symbols, address));
+        (new allocation_src_impl(subcarriers, data_symbols, address, fb_address));
     }
 
     /*
@@ -50,7 +50,7 @@ namespace gr {
      * power: vector containing power allocation vectors for id symbol and every data symbol
      *
      */
-    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols, char *address)
+    allocation_src_impl::allocation_src_impl(int subcarriers, int data_symbols, char *address, char *fb_address)
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
@@ -84,7 +84,13 @@ namespace gr {
         d_context = new zmq::context_t(1);
         d_socket = new zmq::socket_t(*d_context, ZMQ_PUB);
         d_socket->bind(address);
-        std::cout << "allocation_src on " << address << std::endl;
+        std::cout << "allocation_src sending allocation on " << address << std::endl;
+
+        d_context_feedback = new zmq::context_t(1);
+        d_socket_feedback = new zmq::socket_t(*d_context_feedback, ZMQ_SUB);
+        d_socket_feedback->connect(fb_address);
+        d_socket_feedback->setsockopt(ZMQ_SUBSCRIBE, "", 0);
+        std::cout << "allocation_src receiving feedback on" << fb_address << std::endl;
 
         //set_output_multiple((1+d_data_symbols));
         //set_output_multiple((1+d_data_symbols)*d_subcarriers);
@@ -101,6 +107,8 @@ namespace gr {
     {
         delete(d_socket);
         delete(d_context);
+        delete(d_socket_feedback);
+        delete(d_context_feedback);
     }
 
     void
@@ -133,6 +141,83 @@ namespace gr {
                                  d_subcarriers*sizeof(d_allocation.power[0]));
         d_socket->send(msg, ZMQ_NOBLOCK);
     }
+
+
+    void
+    allocation_src_impl::recv_snr()
+    {
+        zmq::pollitem_t items[] = { { *d_socket_feedback, 0, ZMQ_POLLIN, 0 } };
+        bool msg_received = true;
+        while(msg_received) {
+            // poll with timeout 0
+            zmq::poll (&items[0], 1, 0);
+            //  If we got a msg, process
+            if (items[0].revents & ZMQ_POLLIN) {
+                // Receive data
+                zmq::message_t msg;
+                d_socket_feedback->recv(&msg);
+
+                // copy message into allocation struct and find id to put into buffer
+                d_feedback_information.id = *(short*)msg.data();
+                d_feedback_information.snr.assign((float*)msg.data()+sizeof(short),
+                                                              (float*)msg.data()
+                                                              +sizeof(short)
+                                                              +d_subcarriers*sizeof(float));
+
+                calculate_bitloading();
+
+            } else {
+                msg_received = false;
+            }
+        }
+
+    }
+
+    void
+    allocation_src_impl::calculate_bitloading()
+    {
+        std::vector<uint8_t> bitloading_vec;
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+           /* if(d_feedback_information.snr[i]<6.78)
+                bitloading_vec.push_back(0);
+            else*/ if(d_feedback_information.snr[i]<9.79)
+                bitloading_vec.push_back(1);
+            else if(d_feedback_information.snr[i]<14.78)
+                bitloading_vec.push_back(2);
+            else if(d_feedback_information.snr[i]<16.54)
+                bitloading_vec.push_back(3);
+            else if(d_feedback_information.snr[i]<19.58)
+                bitloading_vec.push_back(4);
+            else if(d_feedback_information.snr[i]<22.55)
+                bitloading_vec.push_back(5);
+            else if(d_feedback_information.snr[i]<25.49)
+                bitloading_vec.push_back(6);
+            else if(d_feedback_information.snr[i]<26.25)
+                bitloading_vec.push_back(7);
+            else
+                bitloading_vec.push_back(8);
+        }
+
+        d_allocation.bitloading = bitloading_vec;
+
+        // clear and write bitloading output vector
+        d_allocation_out.bitloading.clear();
+        // insert data symbol modulation at the end ONCE
+        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), bitloading_vec.begin(), bitloading_vec.end());
+
+        int sum_of_elems = 0;
+        for(std::vector<uint8_t>::iterator j=bitloading_vec.begin();j!=bitloading_vec.end();++j)
+            sum_of_elems += *j;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
+
+
+
+
+    }
+
+
+
 
     void
     allocation_src_impl::set_allocation(std::vector<uint8_t> bitloading,
@@ -173,6 +258,7 @@ namespace gr {
 
         for (int i = 0; i < (noutput_items); i++) {
             // send the allocation to Rx
+            recv_snr();
             send_allocation();
 
             // now generate outputs
@@ -192,7 +278,7 @@ namespace gr {
                 d_allocation.id = 0;
             }
             d_allocation_out.id = d_allocation.id;
-        } 
+        }
         return noutput_items;
     }
   } /* namespace ofdm */

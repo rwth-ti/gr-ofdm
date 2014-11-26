@@ -1,6 +1,6 @@
-export LD_LIBRARY_PATH="$PWD/../build/lib:$PWD/../../../gr-ofdm/build/lib:$PWD/../../../gr-zmqblocks/build/lib"
-export PYTHONPATH="$PWD/../build/swig:$PWD/../../../gr-ofdm/build/swig:$PWD/../python:$PWD/../../../gr-ofdm/python:$PWD/../../../gr-zmqblocks/build/swig:$PWD/../../../gr-zmqblocks/python"
-export PATH=$PATH:"$PWD/gui:$PWD/../python/ofdm:$PWD/../../../gr-ofdm/python/ofdm"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../build/lib"
+export PYTHONPATH="$PYTHONPATH:$PWD/../build/swig:$PWD/../python"
+export PATH="$PATH:$PWD/gui:$PWD/../python/ofdm"
 
 if ! grep -q "grc" $HOME/.gnuradio/config.conf ; then
 echo "[grc]

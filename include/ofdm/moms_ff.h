@@ -48,6 +48,8 @@ namespace gr {
        * creating new instances.
        */
       static sptr make();
+      virtual void set_init_ip_fraction(double num, double denom) = 0;
+      virtual void set_ip_fraction(double num, double denom) = 0;
     };
 
   } // namespace ofdm

@@ -183,6 +183,7 @@ class ofdm_benchmark (gr.top_block):
     if options.samplingoffset is not None:
       soff = options.samplingoffset
       interp = moms(1000000*(1.0+soff),1000000)
+      #interp = filter.fractional_resampler_cc(0,1000000*(1.0+soff)/1000000.0)
       self.connect( interp, self.dst )
       self.dst = interp
 

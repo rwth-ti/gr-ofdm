@@ -125,7 +125,7 @@ class default_block_header (object):
     self.fbmc_pilotsym_fd_list = [1./x if x!=0 else x for x in self.fbmc_pilotsym_fd_list]
     
     
-    print "self.fbmc_pilotsym_fd_list", self.fbmc_pilotsym_fd_list
+    #print "self.fbmc_pilotsym_fd_list", self.fbmc_pilotsym_fd_list
     
     self.fbmc_no_preambles_td = 2*self.no_pilotsyms #fixed for now # 4 for includin channel estimation
     self.fbmc_no_pilotsyms_td = self.fbmc_no_preambles_td

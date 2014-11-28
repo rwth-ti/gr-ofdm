@@ -16,8 +16,8 @@ class test_demapper:
   def test_symbol_src ( self, arity ):
     vlen = 1
     N = int( 1e7 )
-    
-    demapper = ofdm.generic_demapper_vcb( vlen )
+    print "TEST"
+    demapper = ofdm.generic_demapper_vcb( vlen,10 )
     const = demapper.get_constellation( arity )
     assert( len( const ) == 2**arity )
     
@@ -64,16 +64,18 @@ class test_demapper:
     
     sigpow = 1.0
     noise_pow = sigpow / snr
-    
-    demapper = ofdm.generic_demapper_vcb( vlen )
+    #skipping first symbol due to demapper implementation (demmaper assumes that the first symbol is ID and do not decode ui)
+    skiphead_src = blocks.skiphead( gr.sizeof_char, 1 )
+    demapper = ofdm.generic_demapper_vcb( vlen,N+1 )
     const = demapper.get_constellation( arity )
     assert( len( const ) == 2**arity )
     
     symsrc = ofdm.symbol_random_src( const, vlen )
-    noise_src = ofdm.complex_white_noise( 0.0, sqrt( noise_pow ) )
+    #noise_src = ofdm.complex_white_noise( 0.0, sqrt( noise_pow ) )
+    noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, sqrt( noise_pow/2 ), 0, 8192)
     channel = blocks.add_cc()
     bitmap_src = blocks.vector_source_b( [arity] * vlen, True, vlen )
-    bm_trig_src = blocks.vector_source_b( [1], True )
+    #bm_trig_src = blocks.vector_source_b( [1], True )
     ref_bitstream = blocks.unpack_k_bits_bb( arity )
     bitstream_xor = blocks.xor_bb()
     bitstream_c2f = blocks.char_to_float()
@@ -88,8 +90,8 @@ class test_demapper:
     tb.connect( noise_src,  (channel,1) )
     tb.connect( channel,     (demapper,0), (bitstream_xor,0) )
     tb.connect( bitmap_src,  (demapper,1) )
-    tb.connect( bm_trig_src, (demapper,2) )
-    tb.connect( (symsrc,1), ref_bitstream, (bitstream_xor,1) )
+    #tb.connect( bm_trig_src, (demapper,2) )
+    tb.connect( (symsrc,1),skiphead_src, ref_bitstream, (bitstream_xor,1) )
     tb.connect( bitstream_xor, bitstream_c2f, acc_biterr )
     tb.connect( acc_biterr, skiphead, limit, dst )
 
@@ -113,11 +115,12 @@ class test_demapper:
     
     ber_curves = dict()
     
-    narity_range = range(1,9)
+    #narity_range = range(1,9)
+    narity_range = [2, 4, 6, 8]
     
     for arity in narity_range:
       ber_arr = []
-      snr_range = range(0, 36, 1)
+      snr_range = range(0, 31, 1)
       for snr_db in snr_range:
         ber = self.sim( arity, snr_db, N )
         ber_arr.append( ber )

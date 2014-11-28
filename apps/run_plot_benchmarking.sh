@@ -8,4 +8,5 @@ else
     . $PWD/environment_release
 fi
 
-../python/test_demapper.py
+./benchmarking/plot_results_transceiver.py $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+

@@ -1,0 +1,15 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+        {
+        "module": "bm_receiver_fbmc",
+        "testname": "bm_receiver_fbmc",
+        "nitems": 50000,
+        "iters": 1,
+        "kwargs": {
+            "data_blocks": 10
+        }
+    }
+    
+]
+}

@@ -73,7 +73,7 @@ class test_demapper_fbmc:
     # num_symbols = 2**12
     exclude_preamble = 0
     exclude_multipath =1
-    sel_taps = 2 # epa=0, eva = 1, etu=2
+    sel_taps = 5 # epa=0, eva = 1, etu=2
     freq_offset= 0
     exclude_noise = 1
     sel_noise_type =0 # gaussian

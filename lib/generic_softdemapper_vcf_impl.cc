@@ -40,16 +40,16 @@ namespace gr {
   namespace ofdm {
 
     generic_softdemapper_vcf::sptr
-    generic_softdemapper_vcf::make(int vlen,bool coding)
+    generic_softdemapper_vcf::make(int vlen, const unsigned int frame_size,bool coding)
     {
       return gnuradio::get_initial_sptr
-        (new generic_softdemapper_vcf_impl(vlen, coding));
+        (new generic_softdemapper_vcf_impl(vlen, frame_size, coding));
     }
 
     /*
      * The private constructor
      */
-    generic_softdemapper_vcf_impl::generic_softdemapper_vcf_impl(int vlen,bool coding)
+    generic_softdemapper_vcf_impl::generic_softdemapper_vcf_impl(int vlen, const unsigned int frame_size,bool coding)
       : gr::block("generic_softdemapper_vcf",
 
               gr::io_signature::make(0, 0, 0),
@@ -64,19 +64,26 @@ namespace gr {
         , d_need_csi( 1 )
         , d_csi( new float[vlen] )
         , d_demod( new ofdmi_modem() )
+		, d_id_bitmap( new char[vlen] )
+		, d_symbol_counter(0)
+		, d_frame_size(frame_size)
     {
 
-         std::vector<int> in_sig(4);
+         std::vector<int> in_sig(3);
          in_sig[0]= sizeof(gr_complex)*vlen; // ofdm blocks
          in_sig[1]= sizeof(char)*vlen;       // bitmap
          in_sig[2]= sizeof(float)*vlen;          // CSI
-         in_sig[3]= sizeof(char);           // update trigger
-         set_input_signature(io_signature::makev(4,4,in_sig));
+         //in_sig[3]= sizeof(char);           // update trigger
+         set_input_signature(io_signature::makev(3,3,in_sig));
 
+         for(int i=0;i<d_vlen;i++)
+         {
+             d_id_bitmap[i]=0;
+         }
 
-    	  memset(d_bitmap.get(), 0, d_vlen);
-    	  memset(d_csi.get(), 1, d_vlen);
-    	  if( DEBUG )
+         memset(d_bitmap.get(), 0, d_vlen);
+    	 memset(d_csi.get(), 1, d_vlen);
+    	 if( DEBUG )
     	      std::cout << "[softdemapper " << unique_id() << "] vlen=" << vlen << " coding=" << d_coding << std::endl;
     }
 
@@ -145,8 +152,8 @@ namespace gr {
 	  ninput_items_required[0] = d_items_req;
 	  ninput_items_required[1] = d_need_bitmap;
 	  ninput_items_required[2] = d_need_csi;
-	  ninput_items_required[3] = d_items_req;
-	  ninput_items_required[2] = d_need_csi;
+	  //ninput_items_required[3] = d_items_req;
+
     }
 
     int
@@ -175,12 +182,12 @@ namespace gr {
         return 0;
       }
 
-      if( ninput_items[3] == 0 ){
+      /* if( ninput_items[3] == 0 ){
         if( input_done[3] ){
           return -1;
         }
         return 0;
-      }
+      } */
 
       return available_space;
 
@@ -196,7 +203,7 @@ namespace gr {
     	  const gr_complex * sym_in = static_cast<const gr_complex*>(input_items[0]);
     	  const char * cv_in = static_cast<const char*>(input_items[1]);
     	  const float * csi_in = static_cast<const float*>(input_items[2]);
-    	  const char * trig = static_cast<const char*>(input_items[3]);
+    	  //const char * trig = static_cast<const char*>(input_items[3]);
 
     	  // output streams
     	  float * out = static_cast<float*>(output_items[0]);
@@ -209,14 +216,14 @@ namespace gr {
     	  const int n_sym = ninput_items[0];
     	  int n_cv = ninput_items[1];
     	  int n_csi = ninput_items[2];
-    	  const int n_trig = ninput_items[3];
+    	  //const int n_trig = ninput_items[3];
     	  int nout = noutput_items;
 
     	  if(DEBUG)
     	    std::cout << "[softdemapper " << unique_id() << "] state, n_sym=" << n_sym
     	              << " n_cv=" << n_cv
     	              << " n_csi=" << n_csi
-    	              << " n_trig=" << n_trig << " nout=" << nout
+    	              //<< " n_trig=" << n_trig << " nout=" << nout
     	              << std::endl;
 
     	  // use internal state variable
@@ -226,11 +233,12 @@ namespace gr {
     	  bool do_copy = false;
     	  bool do_copy_csi = false;
 
-    	  const int n_min = std::min( n_sym, n_trig );
+    	  //const int n_min = std::min( n_sym, n_trig );
     	  int bps = calc_bit_amount( cv, d_vlen, d_coding );
     	  int i;
-    	  for( i = 0; i < n_min; ++i ){
+    	  for( i = 0; i < n_sym; ++i ){
 
+    		 /*
     	    if( trig[i] != 0 )
     	    {
     	      if( n_cv == 0 )
@@ -273,7 +281,63 @@ namespace gr {
     	    	  }
     		  }
 
-    	    } // trig[i] != 0
+    	    } // trig[i] != 0 */
+
+    		  //get map for data
+			  if(d_symbol_counter==1)
+			  {
+				if( n_cv == 0 )
+				{
+				  d_need_bitmap = 1;
+				  break;
+				}
+
+				bps = calc_bit_amount( cv_in, d_vlen, d_coding );
+				if( nout < bps )
+				{
+				  set_output_multiple( bps );
+				  break;
+				}
+
+				cv = cv_in;
+				do_copy = true;
+				d_need_bitmap = 0;
+				--n_cv;
+				cv_in += d_vlen;
+				consume( 1, 1 );
+
+				// CSI part
+			  if( n_csi == 0)
+					{
+					  d_need_csi = 1;
+					}
+				  else
+				  {
+					  csi = csi_in;
+					  d_need_csi = 0;
+					  --n_csi;
+					  csi_in += d_vlen;
+					  do_copy_csi=true;
+				  }
+
+			  } // d_symbol_counter==1
+
+	            //get map for id
+	            if(d_symbol_counter==0){
+
+	              bps = calc_bit_amount( d_id_bitmap, d_vlen, d_coding );
+	              if( nout < bps )
+	              {
+	                set_output_multiple( bps );
+	                break;
+	              }
+
+	              cv = d_id_bitmap;
+	              do_copy = true;
+	              d_need_bitmap = 0;
+				  d_need_csi = 0;
+				  do_copy_csi=true;
+	            } // d_symbol_counter==0
 
     	    if( nout < bps )
     	    {
@@ -281,6 +345,7 @@ namespace gr {
     	      //std::cout << "BPS_2: " << bps <<std::endl;
     	      break;
     	    }
+    	    ++d_symbol_counter%=d_frame_size;
 
     	    // demodulation
 
@@ -308,13 +373,13 @@ namespace gr {
     	      memcpy( d_csi.get(), csi, sizeof(float)*d_vlen );
     	    }
 
-    	  assert( i <= ninput_items[0] && i <= ninput_items[3] && i >= 0 );
+    	  assert( i <= ninput_items[0] && i >= 0 );
     	  assert( n_cv <= ninput_items[1] && n_cv >= 0 );
     	  assert( n_csi <= ninput_items[2] && n_csi >= 0 );
-    	  consume( 1, ninput_items[1] - n_cv );
+    	  //consume( 1, ninput_items[1] - n_cv );
     	  consume( 2, ninput_items[2] - n_csi );
     	  consume( 0, i );
-    	  consume( 3, i );
+    	  //consume( 3, i );
 
     	  if( DEBUG ) {
     	    std::cout << "[softdemapper] produced " << noutput_items-nout << " items"

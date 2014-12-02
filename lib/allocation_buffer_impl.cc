@@ -31,20 +31,25 @@ namespace gr {
   namespace ofdm {
 
     allocation_buffer::sptr
-    allocation_buffer::make(int subcarriers, int data_symbols, char *address)
+    allocation_buffer::make(int subcarriers, int data_symbols, char *address, bool coding)
     {
       return gnuradio::get_initial_sptr
-        (new allocation_buffer_impl(subcarriers, data_symbols, address));
+        (new allocation_buffer_impl(subcarriers, data_symbols, address, coding));
     }
 
     /*
      * The private constructor
      */
-    allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols, char *address)
+    allocation_buffer_impl::allocation_buffer_impl(int subcarriers, int data_symbols, char *address, bool coding)
         : gr::sync_block("allocation_buffer",
                          gr::io_signature::make(1, 1, sizeof(short)),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_buffer(256) //TODO: id size hardcoded
+    	,d_bitcount_out(2000)
+        ,d_subcarriers(subcarriers)
+    	, d_data_symbols(data_symbols)
+    	, d_allocation_buffer(256) //TODO: id size hardcoded
+		,d_coding( coding )
+		,d_bitspermode( {1,2,3,4,6,8,9,10,12})
     {
         std::vector<int> out_sig(3);
         out_sig[0] = sizeof(int);                               // bitcount
@@ -154,9 +159,18 @@ namespace gr {
         d_power_out = power;
 
         int sum_of_elems = 0;
-        for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
-            sum_of_elems += *j;
-        d_bitcount_out = sum_of_elems*d_data_symbols;
+        if (d_coding)
+        {
+        	for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+        		sum_of_elems += d_bitspermode[*j-1];
+        	d_bitcount_out = sum_of_elems*d_data_symbols/2;
+        }
+        else
+        {
+        	for(std::vector<uint8_t>::iterator j=bitloading.begin();j!=bitloading.end();++j)
+        		sum_of_elems += *j;
+        	d_bitcount_out = sum_of_elems*d_data_symbols;
+        }
     }
 
 

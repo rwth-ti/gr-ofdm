@@ -55,6 +55,9 @@ from fbmc_receiver_hier_cb import fbmc_receiver_hier_cb
 from fbmc_transmitter_hier_bc import fbmc_transmitter_hier_bc
 from fbmc_symbol_estimation_vcb import fbmc_symbol_estimation_vcb
 from fbmc_symbol_creation_bvc import fbmc_symbol_creation_bvc
+from fbmc_transmitter_demo import fbmc_transmitter_demo
+from fbmc_receiver_demo import fbmc_receiver_demo
+from fbmc_transmitter_multiuser_bc import fbmc_transmitter_multiuser_bc
 #
 
 # ----------------------------------------------------------------

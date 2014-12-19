@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Fri Sep 26 16:34:43 2014
+# Generated: Mon Nov  3 18:17:57 2014
 ##################################################
 
 from PyQt4 import Qt
@@ -10,6 +10,7 @@ from PyQt4.QtCore import QObject, pyqtSlot
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import fft
+from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
@@ -55,7 +56,7 @@ class top_block(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.M = M = 256
-        self.zero_pad = zero_pad = 2
+        self.zero_pad = zero_pad = 1
         self.theta_sel = theta_sel = 0
         self.syms_per_frame = syms_per_frame = 20
         self.samp_rate = samp_rate = 3.125e6*2/10
@@ -91,6 +92,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self._SNR_slider.valueChanged.connect(self.set_SNR)
         self._SNR_layout.addWidget(self._SNR_slider)
         self.top_layout.addLayout(self._SNR_layout)
+        self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
         self.qtgui_number_sink_0 = qtgui.number_sink(
                 gr.sizeof_float,
                 0,
@@ -98,7 +100,7 @@ class top_block(gr.top_block, Qt.QWidget):
         	1
         )
         self.qtgui_number_sink_0.set_update_time(0.10)
-        self.qtgui_number_sink_0.set_title("")
+        self.qtgui_number_sink_0.set_title("BER (3-taps)")
         
         labels = ["", "", "", "", "",
                   "", "", "", "", ""]
@@ -163,7 +165,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.ofdm_vector_mask_0 = ofdm.vector_mask(M, (M-carriers)/2, carriers, [])
         self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers, qam_size)
         self.ofdm_fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(carriers, qam_size)
-        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, 0, zero_pad, 1, 0)
+        self.ofdm_fbmc_subchannel_processing_vcvc_0 = ofdm.fbmc_subchannel_processing_vcvc(M, syms_per_frame, 0, zero_pad, 1, 2)
         self.ofdm_fbmc_separate_vcvc_1 = ofdm.fbmc_separate_vcvc(M, 2)
         self.ofdm_fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
         self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, 0, zero_pad, 1)
@@ -185,7 +187,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.blocks_vector_to_stream_0_0 = blocks.vector_to_stream(gr.sizeof_gr_complex*1, carriers)
         self.blocks_vector_to_stream_0 = blocks.vector_to_stream(gr.sizeof_gr_complex*1, carriers)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
-        self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 0)
+        self.blocks_skiphead_0_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 1)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*M)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
@@ -227,7 +229,6 @@ class top_block(gr.top_block, Qt.QWidget):
         self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_vector_mask_0, 0))
         self.connect((self.fft_vxx_1, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_1, 0))
         self.connect((self.ofdm_vector_mask_0, 0), (self.blocks_vector_to_stream_0, 0))
-        self.connect((self.blks2_error_rate_0, 0), (self.qtgui_number_sink_0, 0))
         self.connect((self.blocks_vector_to_stream_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_1, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.blocks_vector_to_stream_0_0, 0))
@@ -254,6 +255,8 @@ class top_block(gr.top_block, Qt.QWidget):
         self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0, 0), (self.blks2_error_rate_0, 1))
         self.connect((self.blocks_skiphead_0_0, 0), (self.ofdm_fbmc_remove_preamble_vcvc_0, 0))
         self.connect((self.ofdm_fbmc_subchannel_processing_vcvc_0, 1), (self.blocks_null_sink_0, 0))
+        self.connect((self.blks2_error_rate_0, 0), (self.single_pole_iir_filter_xx_0, 0))
+        self.connect((self.single_pole_iir_filter_xx_0, 0), (self.qtgui_number_sink_0, 0))
 
 
     def closeEvent(self, event):
@@ -319,9 +322,9 @@ class top_block(gr.top_block, Qt.QWidget):
 
     def set_SNR(self, SNR):
         self.SNR = SNR
-        self.ofdm_fbmc_channel_hier_cc_0_0.set_SNR(self.SNR)
         Qt.QMetaObject.invokeMethod(self._SNR_counter, "setValue", Qt.Q_ARG("double", self.SNR))
         Qt.QMetaObject.invokeMethod(self._SNR_slider, "setValue", Qt.Q_ARG("double", self.SNR))
+        self.ofdm_fbmc_channel_hier_cc_0_0.set_SNR(self.SNR)
 
     def get_K(self):
         return self.K

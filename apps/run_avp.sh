@@ -8,4 +8,4 @@ else
     . $PWD/environment_release
 fi
 
-../python/ofdm/test_demapper_fbmc.py
+../python/ofdm/qa_fbmc_asymmetrical_vector_padding_vcvc.py

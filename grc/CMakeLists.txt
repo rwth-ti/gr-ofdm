@@ -139,7 +139,10 @@ install(FILES
     ofdm_fbmc_receiver_hier_cb.xml
     ofdm_fbmc_transmitter_hier_bc.xml
     ofdm_fbmc_symbol_estimation_vcb.xml
-    ofdm_fbmc_symbol_creation_bvc.xml 
-    DESTINATION share/gnuradio/grc/blocks
+    ofdm_fbmc_symbol_creation_bvc.xml
+    ofdm_fbmc_transmitter_demo.xml
+    ofdm_fbmc_receiver_demo.xml
+    ofdm_fbmc_asymmetrical_vector_padding_vcvc.xml
+    ofdm_fbmc_transmitter_multiuser_bc.xml DESTINATION share/gnuradio/grc/blocks
 
 )

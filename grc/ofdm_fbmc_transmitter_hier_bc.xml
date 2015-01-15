@@ -116,6 +116,6 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>complex</vlen>
+    <vlen>1</vlen>
   </source>
 </block>

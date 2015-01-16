@@ -147,5 +147,6 @@ install(FILES
     fbmc_subchannel_processing_vcvc.h
     fbmc_weighted_spreading_vcvc.h
     fbmc_weighted_despreading_vcvc.h
-    fbmc_asymmetrical_vector_padding_vcvc.h DESTINATION include/ofdm
+    fbmc_asymmetrical_vector_padding_vcvc.h
+    fbmc_asymmetrical_vector_mask_vcvc.h DESTINATION include/ofdm
 )

@@ -139,6 +139,7 @@
 #include "ofdm/fbmc_weighted_spreading_vcvc.h"
 #include "ofdm/fbmc_weighted_despreading_vcvc.h"
 #include "ofdm/fbmc_asymmetrical_vector_padding_vcvc.h"
+#include "ofdm/fbmc_asymmetrical_vector_mask_vcvc.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -450,3 +451,5 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_snr_estimator);
 
 %include "ofdm/fbmc_asymmetrical_vector_padding_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_asymmetrical_vector_padding_vcvc);
+%include "ofdm/fbmc_asymmetrical_vector_mask_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_asymmetrical_vector_mask_vcvc);

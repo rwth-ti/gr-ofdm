@@ -63,7 +63,6 @@ namespace gr {
     		d_padding_left = d_start; // we can use the start index b/c indices start from 0.
     		d_padding_right = d_vlen-(d_end+1);
     	}
-    	assert(vlen >= d_start);
     	assert(d_end >= d_start);
     	assert(vlen >= d_end);
 	}

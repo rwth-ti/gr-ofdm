@@ -101,7 +101,7 @@ class test_demapper_fbmc_multiuser:
 		# print amp
 		# print amp2
 		tx = fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, start, end, theta_sel, exclude_preamble, sel_preamble, zero_pads, extra_pad)
-		rx = fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, theta_sel, eq_select, exclude_preamble, center_preamble,1)
+		rx = fbmc_receiver_hier_cb(M, K, qam_size, syms_per_frame, carriers=924, theta_sel=0, sel_eq=0, exclude_preamble=0, sel_preamble=0, zero_pads=1, extra_pad=False)
 		ch = channel_hier_cc(M, K, syms_per_frame, exclude_multipath, sel_taps, freq_offset, exclude_noise, sel_noise_type, snr_db, exclude_preamble, zero_pads)
 
 		# # src = blocks.vector_source_b(src_data, vlen=1)

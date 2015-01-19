@@ -1,5 +1,5 @@
 <block>
-  <name>Assymmetrical Vector Mask</name>
+  <name>Assym. Vector Mask</name>
   <key>ofdm_fbmc_asymmetrical_vector_mask_vcvc</key>
   <category>FBMC</category>
   <import>import ofdm</import>

@@ -58,6 +58,7 @@ from fbmc_symbol_creation_bvc import fbmc_symbol_creation_bvc
 from fbmc_transmitter_demo import fbmc_transmitter_demo
 from fbmc_receiver_demo import fbmc_receiver_demo
 from fbmc_transmitter_multiuser_bc import fbmc_transmitter_multiuser_bc
+from fbmc_receiver_multiuser_cb import fbmc_receiver_multiuser_cb
 #
 
 # ----------------------------------------------------------------

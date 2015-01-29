@@ -30,6 +30,7 @@
 
 #include <ctime>
 
+
 namespace gr {
     namespace ofdm {
 
@@ -56,12 +57,20 @@ namespace gr {
                 gr::thread::mutex d_mutex;
 
                 d_feedback_information_struct d_feedback_information;
+                enum d_allocation_scheme_enum {CM, RA, MA};
+                d_allocation_scheme_enum d_allocation_scheme;
+                int d_power_limit;
+                int d_data_rate;
+
 
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
                 zmq::context_t  *d_context_feedback;
                 zmq::socket_t   *d_socket_feedback;
+
+                void calculate_bitloading_MA();
+                void calculate_bitloading_RA();
 
             public:
                 allocation_src_impl(int subcarriers, int data_symbols, char *address, char *fb_address);
@@ -70,6 +79,11 @@ namespace gr {
                 void send_allocation();
                 void recv_snr();
                 void calculate_bitloading();
+
+                void set_allocation_scheme(int allocation_scheme);
+                void set_power_limit(int power_limit);
+                void set_data_rate(int data_rate);
+
 
                 void set_allocation(std::vector<uint8_t> bitloading,
                         std::vector<float> power);

@@ -159,6 +159,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.lineEditOffset, QtCore.SIGNAL("editingFinished()"), self.edit_freq_offset)
         self.connect(self.plot_picker, QtCore.SIGNAL("selected(const QwtDoublePoint &)"), self.subcarrier_selected)
         self.connect(self.gui.comboBoxChannelModel, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_channel_profile)
+        self.connect(self.gui.comboBoxScheme, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_allocation_scheme)
+        self.connect(self.gui.horizontalSliderPowerLimit, QtCore.SIGNAL("valueChanged(int)"), self.slide_power_limit)
+        self.connect(self.gui.lineEditPowerLimit, QtCore.SIGNAL("editingFinished()"), self.edit_power_limit)
+        self.connect(self.gui.horizontalSliderDataRate, QtCore.SIGNAL("valueChanged(int)"), self.slide_data_rate)
+        self.connect(self.gui.lineEditDataRate, QtCore.SIGNAL("editingFinished()"), self.edit_data_rate)
+
+
 
         # start GUI update timer (33ms for 30 FPS)
         self.update_timer.start(33)
@@ -287,6 +294,53 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.scatter_buffer = self.scatter_buffer[:200]
         self.curve_scatter.setData(self.scatter_buffer.real,self.scatter_buffer.imag)
         self.gui.qwtPlotScatter.replot()
+
+    def set_allocation_scheme(self, scheme_str):
+        scheme = {'Uniform'    : 0,
+                  'Rate Adaptive'    : 1,
+                  'Margin Adaptive'   : 2,
+                 }[str(scheme_str)]
+        if scheme == 0:
+            self.rpc_mgr_tx.request("set_modulation",[[1]*self.data_subcarriers,[1]*self.data_subcarriers])
+            self.update_tx_params()
+
+        self.rpc_mgr_tx.request("set_allocation_scheme",[scheme])
+        self.update_tx_params()
+
+
+    def slide_power_limit(self, power_limit):
+        self.gui.lineEditPowerLimit.setText(QtCore.QString.number(power_limit))
+        self.rpc_mgr_tx.request("set_power_limit",[power_limit])
+
+    def edit_power_limit(self):
+        power_limit = self.lineEditPowerLimit.text().toInt()[0]
+        power_limit = min(power_limit,1000)
+        power_limit = max(power_limit,0)
+        self.gui.lineEditPowerLimit.setText(QtCore.QString("%1").arg(power_limit))
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderPowerLimit.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderPowerLimit.setValue(power_limit)
+        self.gui.horizontalSliderPowerLimit.blockSignals(False)
+        self.rpc_mgr_tx.request("set_power_limit",[power_limit])
+
+    def slide_data_rate(self, data_rate):
+        self.gui.lineEditDataRate.setText(QtCore.QString.number(data_rate))
+        self.rpc_mgr_tx.request("set_data_rate",[data_rate])
+
+    def edit_data_rate(self):
+        data_rate = self.lineEditDataRate.text().toInt()[0]
+        data_rate = min(data_rate,1000)
+        data_rate = max(data_rate,0)
+        self.gui.lineEditDataRate.setText(QtCore.QString("%1").arg(data_rate))
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderDataRate.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderDataRate.setValue(data_rate)
+        self.gui.horizontalSliderDataRate.blockSignals(False)
+        self.rpc_mgr_tx.request("set_data_rate",[data_rate])
+
+
 
 
 def parse_options():

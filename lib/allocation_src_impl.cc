@@ -29,6 +29,10 @@
 #include <iostream>
 #include <pmt/pmt.h>
 
+#include <numeric>
+
+#define GAP 6.6
+
 namespace gr {
   namespace ofdm {
 
@@ -54,7 +58,7 @@ namespace gr {
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_scheme(CM), d_power_limit(200), d_data_rate(600)
     {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
@@ -164,13 +168,25 @@ namespace gr {
                                                               +sizeof(short)
                                                               +d_subcarriers*sizeof(float));
 
-                calculate_bitloading();
+                
+                switch (d_allocation_scheme)
+                {
+                    case CM:
+                        break;
+                    case RA:
+                        calculate_bitloading_RA();
+                        break;
+                    case MA:
+                        calculate_bitloading_MA();
+                        break;
+                    default:
+                        std::cout<<"Choose Allocation Scheme!"<<std::endl;
+                }
 
             } else {
                 msg_received = false;
             }
         }
-
     }
 
     void
@@ -179,9 +195,9 @@ namespace gr {
         std::vector<uint8_t> bitloading_vec;
         for(int i = 0; i < d_subcarriers; i++)
         {
-           /* if(d_feedback_information.snr[i]<6.78)
+            if(d_feedback_information.snr[i]<6.78)
                 bitloading_vec.push_back(0);
-            else*/ if(d_feedback_information.snr[i]<9.79)
+            else if(d_feedback_information.snr[i]<9.79)
                 bitloading_vec.push_back(1);
             else if(d_feedback_information.snr[i]<14.78)
                 bitloading_vec.push_back(2);
@@ -197,26 +213,182 @@ namespace gr {
                 bitloading_vec.push_back(7);
             else
                 bitloading_vec.push_back(8);
+
         }
-
-        d_allocation.bitloading = bitloading_vec;
-
-        // clear and write bitloading output vector
-        d_allocation_out.bitloading.clear();
-        // insert data symbol modulation at the end ONCE
-        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), bitloading_vec.begin(), bitloading_vec.end());
 
         int sum_of_elems = 0;
         for(std::vector<uint8_t>::iterator j=bitloading_vec.begin();j!=bitloading_vec.end();++j)
             sum_of_elems += *j;
-        d_bitcount_out = sum_of_elems*d_data_symbols;
 
+        if(sum_of_elems > 100)
+        {
+            d_bitcount_out = sum_of_elems*d_data_symbols;
 
+            d_allocation.bitloading = bitloading_vec;
+
+            // clear and write bitloading output vector
+            d_allocation_out.bitloading.clear();
+            // insert data symbol modulation at the end ONCE
+            d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), bitloading_vec.begin(), bitloading_vec.end());
+        }
 
 
     }
 
 
+    void
+    allocation_src_impl::calculate_bitloading_RA()
+    {
+        float level=0;
+        int counter = 0;
+        d_allocation.power.clear();
+        std::vector<float>::iterator it;
+        std::vector<float> inv_snr;
+
+
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            if(d_feedback_information.snr[i]>8.8)//&& d_feedback_information.snr[i]< 40)
+            {
+                inv_snr.push_back( GAP / pow(10, d_feedback_information.snr[i]/10)); 
+                counter ++;
+            }
+            else inv_snr.push_back(0);
+
+        }
+
+        while(1)
+        {
+            level = (d_power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
+            counter--;
+            if(counter < 150) return;
+
+
+
+            it = std::max_element(inv_snr.begin(), inv_snr.end());
+            if(*it > level)
+            {
+                *it = 0;
+            }
+            else break;
+        }
+
+        //for(it =  inv_snr.begin(); it!= inv_snr.end(); it++)
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            if(inv_snr[i]!=0)
+            {
+                d_allocation.power.push_back(level - inv_snr[i]);
+                if(d_feedback_information.snr[i] > 32.2) d_allocation.bitloading[i] = 8;
+                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ GAP ));
+            }
+            else
+            {
+                d_allocation.power.push_back(0);
+                d_allocation.bitloading[i] = 0;
+            }
+        }
+
+        // clear and write power output vector
+        d_allocation_out.power = d_allocation.power;
+
+        // clear and write bitloading output vector
+        d_allocation_out.bitloading.clear();
+        // insert data symbol modulation at the end ONCE
+        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
+
+        int sum_of_elems = 0;
+        for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
+            sum_of_elems += *j;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
+
+    }
+
+    void
+    allocation_src_impl::calculate_bitloading_MA()
+    {
+        std::vector<float> snr_sort;
+        float G = 0;
+        float level;
+        int it = 0;
+        d_allocation.power.clear();
+        d_allocation.bitloading.clear();
+
+
+        //Inizialise
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            snr_sort.push_back(pow(10, d_feedback_information.snr[i]/10 ));
+            G+= log2(snr_sort[i]);
+        }
+        if(G < d_data_rate) return;
+        std::sort(snr_sort.begin(), snr_sort.end());
+        level = GAP * pow(2, ((d_data_rate-G)/d_subcarriers));
+
+        //Get Water Level
+        while(level < (GAP / snr_sort[it]))
+        {
+            if(it>10) return;
+
+            G-= 1/snr_sort[it];
+            it++;
+            level = GAP * pow(2, (d_data_rate-G) / (d_subcarriers - it));
+        }
+
+        //Allocate
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            if(pow(10, d_feedback_information.snr[i]/10) < snr_sort[it])
+            {
+                d_allocation.power.push_back( 0);
+                d_allocation.bitloading.push_back( 0);
+            }
+            else
+            {
+                d_allocation.power.push_back( level - GAP/pow(10, d_feedback_information.snr[i]/10));
+                if(d_allocation.power[i] > 5) d_allocation.power[i] = 5;
+                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ GAP )));
+                if(d_allocation.bitloading[i] > 8) d_allocation.bitloading[i] = 8;
+
+                //std::cout<< level<<" ";//d_allocation.power[i]<< " ";
+
+            }
+        }
+        //std::cout<<std::endl;
+
+        // clear and write power output vector
+        d_allocation_out.power = d_allocation.power;
+
+        // clear and write bitloading output vector
+        d_allocation_out.bitloading.clear();
+        // insert data symbol modulation at the end ONCE
+        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
+
+        int sum_of_elems = 0;
+        for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
+            sum_of_elems += *j;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
+
+    }
+
+
+    void
+    allocation_src_impl::set_allocation_scheme(int allocation_scheme)
+    {
+        d_allocation_scheme = (d_allocation_scheme_enum) allocation_scheme;
+    }
+
+    void
+    allocation_src_impl::set_data_rate(int data_rate)
+    {
+        d_data_rate = data_rate;
+    }
+
+    void
+    allocation_src_impl::set_power_limit(int power_limit)
+    {
+        d_power_limit = power_limit;
+    }
 
 
     void
@@ -271,6 +443,17 @@ namespace gr {
             // output 1 vector for id and the rest for data
             int p_idx = i*d_subcarriers;
             memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
+
+
+
+           /* int diff;
+            if(((int)(d_allocation.id))<d_feedback_information.id) 
+                diff=256+((d_allocation.id)-d_feedback_information.id);
+            else
+                diff=((d_allocation.id)-d_feedback_information.id);
+
+
+            std::cout<<"Differenz:"<<diff<<" "<<"Feedback id:"<<d_feedback_information.id <<" "<<"Aktuelle id:" << (int)(d_allocation.id)<<" "<<std::endl;*/
 
             //increase frame id, [0..255]
             d_allocation.id++;

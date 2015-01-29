@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##Tx RPC Manager
+###################################################
+ -->
+<block>
+  <name>Rx RPC Manager</name>
+  <key>rx_rpc_manager</key>
+  <category>ofdm</category>
+  <import>from ofdm.rx_rpc_manager_grc import rx_rpc_manager</import>
+  <make>rx_rpc_manager()</make>
+  <doc>Tx RPC Manager
+	Wrapper Block
+  </doc>
+</block>

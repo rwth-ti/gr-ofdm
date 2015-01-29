@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<block>
+  <name>FBMC SNR Filter</name>
+  <key>ofdm_fbmc_snr_filter</key>
+  <category>FBMC</category>
+  <import>from ofdm.preambles_grc import fbmc_snr_filter</import>
+  <make>fbmc_snr_filter($subcarriers, $frame_length, $training_data)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+     <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Length</name>
+    <key>frame_length</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Training Data</name>
+    <key>training_data</key>
+    <value></value>
+    <type>raw</type>
+  </param>
+  <check>$subcarriers &gt; 0</check>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <doc>FBMC SNR Filter
+    Wrapper Block
+  </doc>
+</block>

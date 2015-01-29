@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##FBMC Frame Sampler
+###################################################
+ -->
+<block>
+  <name>FBMC Frame Sampler</name>
+  <key>ofdm_fbmc_frame_sampler</key>
+  <category>FBMC</category>
+  <import>from ofdm.fbmc_frame_sampler_grc import fbmc_frame_sampler</import>
+  <make>fbmc_frame_sampler($total_subcarriers, $frame_length, $frame_data_part, $training_data)</make>
+  <param>
+    <name>Total Subcarriers</name>
+    <key>total_subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Length</name>
+    <key>frame_length</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Data Part</name>
+    <key>frame_data_part</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Training Data</name>
+    <key>training_data</key>
+    <type>raw</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$total_subcarriers</vlen>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </sink>
+  <source>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$total_subcarriers</vlen>
+  </source>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+  <doc>FBMC Frame Sampler
+	Wrapper Block
+  </doc>
+</block>

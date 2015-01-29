@@ -4,16 +4,26 @@
   <key>ofdm_lms_phase_tracking_02</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.lms_phase_tracking_02($vlen, $&pilot_subc, $&nondata_blocks)</make>
+  <make>ofdm.lms_phase_tracking_02($vlen, $pilot_subc, $nondata_blocks)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Pilot Subcarries</name>
+    <key>pilot_subc</key>
+    <type>int_vector</type>
+  </param>
+  <param>
+    <name>Nondata Blocks</name>
+    <key>nondata_blocks</key>
+    <type>int_vector</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,9 +33,15 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </sink>
-
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </sink>
+  
   <!-- Make one 'source' node per output. Sub-nodes:
        * name (an identifier for the GUI)
        * type
@@ -33,6 +49,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </source>
 </block>

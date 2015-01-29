@@ -36,6 +36,6 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>M</vlen>
+    <vlen>$M</vlen>
   </source>
 </block>

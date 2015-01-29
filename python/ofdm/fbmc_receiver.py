@@ -72,11 +72,12 @@ class fbmc_inner_receiver( gr.hier_block2 ):
         gr.io_signature(
             1, 1,
             gr.sizeof_gr_complex ),
-        gr.io_signature3(
-            3, 3,
-            gr.sizeof_float * total_subc,    # Normalized |CTF|^2 
+        gr.io_signaturev(
+            4, 4,
+            [gr.sizeof_float * total_subc,    # Normalized |CTF|^2 
             gr.sizeof_char,                       # Frame start
-            gr.sizeof_gr_complex * total_subc, ) )      # OFDM blocks, SNR est
+            gr.sizeof_gr_complex * total_subc, # OFDM blocks, SNR est
+            gr.sizeof_float] ) )      # CFO
     
     
     ## Input and output ports
@@ -85,6 +86,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     out_ofdm_blocks = ( self, 2 )
     out_frame_start = ( self, 1 )
     out_disp_ctf    = ( self, 0 )
+    out_disp_cfo    = ( self, 3 )
     #out_snr_pream    = ( self, 3 )
     
     
@@ -240,8 +242,8 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     self.connect( freq_offset, lms_fir )
     freq_offset = lms_fir
     
-    self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
-    self.connect(freq_offset, blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_freqoff)
+    self.connect(lms_fir, blocks.keep_one_in_n(gr.sizeof_float,20) ,out_disp_cfo)
+
     
     #log_to_file(self, lms_fir, "data/lms_fir.float")
     
@@ -307,7 +309,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     help2 = blocks.keep_one_in_n(gr.sizeof_gr_complex*total_subc,frame_length)
     self.connect ((self.subchannel_processing_vcvc,1),help2)
-    #log_to_file( self, help2, "data/fbmc_subchannel.compl" )
+    log_to_file( self, (self.subchannel_processing_vcvc,1), "data/fbmc_subchannel.compl" )
 
     
     #terminate_stream(self, help2)
@@ -323,6 +325,7 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     ofdm_blocks = self.fft_fbmc
     self.connect(ofdm_blocks, self.beta_multiplier_vcvc)
+    
     ofdm_blocks = self.beta_multiplier_vcvc
     
     if fft_length > data_subc:
@@ -349,7 +352,8 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     #self.connect((self.remove_preamble_vcvc, 0),  (self.oqam_postprocessing_vcvc, 0))
     
     #ofdm_blocks = self.oqam_postprocessing_vcvc
-    
+    #log_to_file( self, self.subchannel_processing_vcvc, "data/subc_0.compl" )
+    #log_to_file( self, (self.subchannel_processing_vcvc,1), "data/subc_1.compl" )
     
     
     

@@ -1,5 +1,5 @@
 <block>
-  <name>Vector mask</name>
+  <name>Vector Mask</name>
   <key>ofdm_vector_mask</key>
   <category>FBMC</category>
   <import>import ofdm</import>

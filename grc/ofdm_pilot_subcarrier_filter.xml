@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<block>
+  <name>OFDM Pilot Subcarrier Filter</name>
+  <key>ofdm_pilot_subcarrier_filter</key>
+  <category>ofdm</category>
+  <import>from ofdm.preambles_grc import pilot_subcarrier_filter</import>
+  <make>pilot_subcarrier_filter($data_subcarriers,$subcarriers,$training_data,$complex_value)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+   <param>
+		<name>Itemsize</name>
+		<key>itemsize</key>
+		<type>enum</type>
+		<option>
+			<name>Complex</name>
+			<key>complex</key>
+			<opt>size:gr.sizeof_gr_complex</opt>
+		</option>
+		<option>
+			<name>Float</name>
+			<key>float</key>
+			<opt>size:gr.sizeof_float</opt>
+		</option>
+  </param>
+  <param>
+    <name>Data Subcarriers</name>
+    <key>data_subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Training Data</name>
+    <key>training_data</key>
+    <value></value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Complex Value</name>
+    <key>complex_value</key>
+    <value>True</value>
+    <type>bool</type>
+  </param>
+  <check>$data_subcarriers &gt; 0</check>
+  <check>$subcarriers &gt; 0</check>
+  <sink>
+    <name>in</name>
+    <type>$itemsize</type>
+    <vlen>$subcarriers</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>$itemsize</type>
+    <vlen>$data_subcarriers</vlen>
+  </source>
+  <doc>OFDM Pilot Subcarrier Filter
+Wrapper Block</doc>
+</block>

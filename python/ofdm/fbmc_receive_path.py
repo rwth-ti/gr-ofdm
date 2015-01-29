@@ -24,13 +24,14 @@ from numpy import concatenate, log10
 from gnuradio import eng_notation
 from gnuradio import gr, filter, zeromq
 from gnuradio import blocks
+from gnuradio import trellis
 from gr_tools import log_to_file, terminate_stream
 
 from ofdm import normalize_vcc, lms_phase_tracking,vector_sum_vcc
 from ofdm import generic_demapper_vcb, generic_softdemapper_vcf, vector_mask, vector_sampler
 from ofdm import skip, channel_estimator_02, scatterplot_sink
 from ofdm import trigger_surveillance, ber_measurement, vector_sum_vff
-from ofdm import generic_mapper_bcv, dynamic_trigger_ib, snr_estimator, fbmc_snr_estimator
+from ofdm import generic_mapper_bcv, dynamic_trigger_ib, fbmc_snr_estimator
 from preambles import pilot_subcarrier_filter,fbmc_pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
@@ -78,7 +79,7 @@ class receive_path(gr.hier_block2):
         gr.io_signature(1,1,gr.sizeof_gr_complex),
         gr.io_signature(0,0,0))
 
-    print "This is receive path 2"
+    print "This is  FBMC receive path 1x1"
 
     common_options.defaults(options)
 
@@ -91,6 +92,7 @@ class receive_path(gr.hier_block2):
     config.fft_length           = options.fft_length
     config.training_data        = default_block_header(dsubc,
                                           config.fft_length,options)
+    config.coding              = options.coding
     config.ber_window           = options.ber_window
 
     config.periodic_parts       = 8
@@ -105,8 +107,8 @@ class receive_path(gr.hier_block2):
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
-    config.frame_length = config.training_data.fbmc_no_preambles + 2*config.frame_data_part + \
-                          2*config.training_data.no_pilotsyms
+    config.frame_length = config.training_data.fbmc_no_preambles + 2*config.frame_data_part 
+    
     config.postpro_frame_length = config.frame_data_part + \
                           config.training_data.no_pilotsyms
     config.subcarriers = dsubc + \
@@ -142,6 +144,10 @@ class receive_path(gr.hier_block2):
     disp_ctf = ( inner_receiver, 0 )
     #self.snr_est_preamble = ( inner_receiver, 3 )
     #terminate_stream(self,snr_est_preamble)
+    disp_cfo =  ( inner_receiver, 3 )
+    
+    self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
+    self.connect(disp_cfo, self.zmq_probe_freqoff)
 
 
 
@@ -283,7 +289,7 @@ class receive_path(gr.hier_block2):
           used_id_bits, whitener_pn )
       self.connect( id_bfilt, self.id_dec )
       
-      #log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
+      log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
 
       print "Using coded BPSK soft decoder for ID detection"
 
@@ -365,8 +371,15 @@ class receive_path(gr.hier_block2):
 
     ## Allocation Control
     if options.static_allocation: #DEBUG
-        bitloading = 1
-        bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+        
+        if options.coding:
+            mode = 1 # Coding mode 1-9
+            bitspermode = [0.5,1,1.5,2,3,4,4.5,5,6] # Information bits per mode
+            bitcount_vec = [(int)(config.data_subcarriers*config.frame_data_blocks*bitspermode[mode-1])]
+            bitloading = mode
+        else:
+            bitloading = 1
+            bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks]
         self.bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # 0s for ID block, then data
@@ -376,7 +389,7 @@ class receive_path(gr.hier_block2):
         power_vec = [1]*config.data_subcarriers
         power_src = blocks.vector_source_f(power_vec,True,dsubc)
     else:
-        self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333")
+        self.allocation_buffer = ofdm.allocation_buffer(config.data_subcarriers, config.frame_data_blocks, "tcp://"+options.tx_hostname+":3333",config.coding)
         self.bitcount_src = (self.allocation_buffer,0)
         bitloading_src = (self.allocation_buffer,1)
         power_src = (self.allocation_buffer,2)
@@ -412,17 +425,20 @@ class receive_path(gr.hier_block2):
 
 
     if(options.coding):
-        demod = self._data_demodulator = generic_softdemapper_vcf(dsubc,options.coding)
+        fo=ofdm.fsm(1,2,[91,121])
+        if options.interleave:
+            int_object=trellis.interleaver(2000,666)
+            deinterlv = trellis.permutation(int_object.K(),int_object.DEINTER(),1,gr.sizeof_float)
+        
+        demod = self._data_demodulator = generic_softdemapper_vcf(dsubc, config.frame_data_part, config.coding)
+        #self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         if(options.ideal):
             self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         else:
             dm_csi_filter = self.dm_csi_filter = filter.single_pole_iir_filter_ff(0.01,dsubc)
-            if config.fbmc:
-                self.connect(self.ctf, self.dm_csi_filter,(demod,2))
-            else:
-                self.connect(self.ctf, pilot_subcarrier_filter(complex_value=False), self.dm_csi_filter,(demod,2))
+            self.connect(self.ctf, self.dm_csi_filter,(demod,2))
             #log_to_file(self, dm_csi_filter, "data/softs_csi.float")
-        self.connect(dm_trig,(demod,3))
+        #self.connect(dm_trig,(demod,3))
     else:
         demod = self._data_demodulator = generic_demapper_vcb(dsubc, config.frame_data_part)
     if options.benchmarking:
@@ -435,41 +451,30 @@ class receive_path(gr.hier_block2):
     if(options.coding):
         ## Depuncturing
         if not options.nopunct:
-            bitmap_filter = self._puncturing_bitmap_src_filter = skip(gr.sizeof_char*dsubc,2)# skip_known_symbols(frame_length,subcarriers)
-            bitmap_filter.skip_call(0)
             depuncturing = depuncture_ff(dsubc,0)
-
             frametrigger_bitmap_filter = blocks.vector_source_b([1,0],True)
-            #sah = gr.sample_and_hold_ff()
-            #sah_trigger = blocks.vector_source_b([1,0],True)
-            bmapsrc_stream_depuncturing = concatenate([[1]*dsubc,[2]*dsubc])
-            bsrc_depuncturing = self._bitmap_src_depuncturing = blocks.vector_source_b(bmapsrc_stream_depuncturing.tolist(), True, dsubc)
-
-            #self.connect(bsrc_depuncturing,bitmap_filter,(depuncturing,1))
-            self.connect(self._map_src,bitmap_filter,(depuncturing,1))
-            #bmt = gr.char_to_float()
-            #self.connect(bitmap_filter,blocks.vector_to_stream(gr.sizeof_char,dsubc), bmt)
-            #log_to_file(self, bmt, "data/bitmap_filter_rx.float")
-
+            self.connect(bitloading_src,(depuncturing,1))
             self.connect(dp_trig,(depuncturing,2))
-            self.connect(frametrigger_bitmap_filter,(bitmap_filter,1))
 
         ## Decoding
         chunkdivisor = int(numpy.ceil(config.frame_data_blocks/5.0))
         print "Number of chunks at Viterbi decoder: ", chunkdivisor
         decoding = self._data_decoder = ofdm.viterbi_combined_fb(fo,dsubc,-1,-1,2,chunkdivisor,[-1,-1,-1,1,1,-1,1,1],ofdm.TRELLIS_EUCLIDEAN)
 
+        
         if options.log and options.coding:
             log_to_file(self, decoding, "data/decoded.char")
             if not options.nopunct:
                 log_to_file(self, depuncturing, "data/vit_in.float")
 
         if not options.nopunct:
-            self.connect(demod,depuncturing,decoding)
-            #self.connect(sah_trigger, (sah,1))
+            if options.interleave:
+                self.connect(demod,deinterlv,depuncturing,decoding)
+            else:
+                self.connect(demod,depuncturing,decoding)
         else:
             self.connect(demod,decoding)
-        self.connect((ctrl,2), multiply_const_ii(1./chunkdivisor), (decoding,1))
+        self.connect(self.bitcount_src, multiply_const_ii(1./chunkdivisor), (decoding,1))
 
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
         scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,40)
@@ -526,7 +531,7 @@ class receive_path(gr.hier_block2):
 
 
     if options.sfo_feedback:
-      used_id_bits = 10
+      used_id_bits = 8
       rep_id_bits = config.data_subcarriers/used_id_bits
 
       seed(1)
@@ -654,7 +659,6 @@ class receive_path(gr.hier_block2):
 #                                    config.ns_port,vlen,config.rx_station_id)
 
 
-    if self.__dict__.has_key('_img_xfer_inprog') is False:
 
 #      print "BER img xfer"
 #      self.connect(ber_mst,(rpsink,3))
@@ -662,26 +666,26 @@ class receive_path(gr.hier_block2):
       # 3. SNR
 
 
-      print "Normal BER measurement"
+    print "Normal BER measurement"
 
-      trig_src = dynamic_trigger_ib(False)
-      self.connect(self.bitcount_src,trig_src)
-
-      ber_sampler = vector_sampler(gr.sizeof_float,1)
-      self.connect(ber_mst,(ber_sampler,0))
-      self.connect(trig_src,(ber_sampler,1))
-
-
-      if self._options.log:
+    trig_src = dynamic_trigger_ib(False)
+    self.connect(self.bitcount_src,trig_src)
+    
+    ber_sampler = vector_sampler(gr.sizeof_float,1)
+    self.connect(ber_mst,(ber_sampler,0))
+    self.connect(trig_src,(ber_sampler,1))
+    
+    
+    if self._options.log:
           trig_src_float = gr.char_to_float()
           self.connect(trig_src,trig_src_float)
           log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
-
-
-      if self._options.sinr_est is False:
+    
+    
+    if self._options.sinr_est is False:
           self.zmq_probe_ber = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5556")
           self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_ber)
-
+    
           self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
           self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_snr)
 
@@ -795,23 +799,6 @@ class receive_path(gr.hier_block2):
     max_buffered_windows = 3000 # FIXME: find better solution
     dist = config.ber_window
 
-    def new_servant(uid):
-      ## Message Sink
-      sampler = vector_sampler(gr.sizeof_float,1)
-      trigsrc = blocks.vector_source_b(concatenate([[0]*(int(dist)-1),[1]]),True)
-      msgq = gr.msg_queue(max_buffered_windows)
-      msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
-      self.connect(self._ber_measuring_tool,sampler,msg_sink)
-      self.connect(trigsrc,(sampler,1))
-      self.servants.append(corba_data_buffer_servant(uid,1,msgq))
-      print "Publishing BER under id: %s" % (uid)
-
-    try:
-      for x in unique_id:
-        new_servant(str(x))
-    except:
-      new_servant(str(unique_id))
-
 
 
   def measuring_ber(self):
@@ -910,44 +897,6 @@ class receive_path(gr.hier_block2):
     Return if already measuring the SNR.
     """
     return self.__dict__.has_key('_snr_measurement')
-
-  def publish_average_snr(self,unique_id):
-    """
-    Provide remote access to SNR data.
-    We use a CORBA servant providing the data buffer interface to distribute
-    the data. It is identified at the NameService with its unique_id. Its name
-    is "ofdm_ti"+unique_id.
-    The SNR data is low pass filtered. One SNR value per data block (none for
-    ids).
-
-    If the parameter unique_id is iterable, several CORBA servants using the
-    same signal processing chain are created.
-    """
-
-    self.setup_snr_measurement()
-
-    config = station_configuration()
-
-    snrm = self._snr_measurement
-    uid = str(unique_id)
-
-    max_buffered_frames = 3000 # FIXME: find better solution
-
-    def new_servant(uid):
-      ## Message Sink
-      msgq = gr.msg_queue(config.frame_ *max_buffered_frames)
-      msg_sink = gr.message_sink(gr.sizeof_float,msgq,True)
-      self.connect(snrm,msg_sink)
-      self.servants.append(corba_data_buffer_servant(uid,1,msgq))
-      print "Publishing SNR under id: %s" % (uid)
-
-    try:
-      for x in unique_id:
-        new_servant(str(x))
-    except:
-      new_servant(str(x))
-
-  # ---------------------------------------------------------------------------#
 
 
   def change_estim_power(self,val):
@@ -1113,6 +1062,9 @@ class receive_path(gr.hier_block2):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
+    normal.add_option("", "--interleave", action="store_true",
+              default=False,
+              help="Enable interleaving")
     expert.add_option('', '--benchmarking', action='store_true', default=False,
                       help='Modify transmitter for the benchmarking mode')
     expert.add_option('', '--fbmc', action='store_true', default=True,

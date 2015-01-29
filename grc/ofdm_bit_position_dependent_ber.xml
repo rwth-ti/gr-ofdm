@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>bit_position_dependent_ber</name>
+  <name>Bit Position Dependent BER</name>
   <key>ofdm_bit_position_dependent_ber</key>
   <category>ofdm</category>
   <import>import ofdm</import>
@@ -11,9 +11,9 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Filename Prefix</name>
+    <key>filename_prefix</key>
+    <type>string</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -22,8 +22,16 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>data</name>
+    <type>char</type>
+  </sink>
+  <sink>
+    <name>ref</name>
+    <type>char</type>
+  </sink>
+  <sink>
+    <name>bitcount</name>
+    <type>int</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -31,8 +39,4 @@
        * type
        * vlen
        * optional (set to 1 for optional inputs) -->
-  <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
-  </source>
 </block>

@@ -62,11 +62,12 @@ class ofdm_inner_receiver( gr.hier_block2 ):
         gr.io_signature(
             1, 1,
             gr.sizeof_gr_complex ),
-        gr.io_signature3(
-            3, 3,
-            gr.sizeof_gr_complex * total_subc,    # OFDM blocks
+        gr.io_signaturev(
+            4, 4,
+            [gr.sizeof_gr_complex * total_subc,    # OFDM blocks
             gr.sizeof_char,                       # Frame start
-            gr.sizeof_float * total_subc ) )      # Normalized |CTF|^2 
+            gr.sizeof_float * total_subc,
+            gr.sizeof_float] ) )      # Normalized |CTF|^2 
     
     
     ## Input and output ports
@@ -75,6 +76,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     out_ofdm_blocks = ( self, 0 )
     out_frame_start = ( self, 1 )
     out_disp_ctf    = ( self, 2 )
+    out_disp_cfo    = ( self, 3 )
     
     
     ## pre-FFT processing
@@ -180,8 +182,8 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     self.connect( freq_offset, lms_fir )
     freq_offset = lms_fir
     
-    self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
-    self.connect(lms_fir, blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_freqoff)
+    #self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
+    self.connect(lms_fir, blocks.keep_one_in_n(gr.sizeof_float,20) ,out_disp_cfo)
     
     #log_to_file(self, lms_fir, "data/lms_fir.float")
     

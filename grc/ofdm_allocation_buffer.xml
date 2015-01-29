@@ -1,19 +1,45 @@
 <?xml version="1.0"?>
 <block>
-  <name>allocation_buffer</name>
+  <name>Allocation Buffer</name>
   <key>ofdm_allocation_buffer</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.allocation_buffer($subcarriers)</make>
+  <make>ofdm.allocation_buffer($subcarriers, $data_symbols, $address, $coding)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>subcarriers</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Data Symbols</name>
+    <key>data_symbols</key>
+    <value>data_symbols</value>
+    <type>int</type>
+  </param>  
+  <param>
+    <name>Address</name>
+    <key>address</key>
+    <value>address</value>
+    <type>string</type>
+  </param>  
+  <param>
+    <name>Coding</name>
+    <key>coding</key>
+    <type>enum</type>
+    <option>
+      <name>Off</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>On</name>
+      <key>1</key>
+    </option>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -22,8 +48,9 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>in_id</name>
+    <type>short</type>
+    <vlen>1</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -32,7 +59,18 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>out_bitcount</name>
+    <type>int</type>
+    <vlen>1</vlen>
+  </source>
+  <source>
+    <name>out_bitloading</name>
+    <type>byte</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <source>
+    <name>out_power</name>
+    <type>float</type>
+    <vlen>$subcarriers</vlen>
   </source>
 </block>

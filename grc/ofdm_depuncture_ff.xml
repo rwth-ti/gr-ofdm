@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>depuncture_ff</name>
+  <name>Depuncture FF</name>
   <key>ofdm_depuncture_ff</key>
   <category>ofdm</category>
   <import>import ofdm</import>
@@ -11,9 +11,14 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+	<name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+	<name>Filling Value</name>
+    <key>fillval</key>
+    <type>float</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +28,16 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
+  </sink>
+  <sink>
+    <name>modemap</name>
+    <type>byte</type>
+    <vlen>$vlen</vlen>
+  </sink>
+  <sink>
+    <name>trig</name>
+    <type>byte</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +47,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
   </source>
 </block>

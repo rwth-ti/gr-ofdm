@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>time_sync</name>
+  <name>OFDM Time Synchronization</name>
   <key>ofdm_time_sync</key>
   <category>ofdm</category>
   <import>import ofdm</import>
@@ -11,9 +11,14 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CP Length</name>
+    <key>cplen</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +28,12 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>float</type>
+    <nports>2</nports>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +43,17 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+	<type>complex</type>
+	<vlen>$vlen</vlen>
   </source>
+  <source>
+    <name>trigger</name>
+	<type>byte</type>
+	<vlen>1</vlen>
+  </source>
+    <!--<source>
+    <name>trigger</name>
+	<type>long</type>
+	<vlen>1</vlen>
+  </source>-->
 </block>

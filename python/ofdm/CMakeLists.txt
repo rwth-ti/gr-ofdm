@@ -31,11 +31,23 @@ endif()
 GR_PYTHON_INSTALL(
     PROGRAMS
     benchmark_ofdm.py
+    ofdm_rms_amplifier_grc.py
+    fbmc_rms_amplifier_grc.py
+    tx_rpc_manager_grc.py
+    rx_rpc_manager_grc.py
+    fbmc_rms_amplifier_grc.py
+    ber_reference_source_grc.py
+    fbmc_frame_sampler_grc.py
+    ofdm_frame_sampler_grc.py
+    preambles_grc.py
+    autocorrelator.py
+    schmidl.py
     rx.py
     tx.py
     fbmc_insert_preamble_vcvc.py
     fbmc_overlapping_parallel_to_serial_vcc.py
     fbmc_overlapping_serial_to_parallel_cvc.py
+    preambles_grc.py
     fbmc_vector_reshape_vcvc.py
     fbmc_remove_preamble_vcvc.py
     fbmc_channel_hier_cc.py
@@ -54,7 +66,6 @@ GR_PYTHON_INSTALL(
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    autocorrelator.py
     channel.py
     common_options.py
     delaylines.py
@@ -68,7 +79,6 @@ GR_PYTHON_INSTALL(
     ofdm_receiver.py
     preambles.py
     receive_path.py
-    schmidl.py
     snr_estimator.py
     station_configuration.py
     transmit_path2.py

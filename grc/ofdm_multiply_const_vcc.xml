@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <block>
-  <name>multiply_const_vcc</name>
+  <name>Multiply Constant VCC</name>
   <key>ofdm_multiply_const_vcc</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.multiply_const_vcc($&k)</make>
+  <make>ofdm.multiply_const_vcc($k)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Constant Vector</name>
+    <key>k</key>
+    <type>complex_vector</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +23,8 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>len($k)</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +34,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>len($k)</vlen>
   </source>
 </block>

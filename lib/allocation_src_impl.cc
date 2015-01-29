@@ -67,9 +67,9 @@ namespace gr {
         {
     	std::vector<int> out_sig(5);
         out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(int);                               // bitcount
+        out_sig[1] = sizeof(float)*subcarriers;                 // power
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(float)*subcarriers;                 // power
+        out_sig[3] = sizeof(int);                				// bitcount
         out_sig[4] = sizeof(int);                               // bitcount
         set_output_signature(io_signature::makev(5,5,out_sig));
         }
@@ -77,9 +77,9 @@ namespace gr {
         {
     	std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(int);                               // bitcount
+        out_sig[1] = sizeof(float)*subcarriers;                 // power
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(float)*subcarriers;                 // power
+        out_sig[3] = sizeof(int);                				// bitcount
         set_output_signature(io_signature::makev(4,4,out_sig));
         }
 
@@ -205,9 +205,9 @@ namespace gr {
         gr::thread::scoped_lock guard(d_mutex);
 
         short *out_id = (short *) output_items[0];
-        int *out_bitcount = (int *) output_items[1];
+        int *out_bitcount = (int *) output_items[3];
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
-        float *out_power = (float *) output_items[3];
+        float *out_power = (float *) output_items[1];
         int *out_modulbitcount = (int *) output_items[4];
 
         if (d_coding)

@@ -80,8 +80,7 @@ class transmit_path(gr.hier_block2):
 
     config.block_length = config.fft_length + config.cp_length
     config.frame_data_part = config.frame_data_blocks + config.frame_id_blocks
-    config.frame_length = config.frame_data_part + \
-                          config.training_data.no_pilotsyms
+    config.frame_length = config.training_data.fbmc_no_preambles + 2*config.frame_data_part
     config.subcarriers = config.data_subcarriers + \
                          config.training_data.pilot_subcarriers
     config.virtual_subcarriers = config.fft_length - config.subcarriers
@@ -111,17 +110,31 @@ class transmit_path(gr.hier_block2):
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", config.coding)
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
-        bitloading = 1
+         
+        if options.coding:
+            mode = 1 # Coding mode 1-9
+            bitspermode= [0.5,1,1.5,2,3,4,4.5,5,6] # Information bits per mode
+            modulbitspermode = [1,2,2,4,4,6,6,6,8] # Coding bits per mode
+            bitcount_vec = [(int)(config.data_subcarriers*config.frame_data_blocks*bitspermode[mode-1])]
+            modul_bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*modulbitspermode[mode-1]]
+            bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+            modul_bitcount_src = blocks.vector_source_i(modul_bitcount_vec,True,1)
+            bitloading = mode
+        else:
+            bitloading = 1
+            bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
+            bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+            modul_bitcount_src = bitcount_src
         # id's for frames
         id_vec = range(0,256)
         id_src = blocks.vector_source_s(id_vec,True,1)
         # bitloading for ID symbol and then once for data symbols
         #bitloading_vec = [1]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
         
-        test_allocation = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
+        test_allocation = [bitloading]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [bitloading]*(int)(config.data_subcarriers/8)
         #bitloading_vec = [1]*dsubc+[bitloading]*dsubc
         bitloading_vec = [1]*dsubc+test_allocation
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
@@ -130,22 +143,24 @@ class transmit_path(gr.hier_block2):
         bitcount_vec = [config.frame_data_blocks*sum(test_allocation)]
         bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # power loading, here same for all symbols
-        power_vec = [2]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [2]*(int)(config.data_subcarriers/8)
+        power_vec = [1]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [1]*(int)(config.data_subcarriers/8)
         power_src = blocks.vector_source_f(power_vec,True,dsubc)
         # mux control stream to mux id and data bits
         mux_vec = [0]*dsubc+[1]*bitcount_vec[0]
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
         id_src = (self.allocation_src,0)
-        bitcount_src = (self.allocation_src,1)
+        bitcount_src = (self.allocation_src,3)
         bitloading_src = (self.allocation_src,2)
-        power_src = (self.allocation_src,3)
+        power_src = (self.allocation_src,1)
+        if options.coding: 
+            modul_bitcount_src = (self.allocation_src,4)
+        else:
+            modul_bitcount_src = bitcount_src
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
-        self.connect(bitcount_src,mux_ctrl)
-        test_allocation = [4]*(int)(config.data_subcarriers) #+ [0]*(int)(config.data_subcarriers/2) + [2]*(int)(config.data_subcarriers/4)
-        #test_allocation = [2]*(int)(config.data_subcarriers/16) + [0]*(int)(config.data_subcarriers/16*15)# + [2]*(int)(config.data_subcarriers/8)
-
-        self.allocation_src.set_allocation(test_allocation,[1]*config.data_subcarriers)
+        self.connect(modul_bitcount_src,mux_ctrl)
+        #Initial allocation
+        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)   
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
@@ -194,17 +209,6 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
 
-    ## Bitmap Update Trigger for puncturing
-    if not options.nopunct:
-        bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
-
-        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
-        bmapsrc_stream_puncturing = [1]*dsubc + [2]*dsubc
-        bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing, True, dsubc)
-
-    if options.log and options.coding and not options.nopunct:
-      log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
-
     ## Frame Trigger
     ftrig_stream = [1]+[0]*(config.frame_data_part-1)
     ftrig = self._frame_trigger = blocks.vector_source_b(ftrig_stream,True)
@@ -216,11 +220,47 @@ class transmit_path(gr.hier_block2):
     dmux = self._data_multiplexer = stream_controlled_mux_b()
     self.connect(mux_ctrl,(dmux,0))
     self.connect(id_enc,(dmux,1))
-    if options.benchmarking:
-        self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
-    else:
-        self.connect(ber_ref_src,(dmux,2))
+
+    if options.coding:
+        fo=trellis.fsm(1,2,[91,121])       
+        encoder = self._encoder = trellis.encoder_bb(fo,0)
+        unpack = self._unpack = blocks.unpack_k_bits_bb(2)
+        self.connect(ber_ref_src,encoder,unpack)
         
+        if options.interleave:
+            int_object=trellis.interleaver(2000,666)
+            interlv = trellis.permutation(int_object.K(),int_object.INTER(),1,gr.sizeof_char)
+        
+        if not options.nopunct:
+            bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
+            btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
+            puncturing = self._puncturing = puncture_bb(config.data_subcarriers)
+            self.connect(bitloading_src,(puncturing,1))
+            self.connect(self._bitmap_trigger_puncturing,(puncturing,2))
+            self.connect(unpack,puncturing)
+            last_block=puncturing
+            
+            if options.interleave:
+                self.connect(last_block,interlv)
+                last_block = interlv
+            
+            if options.benchmarking:
+                self.connect(last_block,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+            else:
+                self.connect(last_block,(dmux,2))
+        else:
+            if options.benchmarking:
+                self.connect(unpack,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+            else:
+                self.connect(unpack,(dmux,2))
+        
+    else:
+        if options.benchmarking:
+            self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
+        else:
+            self.connect(ber_ref_src,(dmux,2))
+        
+    
 
     if options.log:
       dmux_f = gr.char_to_float()
@@ -228,7 +268,7 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, dmux_f, "data/dmux_out.float")
 
     ## Modulator
-    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,options.coding, config.frame_data_part)
+    mod = self._modulator = generic_mapper_bcv(config.data_subcarriers,config.coding, config.frame_data_part)
     self.connect(dmux,(mod,0))
     self.connect(bitloading_src,(mod,1))
 
@@ -411,6 +451,9 @@ class transmit_path(gr.hier_block2):
     normal.add_option("", "--nopunct", action="store_true",
               default=False,
               help="Disable puncturing/depuncturing")
+    normal.add_option("", "--interleave", action="store_true",
+              default=False,
+              help="Enable interleaving")
     normal.add_option("", "--imgxfer", action="store_true", default=False,
       help="Enable IMG Transfer mode")
     expert.add_option("", "--freqoff", type="eng_float", default=None,

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##OFDM Frame Sampler
+###################################################
+ -->
+<block>
+  <name>OFDM Frame Sampler</name>
+  <key>ofdm_frame_sampler</key>
+  <category>ofdm</category>
+  <import>from ofdm.ofdm_frame_sampler_grc import ofdm_frame_sampler</import>
+  <make>ofdm_frame_sampler($subcarriers, $frame_length)</make>
+  <param>
+    <name>Total Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Length</name>
+    <key>frame_length</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+  <doc>OFDM Frame Sampler
+	Wrapper Block
+  </doc>
+</block>

@@ -17,11 +17,27 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 install(FILES
+	ofdm_ofdm_pilot_block_inserter.xml
+	ofdm_fbmc_snr_filter.xml
+	ofdm_snr_filter.xml
+    ofdm_scatterplot_subcarrier_filter.xml
+	ofdm_rx_rpc_manager.xml
+	ofdm_fbmc_rms_amplifier.xml
+	ofdm_fbmc_snr_estimator.xml
+	ofdm_fbmc_postprocess_CTF_estimate.xml
+	ofdm_pilot_block_filter.xml
+	ofdm_frame_sampler.xml
+	ofdm_fbmc_frame_sampler.xml
+	ofdm_fbmc_pilot_block_filter.xml
+    ofdm_pilot_subcarrier_filter.xml
+    ofdm_ber_reference_source.xml
+    ofdm_recursive_timing_metric.xml
     ofdm_accumulator_cc.xml
     ofdm_autocorrelator_stage1.xml
     ofdm_autocorrelator_stage2.xml
     ofdm_accumulator_ff.xml
     ofdm_autocorrelator0.xml
+    fdm_autocorrelator.xml
     ofdm_ber_measurement.xml
     ofdm_bernoulli_bit_src.xml
     ofdm_bit_position_dependent_ber.xml
@@ -34,6 +50,7 @@ install(FILES
     ofdm_channel_estimator_02.xml
     ofdm_coded_bpsk_soft_decoder.xml
     ofdm_compat_read_ber_from_imgxfer.xml
+    ofdm_divide_frame_fc.xml
     ofdm_imgtransfer_sink.xml
     ofdm_imgtransfer_src.xml
     ofdm_imgtransfer_testkanal.xml
@@ -71,6 +88,7 @@ install(FILES
     ofdm_multiply_const_ccf.xml
     ofdm_multiply_const_ii.xml
     ofdm_multiply_const_vcc.xml
+    ofdm_multiply_frame_fc.xml
     ofdm_noise_nulling.xml
     ofdm_normalize_vcc.xml
     ofdm_peak_detector_02_fb.xml
@@ -128,6 +146,7 @@ install(FILES
     ofdm_fbmc_polyphase_network_vcvc.xml
     ofdm_fbmc_overlapping_parallel_to_serial_vcc.xml
     ofdm_fbmc_overlapping_serial_to_parallel_cvc.xml
+    ofdm_fbmc_pilot_block_inserter.xml
     ofdm_fbmc_vector_reshape_vcvc.xml
     ofdm_fbmc_vector_copy_vcvc.xml
     ofdm_fbmc_junction_vcvc.xml

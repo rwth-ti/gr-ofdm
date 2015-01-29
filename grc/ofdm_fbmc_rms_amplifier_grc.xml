@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##FBMC RMS Amplifier
+###################################################
+ -->
+<block>
+  <name>FBMC RMS Amplifier</name>
+  <key>fbmc_rms_amplifier</key>
+  <category>FBMC</category>
+  <import>from ofdm.fbmc_rms_amplifier_grc import fbmc_rms_amplifier</import>
+  <make>fbmc_rms_amplifier($amplitude, $subcarriers)</make>
+  <callback>set_rms_amplitude($amplitude)</callback>
+  <param>
+    <name>Amplitude</name>
+    <key>amplitude</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+  <doc>FBMC RMS Amplifier
+	Wrapper Block
+  </doc>
+</block>

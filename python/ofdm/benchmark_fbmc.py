@@ -379,7 +379,7 @@ class fbmc_benchmark (gr.top_block):
     expert.add_option("", "--sinr-est", action="store_true", default=False,
                       help="Enable SINR per subcarrier estimation [default=%default]")
 
-    expert.add_option("", "--est-preamble", type="int", default=1,
+    expert.add_option("", "--est-preamble", type="int", default=0,
                       help="the number of channel estimation preambles (1 or 2)")
     normal.add_option(
       "", "--event-rxbaseband",

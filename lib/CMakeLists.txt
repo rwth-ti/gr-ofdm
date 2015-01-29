@@ -153,7 +153,9 @@ list(APPEND ofdm_sources
     fbmc_junction_vcvc_impl.cc
     fbmc_subchannel_processing_vcvc_impl.cc
     fbmc_weighted_spreading_vcvc_impl.cc
-    fbmc_weighted_despreading_vcvc_impl.cc )
+    fbmc_weighted_despreading_vcvc_impl.cc
+    fbmc_asymmetrical_vector_padding_vcvc_impl.cc
+    fbmc_asymmetrical_vector_mask_vcvc_impl.cc )
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm

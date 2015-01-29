@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>Transmitter</name>
-  <key>ofdm_fbmc_transmitter_hier_bc</key>
+  <name>FBMC Transmitter (Multiuser)</name>
+  <key>ofdm_fbmc_transmitter_multiuser_bc</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_transmitter_hier_bc($M, $K, $qam_size, $syms_per_frame, $carriers, $theta_sel, $exclude_preamble, $sel_preamble, $zero_pads, $extra_pad)</make>
+  <make>ofdm.fbmc_transmitter_multiuser_bc($M, $K, $qam_size, $syms_per_frame, $start, $end, $theta_sel, $exclude_preamble, $sel_preamble, $zero_pads, $extra_pad)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -35,9 +35,15 @@
     <type>int</type>
   </param>
   <param>
-    <name>Number of Carriers</name>
-    <key>carriers</key>
-    <value>carriers</value>
+    <name>start</name>
+    <key>start</key>
+    <!-- <value>start</value> -->
+    <type>int</type>
+  </param>
+  <param>
+    <name>end</name>
+    <key>end</key>
+    <!-- <value>end</value> -->
     <type>int</type>
   </param>
   <param>
@@ -94,7 +100,6 @@
       <key>1</key>
     </option>
   </param>
-  
 
 
   <!-- Make one 'sink' node per input. Sub-nodes:

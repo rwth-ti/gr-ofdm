@@ -8,4 +8,4 @@ else
     . $PWD/environment_release
 fi
 
-../python/ofdm/test_demapper_fbmc.py
+../python/ofdm/test_demapper_fbmc_multiuser.py

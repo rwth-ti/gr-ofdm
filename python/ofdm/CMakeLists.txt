@@ -54,7 +54,11 @@ GR_PYTHON_INSTALL(
     fbmc_receiver_hier_cb.py
     fbmc_transmitter_hier_bc.py
     fbmc_symbol_estimation_vcb.py
-    fbmc_symbol_creation_bvc.py DESTINATION bin
+    fbmc_symbol_creation_bvc.py
+    fbmc_transmitter_demo.py
+    fbmc_receiver_demo.py
+    fbmc_transmitter_multiuser_bc.py
+    fbmc_receiver_multiuser_cb.py DESTINATION bin
 )
 
 GR_PYTHON_INSTALL(
@@ -121,3 +125,10 @@ GR_ADD_TEST(qa_fbmc_transmitter_hier_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOU
 GR_ADD_TEST(qa_fbmc_symbol_estimation_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_symbol_estimation_vcb.py)
 GR_ADD_TEST(qa_fbmc_symbol_creation_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_symbol_creation_bvc.py)
 
+GR_ADD_TEST(qa_fbmc_transmitter_demo ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_transmitter_demo.py)
+GR_ADD_TEST(qa_fbmc_receiver_demo ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_receiver_demo.py)
+GR_ADD_TEST(qa_asymmetrical_vector_padding_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_asymmetrical_vector_padding_cc.py)
+GR_ADD_TEST(qa_fbmc_asymmetrical_vector_padding_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_asymmetrical_vector_padding_vcvc.py)
+GR_ADD_TEST(qa_fbmc_transmitter_multiuser_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_transmitter_multiuser_bc.py)
+GR_ADD_TEST(qa_fbmc_asymmetrical_vector_mask_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_asymmetrical_vector_mask_vcvc.py)
+GR_ADD_TEST(qa_fbmc_receiver_multiuser_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_receiver_multiuser_cb.py)

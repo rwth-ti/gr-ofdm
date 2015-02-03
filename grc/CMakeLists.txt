@@ -17,6 +17,7 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 install(FILES
+    ofdm_uhd_transmitter.xml
 	ofdm_ofdm_pilot_block_inserter.xml
 	ofdm_fbmc_snr_filter.xml
 	ofdm_snr_filter.xml

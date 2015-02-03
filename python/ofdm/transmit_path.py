@@ -339,7 +339,7 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
-
+    log_to_file(self, amp, "data/amp_tx_out.compl")
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")
 

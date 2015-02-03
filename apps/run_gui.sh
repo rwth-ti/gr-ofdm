@@ -8,6 +8,6 @@ else
     . $PWD/environment_release
 fi
 
-ofdm_tx_gui.py &
-ofdm_rx_gui.py &
+ofdm_tx_gui.py $1 &
+ofdm_rx_gui.py $1
 

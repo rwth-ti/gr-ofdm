@@ -15,7 +15,7 @@
     <name>Amplitude</name>
     <key>amplitude</key>
     <value>1</value>
-    <type>int</type>
+    <type>float</type>
   </param>
   <param>
     <name>Subcarriers</name>

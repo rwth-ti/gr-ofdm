@@ -289,7 +289,6 @@ class receive_path(gr.hier_block2):
           used_id_bits, whitener_pn )
       self.connect( id_bfilt, self.id_dec )
       
-      log_to_file( self, (self.id_dec,0), "data/id_dec.int" )
 
       print "Using coded BPSK soft decoder for ID detection"
 

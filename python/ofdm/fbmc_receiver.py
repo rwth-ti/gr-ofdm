@@ -309,7 +309,6 @@ class fbmc_inner_receiver( gr.hier_block2 ):
     
     help2 = blocks.keep_one_in_n(gr.sizeof_gr_complex*total_subc,frame_length)
     self.connect ((self.subchannel_processing_vcvc,1),help2)
-    log_to_file( self, (self.subchannel_processing_vcvc,1), "data/fbmc_subchannel.compl" )
 
     
     #terminate_stream(self, help2)

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<block>
+  <name>UHD Transmitter</name>
+  <key>ofdm_uhd_transmitter</key>
+  <category>ofdm</category>
+  <import>from uhd_interface import uhd_transmitter</import>
+  <make>uhd_transmitter($args, $bandwidth, $frequency, $lo_offset, $gain, $spec, $antenna, $clock_source, $time_source, $verbose)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Args</name>
+    <key>args</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Bandwidth</name>
+    <key>bandwidth</key>
+    <value>bandwidth</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Frequency</name>
+    <key>frequency</key>
+    <value>tx_freq</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Local Offset</name>
+    <key>lo_offset</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Tx Gain</name>
+    <key>gain</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Subdev Spec</name>
+    <key>spec</key>
+    <value>None</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Antenna</name>
+    <key>antenna</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Clock Source</name>
+    <key>clock_source</key>
+    <value>None</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Time Source</name>
+    <key>time_source</key>
+    <value>None</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Verbose</name>
+    <key>verbose</key>
+    <value>False</value>
+    <type>bool</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </sink>
+  <doc>UHD Transmitter
+Wrapper Block</doc>
+</block>

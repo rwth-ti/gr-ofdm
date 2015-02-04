@@ -66,6 +66,8 @@ class transmit_path(gr.hier_block2):
     config.training_data       = default_block_header(config.data_subcarriers,
                                           config.fft_length,options)
     config.coding              = options.coding
+    config.bandwidth           = options.bandwidth
+    config.gui_frame_rate      = options.gui_frame_rate
 
 
     config.frame_id_blocks     = 1 # FIXME
@@ -101,11 +103,13 @@ class transmit_path(gr.hier_block2):
     vsubc = config.virtual_subcarriers
 
     # Adaptive Transmitter Concept
-
     used_id_bits = config.used_id_bits = 8 #TODO: no constant in source code
     rep_id_bits = config.rep_id_bits = config.data_subcarriers/used_id_bits #BPSK
     if config.data_subcarriers % used_id_bits <> 0:
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
+
+    # adapt OFDM frame rate and GUI display frame rate
+    self.keep_frame_n = int(1.0 / ( config.frame_length * (config.cp_length + config.fft_length) / config.bandwidth ) / config.gui_frame_rate)
 
     ## Allocation Control
     self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333")
@@ -140,7 +144,7 @@ class transmit_path(gr.hier_block2):
 
 
     if options.lab_special_case:
-        self.allocation_src.set_allocation([0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4),[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4),[0]*(config.data_subcarriers/4)+[2]*(config.data_subcarriers/2)+[0]*(config.data_subcarriers/4))
 
     if options.log:
         log_to_file(self, id_src, "data/id_src.short")
@@ -150,13 +154,10 @@ class transmit_path(gr.hier_block2):
 
     ## GUI probe output
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
-    # also skip ID symbol bitloading with keep_one_in_n (side effect)
-    # factor 2 for bitloading because we have two vectors per frame, one for id symbol and one for all payload/data symbols
-    # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
-    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
+    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,self.keep_frame_n), zmq_probe_bitloading)
     zmq_probe_power = zeromq.pub_sink(gr.sizeof_float,dsubc, "tcp://*:4444")
     #self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,40), blocks.complex_to_real(dsubc), zmq_probe_power)
-    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,40), zmq_probe_power)
+    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,self.keep_frame_n), zmq_probe_power)
 
     ## Workaround to avoid periodic structure
     seed(1)
@@ -343,24 +344,18 @@ class transmit_path(gr.hier_block2):
     """
     common_options.add_options(normal,expert)
 
-    normal.add_option("-a", "--rms-amplitude",
-                      type="eng_float", default=0.2, metavar="AMPL",
-                      help="set transmitter digital rms amplitude: 0.0 "+
-                           "<= AMPL < 1.0 [default=%default]")
-    normal.add_option(
-      "", "--img", type="string",
-      default="ratatouille.bmp",
-      help="The Bitmapfile which is tranferred[default=%default]")
-    normal.add_option("", "--coding", action="store_true",
-              default=False,
-              help="Enable channel coding")
-    normal.add_option("", "--nopunct", action="store_true",
-              default=False,
-              help="Disable puncturing/depuncturing")
+    normal.add_option("-a", "--rms-amplitude", type="eng_float", default=0.2, metavar="AMPL",
+                      help="set transmitter digital rms amplitude: 0.0 "+"<= AMPL < 1.0 [default=%default]")
+    normal.add_option("", "--img", type="string", default="ratatouille.bmp",
+                      help="The Bitmapfile which is tranferred[default=%default]")
+    normal.add_option("", "--coding", action="store_true", default=False,
+                      help="Enable channel coding")
+    normal.add_option("", "--nopunct", action="store_true", default=False,
+                      help="Disable puncturing/depuncturing")
     normal.add_option("", "--imgxfer", action="store_true", default=False,
-      help="Enable IMG Transfer mode")
+                      help="Enable IMG Transfer mode")
     expert.add_option("", "--freqoff", type="eng_float", default=None,
-               help="Simulate frequency offset [default=%default]")
+                      help="Simulate frequency offset [default=%default]")
     expert.add_option('', '--lab-special-case', action='store_true', default=False,
                       help='For lab exercise, use only half of the subcarriers and multipath')
     expert.add_option('', '--benchmarking', action='store_true', default=False,

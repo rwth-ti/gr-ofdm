@@ -163,7 +163,7 @@ class transmit_path(gr.hier_block2):
         #Initial allocation
         self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)   
         if options.benchmarking:
-            self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
+            self.allocation_src.set_allocation([5]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
     
     if options.lab_special_case:

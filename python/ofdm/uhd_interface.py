@@ -42,14 +42,16 @@ def add_freq_option(parser):
                           metavar="FREQ")
 
 class uhd_interface:
-    def __init__(self, istx, args, bandwidth, freq=None, lo_offset=None,
+    def __init__(self, istx, ismimo, args, bandwidth, freq=None, lo_offset=None,
                  gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
         
         if(istx):
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
-            #self.u = uhd.usrp_source(device_addr=" addr0=192.168.10.2, addr1=192.168.10.3", stream_args=uhd.stream_args('fc32',channels=range(2)))
-            self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
+            if(ismimo):
+                self.u = uhd.usrp_source(device_addr=" addr0=192.168.10.3, addr1=192.168.10.2", stream_args=uhd.stream_args('fc32',channels=range(2)))
+            else:
+                self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
         # Set clock source to external.
         if(clock_source):        
@@ -70,6 +72,7 @@ class uhd_interface:
         
         self._args = args
         self._ant  = antenna
+        self._ismimo = ismimo
         self._spec = spec
         self._gain = self.set_gain(gain)
         self._lo_offset = lo_offset
@@ -105,10 +108,12 @@ class uhd_interface:
             sys.stderr.write("You must specify -f FREQ or --freq FREQ\n")
             sys.exit(1)
         
-        r = self.u.set_center_freq(uhd.tune_request(freq, lo_offset))
+        r = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),0)
+        if(self._ismimo):
+            s = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),1)
 
-        if r:
-            return freq
+        if  r and s:
+            return "FREQ", freq
         else:
             frange = self.u.get_freq_range()
             sys.stderr.write(("\nRequested frequency (%f) out or range [%f, %f]\n") % \
@@ -132,7 +137,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
                 bandwidth=(bandwidth/2.0)
 
         # Set up the UHD interface as a transmitter
-        uhd_interface.__init__(self, True, args, bandwidth,
+        uhd_interface.__init__(self, True, False, args, bandwidth,
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         self.connect(self, self.u)
@@ -194,7 +199,7 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
                                 gr.io_signature(1,1,gr.sizeof_gr_complex))
       
         # Set up the UHD interface as a receiver
-        uhd_interface.__init__(self, False, args, bandwidth,
+        uhd_interface.__init__(self, False, False, args, bandwidth,
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         self.connect(self.u, self)
@@ -250,11 +255,11 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
                                 gr.io_signature2(2,2,gr.sizeof_gr_complex,gr.sizeof_gr_complex))
       
         # Set up the UHD interface as a receiver
-        uhd_interface.__init__(self, False, args, bandwidth,
+        uhd_interface.__init__(self, False, True, args, bandwidth,
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
         
-        #self.u.set_clock_source("mimo", 1)
+        self.u.set_clock_source("mimo", 1)
         #self.u.set_time_source("mimo", 1)
         #self.u.set_clock_source("external", 1)
         #self.u.set_time_source("external", 1)

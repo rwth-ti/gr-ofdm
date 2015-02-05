@@ -69,14 +69,20 @@ class rx_top_block(gr.top_block):
                 self.connect(self.source, self.rxpath)
                 self.connect((self.source,1), (self.rxpath,1)) 
                 '''
-        self._setup_rx_path(options)        
-        self._setup_rpc_manager()
-        self.dst    = (self.rxpath,0)
-
-        #self.dst2     = (self.rxpath,1)
-        self.connect((self.source,0), self.dst)
-        #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
-        #self.connect((self.source,1), self.dst2)        
+        if (options.rx_ant == 1):
+            self._setup_rx_path(options)        
+            self._setup_rpc_manager()
+            self.dst    = (self.rxpath,0)
+            self.connect((self.source,0), self.dst)
+        else:
+            self._setup_rx_path(options)        
+            self._setup_rpc_manager()
+            self.dst    = (self.rxpath,0)
+            self.dst2     = (self.rxpath,1)
+            self.connect((self.source,0), self.dst)
+            #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
+            self.connect((self.source,1), self.dst2)
+                    
                 
         #self._setup_rpc_manager()
 
@@ -107,6 +113,7 @@ class rx_top_block(gr.top_block):
                 #self.connect(self.source, self.rxpath)
             else:
                 print "1X21X21X21X2"
+                #self.rxpath = receive_path(options)
                 self.rxpath = receive_path_12(options)
                 #self._setup_rpc_manager()
                 #self.connect(self.source, self.rxpath)

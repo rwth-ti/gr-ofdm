@@ -80,6 +80,7 @@ namespace gr {
         d_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
 
         std::cout << "allocation_buffer on " << address << std::endl;
+
     }
 
     /*
@@ -175,8 +176,8 @@ namespace gr {
         {
             // Receive allocation from Tx
             recv_allocation();
-            // set new allocation
 
+            // set new allocation
             set_allocation(d_allocation_buffer[*in_id].bitloading,d_allocation_buffer[*in_id].power);
             // output
             out_bitcount[i] = d_bitcount_out; 

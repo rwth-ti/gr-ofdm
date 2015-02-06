@@ -56,6 +56,7 @@ namespace gr {
                 virtual void set_allocation_scheme(int allocation_scheme) = 0;
                 virtual void set_power_limit(int power_limit) = 0;
                 virtual void set_data_rate(int data_rate) = 0;
+                virtual void set_gap(float gap) = 0;
 
         };
 

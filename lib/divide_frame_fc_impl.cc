@@ -86,7 +86,9 @@ namespace gr {
 
             for(int i=0;i<d_subc;i++)
             {
-                *out=(*in_samples)/(d_hold_power[i]);
+                if((d_hold_power[i])!=0)
+                    *out = (*in_samples)/(d_hold_power[i]);
+                else *out = 0;
                 out++;in_samples++;
             }
             consume(0, 1);

@@ -31,7 +31,6 @@
 
 #include <numeric>
 
-#define GAP 6.6
 
 namespace gr {
   namespace ofdm {
@@ -58,7 +57,7 @@ namespace gr {
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_scheme(CM), d_power_limit(200), d_data_rate(600)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_scheme(CM), d_power_limit(200), d_data_rate(600), d_gap(6.6)
     {
         std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
@@ -250,7 +249,7 @@ namespace gr {
         {
             if(d_feedback_information.snr[i]>8.8)//&& d_feedback_information.snr[i]< 40)
             {
-                inv_snr.push_back( GAP / pow(10, d_feedback_information.snr[i]/10)); 
+                inv_snr.push_back( d_gap / pow(10, d_feedback_information.snr[i]/10)); 
                 counter ++;
             }
             else inv_snr.push_back(0);
@@ -280,7 +279,7 @@ namespace gr {
             {
                 d_allocation.power.push_back(level - inv_snr[i]);
                 if(d_feedback_information.snr[i] > 32.2) d_allocation.bitloading[i] = 8;
-                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ GAP ));
+                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ d_gap ));
             }
             else
             {
@@ -323,16 +322,16 @@ namespace gr {
         }
         if(G < d_data_rate) return;
         std::sort(snr_sort.begin(), snr_sort.end());
-        level = GAP * pow(2, ((d_data_rate-G)/d_subcarriers));
+        level = d_gap * pow(2, ((d_data_rate-G)/d_subcarriers));
 
         //Get Water Level
-        while(level < (GAP / snr_sort[it]))
+        while(level < (d_gap / snr_sort[it]))
         {
             if(it>10) return;
 
             G-= 1/snr_sort[it];
             it++;
-            level = GAP * pow(2, (d_data_rate-G) / (d_subcarriers - it));
+            level = d_gap * pow(2, (d_data_rate-G) / (d_subcarriers - it));
         }
 
         //Allocate
@@ -345,16 +344,12 @@ namespace gr {
             }
             else
             {
-                d_allocation.power.push_back( level - GAP/pow(10, d_feedback_information.snr[i]/10));
+                d_allocation.power.push_back( level - d_gap/pow(10, d_feedback_information.snr[i]/10));
                 if(d_allocation.power[i] > 5) d_allocation.power[i] = 5;
-                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ GAP )));
+                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ d_gap )));
                 if(d_allocation.bitloading[i] > 8) d_allocation.bitloading[i] = 8;
-
-                //std::cout<< level<<" ";//d_allocation.power[i]<< " ";
-
             }
         }
-        //std::cout<<std::endl;
 
         // clear and write power output vector
         d_allocation_out.power = d_allocation.power;
@@ -388,6 +383,12 @@ namespace gr {
     allocation_src_impl::set_power_limit(int power_limit)
     {
         d_power_limit = power_limit;
+    }
+
+    void
+    allocation_src_impl::set_gap(float gap)
+    {
+        d_gap = pow(10, gap/10.0);
     }
 
 

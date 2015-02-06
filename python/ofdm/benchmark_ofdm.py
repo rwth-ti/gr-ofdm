@@ -174,8 +174,11 @@ class ofdm_benchmark (gr.top_block):
       else:
         #self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
         # filter coefficients for the lab exercise
-        self.fad_chan = filter.fir_filter_ccc(1,[0,0,0.3267,0.8868,0.3267])
-        #self.fad_chan = channels.selective_fading_model(8, 0.1, False, 1, -1, [0, 0, 0], [0.3267,0.8868,0.3267], 200 )
+        self.fad_chan = filter.fir_filter_ccc(1,[0.3267,0.8868,0.3267])
+        #self.fad_chan = filter.fir_filter_ccc(1,[0,0,0.1,0.2,0.01,0.3])#0.3267,0.8868,0.3267])
+        #self.fad_chan = channels.selective_fading_model(5, 0.1, False, 1, -1, [0, 0, 0], [0.3267,0.8868,0.3267], 10 )
+        #self.fad_chan = channels.fading_model(6, 0.05, False);
+        #self.fad_chan = channels.dynamic_channel_model(1000000, 0, 0, 0, 0, 3, 0.01, False, 0, [2e-6,4e-6,8e-6],[0.3267,0.8868,0.3267], 20, 0, 0)
 
 
       self.connect(self.fad_chan, self.dst)
@@ -245,7 +248,7 @@ class ofdm_benchmark (gr.top_block):
     self.rpc_mgr_tx.add_interface("set_allocation_scheme",self.txpath.allocation_src.set_allocation_scheme)
     self.rpc_mgr_tx.add_interface("set_data_rate",self.txpath.allocation_src.set_data_rate)
     self.rpc_mgr_tx.add_interface("set_power_limit",self.txpath.allocation_src.set_power_limit)
-
+    self.rpc_mgr_tx.add_interface("set_gap",self.txpath.allocation_src.set_gap)
 
 
   def supply_rx_baseband(self):

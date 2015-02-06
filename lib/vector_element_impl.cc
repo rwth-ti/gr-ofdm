@@ -85,7 +85,7 @@ namespace gr {
             d_element = d_vlen;
         else
             d_element = element;
-        //std::cout << "set element: " << element << std::endl;
+        //std::cout << "set element: " << d_element << std::endl;
     };
 
   } /* namespace ofdm */

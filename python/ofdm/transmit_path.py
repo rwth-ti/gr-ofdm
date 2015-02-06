@@ -139,7 +139,9 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        #self.allocation_src.set_allocation([1]*(config.data_subcarriers/2) + [1]*(config.data_subcarriers/2),[1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([2]*(config.data_subcarriers/2) + [2]*(config.data_subcarriers/2), [1]*config.data_subcarriers)
+        self.allocation_src.set_allocation_scheme(0)
+        #self.allocation_src.set_allocation([4]*(config.data_subcarriers/2) + [4]*(config.data_subcarriers/2), [1.5]*(config.data_subcarriers/4) +[0.5]*(config.data_subcarriers/4) + [0.5]*(config.data_subcarriers/4) +  [1.5]*(config.data_subcarriers/4))
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
 
@@ -209,7 +211,7 @@ class transmit_path(gr.hier_block2):
         self.connect(ber_ref_src,blocks.head(gr.sizeof_char, options.N),(dmux,2))
     else:
         self.connect(ber_ref_src,(dmux,2))
-        
+
 
     if options.log:
       dmux_f = gr.char_to_float()
@@ -278,6 +280,7 @@ class transmit_path(gr.hier_block2):
     self.connect( pblocks, cp )
 
     lastblock = cp
+
 
     if options.log:
       log_to_file(self, cp, "data/cp_out.compl")

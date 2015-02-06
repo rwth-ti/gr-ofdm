@@ -61,6 +61,7 @@ namespace gr {
                 d_allocation_scheme_enum d_allocation_scheme;
                 int d_power_limit;
                 int d_data_rate;
+                float d_gap;
 
 
                 zmq::context_t  *d_context;
@@ -83,6 +84,7 @@ namespace gr {
                 void set_allocation_scheme(int allocation_scheme);
                 void set_power_limit(int power_limit);
                 void set_data_rate(int data_rate);
+                void set_gap(float gap);
 
 
                 void set_allocation(std::vector<uint8_t> bitloading,

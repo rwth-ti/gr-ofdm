@@ -164,6 +164,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.lineEditPowerLimit, QtCore.SIGNAL("editingFinished()"), self.edit_power_limit)
         self.connect(self.gui.horizontalSliderDataRate, QtCore.SIGNAL("valueChanged(int)"), self.slide_data_rate)
         self.connect(self.gui.lineEditDataRate, QtCore.SIGNAL("editingFinished()"), self.edit_data_rate)
+        self.connect(self.gui.horizontalSliderGap, QtCore.SIGNAL("valueChanged(int)"), self.slide_gap)
+        self.connect(self.gui.lineEditGap, QtCore.SIGNAL("editingFinished()"), self.edit_gap)
 
 
 
@@ -312,6 +314,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.lineEditPowerLimit.setText(QtCore.QString.number(power_limit))
         self.rpc_mgr_tx.request("set_power_limit",[power_limit])
 
+
+        #self.rpc_mgr_tx.request("set_modulation",[[5]*self.data_subcarriers,[power_limit/200.]*self.data_subcarriers])
+        #self.update_tx_params()
+
     def edit_power_limit(self):
         power_limit = self.lineEditPowerLimit.text().toInt()[0]
         power_limit = min(power_limit,1000)
@@ -325,20 +331,42 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_tx.request("set_power_limit",[power_limit])
 
     def slide_data_rate(self, data_rate):
-        self.gui.lineEditDataRate.setText(QtCore.QString.number(data_rate))
-        self.rpc_mgr_tx.request("set_data_rate",[data_rate])
+        bit_data_rate = (int) ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3))
+        self.gui.lineEditDataRate.setText(QtCore.QString("%1").number(data_rate/100.))
+        self.rpc_mgr_tx.request("set_data_rate",[bit_data_rate])
 
     def edit_data_rate(self):
         data_rate = self.lineEditDataRate.text().toInt()[0]
-        data_rate = min(data_rate,1000)
-        data_rate = max(data_rate,0)
+        bit_data_rate = (int) ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3))
+        bit_data_rate = min(data_rate,1600)
+        bit_data_rate = max(data_rate,0)
         self.gui.lineEditDataRate.setText(QtCore.QString("%1").arg(data_rate))
         # block signals to avoid feedback loop
         self.gui.horizontalSliderDataRate.blockSignals(True)
         # note slider positions are int (!)
-        self.gui.horizontalSliderDataRate.setValue(data_rate)
+        self.gui.horizontalSliderDataRate.setValue(data_rate*100)
         self.gui.horizontalSliderDataRate.blockSignals(False)
-        self.rpc_mgr_tx.request("set_data_rate",[data_rate])
+        self.rpc_mgr_tx.request("set_data_rate",[bit_data_rate])
+
+    def slide_gap(self, gap):
+        displayed_gap = gap/10000.0
+        self.gui.lineEditGap.setText(QtCore.QString.number(displayed_gap,'f',4))
+        self.gap = gap
+        self.rpc_mgr_tx.request("set_gap",[displayed_gap])
+
+    def edit_gap(self):
+        gap = self.lineEditGap.text().toFloat()[0]
+        gap = min(gap,20.0)
+        gap = max(gap,1.0)
+        self.gui.lineEditGap.setText(QtCore.QString("%1").arg(gap))
+        self.gap = gap
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderGap.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderGap.setValue(gap*10000.0)
+        self.gui.horizontalSliderGap.blockSignals(False)
+        self.rpc_mgr_tx.request("set_gap",[self.gap])
+
 
 
 

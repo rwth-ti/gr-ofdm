@@ -42,6 +42,7 @@ list(APPEND ofdm_sources
     ofdmi_mod.cc
     bit_position_dependent_ber_impl.cc
     calc_metric.cc
+    channel_equalizer_mimo_12_impl.cc
     channel_equalizer_mimo_2_impl.cc
     channel_equalizer_mimo_3_impl.cc
     channel_equalizer_mimo_impl.cc

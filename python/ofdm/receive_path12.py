@@ -196,7 +196,7 @@ class receive_path(gr.hier_block2):
     frame_sampler_2 = ofdm_frame_sampler(options)
 
     self.connect( ofdm_blocks_2, frame_sampler_2)
-    self.connect( frame_start, (frame_sampler_2,1) )
+    self.connect( frame_start_2, (frame_sampler_2,1) )
     terminate_stream(self,frame_start_2)
 
 
@@ -245,13 +245,23 @@ class receive_path(gr.hier_block2):
     self.frame_trigger_2 = frame_start_2
 
 
+#     ## COMBINING SIGNALS
+#     combine_add_0 = blocks.add_cc(config.subcarriers)
+#     self.connect(self.symbol_output,combine_add_0)
+#     self.connect(self.symbol_output_2,(combine_add_0,1))
+#     
+#     norm_val = [0.5]*config.subcarriers
+#     norm = ofdm.multiply_const_vcc( norm_val)
+    
     ## COMBINING SIGNALS
-    combine_add_0 = blocks.add_cc(config.subcarriers)
+    combine_add_0 = ofdm.channel_equalizer_mimo_12(config.subcarriers)
     self.connect(self.symbol_output,combine_add_0)
     self.connect(self.symbol_output_2,(combine_add_0,1))
+    self.connect(self.ctf,blocks.float_to_complex(config.subcarriers),(combine_add_0,2))
+    self.connect(self.ctf_2,blocks.float_to_complex(config.subcarriers),(combine_add_0,3))
+    self.connect(frame_start,(combine_add_0,4))
+    self.connect(frame_start_2,(combine_add_0,5))
     
-    norm_val = [0.5]*config.subcarriers
-    norm = ofdm.multiply_const_vcc( norm_val)
     
     #log_to_file(self,self.symbol_output,"data/symbol_output.compl")
     #log_to_file(self,self.symbol_output_2,"data/symbol_output_2.compl")
@@ -271,7 +281,8 @@ class receive_path(gr.hier_block2):
     ft[0] = 1
     static_frame_trigger = blocks.vector_source_b( ft, True )
 #    self.connect(self.symbol_output,pb_filt)
-    self.connect(combine_add_0,norm,pb_filt)
+    #self.connect(combine_add_0,norm,pb_filt)
+    self.connect(combine_add_0,pb_filt)
 #    self.connect(self.frame_trigger,(pb_filt,1))
     #self.connect(self.frame_trigger_"",(pb_filt,1))
     self.connect(static_frame_trigger,(pb_filt,1))

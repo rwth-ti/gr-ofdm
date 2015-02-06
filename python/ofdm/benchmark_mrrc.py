@@ -191,7 +191,7 @@ class ofdm_mrrc_benchmark (gr.top_block):
       awgn_chan = blocks.add_cc()
       awgn_chan2 = blocks.add_cc()
       awgn_noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma, 0, 8192)
-      awgn_noise_src2 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma*8, 0, 8192)
+      awgn_noise_src2 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma*2, 0, 2192)
       self.connect( awgn_chan, self.dst )
       self.connect( awgn_chan2, self.dst2 )
       self.connect( awgn_noise_src, (awgn_chan,1) )

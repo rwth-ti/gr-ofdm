@@ -36,6 +36,7 @@ install(FILES
     bit_position_dependent_ber.h
     calc_metric.h
     channel_equalizer_mimo_2.h
+    channel_equalizer_mimo_12.h
     channel_equalizer_mimo_3.h
     channel_equalizer_mimo.h
     channel_equalizer.h

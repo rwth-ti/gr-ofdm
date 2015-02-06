@@ -18,6 +18,7 @@
 #include "ofdm/bit_position_dependent_ber.h"
 #include "ofdm/ofdm_metric_type.h"
 #include "ofdm/calc_metric.h"
+#include "ofdm/channel_equalizer_mimo_12.h"
 #include "ofdm/channel_equalizer_mimo_2.h"
 #include "ofdm/channel_equalizer_mimo_3.h"
 #include "ofdm/channel_equalizer_mimo.h"
@@ -150,6 +151,8 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, bernoulli_bit_src);
 GR_SWIG_BLOCK_MAGIC2(ofdm, bit_position_dependent_ber);
 %include "ofdm/calc_metric.h"
 %include "ofdm/ofdm_metric_type.h"
+%include "ofdm/channel_equalizer_mimo_12.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, channel_equalizer_mimo_12);
 %include "ofdm/channel_equalizer_mimo_2.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, channel_equalizer_mimo_2);
 %include "ofdm/channel_equalizer_mimo_3.h"

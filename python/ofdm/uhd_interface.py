@@ -49,7 +49,7 @@ class uhd_interface:
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
             if(ismimo):
-                self.u = uhd.usrp_source(device_addr=" addr0=192.168.10.3, addr1=192.168.10.2", stream_args=uhd.stream_args('fc32',channels=range(2)))
+                self.u = uhd.usrp_source(device_addr=" addr0=192.168.10.2, addr1=192.168.10.3", stream_args=uhd.stream_args('fc32',channels=range(2)))
             else:
                 self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
@@ -112,7 +112,7 @@ class uhd_interface:
         if(self._ismimo):
             s = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),1)
 
-        if  r and s:
+        if  r:
             return "FREQ", freq
         else:
             frange = self.u.get_freq_range()
@@ -260,7 +260,7 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
 
         
         self.u.set_clock_source("mimo", 1)
-        #self.u.set_time_source("mimo", 1)
+        self.u.set_time_source("mimo", 1)
         #self.u.set_clock_source("external", 1)
         #self.u.set_time_source("external", 1)
         #self.u.set_clock_source("external", 0)

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<block>
+  <name>SCFDMA Transmitter</name>
+  <key>ofdm_scfdma_transmitter_bc</key>
+  <category>SC-FDMA</category>
+  <import>import ofdm</import>
+  <make>ofdm.scfdma_transmitter_bc($N, $M, $modulation, $start_index, $cp_length)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <callback>set_N($N)</callback>
+  <callback>set_M($M)</callback>
+  <callback>set_modulation($modulation)</callback>
+  <callback>set_start_index($start_index)</callback>
+  <callback>set_cp_length($cp_length)</callback>
+  <param>
+    <name>N</name>
+    <key>N</key>
+    <value>12</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>256</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>modulation</name>
+    <key>modulation</key>
+    <value>16</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>start_index</name>
+    <key>start_index</key>
+    <value>0</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>cp_length</name>
+    <key>cp_length</key>
+    <value>0.25</value>
+    <type>raw</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </source>
+  <doc>/home/burak/.grc_gnuradio/top_block.py</doc>
+  <grc_source>/home/burak/fbmc/gr-ofdm/apps/grc/scfdma_transmitter_bc.grc</grc_source>
+</block>

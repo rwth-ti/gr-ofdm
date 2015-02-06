@@ -69,60 +69,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>exclude_preamble</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(496, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>256</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(80, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>carriers</value>
     </param>
     <param>
@@ -231,33 +177,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>qam_size</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>64</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(224, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>K</value>
     </param>
     <param>
@@ -336,6 +255,87 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(80, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>exclude_preamble</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(496, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>64</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(224, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>import</key>
     <param>
       <key>id</key>
@@ -403,53 +403,6 @@
     <param>
       <key>_coordinate</key>
       <value>(1040, 627)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blks2_error_rate</key>
-    <param>
-      <key>id</key>
-      <value>blks2_error_rate_0_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>'BER'</value>
-    </param>
-    <param>
-      <key>win_size</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>bits_per_symbol</key>
-      <value>(int)(math.log(qam_size)/math.log(2))</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1040, 523)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1836,148 +1789,6 @@
     </param>
   </block>
   <block>
-    <key>single_pole_iir_filter_xx</key>
-    <param>
-      <key>id</key>
-      <value>single_pole_iir_filter_xx_0_0_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>alpha</key>
-      <value>0.000001</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1016, 851)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>wxgui_numbersink2</key>
-    <param>
-      <key>id</key>
-      <value>wxgui_numbersink2_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>User1</value>
-    </param>
-    <param>
-      <key>units</key>
-      <value>%</value>
-    </param>
-    <param>
-      <key>samp_rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>min_value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>max_value</key>
-      <value>100</value>
-    </param>
-    <param>
-      <key>factor</key>
-      <value>100.0</value>
-    </param>
-    <param>
-      <key>decimal_places</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>ref_level</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>number_rate</key>
-      <value>15</value>
-    </param>
-    <param>
-      <key>peak_hold</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>average</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>avg_alpha</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>show_gauge</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>win_size</key>
-      <value></value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value></value>
-    </param>
-    <param>
-      <key>notebook</key>
-      <value></value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(752, 747)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>blks2_error_rate</key>
     <param>
       <key>id</key>
@@ -2639,164 +2450,6 @@
     </param>
   </block>
   <block>
-    <key>ofdm_fbmc_transmitter_multiuser_bc</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_transmitter_multiuser_bc_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>K</value>
-    </param>
-    <param>
-      <key>qam_size</key>
-      <value>qam_size</value>
-    </param>
-    <param>
-      <key>syms_per_frame</key>
-      <value>syms_per_frame</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>boundaries[2]</value>
-    </param>
-    <param>
-      <key>end</key>
-      <value>boundaries[3]</value>
-    </param>
-    <param>
-      <key>theta_sel</key>
-      <value>theta_sel</value>
-    </param>
-    <param>
-      <key>exclude_preamble</key>
-      <value>exclude_preamble</value>
-    </param>
-    <param>
-      <key>sel_preamble</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>zero_pads</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>extra_pad</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(256, 235)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_fbmc_transmitter_multiuser_bc</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_transmitter_multiuser_bc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>K</value>
-    </param>
-    <param>
-      <key>qam_size</key>
-      <value>qam_size</value>
-    </param>
-    <param>
-      <key>syms_per_frame</key>
-      <value>syms_per_frame</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>boundaries[0]</value>
-    </param>
-    <param>
-      <key>end</key>
-      <value>boundaries[1]</value>
-    </param>
-    <param>
-      <key>theta_sel</key>
-      <value>theta_sel</value>
-    </param>
-    <param>
-      <key>exclude_preamble</key>
-      <value>exclude_preamble</value>
-    </param>
-    <param>
-      <key>sel_preamble</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>zero_pads</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>extra_pad</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(256, 19)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>ofdm_fbmc_symbol_estimation_vcb</key>
     <param>
       <key>id</key>
@@ -3005,49 +2658,6 @@
     </param>
   </block>
   <block>
-    <key>ofdm_fbmc_symbol_estimation_vcb</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_symbol_estimation_vcb_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>carriers[1]</value>
-    </param>
-    <param>
-      <key>qam_size</key>
-      <value>qam_size</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(840, 115)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>ofdm_fbmc_transmitter_multiuser_bc</key>
     <param>
       <key>id</key>
@@ -3120,6 +2730,85 @@
     <param>
       <key>_coordinate</key>
       <value>(280, 691)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_fbmc_transmitter_multiuser_bc</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_transmitter_multiuser_bc_2</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>qam_size</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>syms_per_frame</key>
+      <value>syms_per_frame</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>boundaries[4]</value>
+    </param>
+    <param>
+      <key>end</key>
+      <value>boundaries[5]</value>
+    </param>
+    <param>
+      <key>theta_sel</key>
+      <value>theta_sel</value>
+    </param>
+    <param>
+      <key>exclude_preamble</key>
+      <value>exclude_preamble</value>
+    </param>
+    <param>
+      <key>sel_preamble</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>zero_pads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>extra_pad</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(264, 459)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3261,7 +2950,50 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(680, 211)</value>
+      <value>(680, 251)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_fbmc_symbol_estimation_vcb</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_symbol_estimation_vcb_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>carriers[1]</value>
+    </param>
+    <param>
+      <key>qam_size</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(832, 107)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3272,7 +3004,7 @@
     <key>ofdm_fbmc_transmitter_multiuser_bc</key>
     <param>
       <key>id</key>
-      <value>ofdm_fbmc_transmitter_multiuser_bc_2</value>
+      <value>ofdm_fbmc_transmitter_multiuser_bc_1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -3296,11 +3028,11 @@
     </param>
     <param>
       <key>start</key>
-      <value>boundaries[4]</value>
+      <value>boundaries[2]</value>
     </param>
     <param>
       <key>end</key>
-      <value>boundaries[5]</value>
+      <value>boundaries[3]</value>
     </param>
     <param>
       <key>theta_sel</key>
@@ -3340,11 +3072,279 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(264, 459)</value>
+      <value>(256, 235)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_fbmc_transmitter_multiuser_bc</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_transmitter_multiuser_bc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>qam_size</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>syms_per_frame</key>
+      <value>syms_per_frame</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>boundaries[0]</value>
+    </param>
+    <param>
+      <key>end</key>
+      <value>boundaries[1]</value>
+    </param>
+    <param>
+      <key>theta_sel</key>
+      <value>theta_sel</value>
+    </param>
+    <param>
+      <key>exclude_preamble</key>
+      <value>exclude_preamble</value>
+    </param>
+    <param>
+      <key>sel_preamble</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>zero_pads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>extra_pad</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(256, 19)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blks2_error_rate</key>
+    <param>
+      <key>id</key>
+      <value>blks2_error_rate_0_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>'BER'</value>
+    </param>
+    <param>
+      <key>win_size</key>
+      <value>1000</value>
+    </param>
+    <param>
+      <key>bits_per_symbol</key>
+      <value>(int)(math.log(qam_size)/math.log(2))</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1040, 523)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>wxgui_numbersink2</key>
+    <param>
+      <key>id</key>
+      <value>wxgui_numbersink2_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>User1</value>
+    </param>
+    <param>
+      <key>units</key>
+      <value>%</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>min_value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max_value</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>factor</key>
+      <value>100.0</value>
+    </param>
+    <param>
+      <key>decimal_places</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>ref_level</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>number_rate</key>
+      <value>15</value>
+    </param>
+    <param>
+      <key>peak_hold</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>average</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>avg_alpha</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>show_gauge</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>win_size</key>
+      <value></value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>notebook</key>
+      <value></value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(992, 747)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>single_pole_iir_filter_xx</key>
+    <param>
+      <key>id</key>
+      <value>single_pole_iir_filter_xx_0_0_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>alpha</key>
+      <value>0.000001</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1040, 883)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
     </param>
   </block>
   <connection>
@@ -3564,20 +3564,8 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blks2_error_rate_0_0_0</source_block_id>
-    <sink_block_id>single_pole_iir_filter_xx_0_0_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>single_pole_iir_filter_xx_0_0_0</source_block_id>
     <sink_block_id>wxgui_numbersink2_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>single_pole_iir_filter_xx_0_0_0_0</source_block_id>
-    <sink_block_id>wxgui_numbersink2_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3626,6 +3614,12 @@
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
     <sink_block_id>ofdm_fbmc_receiver_multiuser_cb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blks2_error_rate_0_0_0</source_block_id>
+    <sink_block_id>wxgui_numbersink2_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

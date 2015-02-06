@@ -165,6 +165,8 @@ install(FILES
     ofdm_fbmc_asymmetrical_vector_padding_vcvc.xml
     ofdm_fbmc_transmitter_multiuser_bc.xml
     ofdm_fbmc_asymmetrical_vector_mask_vcvc.xml
-    ofdm_fbmc_receiver_multiuser_cb.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_fbmc_receiver_multiuser_cb.xml
+    ofdm_scfdma_subcarrier_mapper_vcvc.xml
+    ofdm_scfdma_transmitter_bc.xml DESTINATION share/gnuradio/grc/blocks
 
 )

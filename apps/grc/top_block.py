@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Wed Jan 21 01:06:37 2015
+# Generated: Fri Jan 30 15:34:05 2015
 ##################################################
 
 # Call XInitThreads as the _very_ first thing.
@@ -46,7 +46,7 @@ class top_block(grc_wxgui.top_block_gui):
         self.syms_per_frame = syms_per_frame = 20
         self.samp_rate = samp_rate = 3.125e6*2/100
         self.qam_size = qam_size = 64
-        self.exclude_preamble = exclude_preamble = 1
+        self.exclude_preamble = exclude_preamble = 0
         self.carriers = carriers = [boundaries[1]-boundaries[0]+1,boundaries[3]-boundaries[2]+1,boundaries[5]-boundaries[4]+1,boundaries[7]-boundaries[6]+1]
         self.M = M = 256
         self.K = K = 4
@@ -122,7 +122,6 @@ class top_block(grc_wxgui.top_block_gui):
         	show_gauge=True,
         )
         self.Add(self.wxgui_numbersink2_0.win)
-        self.single_pole_iir_filter_xx_0_0_0_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
         self.single_pole_iir_filter_xx_0_0_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
         self.single_pole_iir_filter_xx_0_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
         self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
@@ -174,7 +173,7 @@ class top_block(grc_wxgui.top_block_gui):
         self.connect((self.analog_random_source_x_0_0_0_2, 0), (self.blocks_throttle_0_0_0_2, 0))    
         self.connect((self.blks2_error_rate_0, 0), (self.single_pole_iir_filter_xx_0, 0))    
         self.connect((self.blks2_error_rate_0_0, 0), (self.single_pole_iir_filter_xx_0_0, 0))    
-        self.connect((self.blks2_error_rate_0_0_0, 0), (self.single_pole_iir_filter_xx_0_0_0_0, 0))    
+        self.connect((self.blks2_error_rate_0_0_0, 0), (self.wxgui_numbersink2_0_0, 0))    
         self.connect((self.blks2_error_rate_0_0_1, 0), (self.single_pole_iir_filter_xx_0_0_0, 0))    
         self.connect((self.blocks_add_xx_0, 0), (self.ofdm_fbmc_receiver_multiuser_cb_0, 0))    
         self.connect((self.blocks_throttle_0_0_0, 0), (self.blks2_error_rate_0_0_0, 0))    
@@ -200,7 +199,6 @@ class top_block(grc_wxgui.top_block_gui):
         self.connect((self.single_pole_iir_filter_xx_0, 0), (self.wxgui_numbersink2_0_0_0, 0))    
         self.connect((self.single_pole_iir_filter_xx_0_0, 0), (self.wxgui_numbersink2_0_1, 0))    
         self.connect((self.single_pole_iir_filter_xx_0_0_0, 0), (self.wxgui_numbersink2_0, 0))    
-        self.connect((self.single_pole_iir_filter_xx_0_0_0_0, 0), (self.wxgui_numbersink2_0_0, 0))    
 
 
     def get_boundaries(self):

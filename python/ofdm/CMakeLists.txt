@@ -58,7 +58,8 @@ GR_PYTHON_INSTALL(
     fbmc_transmitter_demo.py
     fbmc_receiver_demo.py
     fbmc_transmitter_multiuser_bc.py
-    fbmc_receiver_multiuser_cb.py DESTINATION bin
+    fbmc_receiver_multiuser_cb.py
+    scfdma_transmitter_bc.py DESTINATION bin
 )
 
 GR_PYTHON_INSTALL(
@@ -132,3 +133,6 @@ GR_ADD_TEST(qa_fbmc_asymmetrical_vector_padding_vcvc ${PYTHON_EXECUTABLE} ${CMAK
 GR_ADD_TEST(qa_fbmc_transmitter_multiuser_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_transmitter_multiuser_bc.py)
 GR_ADD_TEST(qa_fbmc_asymmetrical_vector_mask_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_asymmetrical_vector_mask_vcvc.py)
 GR_ADD_TEST(qa_fbmc_receiver_multiuser_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_receiver_multiuser_cb.py)
+GR_ADD_TEST(qa_scfdma_subcarrier_mapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_subcarrier_mapper_vcvc.py)
+GR_ADD_TEST(qa_scfdma_subcarrier_mapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_subcarrier_mapper_vcvc.py)
+GR_ADD_TEST(qa_scfdma_transmitter_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_transmitter_bc.py)

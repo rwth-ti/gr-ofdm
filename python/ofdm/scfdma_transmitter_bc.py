@@ -23,6 +23,7 @@ from gnuradio import fft
 from gnuradio import gr
 from gnuradio.fft import window
 from gnuradio.filter import firdes
+from gnuradio import blocks
 import ofdm
 
 class scfdma_transmitter_bc(gr.hier_block2):
@@ -50,6 +51,7 @@ class scfdma_transmitter_bc(gr.hier_block2):
         # Blocks
         ##################################################
         self.ofdm_scfdma_subcarrier_mapper_vcvc_0 = ofdm.scfdma_subcarrier_mapper_vcvc(N, M, start_index, mapping)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc([1.0/(M*N)])
         self.ofdm_fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(N, modulation)
         self.ofdm_cyclic_prefixer_0 = ofdm.cyclic_prefixer(M, int(M*(1+cp_ratio)))
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
@@ -60,7 +62,8 @@ class scfdma_transmitter_bc(gr.hier_block2):
         ##################################################
         self.connect((self.fft_vxx_0, 0), (self.ofdm_scfdma_subcarrier_mapper_vcvc_0, 0))    
         self.connect((self.fft_vxx_0_0, 0), (self.ofdm_cyclic_prefixer_0, 0))    
-        self.connect((self.ofdm_cyclic_prefixer_0, 0), (self, 0))    
+        self.connect((self.ofdm_cyclic_prefixer_0, 0), (self.blocks_multiply_const_vxx_0,0))
+        self.connect((self.blocks_multiply_const_vxx_0,0), (self,0))    
         self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.fft_vxx_0, 0))    
         self.connect((self.ofdm_scfdma_subcarrier_mapper_vcvc_0, 0), (self.fft_vxx_0_0, 0))    
         self.connect((self, 0), (self.ofdm_fbmc_symbol_creation_bvc_0, 0))    

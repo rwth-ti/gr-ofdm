@@ -19,7 +19,12 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+from gnuradio import fft
+from gnuradio import blocks
 from gnuradio import gr
+from gnuradio.fft import window
+from gnuradio.filter import firdes
+import ofdm
 
 class scfdma_receiver_cb(gr.hier_block2):
     """

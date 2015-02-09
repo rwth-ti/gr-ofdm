@@ -19,7 +19,11 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+from gnuradio import fft
 from gnuradio import gr
+from gnuradio.fft import window
+from gnuradio.filter import firdes
+import ofdm
 
 class scfdma_transmitter_bc(gr.hier_block2):
     """
@@ -47,16 +51,16 @@ class scfdma_transmitter_bc(gr.hier_block2):
         ##################################################
         self.ofdm_scfdma_subcarrier_mapper_vcvc_0 = ofdm.scfdma_subcarrier_mapper_vcvc(N, M, start_index, mapping)
         self.ofdm_fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(N, modulation)
+        self.ofdm_cyclic_prefixer_0 = ofdm.cyclic_prefixer(M, int(M*(1+cp_ratio)))
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
         self.fft_vxx_0 = fft.fft_vcc(N, True, (), True, 1)
-        self.digital_ofdm_cyclic_prefixer_0 = digital.ofdm_cyclic_prefixer(M, M+int(M*cp_ratio), 0, "frame_len")
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.digital_ofdm_cyclic_prefixer_0, 0), (self, 0))    
         self.connect((self.fft_vxx_0, 0), (self.ofdm_scfdma_subcarrier_mapper_vcvc_0, 0))    
-        self.connect((self.fft_vxx_0_0, 0), (self.digital_ofdm_cyclic_prefixer_0, 0))    
+        self.connect((self.fft_vxx_0_0, 0), (self.ofdm_cyclic_prefixer_0, 0))    
+        self.connect((self.ofdm_cyclic_prefixer_0, 0), (self, 0))    
         self.connect((self.ofdm_fbmc_symbol_creation_bvc_0, 0), (self.fft_vxx_0, 0))    
         self.connect((self.ofdm_scfdma_subcarrier_mapper_vcvc_0, 0), (self.fft_vxx_0_0, 0))    
         self.connect((self, 0), (self.ofdm_fbmc_symbol_creation_bvc_0, 0))    
@@ -91,3 +95,4 @@ class scfdma_transmitter_bc(gr.hier_block2):
 
     def set_cp_ratio(self, cp_ratio):
         self.cp_ratio = cp_ratio
+

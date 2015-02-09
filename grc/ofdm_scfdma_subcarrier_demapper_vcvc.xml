@@ -1,0 +1,47 @@
+<block>
+  <name>Subcarrier Demapper</name>
+  <key>ofdm_scfdma_subcarrier_demapper_vcvc</key>
+  <category>SC-FDMA</category>
+  <import>import ofdm</import>
+  <make>ofdm.scfdma_subcarrier_demapper_vcvc($N, $M, $start, $mode)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>N</name>
+    <key>N</key>
+    <value>N</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Start index</name>
+    <key>start</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Mode</name>
+    <key>mode</key>
+    <type>enum</type>
+    <option>
+      <name>LFDMA</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>DFDMA</name>
+      <key>1</key>
+    </option>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$N</vlen>
+  </source>
+</block>

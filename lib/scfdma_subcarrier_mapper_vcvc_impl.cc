@@ -26,35 +26,35 @@
 #include "scfdma_subcarrier_mapper_vcvc_impl.h"
 
 namespace gr {
-  namespace ofdm {
+	namespace ofdm {
 
-    scfdma_subcarrier_mapper_vcvc::sptr
-    scfdma_subcarrier_mapper_vcvc::make(int N, int M, int start, int mode)
-    {
-      return gnuradio::get_initial_sptr
-        (new scfdma_subcarrier_mapper_vcvc_impl(N, M, start, mode));
-    }
+		scfdma_subcarrier_mapper_vcvc::sptr
+		scfdma_subcarrier_mapper_vcvc::make(int N, int M, int start, int mode)
+		{
+		  return gnuradio::get_initial_sptr
+			(new scfdma_subcarrier_mapper_vcvc_impl(N, M, start, mode));
+		}
 
-    /*
-     * The private constructor
-     */
-    scfdma_subcarrier_mapper_vcvc_impl::scfdma_subcarrier_mapper_vcvc_impl(int N, int M, int start, int mode)
-      : gr::sync_block("scfdma_subcarrier_mapper_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*N),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*M)),
-      	d_M(M),
-		d_N(N),
-		d_start(start),
-		d_mode(mode),
-		d_indices(NULL)
-    {
-    	get_indices();
-    }
+		/*
+		 * The private constructor
+		 */
+		scfdma_subcarrier_mapper_vcvc_impl::scfdma_subcarrier_mapper_vcvc_impl(int N, int M, int start, int mode)
+		  : gr::sync_block("scfdma_subcarrier_mapper_vcvc",
+				  gr::io_signature::make(1, 1, sizeof(gr_complex)*N),
+				  gr::io_signature::make(1, 1, sizeof(gr_complex)*M)),
+			d_M(M),
+			d_N(N),
+			d_start(start),
+			d_mode(mode),
+			d_indices(NULL)
+		{
+			get_indices();
+		}
 
-    /*
-     * Our virtual destructor.
-     */
-    scfdma_subcarrier_mapper_vcvc_impl::~scfdma_subcarrier_mapper_vcvc_impl()
+		/*
+		 * Our virtual destructor.
+		 */
+		scfdma_subcarrier_mapper_vcvc_impl::~scfdma_subcarrier_mapper_vcvc_impl()
 		{
 		}
 
@@ -85,25 +85,25 @@ namespace gr {
 
 		int
 		scfdma_subcarrier_mapper_vcvc_impl::work(int noutput_items,
-				gr_vector_const_void_star &input_items,
-				gr_vector_void_star &output_items)
+			gr_vector_const_void_star &input_items,
+			gr_vector_void_star &output_items)
 		{
-				const gr_complex *in = (const gr_complex *) input_items[0];
-				gr_complex *out = (gr_complex *) output_items[0];
+			const gr_complex *in = (const gr_complex *) input_items[0];
+			gr_complex *out = (gr_complex *) output_items[0];
 
-				int ii(0);
-				// Do <+signal processing+>
-				for(int i=0;i<d_M*noutput_items;i++){
-					if(index_included(i%d_M)){
-						out[i] = in[ii++];
-					}
-					else{
-						out[i] = 0;
-					}
+			int ii(0);
+			// Do <+signal processing+>
+			for(int i=0;i<d_M*noutput_items;i++){
+				if(index_included(i%d_M)){
+					out[i] = in[ii++];
 				}
+				else{
+					out[i] = 0;
+				}
+			}
 
-				// Tell runtime system how many output items we produced.
-				return noutput_items;
+			// Tell runtime system how many output items we produced.
+			return noutput_items;
 		}
 
 	} /* namespace ofdm */

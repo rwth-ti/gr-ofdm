@@ -63,6 +63,7 @@ from fbmc_receiver_demo import fbmc_receiver_demo
 from fbmc_transmitter_multiuser_bc import fbmc_transmitter_multiuser_bc
 from fbmc_receiver_multiuser_cb import fbmc_receiver_multiuser_cb
 from scfdma_transmitter_bc import scfdma_transmitter_bc
+# from scfdma_transmitter_bc import scfdma_transmitter_bc
 
 #
 

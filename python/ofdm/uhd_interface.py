@@ -261,6 +261,7 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
         
         self.u.set_clock_source("mimo", 1)
         self.u.set_time_source("mimo", 1)
+        #self.u.set_time_source("mimo", 0)
         #self.u.set_clock_source("external", 1)
         #self.u.set_time_source("external", 1)
         #self.u.set_clock_source("external", 0)

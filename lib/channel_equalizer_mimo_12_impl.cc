@@ -65,8 +65,8 @@ namespace gr {
          in_sig[2] = sizeof( gr_complex ) * vlen;  // h0
          in_sig[3] = sizeof( gr_complex ) * vlen;  // h1
          in_sig[4] = sizeof( char );				 // trigger
-         in_sig[5] = sizeof( char );				 // trigger 1
-         set_input_signature(io_signature::makev(6,6,in_sig));
+         //in_sig[5] = sizeof( char );				 // trigger 1
+         set_input_signature(io_signature::makev(5,5,in_sig));
 
 
     	 assert( ( vlen % 2 ) == 0 ); // alignment 16 byte
@@ -87,7 +87,7 @@ namespace gr {
     channel_equalizer_mimo_12_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-      ninput_items_required[0] = ninput_items_required[1] = ninput_items_required[4]= ninput_items_required[5] = noutput_items;
+      ninput_items_required[0] = ninput_items_required[1] = ninput_items_required[4] = noutput_items;
 	  ninput_items_required[2] = d_need_input_h0;
 	  ninput_items_required[3] = d_need_input_h1;
     }
@@ -105,17 +105,17 @@ namespace gr {
     	  gr_complex const * ctf_1 = static_cast< gr_complex const * >( input_items[3] );
 
     	  char const * frame_start = static_cast< char const * >( input_items[4] );
-    	  char const * frame_start_1 = static_cast< char const * >( input_items[5] );
+    	  //char const * frame_start_1 = static_cast< char const * >( input_items[5] );
 
     	  gr_complex * out = static_cast< gr_complex * >( output_items[0] );
 
-//    	  int const nin = std::min( ninput_items[0],std::min( ninput_items[1],
-//    					  std::min( ninput_items[4],std::min( ninput_items[5], noutput_items ) ) )) ;
+    	  int const nin = std::min( ninput_items[0],std::min( ninput_items[1],
+    					  std::min( ninput_items[4], noutput_items ) ) ) ;
 
-    	  int const nin = std::min( ninput_items[0],
-    					  std::min( ninput_items[4], noutput_items ) )  ;
-    	  int const nin_1 = std::min( ninput_items[1],
-    	      					  std::min( ninput_items[5], noutput_items ) )  ;
+    	 // int const nin = std::min( ninput_items[0],
+    				//	  std::min( ninput_items[4], noutput_items ) )  ;
+    	 // int const nin_1 = std::min( ninput_items[1],
+    	      			//		  std::min( ninput_items[5], noutput_items ) )  ;
     	  int n_ctf_0 = ninput_items[2];
     	  int n_ctf_1 = ninput_items[3];
 
@@ -127,10 +127,10 @@ namespace gr {
     	              << std::endl;
 
     	  int i = 0;
-    	  gr_complex ijk = 0.5;
+    	  //gr_complex ijk = 0.5;
 
     	//  for( ; i < nin; ++i, ofdm_blocks += d_vlen, out += d_vlen )
-    	  for( ; i < nin & i < nin_1; ++i, ofdm_blocks += d_vlen, ofdm_blocks_1 += d_vlen, out += d_vlen )
+    	  for( ; i < nin; ++i, ofdm_blocks += d_vlen, ofdm_blocks_1 += d_vlen, out += d_vlen )
     	  {
     		//gr_complex norm = 0.5;
     		//gr_complex norm_c = 1 / sqrt(2);
@@ -138,7 +138,7 @@ namespace gr {
     		//gr_complex norm_c = sqrt(2);
 
     	    // if not first frame start, advance ctf_0 ptr if enough input available
-    	    if( frame_start[i] != 0 )
+    	    if( frame_start[i] != 0 )//| frame_start_1[i] != 0 )
     	    {
     	      if( n_ctf_0 == 0 )
     	      {
@@ -147,27 +147,27 @@ namespace gr {
     	            std::cout << "d_need_input_h0" << std::endl;
     	        break;
     	      }
-//    		  if( n_ctf_1 == 0 )
-//    	      {
-//    	        d_need_input_h1 = 1;
-//    	        if( DEBUG )
-//    	        	std::cout << "d_need_input_h1" << std::endl;
-//    	        break;
-//    	      }
+    		  if( n_ctf_1 == 0 )
+    	      {
+    	        d_need_input_h1 = 1;
+    	        if( DEBUG )
+    	        	std::cout << "d_need_input_h1" << std::endl;
+    	        break;
+    	      }
 
     	      std::copy( ctf_0, ctf_0 + d_vlen, d_buffer_h0 );
-//    		  std::copy( ctf_1, ctf_1 + d_vlen, d_buffer_h1 );
+    		  std::copy( ctf_1, ctf_1 + d_vlen, d_buffer_h1 );
 
     	      --n_ctf_0;
     	      ctf_0 += d_vlen;
-//    		  --n_ctf_1;
-//    	      ctf_1 += d_vlen;
+    		  --n_ctf_1;
+    	      ctf_1 += d_vlen;
 
     	      d_need_input_h0 = 0;
-//    		  d_need_input_h1 = 0;
+    		  d_need_input_h1 = 0;
     	    }
 
-    	    if( frame_start_1[i] != 0 )
+/*    	    if( frame_start_1[i] != 0 )
     	    {
 //    	      if( n_ctf_0 == 0 )
 //    	      {
@@ -194,14 +194,14 @@ namespace gr {
 
 //    	      d_need_input_h0 = 0;
     		  d_need_input_h1 = 0;
-    	    }
+    	    }*/
 
 
     	     // Equalization
     	     for( int k = 0; k < d_vlen; k++ )
     		 {
-    	    //out[k] = (ofdm_blocks[k] *  d_buffer_h0[k]  + ofdm_blocks_1[k] *  d_buffer_h1[k])/ ( d_buffer_h0[k] + d_buffer_h1[k]);
-    	    out[k] = (ofdm_blocks[k] + ofdm_blocks_1[k])*ijk;// *  d_buffer_h1[k])/ ( d_buffer_h1[k]);
+    	    out[k] = (ofdm_blocks[k] *  d_buffer_h0[k]  + ofdm_blocks_1[k] *  d_buffer_h1[k])/ ( d_buffer_h0[k] + d_buffer_h1[k]);
+    	    //out[k] = (ofdm_blocks[k] + ofdm_blocks_1[k])*ijk;// *  d_buffer_h1[k])/ ( d_buffer_h1[k]);
   	    //out[k] = (ofdm_blocks_1[k]);
 //    	    std::cout << "ofdm_blocks=" << k << "=" << ofdm_blocks[k]
 //    	        	  << "ofdm_blocks_1=" << k << "=" << ofdm_blocks_1[k]
@@ -216,7 +216,7 @@ namespace gr {
     		consume( 0, i );
     		consume( 1, i );
     	    consume( 4, i );
-    	    consume( 5, i );
+    	    //consume( 5, i );
     	  }
 
     	  int const tmp_0 = ninput_items[2] - n_ctf_0;

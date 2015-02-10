@@ -4,7 +4,7 @@
   <key>ofdm_scfdma_receiver_cb</key>
   <category>SC-FDMA</category>
   <import>import ofdm</import>
-  <make>ofdm.scfdma_receiver_cb($N, $M, $start_index, $mapping, $modulation, $cp_ratio)</make>
+  <make>ofdm.scfdma_receiver_cb($N, $M, $indices, $mapping, $modulation, $cp_ratio)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -23,10 +23,16 @@
   <type>int</type>
   </param>
   <param>
-    <name>start_index</name>
-    <key>start_index</key>
-    <value>start_index</value>
+    <name>Num Users</name>
+    <key>num_users</key>
+    <value>len(indices)</value>
     <type>int</type>
+  </param>
+  <param>
+    <name>Start indices</name>
+    <key>indices</key>
+    <value>indices</value>
+    <type>raw</type>
   </param>
   <param>
     <name>Mapping</name>
@@ -74,5 +80,6 @@
   <name>out</name>
   <type>byte</type>
   <vlen>1</vlen>
+  <nports>$num_users</nports>
   </source>
 </block>

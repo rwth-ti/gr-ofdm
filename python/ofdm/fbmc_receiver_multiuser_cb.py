@@ -28,53 +28,46 @@ class fbmc_receiver_multiuser_cb(gr.hier_block2):
     docstring for block fbmc_receiver_multiuser_cb
     """
     def __init__(self, M=1024, K=4, qam_size=16, syms_per_frame=10, boundaries=[], theta_sel=0, sel_eq=0, exclude_preamble=0, sel_preamble=0, zero_pads=1, extra_pad=False):
+        # for now, following assumption should be made:
+        # each user should be allocated with same number of subchannels.
+        lb = len(boundaries)
+
+        assert(lb>0), "The array that defines user boundaries cannot be passed as empty."
+        assert(lb%2 == 0), "Unbalanced boundary definition."
+
+        allocated = list()
+        for i in range(1,(lb/2)+1):
+            allocated.append(boundaries[2*i-1]-boundaries[2*i-2]+1)
+            if i>=2:
+                assert(allocated[i-2] == allocated[i-1]), "Each user should be allocated with same number of subchannels."
+
         output_signature = list()
-        for i in range(len(boundaries)/2):
+        for i in range(lb/2):
             output_signature.append(gr.sizeof_gr_complex*(boundaries[2*i+1]-boundaries[2*i]+1))
 
         # print(output_signature)
         gr.hier_block2.__init__(self,
             "fbmc_receiver_multiuser_cb",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),  # Input signature
-            gr.io_signaturev(len(boundaries)/2, len(boundaries)/2, output_signature)) # Output signature
-            # gr.io_signaturev(len(boundaries)/2, len(boundaries)/2, [gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*36])) # Output signature
+            gr.io_signature(lb/2, lb/2, gr.sizeof_char*1)) # Output signature
+            # gr.io_signaturev(lb/2, lb/2, output_signature)) # Output signature
+            # gr.io_signaturev(lb/2, lb/2, [gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*36])) # Output signature
         # print([gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*26,gr.sizeof_gr_complex*36])
 
         # blocks
         self.ofdm_fbmc_receiver_demo_0 = ofdm.fbmc_receiver_demo(M, K, qam_size, syms_per_frame, M, theta_sel, sel_eq, exclude_preamble, sel_preamble, zero_pads, extra_pad)
         asymms = list()
-        for i in range(len(boundaries)/2):
+        for i in range(lb/2):
             asymms.append(ofdm.fbmc_asymmetrical_vector_mask_vcvc(M,boundaries[2*i],boundaries[2*i+1]))
             # print(str(i))
 
+        sym_est = list()
+        for i in range(lb/2):
+            sym_est.append(ofdm.fbmc_symbol_estimation_vcb(allocated[i], qam_size))
+
         # connections
         self.connect((self, 0), (self.ofdm_fbmc_receiver_demo_0, 0))
-        for i in range(len(boundaries)/2):
+        for i in range(lb/2):
             self.connect((self.ofdm_fbmc_receiver_demo_0, 0), (asymms[i], 0))
-            self.connect((asymms[i], 0),(self,i))
-            # print(str(i))
-            
-
-
-
-
-
-
-        # Parameters
-
-        # self.M = M
-        # self.K = K
-        # self.qam_size = qam_size
-        # self.syms_per_frame = syms_per_frame
-        # self.boundaries = boundaries
-        # self.theta_sel = theta_sel
-        # self.sel_eq = sel_eq
-        # self.exclude_preamble = exclude_preamble
-        # self.sel_preamble= sel_preamble
-        # self.zero_pads= zero_pads
-        # self.extra_pad= extra_pad
-
-        # # Blocks
-
-        # self.fbmc_receiver_demo_0 = ofdm.fbmc_receiver_demo(M=M, K=K, qam_size=qam_size, syms_per_frame=syms_per_frame, carriers=M, theta_sel=theta_sel, sel_eq=sel_eq, exclude_preamble=exclude_preamble, sel_preamble=sel_preamble, zero_pads=1, extra_pad=False)
-        # self.list_asymmetrical
+            self.connect((asymms[i], 0),(sym_est[i], 0))
+            self.connect((sym_est[i], 0),(self,i))

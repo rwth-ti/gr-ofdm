@@ -41,59 +41,29 @@
     <type>raw</type>
   </param>
   <param>
-    <name>c1</name>
-    <key>c1</key>
-    <value></value>
-    <type>int</type>
-  </param>
-  <param>
-    <name>c2</name>
-    <key>c2</key>
-    <value></value>
-    <type>int</type>
-  </param>
-  <param>
-    <name>c3</name>
-    <key>c3</key>
-    <value></value>
-    <type>int</type>
-  </param>
-  <param>
-    <name>c4</name>
-    <key>c4</key>
-    <value></value>
-    <type>int</type>
-  </param>
-  <param>
     <name>theta_sel</name>
     <key>theta_sel</key>
     <value>theta_sel</value>
     <type>int</type>
   </param>
-<!--   <param>
+  <param>
+    <name>Number of Users</name>
+    <key>num_users</key>
+    <value>num_users</value>
+    <type>int</type>
+  </param>
+  <param>
     <name>Number of Carriers</name>
     <key>carriers</key>
     <value>carriers</value>
     <type>int</type>
-  </param> -->
+  </param>
   <param>
     <name>exclude_preamble</name>
     <key>exclude_preamble</key>
     <value>exclude_preamble</value>
     <type>int</type>
   </param>
-<!--   <param>
-    <name>Preamble Center</name>
-    <key>center_preamble</key>
-    <value>center_preamble</value>
-    <type>raw</type>
-  </param> -->
-<!--   <param>
-    <name>sel_preamble</name>
-    <key>sel_preamble</key>
-    <value>sel_preamble</value>
-    <type>raw</type>
-  </param> -->
   <param>
     <name>sel_preamble</name>
     <key>sel_preamble</key>
@@ -169,23 +139,9 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out1</name>
-    <type>complex</type>
-    <vlen>$c1</vlen>
-  </source>
-  <source>
-    <name>out2</name>
-    <type>complex</type>
-    <vlen>$c2</vlen>
-  </source>
-  <source>
-    <name>out3</name>
-    <type>complex</type>
-    <vlen>$c3</vlen>
-  </source>
-  <source>
-    <name>out4</name>
-    <type>complex</type>
-    <vlen>$c4</vlen>
+    <name>out</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+    <nports>$num_users</nports>
   </source>
 </block>

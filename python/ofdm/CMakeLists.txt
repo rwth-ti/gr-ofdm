@@ -60,7 +60,8 @@ GR_PYTHON_INSTALL(
     fbmc_transmitter_multiuser_bc.py
     fbmc_receiver_multiuser_cb.py
     scfdma_transmitter_bc.py
-    scfdma_receiver_cb.py DESTINATION bin
+    scfdma_receiver_cb.py
+    fbmc_insert_preamble_mu_vcvc.py DESTINATION bin
 )
 
 GR_PYTHON_INSTALL(
@@ -139,3 +140,4 @@ GR_ADD_TEST(qa_scfdma_subcarrier_mapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURREN
 GR_ADD_TEST(qa_scfdma_transmitter_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_transmitter_bc.py)
 GR_ADD_TEST(qa_scfdma_subcarrier_demapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_subcarrier_demapper_vcvc.py)
 GR_ADD_TEST(qa_scfdma_receiver_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_receiver_cb.py)
+GR_ADD_TEST(qa_fbmc_insert_preamble_mu_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_insert_preamble_mu_vcvc.py)

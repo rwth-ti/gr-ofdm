@@ -141,3 +141,5 @@ GR_ADD_TEST(qa_scfdma_transmitter_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE
 GR_ADD_TEST(qa_scfdma_subcarrier_demapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_subcarrier_demapper_vcvc.py)
 GR_ADD_TEST(qa_scfdma_receiver_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_receiver_cb.py)
 GR_ADD_TEST(qa_fbmc_insert_preamble_mu_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_insert_preamble_mu_vcvc.py)
+GR_ADD_TEST(qa_fbmc_subchannel_processing_mu_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_subchannel_processing_mu_vcvc.py)
+GR_ADD_TEST(qa_fbmc_subchannel_processing_mu_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc_subchannel_processing_mu_vcvc.py)

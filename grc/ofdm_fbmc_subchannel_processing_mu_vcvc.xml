@@ -1,0 +1,53 @@
+<block>
+  <name>Fbmc subchannel processing mu vcvc</name>
+  <key>ofdm_fbmc_subchannel_processing_mu_vcvc</key>
+  <category>OFDM</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_subchannel_processing_mu_vcvc($M, $syms_per_frame, $indices, $sel_preamble, $zero_pads, $extra_pad, $sel_eq)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Syms_per_frame</name>
+    <key>syms_per_frame</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Indices</name>
+    <key>indices</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Sel_preamble</name>
+    <key>sel_preamble</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Zero_pads</name>
+    <key>zero_pads</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Extra_pad</name>
+    <key>extra_pad</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Sel_eq</name>
+    <key>sel_eq</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+    <nports>2</nports>
+  </source>
+</block>

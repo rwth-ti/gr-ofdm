@@ -52,7 +52,10 @@ class fbmc_insert_preamble_mu_vcvc(gr.hier_block2):
         center = list()
         for i in range(len(center_preamble)):
             if ((sel_eq == 1) or (sel_eq == 2)):
-                if ((i%M)<=(end+1) and (i%M)>=(start-1)): # for now it's assumed that subchannel 0 won't be ever used.
+                # for now it's assumed that subchannel 0 won't be ever used.
+                assert(start>0), "assumption: subchannel #0 won't be ever used."
+                assert(end<M-1), "assumption: subchannel #M-1 won't be ever used."
+                if ((i%M)<=(end+1) and (i%M)>=(start-1)): 
                     center.append(center_preamble[i])
                 else:
                     center.append(0)

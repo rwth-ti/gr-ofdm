@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Tue Mar  3 16:41:02 2015
+# Generated: Wed Mar 11 01:25:32 2015
 ##################################################
 
 # Call XInitThreads as the _very_ first thing.
@@ -45,9 +45,9 @@ class top_block(grc_wxgui.top_block_gui):
         self.theta_sel = theta_sel = 0
         self.syms_per_frame = syms_per_frame = 20
         self.samp_rate = samp_rate = 3.125e6*2/100
-        self.qam_size = qam_size = 64
+        self.qam_size = qam_size = 16
         self.num_users = num_users = 4
-        self.exclude_preamble = exclude_preamble = 1
+        self.exclude_preamble = exclude_preamble = 0
         self.carriers = carriers = [boundaries[1]-boundaries[0]+1,boundaries[3]-boundaries[2]+1,boundaries[5]-boundaries[4]+1,boundaries[7]-boundaries[6]+1]
         self.M = M = 256
         self.K = K = 4
@@ -130,7 +130,7 @@ class top_block(grc_wxgui.top_block_gui):
         self.ofdm_fbmc_transmitter_multiuser_bc_2 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[4], boundaries[5], theta_sel, exclude_preamble, 0, 1, 0)
         self.ofdm_fbmc_transmitter_multiuser_bc_1 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[2], boundaries[3], theta_sel, exclude_preamble, 0, 1, 0)
         self.ofdm_fbmc_transmitter_multiuser_bc_0 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[0], boundaries[1], theta_sel, exclude_preamble, 0, 1, 0)
-        self.ofdm_fbmc_receiver_multiuser_cb_0 = ofdm.fbmc_receiver_multiuser_cb(M, K, qam_size, syms_per_frame, boundaries, theta_sel, 0, exclude_preamble, 0, 1, 0)
+        self.ofdm_fbmc_receiver_multiuser_cb_0 = ofdm.fbmc_receiver_multiuser_cb(M, K, qam_size, syms_per_frame, boundaries, theta_sel, 2, exclude_preamble, 0, 1, 0)
         self.blocks_throttle_0_0_0_2 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
         self.blocks_throttle_0_0_0_1 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
         self.blocks_throttle_0_0_0_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)

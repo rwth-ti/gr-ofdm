@@ -25,9 +25,8 @@ import math
 from gnuradio import blocks
 from gnuradio import fft
 from gnuradio import gr
-from gnuradio.fft import window
-from gnuradio.filter import firdes
 from grc_gnuradio import blks2 as grc_blks2
+
 import ofdm
 
 class fbmc_receiver_demo(gr.hier_block2):

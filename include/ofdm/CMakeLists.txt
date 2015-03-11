@@ -150,5 +150,6 @@ install(FILES
     fbmc_asymmetrical_vector_padding_vcvc.h
     fbmc_asymmetrical_vector_mask_vcvc.h
     scfdma_subcarrier_mapper_vcvc.h
-    scfdma_subcarrier_demapper_vcvc.h DESTINATION include/ofdm
+    scfdma_subcarrier_demapper_vcvc.h
+    fbmc_subchannel_processing_mu_vcvc.h DESTINATION include/ofdm
 )

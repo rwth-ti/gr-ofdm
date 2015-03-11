@@ -52,10 +52,7 @@ namespace gr {
 		d_eq_coef(3*d_M,1),
 		ii(0),
 		fr(0),
-		// ,
 		normalization_factor(1),
-		// d_zero_v(M,0),
-		// d_center
 		d_zero_pads(zero_pads),
 		d_extra_pad(extra_pad)
 		{

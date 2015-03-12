@@ -16,18 +16,6 @@
     <value>syms_per_frame</value>
     <type>raw</type>
   </param>
-<!--   <param>
-    <name>Preamble</name>
-    <key>preamble</key>
-    <value>preamble</value>
-    <type>complex_vector</type>
-  </param> -->
-<!--   <param>
-    <name>sel_preamble</name>
-    <key>sel_preamble</key>
-    <value>sel_preamble</value>
-    <type>raw</type>
-  </param> -->
   <param>
     <name>sel_preamble</name>
     <key>sel_preamble</key>

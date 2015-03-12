@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Wed Mar 11 01:25:32 2015
+# Generated: Thu Mar 12 15:20:05 2015
 ##################################################
 
 # Call XInitThreads as the _very_ first thing.
@@ -16,26 +16,49 @@ if sys.platform.startswith('linux'):
     except:
         print "Warning: failed to XInitThreads()"
 
+from PyQt4 import Qt
 from gnuradio import blocks
 from gnuradio import eng_notation
-from gnuradio import filter
+from gnuradio import fft
 from gnuradio import gr
-from gnuradio import wxgui
+from gnuradio import qtgui
 from gnuradio.eng_option import eng_option
+from gnuradio.fft import window
 from gnuradio.filter import firdes
-from gnuradio.wxgui import numbersink2
 from grc_gnuradio import blks2 as grc_blks2
-from grc_gnuradio import wxgui as grc_wxgui
 from optparse import OptionParser
 import math
 import numpy
 import ofdm
-import wx
+import sip
+import sys
 
-class top_block(grc_wxgui.top_block_gui):
+from distutils.version import StrictVersion
+class top_block(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        grc_wxgui.top_block_gui.__init__(self, title="Top Block")
+        gr.top_block.__init__(self, "Top Block")
+        Qt.QWidget.__init__(self)
+        self.setWindowTitle("Top Block")
+        try:
+             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
+        except:
+             pass
+        self.top_scroll_layout = Qt.QVBoxLayout()
+        self.setLayout(self.top_scroll_layout)
+        self.top_scroll = Qt.QScrollArea()
+        self.top_scroll.setFrameStyle(Qt.QFrame.NoFrame)
+        self.top_scroll_layout.addWidget(self.top_scroll)
+        self.top_scroll.setWidgetResizable(True)
+        self.top_widget = Qt.QWidget()
+        self.top_scroll.setWidget(self.top_widget)
+        self.top_layout = Qt.QVBoxLayout(self.top_widget)
+        self.top_grid_layout = Qt.QGridLayout()
+        self.top_layout.addLayout(self.top_grid_layout)
+
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
+        self.restoreGeometry(self.settings.value("geometry").toByteArray())
+
 
         ##################################################
         # Variables
@@ -55,91 +78,96 @@ class top_block(grc_wxgui.top_block_gui):
         ##################################################
         # Blocks
         ##################################################
-        self.wxgui_numbersink2_0_1 = numbersink2.number_sink_f(
-        	self.GetWin(),
-        	unit="%",
-        	minval=0,
-        	maxval=100,
-        	factor=100.0,
-        	decimal_places=10,
-        	ref_level=0,
-        	sample_rate=samp_rate,
-        	number_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	label="User1",
-        	peak_hold=False,
-        	show_gauge=True,
+        self.qtgui_number_sink_0_0 = qtgui.number_sink(
+                gr.sizeof_float,
+                0,
+                qtgui.NUM_GRAPH_HORIZ,
+        	1
         )
-        self.Add(self.wxgui_numbersink2_0_1.win)
-        self.wxgui_numbersink2_0_0_0 = numbersink2.number_sink_f(
-        	self.GetWin(),
-        	unit="%",
-        	minval=0,
-        	maxval=100,
-        	factor=100.0,
-        	decimal_places=10,
-        	ref_level=0,
-        	sample_rate=samp_rate,
-        	number_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	label="User0",
-        	peak_hold=False,
-        	show_gauge=True,
+        self.qtgui_number_sink_0_0.set_update_time(0.10)
+        self.qtgui_number_sink_0_0.set_title("")
+        
+        labels = ["", "", "", "", "",
+                  "", "", "", "", ""]
+        units = ["", "", "", "", "",
+                  "", "", "", "", ""]
+        colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
+                  ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
+        factor = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        for i in xrange(1):
+            self.qtgui_number_sink_0_0.set_min(i, -1)
+            self.qtgui_number_sink_0_0.set_max(i, 1)
+            self.qtgui_number_sink_0_0.set_color(i, colors[i][0], colors[i][1])
+            if len(labels[i]) == 0:
+                self.qtgui_number_sink_0_0.set_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_number_sink_0_0.set_label(i, labels[i])
+            self.qtgui_number_sink_0_0.set_unit(i, units[i])
+            self.qtgui_number_sink_0_0.set_factor(i, factor[i])
+        
+        self.qtgui_number_sink_0_0.enable_autoscale(False)
+        self._qtgui_number_sink_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0.pyqwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_number_sink_0_0_win)
+        self.qtgui_number_sink_0 = qtgui.number_sink(
+                gr.sizeof_float,
+                0,
+                qtgui.NUM_GRAPH_HORIZ,
+        	1
         )
-        self.Add(self.wxgui_numbersink2_0_0_0.win)
-        self.wxgui_numbersink2_0_0 = numbersink2.number_sink_f(
-        	self.GetWin(),
-        	unit="%",
-        	minval=0,
-        	maxval=100,
-        	factor=100.0,
-        	decimal_places=10,
-        	ref_level=0,
-        	sample_rate=samp_rate,
-        	number_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	label="User2",
-        	peak_hold=False,
-        	show_gauge=True,
-        )
-        self.Add(self.wxgui_numbersink2_0_0.win)
-        self.wxgui_numbersink2_0 = numbersink2.number_sink_f(
-        	self.GetWin(),
-        	unit="%",
-        	minval=0,
-        	maxval=100,
-        	factor=100.0,
-        	decimal_places=10,
-        	ref_level=0,
-        	sample_rate=samp_rate,
-        	number_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	label="User3",
-        	peak_hold=False,
-        	show_gauge=True,
-        )
-        self.Add(self.wxgui_numbersink2_0.win)
-        self.single_pole_iir_filter_xx_0_0_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
-        self.single_pole_iir_filter_xx_0_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
-        self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(0.000001, 1)
-        self.ofdm_fbmc_transmitter_multiuser_bc_3 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[6], boundaries[7], theta_sel, exclude_preamble, 0, 1, 0)
-        self.ofdm_fbmc_transmitter_multiuser_bc_2 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[4], boundaries[5], theta_sel, exclude_preamble, 0, 1, 0)
+        self.qtgui_number_sink_0.set_update_time(0.10)
+        self.qtgui_number_sink_0.set_title("")
+        
+        labels = ["", "", "", "", "",
+                  "", "", "", "", ""]
+        units = ["", "", "", "", "",
+                  "", "", "", "", ""]
+        colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
+                  ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
+        factor = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        for i in xrange(1):
+            self.qtgui_number_sink_0.set_min(i, -1)
+            self.qtgui_number_sink_0.set_max(i, 1)
+            self.qtgui_number_sink_0.set_color(i, colors[i][0], colors[i][1])
+            if len(labels[i]) == 0:
+                self.qtgui_number_sink_0.set_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_number_sink_0.set_label(i, labels[i])
+            self.qtgui_number_sink_0.set_unit(i, units[i])
+            self.qtgui_number_sink_0.set_factor(i, factor[i])
+        
+        self.qtgui_number_sink_0.enable_autoscale(False)
+        self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.pyqwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_number_sink_0_win)
         self.ofdm_fbmc_transmitter_multiuser_bc_1 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[2], boundaries[3], theta_sel, exclude_preamble, 0, 1, 0)
         self.ofdm_fbmc_transmitter_multiuser_bc_0 = ofdm.fbmc_transmitter_multiuser_bc(M, K, qam_size, syms_per_frame, boundaries[0], boundaries[1], theta_sel, exclude_preamble, 0, 1, 0)
-        self.ofdm_fbmc_receiver_multiuser_cb_0 = ofdm.fbmc_receiver_multiuser_cb(M, K, qam_size, syms_per_frame, boundaries, theta_sel, 2, exclude_preamble, 0, 1, 0)
+        self.ofdm_fbmc_symbol_estimation_vcb_0_0 = ofdm.fbmc_symbol_estimation_vcb(carriers[0], qam_size)
+        self.ofdm_fbmc_symbol_estimation_vcb_0 = ofdm.fbmc_symbol_estimation_vcb(carriers[0], qam_size)
+        self.ofdm_fbmc_subchannel_processing_mu_vcvc_0 = ofdm.fbmc_subchannel_processing_mu_vcvc(M, syms_per_frame, boundaries, 0, 1, 0, 0)
+        self.ofdm_fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
+        self.ofdm_fbmc_remove_preamble_vcvc_0 = ofdm.fbmc_remove_preamble_vcvc(M, syms_per_frame, 0, 1, 0)
+        self.ofdm_fbmc_polyphase_network_vcvc_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_polyphase_network_vcvc_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, True)
+        self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0 = ofdm.fbmc_overlapping_serial_to_parallel_cvc(M)
+        self.ofdm_fbmc_oqam_postprocessing_vcvc_0 = ofdm.fbmc_oqam_postprocessing_vcvc(M, 0, 0)
+        self.ofdm_fbmc_junction_vcvc_0 = ofdm.fbmc_junction_vcvc(M, 2)
+        self.ofdm_fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(M, K, K*M-1, 0)
+        self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0_0 = ofdm.fbmc_asymmetrical_vector_mask_vcvc(M, boundaries[2], boundaries[3])
+        self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0 = ofdm.fbmc_asymmetrical_vector_mask_vcvc(M, boundaries[0], boundaries[1])
+        self.fft_vxx_0 = fft.fft_vcc(M, True, (), True, 1)
         self.blocks_throttle_0_0_0_2 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
         self.blocks_throttle_0_0_0_1 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
-        self.blocks_throttle_0_0_0_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
-        self.blocks_throttle_0_0_0 = blocks.throttle(gr.sizeof_char*1, samp_rate,True)
+        self.blocks_skiphead_1 = blocks.skiphead(gr.sizeof_gr_complex*M, 1)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M, 2*K-1-1)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*M)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
-        self.blks2_error_rate_0_0_1 = grc_blks2.error_rate(
-        	type='BER',
-        	win_size=1000,
-        	bits_per_symbol=(int)(math.log(qam_size)/math.log(2)),
+        self.blks2_selector_0_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_gr_complex*M,
+        	num_inputs=2,
+        	num_outputs=1,
+        	input_index=exclude_preamble,
+        	output_index=0,
         )
         self.blks2_error_rate_0_0_0 = grc_blks2.error_rate(
         	type='BER',
@@ -151,48 +179,49 @@ class top_block(grc_wxgui.top_block_gui):
         	win_size=1000,
         	bits_per_symbol=(int)(math.log(qam_size)/math.log(2)),
         )
-        self.blks2_error_rate_0 = grc_blks2.error_rate(
-        	type='BER',
-        	win_size=1000,
-        	bits_per_symbol=(int)(math.log(qam_size)/math.log(2)),
-        )
         self.analog_random_source_x_0_0_0_2 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
         self.analog_random_source_x_0_0_0_1 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
-        self.analog_random_source_x_0_0_0_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
-        self.analog_random_source_x_0_0_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, qam_size, 10000000)), True)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_random_source_x_0_0_0, 0), (self.blocks_throttle_0_0_0, 0))    
-        self.connect((self.analog_random_source_x_0_0_0_0, 0), (self.blocks_throttle_0_0_0_0, 0))    
         self.connect((self.analog_random_source_x_0_0_0_1, 0), (self.blocks_throttle_0_0_0_1, 0))    
         self.connect((self.analog_random_source_x_0_0_0_2, 0), (self.blocks_throttle_0_0_0_2, 0))    
-        self.connect((self.blks2_error_rate_0, 0), (self.single_pole_iir_filter_xx_0, 0))    
-        self.connect((self.blks2_error_rate_0_0, 0), (self.single_pole_iir_filter_xx_0_0, 0))    
-        self.connect((self.blks2_error_rate_0_0_0, 0), (self.wxgui_numbersink2_0_0, 0))    
-        self.connect((self.blks2_error_rate_0_0_1, 0), (self.single_pole_iir_filter_xx_0_0_0, 0))    
-        self.connect((self.blocks_add_xx_0, 0), (self.ofdm_fbmc_receiver_multiuser_cb_0, 0))    
-        self.connect((self.blocks_throttle_0_0_0, 0), (self.blks2_error_rate_0_0_0, 0))    
-        self.connect((self.blocks_throttle_0_0_0, 0), (self.ofdm_fbmc_transmitter_multiuser_bc_2, 0))    
-        self.connect((self.blocks_throttle_0_0_0_0, 0), (self.blks2_error_rate_0_0_1, 0))    
-        self.connect((self.blocks_throttle_0_0_0_0, 0), (self.ofdm_fbmc_transmitter_multiuser_bc_3, 0))    
-        self.connect((self.blocks_throttle_0_0_0_1, 0), (self.blks2_error_rate_0_0, 0))    
+        self.connect((self.blks2_error_rate_0_0, 0), (self.qtgui_number_sink_0, 0))    
+        self.connect((self.blks2_error_rate_0_0_0, 0), (self.qtgui_number_sink_0_0, 0))    
+        self.connect((self.blks2_selector_0_0, 0), (self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0))    
+        self.connect((self.blocks_add_xx_0, 0), (self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0))    
+        self.connect((self.blocks_skiphead_0, 0), (self.ofdm_fbmc_subchannel_processing_mu_vcvc_0, 0))    
+        self.connect((self.blocks_skiphead_1, 0), (self.blks2_selector_0_0, 1))    
+        self.connect((self.blocks_skiphead_1, 0), (self.ofdm_fbmc_remove_preamble_vcvc_0, 0))    
+        self.connect((self.blocks_throttle_0_0_0_1, 0), (self.blks2_error_rate_0_0_0, 0))    
         self.connect((self.blocks_throttle_0_0_0_1, 0), (self.ofdm_fbmc_transmitter_multiuser_bc_1, 0))    
-        self.connect((self.blocks_throttle_0_0_0_2, 0), (self.blks2_error_rate_0, 0))    
+        self.connect((self.blocks_throttle_0_0_0_2, 0), (self.blks2_error_rate_0_0, 0))    
         self.connect((self.blocks_throttle_0_0_0_2, 0), (self.ofdm_fbmc_transmitter_multiuser_bc_0, 0))    
-        self.connect((self.ofdm_fbmc_receiver_multiuser_cb_0, 0), (self.blks2_error_rate_0, 1))    
-        self.connect((self.ofdm_fbmc_receiver_multiuser_cb_0, 1), (self.blks2_error_rate_0_0, 1))    
-        self.connect((self.ofdm_fbmc_receiver_multiuser_cb_0, 2), (self.blks2_error_rate_0_0_0, 1))    
-        self.connect((self.ofdm_fbmc_receiver_multiuser_cb_0, 3), (self.blks2_error_rate_0_0_1, 1))    
+        self.connect((self.fft_vxx_0, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_0, 0))    
+        self.connect((self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0, 0), (self.ofdm_fbmc_symbol_estimation_vcb_0, 0))    
+        self.connect((self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0_0, 0), (self.ofdm_fbmc_symbol_estimation_vcb_0_0, 0))    
+        self.connect((self.ofdm_fbmc_beta_multiplier_vcvc_0, 0), (self.blocks_skiphead_0, 0))    
+        self.connect((self.ofdm_fbmc_junction_vcvc_0, 0), (self.fft_vxx_0, 0))    
+        self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0, 0))    
+        self.connect((self.ofdm_fbmc_oqam_postprocessing_vcvc_0, 0), (self.ofdm_fbmc_asymmetrical_vector_mask_vcvc_0_0, 0))    
+        self.connect((self.ofdm_fbmc_overlapping_serial_to_parallel_cvc_0, 0), (self.ofdm_fbmc_separate_vcvc_0, 0))    
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_0, 0), (self.ofdm_fbmc_junction_vcvc_0, 0))    
+        self.connect((self.ofdm_fbmc_polyphase_network_vcvc_0_0, 0), (self.ofdm_fbmc_junction_vcvc_0, 1))    
+        self.connect((self.ofdm_fbmc_remove_preamble_vcvc_0, 0), (self.blks2_selector_0_0, 0))    
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 0), (self.ofdm_fbmc_polyphase_network_vcvc_0, 0))    
+        self.connect((self.ofdm_fbmc_separate_vcvc_0, 1), (self.ofdm_fbmc_polyphase_network_vcvc_0_0, 0))    
+        self.connect((self.ofdm_fbmc_subchannel_processing_mu_vcvc_0, 1), (self.blocks_null_sink_0, 0))    
+        self.connect((self.ofdm_fbmc_subchannel_processing_mu_vcvc_0, 0), (self.blocks_skiphead_1, 0))    
+        self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0, 0), (self.blks2_error_rate_0_0, 1))    
+        self.connect((self.ofdm_fbmc_symbol_estimation_vcb_0_0, 0), (self.blks2_error_rate_0_0_0, 1))    
         self.connect((self.ofdm_fbmc_transmitter_multiuser_bc_0, 0), (self.blocks_add_xx_0, 0))    
         self.connect((self.ofdm_fbmc_transmitter_multiuser_bc_1, 0), (self.blocks_add_xx_0, 1))    
-        self.connect((self.ofdm_fbmc_transmitter_multiuser_bc_2, 0), (self.blocks_add_xx_0, 2))    
-        self.connect((self.ofdm_fbmc_transmitter_multiuser_bc_3, 0), (self.blocks_add_xx_0, 3))    
-        self.connect((self.single_pole_iir_filter_xx_0, 0), (self.wxgui_numbersink2_0_0_0, 0))    
-        self.connect((self.single_pole_iir_filter_xx_0_0, 0), (self.wxgui_numbersink2_0_1, 0))    
-        self.connect((self.single_pole_iir_filter_xx_0_0_0, 0), (self.wxgui_numbersink2_0, 0))    
 
+    def closeEvent(self, event):
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
+        self.settings.setValue("geometry", self.saveGeometry())
+        event.accept()
 
     def get_boundaries(self):
         return self.boundaries
@@ -226,8 +255,6 @@ class top_block(grc_wxgui.top_block_gui):
         self.samp_rate = samp_rate
         self.blocks_throttle_0_0_0_2.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_0_0_1.set_sample_rate(self.samp_rate)
-        self.blocks_throttle_0_0_0.set_sample_rate(self.samp_rate)
-        self.blocks_throttle_0_0_0_0.set_sample_rate(self.samp_rate)
 
     def get_qam_size(self):
         return self.qam_size
@@ -246,6 +273,7 @@ class top_block(grc_wxgui.top_block_gui):
 
     def set_exclude_preamble(self, exclude_preamble):
         self.exclude_preamble = exclude_preamble
+        self.blks2_selector_0_0.set_input_index(int(self.exclude_preamble))
 
     def get_carriers(self):
         return self.carriers
@@ -268,6 +296,15 @@ class top_block(grc_wxgui.top_block_gui):
 if __name__ == '__main__':
     parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
     (options, args) = parser.parse_args()
+    if(StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0")):
+        Qt.QApplication.setGraphicsSystem(gr.prefs().get_string('qtgui','style','raster'))
+    qapp = Qt.QApplication(sys.argv)
     tb = top_block()
-    tb.Start(True)
-    tb.Wait()
+    tb.start()
+    tb.show()
+    def quitting():
+        tb.stop()
+        tb.wait()
+    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
+    qapp.exec_()
+    tb = None #to clean up Qt widgets

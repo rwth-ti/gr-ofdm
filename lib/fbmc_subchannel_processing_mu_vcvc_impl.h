@@ -35,7 +35,9 @@ namespace gr {
       std::vector<gr_complex> d_preamble;
       std::vector<int> d_indices;
       std::vector<int> d_mask;
+      int d_users;
       int d_sel_eq;
+      int d_allocation;
       unsigned int d_preamble_length;
       unsigned int d_frame_length;
       std::vector<gr_complex> d_estimation;

@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "fbmc_subchannel_processing_mu_vcvc_impl.h"
 #include <volk/volk.h>
+#include <math.h>
 
 namespace gr {
 	namespace ofdm {
@@ -48,10 +49,12 @@ namespace gr {
 		d_preamble(),
 		d_mask(M),
 		d_indices(indices),
+		d_users(0),
 		d_sel_eq(sel_eq),
 		d_sel_preamble(sel_preamble),
 		d_estimation(M,1),
 		d_eq_coef(3*d_M,1),
+		d_allocation(0),
 		ii(0),
 		fr(0),
 		normalization_factor(gr_complex(1,0)),
@@ -141,6 +144,7 @@ namespace gr {
 						if(i==d_indices[2*mi+1]+1){
 							mi++;
 						}
+						d_allocation++;
 					}
 					else
 					{
@@ -158,6 +162,7 @@ namespace gr {
 						if(i==d_indices[2*mi+1]){
 							mi++;
 						}
+						d_allocation++;
 					}
 					else
 					{
@@ -166,6 +171,10 @@ namespace gr {
 					}
 				}
 			}
+
+			d_users=mi;
+
+			// d_allocation = d_allocation/mi;
 
 			// std::cout<<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<std::endl;
 			// // std::cout<<d_preamble_length<<std::endl;
@@ -200,7 +209,7 @@ namespace gr {
 					d_estimation[i] = 0;
 				}else{
 					// std::cout<<"mask:1\t"<<d_preamble[i]<<"\t"<<*(start-d_M+i+1)<<std::endl;
-					d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i]*normalization_factor);//*gr_complex(0.6863,0));
+					d_estimation[i] = *(start-d_M+i+1)/((d_preamble[i]*normalization_factor)*gr_complex(d_users,0)); //*gr_complex(sqrt(d_allocation*1.0/d_M),0);//*gr_complex(0.6863,0));
 				}
 				// // *(start-d_M+i+1) = d_estimation[i];
 				// //logging

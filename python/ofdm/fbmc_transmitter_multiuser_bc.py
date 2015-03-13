@@ -51,6 +51,7 @@ class fbmc_transmitter_multiuser_bc(gr.hier_block2):
         self.exclude_preamble = exclude_preamble
         self.theta_sel = theta_sel
         self.zero_pads = zero_pads
+        self.allocation = allocation = end-start+1
 
         ##################################################
         # Variables
@@ -69,7 +70,7 @@ class fbmc_transmitter_multiuser_bc(gr.hier_block2):
         ##################################################
         self.fft_vxx_0_0 = fft.fft_vcc(M, False, (), True, 1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(([1.0/(M*0.6863)]*M))
-        self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(end-start+1, qam_size)
+        self.fbmc_symbol_creation_bvc_0 = ofdm.fbmc_symbol_creation_bvc(allocation, qam_size)
         self.vector_padding_0 = ofdm.fbmc_asymmetrical_vector_padding_vcvc(start,end,M,-1)
         self.fbmc_separate_vcvc_0 = ofdm.fbmc_separate_vcvc(M, 2)
         self.fbmc_polyphase_network_vcvc_0_0 = ofdm.fbmc_polyphase_network_vcvc(M, K, K*M-1, False)

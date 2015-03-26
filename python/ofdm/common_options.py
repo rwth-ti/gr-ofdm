@@ -37,6 +37,8 @@ def add_options(normal,expert):
             help="set total bandwidth. [default=%default]")
     expert.add_option("", "--tx-hostname", type="string", default="localhost",
             help="Set Tx hostname for zeromq")
+    expert.add_option("", "--rx-hostname", type="string", default="localhost",
+            help="Set Rx hostname for zeromq")
     expert.add_option("", "--gui-frame-rate", type="int", default=25,
             help="Set the display frame rate of the GUI, necessary to stream data out of flowgraph")
     normal.add_option("", "--dot-graph", action="store_true", default=False)

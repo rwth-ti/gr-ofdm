@@ -112,7 +112,7 @@ class transmit_path(gr.hier_block2):
     self.keep_frame_n = int(1.0 / ( config.frame_length * (config.cp_length + config.fft_length) / config.bandwidth ) / config.gui_frame_rate)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", "tcp://"+options.tx_hostname+":3322")
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", "tcp://"+options.rx_hostname+":3322")
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
         bitloading = 1
@@ -139,7 +139,7 @@ class transmit_path(gr.hier_block2):
         power_src = (self.allocation_src,3)
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
-        self.allocation_src.set_allocation([2]*(config.data_subcarriers/2) + [2]*(config.data_subcarriers/2), [1]*config.data_subcarriers)
+        self.allocation_src.set_allocation([5]*(config.data_subcarriers/2) + [5]*(config.data_subcarriers/2), [1]*(config.data_subcarriers/2) + [1]*(config.data_subcarriers/2))
         self.allocation_src.set_allocation_scheme(0)
         #self.allocation_src.set_allocation([4]*(config.data_subcarriers/2) + [4]*(config.data_subcarriers/2), [1.5]*(config.data_subcarriers/4) +[0.5]*(config.data_subcarriers/4) + [0.5]*(config.data_subcarriers/4) +  [1.5]*(config.data_subcarriers/4))
         if options.benchmarking:
@@ -264,6 +264,7 @@ class transmit_path(gr.hier_block2):
     ifft = self._ifft = fft_blocks.fft_vcc(config.fft_length,False,[],True)
     self.connect(vsubc,ifft)
 
+
     if options.log:
       log_to_file(self, ifft, "data/ifft_out.compl")
 
@@ -285,11 +286,20 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, cp, "data/cp_out.compl")
 
+    #Digital Amplifier for resource allocation
+    rep = blocks.repeat(gr.sizeof_gr_complex, config.frame_length * config.block_length)
+    amp = blocks.multiply_cc()
+    self.connect( lastblock, (amp,0) )
+    self.connect((self.allocation_src,4), rep , (amp,1) )
+    lastblock = amp
+
+
     ## Digital Amplifier
     #amp = self._amplifier = gr.multiply_const_cc(1)
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
+
 
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")

@@ -171,6 +171,7 @@ class ofdm_benchmark (gr.top_block):
       if options.itu_channel:
         self.fad_chan = channel.itpp_channel(options.bandwidth)
         self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
+        self.rpc_mgr_tx.add_interface("set_norm_doppler",self.fad_chan.set_norm_doppler)
       else:
         #self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
         # filter coefficients for the lab exercise

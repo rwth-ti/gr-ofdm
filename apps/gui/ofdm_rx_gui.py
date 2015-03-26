@@ -168,7 +168,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.lineEditGap, QtCore.SIGNAL("editingFinished()"), self.edit_gap)
 
 
-
         # start GUI update timer (33ms for 30 FPS)
         self.update_timer.start(33)
 
@@ -282,6 +281,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
             self.rate_y = self.rate_y[:len(self.rate_x)]
             self.curve_rate.setData(self.rate_x, self.rate_y)
             self.gui.qwtPlotRate.replot()
+
         else:
             self.update_tx_params()
 

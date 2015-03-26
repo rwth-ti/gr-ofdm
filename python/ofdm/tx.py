@@ -87,6 +87,10 @@ class tx_top_block(gr.top_block):
         self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
         self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
         self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
+        self.rpc_mgr_tx.add_interface("set_allocation_scheme",self.txpath.allocation_src.set_allocation_scheme)
+        self.rpc_mgr_tx.add_interface("set_data_rate",self.txpath.allocation_src.set_data_rate)
+        self.rpc_mgr_tx.add_interface("set_power_limit",self.txpath.allocation_src.set_power_limit)
+        self.rpc_mgr_tx.add_interface("set_gap",self.txpath.allocation_src.set_gap)
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,

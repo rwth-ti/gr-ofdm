@@ -27,6 +27,7 @@
 #include <gnuradio/thread/thread.h>
 #include <zmq.hpp>
 #include <stdint.h>
+#include <fstream>
 
 #include <ctime>
 
@@ -62,7 +63,9 @@ namespace gr {
                 int d_power_limit;
                 int d_data_rate;
                 float d_gap;
-
+                gr_complex d_amplitude_out;
+                float d_amplitude_abs;
+                std::vector<float> d_amplitude;
 
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;

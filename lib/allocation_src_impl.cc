@@ -57,15 +57,15 @@ namespace gr {
         : gr::block("allocation_src",
                          gr::io_signature::make(0, 0, 0),
                          gr::io_signature::make(0, 0, 0))
-        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_scheme(CM), d_power_limit(200), d_data_rate(600), d_gap(6.6)
+        ,d_subcarriers(subcarriers), d_data_symbols(data_symbols), d_allocation_scheme(CM), d_power_limit(200), d_data_rate(600), d_gap(6.6), d_amplitude_out(1.0 + 1.0i), d_amplitude_abs(1)
     {
-        std::vector<int> out_sig(4);
+        std::vector<int> out_sig(5);
         out_sig[0] = sizeof(short);                             // id
         out_sig[1] = sizeof(int);                               // bitcount
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
         out_sig[3] = sizeof(float)*subcarriers;                 // power
-        set_output_signature(io_signature::makev(4,4,out_sig));
-
+        out_sig[4] = sizeof(gr_complex);                        // amplitude
+        set_output_signature(io_signature::makev(5,5,out_sig));
 
         std::vector<uint8_t> bitloading_vec;
         std::vector<float> power_vec;
@@ -83,6 +83,11 @@ namespace gr {
         d_allocation.id = 0;
         d_allocation_out.id = 0;
         set_allocation(bitloading_vec,power_vec);
+
+        for(int i=0;i<=256;i++)
+        {
+            d_amplitude.push_back(1.0);
+        }
 
         d_context = new zmq::context_t(1);
         d_socket = new zmq::socket_t(*d_context, ZMQ_PUB);
@@ -112,6 +117,7 @@ namespace gr {
         delete(d_context);
         delete(d_socket_feedback);
         delete(d_context_feedback);
+
     }
 
     void
@@ -132,7 +138,7 @@ namespace gr {
 //        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
 
         // just write datagram to message with raw copying (much faster)
-        zmq::message_t msg(sizeof(d_allocation.id)
+            zmq::message_t msg(sizeof(d_allocation.id)
                            + d_subcarriers*sizeof(d_allocation.bitloading[0])
                            + d_subcarriers*sizeof(d_allocation.power[0]));
         memcpy(msg.data(), &d_allocation.id, sizeof(d_allocation.id));
@@ -167,12 +173,19 @@ namespace gr {
                                                               +sizeof(short)
                                                               +d_subcarriers*sizeof(float));
 
-                
+                for(int i= 0;i<d_subcarriers; i++)
+                {
+                    d_feedback_information.snr[i] = pow(10, d_feedback_information.snr[i]/10);
+                    //d_feedback_information.snr[i] /= d_amplitude[d_feedback_information.id];
+                }
+
                 switch (d_allocation_scheme)
                 {
                     case CM:
+                        d_amplitude_abs=1;
                         break;
                     case RA:
+                        d_amplitude_abs=1;
                         calculate_bitloading_RA();
                         break;
                     case MA:
@@ -247,9 +260,9 @@ namespace gr {
 
         for(int i = 0; i < d_subcarriers; i++)
         {
-            if(d_feedback_information.snr[i]>8.8)//&& d_feedback_information.snr[i]< 40)
+            if(d_feedback_information.snr[i]>7.6)//&& d_feedback_information.snr[i]< 40)
             {
-                inv_snr.push_back( d_gap / pow(10, d_feedback_information.snr[i]/10)); 
+                inv_snr.push_back( d_gap / d_feedback_information.snr[i]); 
                 counter ++;
             }
             else inv_snr.push_back(0);
@@ -260,7 +273,7 @@ namespace gr {
         {
             level = (d_power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
             counter--;
-            if(counter < 150) return;
+            if(counter < 160) return;
 
 
 
@@ -272,14 +285,17 @@ namespace gr {
             else break;
         }
 
+        //scale power to 1 and send scaling factor to time domain
+        //d_amplitude_abs = ((level*counter)-std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/d_subcarriers;
+
         //for(it =  inv_snr.begin(); it!= inv_snr.end(); it++)
         for(int i = 0; i < d_subcarriers; i++)
         {
             if(inv_snr[i]!=0)
             {
-                d_allocation.power.push_back(level - inv_snr[i]);
-                if(d_feedback_information.snr[i] > 32.2) d_allocation.bitloading[i] = 8;
-                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ d_gap ));
+                d_allocation.power.push_back(sqrt(level - inv_snr[i])/d_amplitude_abs);
+                if(d_feedback_information.snr[i] > 1659.6) d_allocation.bitloading[i] = 8;
+                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*d_feedback_information.snr[i])/ d_gap ));
             }
             else
             {
@@ -313,43 +329,54 @@ namespace gr {
         d_allocation.power.clear();
         d_allocation.bitloading.clear();
 
-
         //Inizialise
         for(int i = 0; i < d_subcarriers; i++)
         {
-            snr_sort.push_back(pow(10, d_feedback_information.snr[i]/10 ));
+            snr_sort.push_back(d_feedback_information.snr[i]);
             G+= log2(snr_sort[i]);
         }
-        if(G < d_data_rate) return;
+        //if(G < d_data_rate) return;
+        if(G < 200) return;
         std::sort(snr_sort.begin(), snr_sort.end());
         level = d_gap * pow(2, ((d_data_rate-G)/d_subcarriers));
 
         //Get Water Level
         while(level < (d_gap / snr_sort[it]))
         {
-            if(it>10) return;
+            if(it>50) return;
 
-            G-= 1/snr_sort[it];
+            G-= log2(snr_sort[it]);
             it++;
             level = d_gap * pow(2, (d_data_rate-G) / (d_subcarriers - it));
         }
 
+        //scale power to 1 and send scaling factor to time domain
+        d_amplitude_abs=0;
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            if(level > (d_gap /d_feedback_information.snr[i] ))
+                d_amplitude_abs += level - d_gap/d_feedback_information.snr[i];
+        }
+        d_amplitude_abs =sqrt(d_amplitude_abs/d_subcarriers);
+        
+
         //Allocate
         for(int i = 0; i < d_subcarriers; i++)
         {
-            if(pow(10, d_feedback_information.snr[i]/10) < snr_sort[it])
+            if(d_feedback_information.snr[i] < snr_sort[it])
             {
                 d_allocation.power.push_back( 0);
                 d_allocation.bitloading.push_back( 0);
             }
             else
             {
-                d_allocation.power.push_back( level - d_gap/pow(10, d_feedback_information.snr[i]/10));
+                d_allocation.power.push_back( sqrt((level - d_gap/d_feedback_information.snr[i]))/ d_amplitude_abs );
                 if(d_allocation.power[i] > 5) d_allocation.power[i] = 5;
-                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*pow(10, d_feedback_information.snr[i]/10))/ d_gap )));
+                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*d_amplitude_abs*d_feedback_information.snr[i])/ d_gap )));
                 if(d_allocation.bitloading[i] > 8) d_allocation.bitloading[i] = 8;
             }
         }
+
 
         // clear and write power output vector
         d_allocation_out.power = d_allocation.power;
@@ -363,7 +390,6 @@ namespace gr {
         for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
-
     }
 
 
@@ -428,11 +454,15 @@ namespace gr {
         int *out_bitcount = (int *) output_items[1];
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
         float *out_power = (float *) output_items[3];
+        gr_complex *out_amplitude = (gr_complex *) output_items[4];
 
         for (int i = 0; i < (noutput_items); i++) {
             // send the allocation to Rx
             recv_snr();
             send_allocation();
+
+            d_amplitude_out = (1.0+1.0i)*d_amplitude_abs;
+            d_amplitude[d_allocation_out.id]=d_amplitude_abs;
 
             // now generate outputs
             out_id[i] = d_allocation_out.id;
@@ -445,16 +475,7 @@ namespace gr {
             int p_idx = i*d_subcarriers;
             memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
 
-
-
-           /* int diff;
-            if(((int)(d_allocation.id))<d_feedback_information.id) 
-                diff=256+((d_allocation.id)-d_feedback_information.id);
-            else
-                diff=((d_allocation.id)-d_feedback_information.id);
-
-
-            std::cout<<"Differenz:"<<diff<<" "<<"Feedback id:"<<d_feedback_information.id <<" "<<"Aktuelle id:" << (int)(d_allocation.id)<<" "<<std::endl;*/
+            memcpy(&out_amplitude[i], &d_amplitude_out, sizeof(gr_complex));
 
             //increase frame id, [0..255]
             d_allocation.id++;

@@ -39,7 +39,7 @@ namespace gr {
      * The private constructor
      */
     feedback_sink_vf_impl::feedback_sink_vf_impl(size_t subc, char *address)
-      : gr::sync_block("feedback_sink_vf",
+      : gr::block("feedback_sink_vf",
               gr::io_signature::make2(2, 2, sizeof(short), sizeof(float)*subc),
               gr::io_signature::make(0, 0, 0))
       ,d_subc(subc)
@@ -75,7 +75,8 @@ namespace gr {
     }
 
     int
-    feedback_sink_vf_impl::work(int noutput_items,
+    feedback_sink_vf_impl::general_work(int noutput_items,
+                          gr_vector_int &ninput_items,
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
@@ -83,12 +84,17 @@ namespace gr {
         float *in_snr = (float *) input_items[1];
 
 
-        for(int i=0; i< noutput_items; i++)
+        int n_min = std::min( ninput_items[0], ninput_items[1] );
+
+        int i;
+        for(i=0; i< n_min; i++)
         {
             send_snr(in_id+i, in_snr+(i*d_subc));
         }
+        consume( 0, i );
+        consume( 1, i );
         // Tell runtime system how many output items we produced.
-        return noutput_items;
+        return 0;
     }
 
   } /* namespace ofdm */

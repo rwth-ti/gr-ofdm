@@ -168,6 +168,7 @@ namespace gr {
 
                 // copy message into allocation struct and find id to put into buffer
                 d_feedback_information.id = *(short*)msg.data();
+                d_feedback_information.snr.clear();
                 d_feedback_information.snr.assign((float*)msg.data()+sizeof(short),
                                                               (float*)msg.data()
                                                               +sizeof(short)

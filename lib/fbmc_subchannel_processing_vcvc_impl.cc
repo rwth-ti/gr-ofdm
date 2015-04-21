@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_subchannel_processing_vcvc_impl.h"
+#include "malloc16.h"
 #include <volk/volk.h>
 
 namespace gr {
@@ -50,6 +51,25 @@ namespace gr {
 		d_sel_preamble(sel_preamble),
 		d_estimation(M,1),
 		d_eq_coef(3*d_M,1),
+		d_conj( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_squared( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_divide( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
+		//d_norm_vect(d_M,1./2.128),
+		d_conj1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_squared1( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_divide1( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum1_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum2_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum2_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum3_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum3_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sumc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sumc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_sum1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_sum2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_sum3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_ones(d_M,1.0),
 		ii(0),
 		fr(0),
 		// ,
@@ -59,6 +79,9 @@ namespace gr {
 		d_zero_pads(zero_pads),
 		d_extra_pad(extra_pad)
 		{
+		    const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+		    set_alignment(std::max(1, alignment_multiple));
+
 			if(d_sel_eq==1 || d_sel_eq==2){ //three taps
 				set_history(3);
 			}
@@ -127,7 +150,12 @@ namespace gr {
 			}
 
 			d_frame_length=d_preamble_length+2*syms_per_frame*d_M;
-			estimation_point=(((int(d_preamble_length/d_M)-1)/2)+1)*d_M-1;
+			//estimation_point=(((int(d_preamble_length/d_M)-1)/2)+1)*d_M;
+			estimation_point=(((int(d_preamble_length/d_M)-1)/2)+1);
+			//std::cout<<preamble.size()<<std::endl;
+			d_norm_vect.resize(d_M,1.0/normalization_factor);
+
+			//d_norm_vect.resize(d_M,1./normalization_factor);
 			// if(extra_pad){
 			// 	estimation_point = estimation_point;
 			// }
@@ -159,19 +187,67 @@ namespace gr {
 		{
 			// equalizer_data.close();
 			// estimation_data.close();
+			if( d_conj )
+					    	    free16Align( d_conj );
+			if( d_squared )
+					    	    free16Align( d_squared );
+			if( d_divide )
+					    	    free16Align( d_divide );
+			if( d_conj1 )
+					    	    free16Align( d_conj1 );
+			if( d_squared1 )
+					    	    free16Align( d_squared1 );
+			if( d_divide1 )
+					    	    free16Align( d_divide1 );
+			if( d_sum1 )
+								    	    free16Align( d_sum1 );
+			if( d_sum2 )
+								    	    free16Align( d_sum2 );
+			if( d_sum3 )
+								    	    free16Align( d_sum3 );
+			if( d_sum1_i )
+								    	    free16Align( d_sum1_i );
+			if( d_sum1_q )
+								    	    free16Align( d_sum1_q );
+			if( d_sum2_i )
+								    	    free16Align( d_sum2_i );
+			if( d_sum2_q )
+								    	    free16Align( d_sum2_q );
+			if( d_sum3_i )
+								    	    free16Align( d_sum3_i );
+			if( d_sum3_q )
+								    	    free16Align( d_sum3_q );
+			if( d_sumc_i )
+								    	    free16Align( d_sumc_i );
+			if( d_sumc_q )
+								    	    free16Align( d_sumc_q );
 		}
 
 		void 
 		fbmc_subchannel_processing_vcvc_impl::get_estimation(const gr_complex * start)
 		{
 			// int offset = estimation_point - d_M+1;
-			for(int i=0;i<d_M;i++){
+/*			for(int i=0;i<d_M;i++){
 				d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i]*normalization_factor);//*gr_complex(0.6863,0));
 				// // *(start-d_M+i+1) = d_estimation[i];
 				// //logging
 				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
 				
-			}
+			}*/
+
+			 //std::cout<<"normalization_factor: "<<normalization_factor<<std::endl;
+				//d_estimation[i] = *(start-d_M+i+1)/(d_preamble[i]*normalization_factor);//*gr_complex(0.6863,0));
+				// // *(start-d_M+i+1) = d_estimation[i];
+				// //logging
+				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
+			//d_norm_vect.resize(d_M,1.0/normalization_factor);
+
+				volk_32fc_x2_multiply_conjugate_32fc(&d_conj[0],start, &d_preamble[0],d_M);
+				volk_32fc_magnitude_squared_32f(&d_squared[0],&d_preamble[0],d_M);
+				volk_32f_x2_divide_32f(&d_divide[0],&d_norm_vect[0],&d_squared[0],d_M);
+				volk_32fc_32f_multiply_32fc(&d_estimation[0],&d_conj[0],&d_divide[0],d_M);
+
+
 
 			// // equalizer_data<<"----------------------------------"<<"\n";
 			fr++;		
@@ -183,8 +259,10 @@ namespace gr {
 				// std::cout<<i<<"\t"<<fmod(i-1,d_M)<<"\t"<<fmod(i+1,d_M)<<"\tbefor"<<std::endl;
 				// std::cout<<i<<"\t"<<d_estimation[i]<<"\t"<<d_estimation[fmod(i-1,d_M)]<<"\t"<<d_estimation[fmod(i+1,d_M)]<<"\tbefor"<<std::endl;
 				gr_complex EQi = gr_complex(1,0)/d_estimation[i];
-				gr_complex EQmin = gr_complex(1,0)/d_estimation[fmod(i-1+d_M,d_M)];
-				gr_complex EQplus = gr_complex(1,0)/d_estimation[fmod(i+1+d_M,d_M)];
+				//gr_complex EQmin = gr_complex(1,0)/d_estimation[fmod(i-1+d_M,d_M)];
+				//gr_complex EQplus = gr_complex(1,0)/d_estimation[fmod(i+1+d_M,d_M)];
+				gr_complex EQmin = gr_complex(1,0)/d_estimation[(i-1+d_M)%d_M];
+				gr_complex EQplus = gr_complex(1,0)/d_estimation[(i+1+d_M)%d_M];
 
 				gr_complex EQ1, EQ2;
 				if(d_sel_eq==1){ // linear interpolation
@@ -243,34 +321,70 @@ namespace gr {
 										//get_estimation(in+low);
 			//ii++;
 			// Do <+signal processing+>
-			for(int i=0;i<noutput_items*d_M;i++){
+			ii = ii%int(d_frame_length/d_M);
+			for(int i=0;i<noutput_items;i++){
 				
 				if(d_sel_eq==0){
 					// one tap zero forcing equalizer
+/*
 					out[i] = in[i]/(d_estimation[i%(int)(d_M)]); //sumfactor?????
 					out_estimation[i] = d_estimation[i%(int)(d_M)];
+*/
+
+					volk_32fc_x2_multiply_conjugate_32fc(&d_conj1[0],&in[i*d_M],&d_estimation[0],d_M);
+					volk_32fc_magnitude_squared_32f(&d_squared1[0],&d_estimation[0],d_M);
+					volk_32f_x2_divide_32f(&d_divide1[0],&d_ones[0],&d_squared1[0],d_M);
+					volk_32fc_32f_multiply_32fc(&out[i*d_M],&d_conj1[0],&d_divide1[0],d_M);
+
+					memcpy(&out_estimation[i*d_M], &d_estimation[0], sizeof(gr_complex)*d_M);
+
+
+
 					// std::cout<<out[i]<<"\t"<<d_estimation[i%d_M]<<"\t"<<in[i]<<std::endl;
 				}else if(d_sel_eq==1 || d_sel_eq==2){
 					// three taps with linear(=1) or geometric(=2) interpolation
-					out[i] = (d_eq_coef[i%d_M]*in[i+2*d_M]+d_eq_coef[(i%d_M)+d_M]*in[i+d_M]+d_eq_coef[(i%d_M)+2*d_M]*in[i]);///gr_complex(3,0);
-					out_estimation[i] = d_estimation[i%(int)(d_M)];
+					//out[i] = (d_eq_coef[i%d_M]*in[i+2*d_M]+d_eq_coef[(i%d_M)+d_M]*in[i+d_M]+d_eq_coef[(i%d_M)+2*d_M]*in[i]);///gr_complex(3,0);
+
+					volk_32fc_x2_multiply_32fc(&d_sum1[0],&in[(i+2)*d_M],&d_eq_coef[0],d_M);
+					volk_32fc_x2_multiply_32fc(&d_sum2[0],&in[(i+1)*d_M],&d_eq_coef[d_M],d_M);
+					volk_32fc_x2_multiply_32fc(&d_sum3[0],&in[(i)*d_M],&d_eq_coef[2*d_M],d_M);
+
+					volk_32fc_deinterleave_32f_x2(&d_sum1_i[0],&d_sum1_q[0],&d_sum1[0],d_M);
+					volk_32fc_deinterleave_32f_x2(&d_sum2_i[0],&d_sum2_q[0],&d_sum2[0],d_M);
+					volk_32fc_deinterleave_32f_x2(&d_sum3_i[0],&d_sum3_q[0],&d_sum3[0],d_M);
+
+					volk_32f_x2_add_32f(&d_sumc_i[0],&d_sum1_i[0],&d_sum2_i[0],d_M);
+					volk_32f_x2_add_32f(&d_sumc_i[0],&d_sumc_i[0],&d_sum3_i[0],d_M);
+					volk_32f_x2_add_32f(&d_sumc_q[0],&d_sum1_q[0],&d_sum2_q[0],d_M);
+					volk_32f_x2_add_32f(&d_sumc_q[0],&d_sumc_q[0],&d_sum3_q[0],d_M);
+
+					volk_32f_x2_interleave_32fc(&out[(i)*d_M],&d_sumc_i[0],&d_sumc_q[0],d_M);
+
+
+					//out_estimation[i] = d_estimation[i%(int)(d_M)];
+					memcpy(&out_estimation[i*d_M], &d_estimation[0], sizeof(gr_complex)*d_M);
 				}else{
 					// no equalization
-					out[i] = in[i];
-					out_estimation[i] = d_estimation[i%(int)(d_M)];
+					//out[i] = in[i];
+					//out_estimation[i] = d_estimation[i%(int)(d_M)];
+					memcpy(&out[i*d_M], &in[i*d_M], sizeof(gr_complex)*d_M);
+					memcpy(&out_estimation[i*d_M], &d_estimation[0], sizeof(gr_complex)*d_M);
 				}
 
+				//std::cout<<ii<<std::endl;
 				// old implementation
 				if(d_sel_eq<3){
 					if(d_sel_eq == 1 || d_sel_eq == 2){
-						if(ii%d_frame_length == estimation_point){
-							get_estimation(in+i+2*d_M);
+						if(ii%int(d_frame_length/d_M)  == estimation_point-1){
+							//get_estimation(in+i+2*d_M);
+							get_estimation(in+(i+2)*d_M);
 							get_equalizer_coefficients(999);
 						}
 					}
 					else if(d_sel_eq==0){
-						if(ii%d_frame_length == estimation_point){
-							get_estimation(in+i);
+						if(ii%int(d_frame_length/d_M) == estimation_point-1){
+							//get_estimation(in+i);
+							get_estimation(in+(i)*d_M);
 						}
 					}
 					ii++;

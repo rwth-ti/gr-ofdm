@@ -49,7 +49,26 @@ namespace gr {
       // std::vector<gr_complex> d_center;
       int d_zero_pads;
       bool d_extra_pad;
+      gr_complex *d_conj;
+      float *d_squared;
+      float *d_divide;
+      std::vector<float> d_norm_vect;
+      gr_complex *d_conj1;
+      float *d_squared1;
+      float *d_divide1;
+      std::vector<float> d_ones;
 
+      gr_complex *d_sum1;
+      gr_complex *d_sum2;
+      gr_complex *d_sum3;;
+	  float *d_sum1_i;
+	  float *d_sum1_q;
+	  float *d_sum2_i;
+	  float *d_sum2_q;
+	  float *d_sum3_i;
+	  float *d_sum3_q;
+	  float *d_sumc_i;
+	  float *d_sumc_q;
 
      public:
       fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq);
@@ -59,7 +78,7 @@ namespace gr {
       int work(int noutput_items,
 	       gr_vector_const_void_star &input_items,
 	       gr_vector_void_star &output_items);
-      void get_estimation(const gr_complex * start);
+      void get_estimation(const gr_complex  *start);
       void get_equalizer_coefficients(int order);
       std::ofstream estimation_data;
       std::ofstream equalizer_data;

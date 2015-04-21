@@ -17,7 +17,7 @@ class bm_receiver_fbmc:
         # N - the number of OFDM frames analyzed
         self.N = N
         self.subcarriers = 208
-        self.cp_length = 16
+        self.cp_length = 0
         self.data_blocks = 10
         self.verbose = False
         self.fft_length = 256
@@ -48,6 +48,7 @@ class bm_receiver_fbmc:
         self.bm = True
         self.fbmc = 1
         self.benchmarking = 1
+        self.ideal2 = False
         #self.sps = 4
         #self.eb = 0.25
 
@@ -100,7 +101,7 @@ class bm_receiver_fbmc:
         """
         #self.snk = blocks.null_sink(gr.sizeof_gr_complex)
         #self.src = uhd_receiver( 'type=usrp2',self.bandwidth, self.rx_freq,0.0)
-        self.src = blocks.file_source(gr.sizeof_gr_complex,'tx_out_benchmarking.compl')
+        self.src = blocks.file_source(gr.sizeof_gr_complex,'fbmc_tx_out_benchmarking.compl')
 
 
         self.tb.connect(self.src,self.rxpath)

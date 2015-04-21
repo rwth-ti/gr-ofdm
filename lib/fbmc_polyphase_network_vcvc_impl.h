@@ -39,6 +39,27 @@ namespace gr {
       bool d_reverse;
       float* d_taps;
 
+/*	  gr_complex *sum1;
+	  gr_complex *sum2;
+	  gr_complex *sum3;
+	  gr_complex *sum4;
+	  float *sum1_i;
+	  float *sum1_q;
+	  float *sum2_i;
+	  float *sum2_q;
+	  float *sum3_i;
+	  float *sum3_q;
+	  float *sum4_i;
+	  float *sum4_q;
+	  float *sumc_i;
+	  float *sumc_q;
+	  float *sumcc_i;
+	  float *sumcc_q;
+	  float *sumccc_i;
+	  float *sumccc_q;*/
+
+
+
      public:
       fbmc_polyphase_network_vcvc_impl(unsigned int M, unsigned int K, unsigned int lp, bool reverse);
       ~fbmc_polyphase_network_vcvc_impl();

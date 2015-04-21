@@ -24,6 +24,8 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_polyphase_network_vcvc_impl.h"
+#include "malloc16.h"
+#include <volk/volk.h>
 
 namespace gr {
   namespace ofdm {
@@ -45,6 +47,24 @@ namespace gr {
 	d_M(M),
 	d_K(K),
 	d_lp(M*K-1), //for now only filters of length KM-1 are supported
+/*	sum1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum1_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum2_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum2_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum3_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum3_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum4_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum4_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumcc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumcc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumccc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sumccc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+	sum1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+	sum2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+	sum3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+	sum4( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),*/
 	d_reverse(reverse)
 	{ 
 		assert(M>0 && log(M)/log(2) = (int)(log(M)/log(2)));
@@ -121,9 +141,34 @@ namespace gr {
 
 	  // Do <+signal processing+>
 	  for(int i=0;i<noutput_items*d_M;i++){
+		 // for(int i=0;i<noutput_items;i++){
 		// note: following expression is valid only when K=4. For other K values, one should employ
 		// a for loop from 0 to K-1 and sum values. I did not, so as to avoid unnecessary calculations (iteration of the index etc.)
 		out[i] =in[i+(d_K-1)*d_M]*d_taps[(i%d_M)]+in[i+(d_K-1)*d_M-d_M]*d_taps[(i%d_M)+d_M]+in[i+(d_K-1)*d_M-2*d_M]*d_taps[(i%d_M)+2*d_M]+in[i+(d_K-1)*d_M-3*d_M]*d_taps[(i%d_M)+3*d_M];
+/*			  volk_32fc_32f_multiply_32fc(&sum1[0],&in[(i+(d_K-1))*d_M],&d_taps[0],d_M);
+			  volk_32fc_32f_multiply_32fc(&sum2[0],&in[(i+(d_K-2))*d_M],&d_taps[d_M],d_M);
+			  volk_32fc_32f_multiply_32fc(&sum3[0],&in[(i+(d_K-3))*d_M],&d_taps[2*d_M],d_M);
+			  volk_32fc_32f_multiply_32fc(&sum4[0],&in[(i+(d_K-4))*d_M],&d_taps[3*d_M],d_M);
+
+			  volk_32fc_deinterleave_32f_x2(&sum1_i[0],&sum1_q[0],&sum1[0],d_M);
+			  volk_32fc_deinterleave_32f_x2(&sum2_i[0],&sum2_q[0],&sum2[0],d_M);
+			  volk_32fc_deinterleave_32f_x2(&sum3_i[0],&sum3_q[0],&sum3[0],d_M);
+			  volk_32fc_deinterleave_32f_x2(&sum4_i[0],&sum4_q[0],&sum4[0],d_M);
+
+			  volk_32f_x2_add_32f(&sumc_i[0],&sum1_i[0],&sum2_i[0],d_M);
+			  volk_32f_x2_add_32f(&sumc_i[0],&sumc_i[0],&sum3_i[0],d_M);
+			  volk_32f_x2_add_32f(&sumc_i[0],&sumc_i[0],&sum4_i[0],d_M);
+
+			  volk_32f_x2_add_32f(&sumc_q[0],&sum1_q[0],&sum2_q[0],d_M);
+			  volk_32f_x2_add_32f(&sumc_q[0],&sumc_q[0],&sum3_q[0],d_M);
+			  volk_32f_x2_add_32f(&sumc_q[0],&sumc_q[0],&sum4_q[0],d_M);
+
+			  volk_32f_x2_interleave_32fc(&out[(i)*d_M],&sumc_i[0],&sumc_q[0],d_M);*/
+
+
+
+
+			  //out[i] =in[(i+(d_K-1))*d_M]*d_taps[(i%4)]+in[(i+(d_K-1))*d_M-d_M]*d_taps[(i%4)+1]+in[(i+(d_K-1))*d_M-2*d_M]*d_taps[(i%4)+2]+in[(i+(d_K-1))*d_M-3*d_M]*d_taps[(i%4)+3];
 	  }
 	  // Tell runtime system how many output items we produced.
 	  return noutput_items;

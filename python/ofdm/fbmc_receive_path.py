@@ -35,7 +35,7 @@ from ofdm import generic_mapper_bcv, dynamic_trigger_ib, fbmc_snr_estimator
 from preambles import pilot_subcarrier_filter,fbmc_pilot_block_filter,default_block_header
 from ofdm import depuncture_ff
 from ofdm import multiply_const_ii
-from ofdm import divide_frame_fc
+from ofdm import divide_frame_fc, multiply_frame_fc
 import ofdm as ofdm
 
 from time import strftime,gmtime
@@ -130,6 +130,8 @@ class receive_path(gr.hier_block2):
     #self.input =  gr.kludge_copy(gr.sizeof_gr_complex)
     #self.connect( self, self.input )
     self.input = self
+    self.ideal = options.ideal
+    self.ideal2 = options.ideal2
 
 
     ## Inner receiver
@@ -146,8 +148,11 @@ class receive_path(gr.hier_block2):
     #terminate_stream(self,snr_est_preamble)
     disp_cfo =  ( inner_receiver, 3 )
     
-    self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
-    self.connect(disp_cfo, self.zmq_probe_freqoff)
+    if self.ideal is False and self.ideal2 is False:
+        self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
+        self.connect(disp_cfo, self.zmq_probe_freqoff)
+    else:
+        self.connect(disp_cfo, blocks.null_sink(gr.sizeof_float))
 
 
 
@@ -393,6 +398,8 @@ class receive_path(gr.hier_block2):
         bitloading_src = (self.allocation_buffer,1)
         power_src = (self.allocation_buffer,2)
         self.connect(self.id_dec, self.allocation_buffer)
+        if options.benchmarking:
+            self.allocation_buffer.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
 
     if options.log:
         log_to_file(self, self.bitcount_src, "data/bitcount_src_rx.int")
@@ -401,7 +408,7 @@ class receive_path(gr.hier_block2):
         log_to_file(self, self.id_dec, "data/id_dec_rx.short")
 
     ## Power Deallocator
-    pda = self._power_deallocator = divide_frame_fc(config.frame_data_part, dsubc)
+    pda = self._power_deallocator = multiply_frame_fc(config.frame_data_part, dsubc)
     self.connect(pda_in,(pda,0))
     self.connect(power_src,(pda,1))
 
@@ -476,47 +483,48 @@ class receive_path(gr.hier_block2):
         self.connect(self.bitcount_src, multiply_const_ii(1./chunkdivisor), (decoding,1))
 
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
-        scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,40)
-        scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
-
-        scatter_id_filt = skip(gr.sizeof_gr_complex*dsubc,config.frame_data_blocks)
-        scatter_id_filt.skip_call(0)
-        scatter_trig = [0]*config.frame_data_part
-        scatter_trig[0] = 1
-        scatter_trig = blocks.vector_source_b(scatter_trig,True)
-        self.connect(scatter_trig,(scatter_id_filt,1))
-        self.connect(scatter_vec_elem,scatter_s2v)
-
-        if not options.scatter_plot_before_phase_tracking:
-            print "Enabling Scatterplot for data subcarriers"
-            self.connect(pda,scatter_id_filt,scatter_vec_elem)
-              # Work on this
-              #scatter_sink = ofdm.scatterplot_sink(dsubc)
-              #self.connect(pda,scatter_sink)
-              #self.connect(map_src,(scatter_sink,1))
-              #self.connect(dm_trig,(scatter_sink,2))
-              #print "Enabled scatterplot gui interface"
-            self.zmq_probe_scatter = zeromq.pub_sink(gr.sizeof_gr_complex,config.frame_data_blocks, "tcp://*:5560")
-            self.connect(scatter_s2v, blocks.keep_one_in_n(gr.sizeof_gr_complex*config.frame_data_blocks,20), self.zmq_probe_scatter)
-        else:
-            print "Enabling Scatterplot for data before phase tracking"
-            inner_rx = inner_receiver.before_phase_tracking
-            #scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
-            op = copy.copy(options)
-            op.enable_erasure_decision = False
-            new_framesampler = ofdm_frame_sampler(op)
-            self.connect( inner_rx, new_framesampler )
-            self.connect( orig_frame_start, (new_framesampler,1) )
-            new_ps_filter = pilot_subcarrier_filter()
-            new_pb_filter = fbmc_pilot_block_filter()
-
-            self.connect( (new_framesampler,1), (new_pb_filter,1) )
-            self.connect( new_framesampler, new_pb_filter,
-                         new_ps_filter, scatter_id_filt, scatter_vec_elem )
-
-            #self.connect( new_ps_filter, scatter_sink2 )
-            #self.connect( map_src, (scatter_sink2,1))
-            #self.connect( dm_trig, (scatter_sink2,2))
+        if self.ideal2 is False:
+            scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,40)
+            scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
+    
+            scatter_id_filt = skip(gr.sizeof_gr_complex*dsubc,config.frame_data_blocks)
+            scatter_id_filt.skip_call(0)
+            scatter_trig = [0]*config.frame_data_part
+            scatter_trig[0] = 1
+            scatter_trig = blocks.vector_source_b(scatter_trig,True)
+            self.connect(scatter_trig,(scatter_id_filt,1))
+            self.connect(scatter_vec_elem,scatter_s2v)
+    
+            if not options.scatter_plot_before_phase_tracking:
+                print "Enabling Scatterplot for data subcarriers"
+                self.connect(pda,scatter_id_filt,scatter_vec_elem)
+                  # Work on this
+                  #scatter_sink = ofdm.scatterplot_sink(dsubc)
+                  #self.connect(pda,scatter_sink)
+                  #self.connect(map_src,(scatter_sink,1))
+                  #self.connect(dm_trig,(scatter_sink,2))
+                  #print "Enabled scatterplot gui interface"
+                self.zmq_probe_scatter = zeromq.pub_sink(gr.sizeof_gr_complex,config.frame_data_blocks, "tcp://*:5560")
+                self.connect(scatter_s2v, blocks.keep_one_in_n(gr.sizeof_gr_complex*config.frame_data_blocks,20), self.zmq_probe_scatter)
+            else:
+                print "Enabling Scatterplot for data before phase tracking"
+                inner_rx = inner_receiver.before_phase_tracking
+                #scatter_sink2 = ofdm.scatterplot_sink(dsubc,"phase_tracking")
+                op = copy.copy(options)
+                op.enable_erasure_decision = False
+                new_framesampler = ofdm_frame_sampler(op)
+                self.connect( inner_rx, new_framesampler )
+                self.connect( orig_frame_start, (new_framesampler,1) )
+                new_ps_filter = pilot_subcarrier_filter()
+                new_pb_filter = fbmc_pilot_block_filter()
+    
+                self.connect( (new_framesampler,1), (new_pb_filter,1) )
+                self.connect( new_framesampler, new_pb_filter,
+                             new_ps_filter, scatter_id_filt, scatter_vec_elem )
+    
+                #self.connect( new_ps_filter, scatter_sink2 )
+                #self.connect( map_src, (scatter_sink2,1))
+                #self.connect( dm_trig, (scatter_sink2,2))
 
 
     if options.log:
@@ -641,20 +649,25 @@ class receive_path(gr.hier_block2):
     vlen = config.data_subcarriers
     vlen_sinr_sc = config.subcarriers
 
-    self.setup_ber_measurement()
-    self.setup_snr_measurement()
-
-    ber_mst = self._ber_measuring_tool
+    if self.ideal2 is False:
+        self.setup_ber_measurement()
+        self.setup_snr_measurement()
+        ber_mst = self._ber_measuring_tool
+    
     if self._options.sinr_est:
         sinr_mst = self._sinr_measurement
     else:
-        snr_mst = self._snr_measurement
+        if self.ideal2 is False:
+            snr_mst = self._snr_measurement
 
-    ctf = self.filter_ctf()
-
-    self.zmq_probe_ctf = zeromq.pub_sink(gr.sizeof_float,config.data_subcarriers, "tcp://*:5559")
-    self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,20) ,self.zmq_probe_ctf)
-#    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
+    if self.ideal is False and self.ideal2 is False:
+        self.ctf = self.filter_ctf()
+        self.zmq_probe_ctf = zeromq.pub_sink(gr.sizeof_float,config.data_subcarriers, "tcp://*:5559")
+        self.connect(self.ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,20) ,self.zmq_probe_ctf)
+    else:
+        #self.zmq_probe_ctf = zeromq.pub_sink(gr.sizeof_float,config.subcarriers, "tcp://*:5559")
+        self.connect(self.ctf,blocks.null_sink(gr.sizeof_float*config.subcarriers))
+        #self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
 #                                    config.ns_port,vlen,config.rx_station_id)
 
 
@@ -664,15 +677,22 @@ class receive_path(gr.hier_block2):
 #      ## no sampling needed
       # 3. SNR
 
-
-    print "Normal BER measurement"
-
-    trig_src = dynamic_trigger_ib(False)
-    self.connect(self.bitcount_src,trig_src)
+    if self.ideal2 is False:
+        print "Normal BER measurement"
     
-    ber_sampler = vector_sampler(gr.sizeof_float,1)
-    self.connect(ber_mst,(ber_sampler,0))
-    self.connect(trig_src,(ber_sampler,1))
+        trig_src = dynamic_trigger_ib(False)
+        self.connect(self.bitcount_src,trig_src)
+        
+        ber_sampler = vector_sampler(gr.sizeof_float,1)
+        self.connect(ber_mst,(ber_sampler,0))
+        self.connect(trig_src,(ber_sampler,1))
+    else:
+        if(self._options.coding):
+            demod = self._data_decoder
+        else:
+            demod = self._data_demodulator
+        self.connect(self.bitcount_src,blocks.null_sink(gr.sizeof_int) )
+        self.connect(demod,blocks.null_sink(gr.sizeof_char))
     
     
     if self._options.log:
@@ -681,12 +701,13 @@ class receive_path(gr.hier_block2):
           log_to_file(self, trig_src_float , 'data/dynamic_trigger_out.float')
     
     
-    if self._options.sinr_est is False:
+    if self._options.sinr_est is False and self.ideal2 is False:
           self.zmq_probe_ber = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5556")
           self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_ber)
     
-          self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
-          self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_snr)
+          if self.ideal2 is False:
+              self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
+              self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_snr)
 
 
 

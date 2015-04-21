@@ -32,19 +32,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test07(self):
         self.src.rewind()
@@ -60,19 +60,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test06(self):
         self.src.rewind()
@@ -88,19 +88,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers        
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test05(self):
         self.src.rewind()
@@ -116,19 +116,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test04(self):
         self.src.rewind()
@@ -144,19 +144,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test03(self):
         self.src.rewind()
@@ -172,19 +172,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test02(self):
         self.src.rewind()
@@ -200,19 +200,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test01(self):
         self.src.rewind()
@@ -234,19 +234,19 @@ class bm_modulator:
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
         self.bitmap = [1]*self.data_subcarriers + [self.nobits]*self.data_subcarriers         
-        self.bmaptrig_stream = [1, 1]+[0]*(11-2)
+        #self.bmaptrig_stream = [1, 1]+[0]*(11-2)
     
         self.bitdata = [randint(0,1) for i in range(self.blks*self.data_subcarriers)]
         self.data = numpy.array(self.bitdata)*(-2)+1
         
         self.src = blocks.vector_source_b(self.bitdata)
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
-        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        self.modulator = generic_mapper_bcv(self.data_subcarriers,self.coding,10)
         self.snk = blocks.null_sink(gr.sizeof_gr_complex*self.data_subcarriers)
         self.tb.connect(self.src, self.modulator, self.snk)
         self.tb.connect(self.bitmap_src, (self.modulator,1))
-        self.tb.connect(self.bitmap_trigger, (self.modulator,2))
+        #self.tb.connect(self.bitmap_trigger, (self.modulator,2))
 
     def run_test08(self):
         self.src.rewind()

@@ -31,7 +31,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -43,14 +43,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
     def run_test07(self):
         self.src.rewind()
@@ -65,7 +65,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -77,14 +77,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test06(self):
@@ -100,7 +100,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -112,14 +112,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test05(self):
@@ -135,7 +135,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -147,14 +147,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test04(self):
@@ -170,7 +170,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -182,14 +182,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test03(self):
@@ -205,7 +205,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -217,14 +217,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test02(self):
@@ -240,7 +240,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -252,14 +252,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test01(self):
@@ -281,7 +281,7 @@ class bm_demodulator:
         self.tb = gr.top_block()
             
         #self.bitmap = [self.nobits]*self.data_subcarriers
-        self.demodulator = generic_demapper_vcb(self.data_subcarriers)
+        self.demodulator = generic_demapper_vcb(self.data_subcarriers,10)
         const =  self.demodulator.get_constellation( self.nobits )
         assert( len( const ) == 2**self.nobits )
                
@@ -293,14 +293,14 @@ class bm_demodulator:
         self.bitmap = [0]*self.data_subcarriers + [self.nobits]*self.data_subcarriers      
         self.bitmap_src = blocks.vector_source_b(self.bitmap,True, self.data_subcarriers)
         
-        self.bmaptrig_stream = [1, 2]+[0]*(11-2)
-        self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
+        #self.bmaptrig_stream = [1, 2]+[0]*(11-2)
+        #self.bitmap_trigger = blocks.vector_source_b(self.bmaptrig_stream, True)
         
         self.snk = blocks.null_sink(gr.sizeof_char)
                 
         self.tb.connect(self.src,self.demodulator,self.snk)
         self.tb.connect(self.bitmap_src,(self.demodulator,1))
-        self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
+        #self.tb.connect(self.bitmap_trigger,(self.demodulator,2))
 
 
     def run_test08(self):

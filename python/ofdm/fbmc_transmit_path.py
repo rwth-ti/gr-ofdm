@@ -362,18 +362,18 @@ class transmit_path(gr.hier_block2):
       log_to_file(self, pblocks, "data/pilot_block_ins_out.compl")
 
     ## Cyclic Prefix
-    cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
-                                                config.block_length)
+    #cp = self._cyclic_prefixer = cyclic_prefixer(config.fft_length,
+                                               # config.block_length)
 
-    cp= blocks.vector_to_stream(gr.sizeof_gr_complex, config.fft_length/2)
+    #cp= blocks.vector_to_stream(gr.sizeof_gr_complex, config.fft_length/2)
     #self.connect(pblocks, cp )
-    self.connect( overlap_p2s,blocks.stream_to_vector(gr.sizeof_gr_complex,config.fft_length/2), cp )
+    #self.connect( overlap_p2s,blocks.stream_to_vector(gr.sizeof_gr_complex,config.fft_length/2), cp )
 
 
-    lastblock = cp
+    lastblock = overlap_p2s
 
     if options.log:
-      log_to_file(self, cp, "data/cp_out.compl")
+      log_to_file(self, overlap_p2s, "data/overlap_p2s_out.compl")
 
     ## Digital Amplifier
     #amp = self._amplifier = gr.multiply_const_cc(1)
@@ -421,7 +421,8 @@ class transmit_path(gr.hier_block2):
     # if non amplified, the amplitude is sqrt(subcarriers).
 
     self.rms = max(0.0, min(ampl, 1.0))
-    scaled_ampl = ampl/math.sqrt(self.config.subcarriers*0.6863)
+    #scaled_ampl = ampl/math.sqrt(self.config.subcarriers*0.6863)
+    scaled_ampl = ampl/math.sqrt(self.config.subcarriers/0.6863)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
 

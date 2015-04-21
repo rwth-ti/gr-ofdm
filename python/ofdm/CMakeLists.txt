@@ -47,7 +47,7 @@ GR_PYTHON_INSTALL(
     fbmc_insert_preamble_vcvc.py
     fbmc_overlapping_parallel_to_serial_vcc.py
     fbmc_overlapping_serial_to_parallel_cvc.py
-    preambles_grc.py
+    preambles.py
     fbmc_vector_reshape_vcvc.py
     fbmc_remove_preamble_vcvc.py
     fbmc_channel_hier_cc.py
@@ -60,6 +60,8 @@ GR_PYTHON_INSTALL(
     fbmc_transmitter_multiuser_bc.py
     fbmc_receiver_multiuser_cb.py
     scfdma_transmitter_bc.py
+    transmit_path.py
+    fbmc_transmit_path.py
     scfdma_receiver_cb.py DESTINATION bin
 )
 
@@ -89,6 +91,7 @@ GR_PYTHON_INSTALL(
     station_configuration.py
     transmit_path2.py
     transmit_path.py
+    fbmc_transmit_path.py
     uhd_interface.py
     vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm
@@ -139,3 +142,4 @@ GR_ADD_TEST(qa_scfdma_subcarrier_mapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURREN
 GR_ADD_TEST(qa_scfdma_transmitter_bc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_transmitter_bc.py)
 GR_ADD_TEST(qa_scfdma_subcarrier_demapper_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_subcarrier_demapper_vcvc.py)
 GR_ADD_TEST(qa_scfdma_receiver_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_scfdma_receiver_cb.py)
+GR_ADD_TEST(qa_add_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_add_vcc.py)

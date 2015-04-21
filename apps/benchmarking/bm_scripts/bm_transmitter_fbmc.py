@@ -22,6 +22,7 @@ class bm_transmitter_fbmc:
         self.verbose = False
         self.fft_length = 256
         self.coding = 0
+        self.interleave = 0
         self.rms_amplitude = 0.1
         self.log = False
         self.est_preamble = 1
@@ -81,11 +82,11 @@ class bm_transmitter_fbmc:
             self.tb.stop()
         """
         #self.snk = uhd_transmitter( 'type=usrp2',self.bandwidth, 2480000000.0,0.0)
-        self.snk = blocks.null_sink(gr.sizeof_gr_complex)
-        self.file_sink = blocks.file_sink(gr.sizeof_gr_complex,'tx_out_benchmarking.compl')
+        #self.snk = blocks.null_sink(gr.sizeof_gr_complex)
+        self.file_sink = blocks.file_sink(gr.sizeof_gr_complex,'fbmc_tx_out_benchmarking.compl')
 
 
-        self.tb.connect(self.txpath,self.snk)
+        #self.tb.connect(self.txpath,self.snk)
         self.tb.connect(self.txpath,self.file_sink) 
         self.tb.run()
 

@@ -4,7 +4,7 @@
         {
         "module": "bm_transmitter_fbmc",
         "testname": "bm_transmitter_fbmc",
-        "nitems": 400000000,
+        "nitems": 208000000,
         "iters": 1,
         "kwargs": {
             "data_blocks": 10

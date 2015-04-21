@@ -67,9 +67,9 @@ namespace gr {
 
         // Do <+signal processing+>
         int current_input = 0;
-        unsigned int timeout = d_M;
+        unsigned int timeout = 1; //d_M;
         unsigned int i0(0), i1(0);
-        for(int i=0;i<noutput_items*d_M;i++){
+/*        for(int i=0;i<noutput_items*d_M;i++){
             if(current_input==0){
                 out[i] = in0[i0];
                 i0++;
@@ -84,6 +84,28 @@ namespace gr {
                 timeout--;
                 if(timeout==0){
                     timeout = d_M;
+                    current_input = 0;
+                }
+            }
+        }*/
+
+        for(int i=0;i<noutput_items;i++){
+            if(current_input==0){
+                //out[i] = in0[i0];
+                memcpy(&out[i*d_M], &in0[i0*d_M], sizeof(gr_complex)*d_M);
+                i0++;
+                timeout--;
+                if(timeout==0){
+                    timeout = 1;
+                    current_input = 1;
+                }
+            }else if(current_input==1){
+                //out[i] = in1[i1];
+                memcpy(&out[i*d_M], &in1[i1*d_M], sizeof(gr_complex)*d_M);
+                i1++;
+                timeout--;
+                if(timeout==0){
+                    timeout = 1;
                     current_input = 0;
                 }
             }

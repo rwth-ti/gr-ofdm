@@ -20,7 +20,7 @@ def add_argparser():
                         help='Input file of pickled data [default=%(default)s]')
     parser.add_argument('-b', '--file-two', type=str, default='output.pkl',
                         help='Input file of pickled data [default=%(default)s]')
-    parser.add_argument("-n", "--nitems", type=int, default=1000000,
+    parser.add_argument("-n", "--nitems", type=int, default=250000,
                       help="Number of processed items [default=%default]")
     return parser
 
@@ -48,12 +48,12 @@ class plotter:
 
         self.fig = plt.figure(fignum, figsize=(18,10), facecolor='w')
         self.sp1 = self.fig.add_subplot(1,2,1)
-        self.sp1.barh(self.mins_x, self.pt_mins, height=width,
+        self.sp1.barh(self.mins_x, self.bt_mins/self.nitems*1000, height=width,
                       alpha=0.55, label='minimum')
-        self.sp1.barh(self.avgs_x, self.pt_avgs, height=width, xerr=1./self.pt_stddev,
+        self.sp1.barh(self.avgs_x, self.bt_avgs/self.nitems*1000, height=width, xerr=1./self.pt_stddev,
                       capsize=5, color='r', alpha=0.55, label='average')
         self.sp1.set_title(self.title, fontsize=22, fontweight='bold')
-        self.sp1.set_xlabel("Time (ms)", fontsize=16, fontweight='bold')
+        self.sp1.set_xlabel("Time (us)", fontsize=16, fontweight='bold')
         self.sp1.set_yticks(self.mins_x+width)
         self.sp1.set_yticklabels(self.labels, fontweight='bold')
         self.sp1.legend()
@@ -154,11 +154,12 @@ class plotter:
         self.blks_times_2 = [s[1] for s in sorted_dict_2]
         self.blks_keys_2 = [s[0] for s in sorted_dict_2]
 
-        self.fig100 = plt.figure(100+self.fignum, figsize=(18,28), facecolor='w')
+        self.fig100 = plt.figure(100+self.fignum, figsize=(12,10), facecolor='w')
         self.fig100.clf()
         self.sp101 = self.fig100.add_subplot(1,1,1)
         
         self.blks_times[:] = [x/self.nitems*1000 for x in self.blks_times]
+        print "SUMSUM: ", sum(self.blks_times)
         self.blks_times_2[:] = [x/self.nitems*1000 for x in self.blks_times_2] 
         print "self.blks_times ", self.blks_times
         

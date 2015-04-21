@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-from gnuradio import gr, blocks, digital, analog
+from gnuradio import gr, blocks, digital, analog, zeromq
 #from ofdm import snr_estimator
 from receive_path import receive_path
 from uhd_interface import uhd_receiver
 import random, numpy
 import os
-import zmqblocks
 from configparse import OptionParser
 
 class bm_receiver_usrp:
@@ -43,10 +42,14 @@ class bm_receiver_usrp:
         self.sfo_feedback = False
         self.enable_ber2 = False
         self.sinr_est = False
+        self.old_receiver = False
         self.logcir = False
         self.ideal = False
+        self.ideal2 = False
         self.tx_hostname = 'tabur'
         self.bm = True
+        self.fbmc = 0
+        self.benchmarking = 1
         #self.sps = 4
         #self.eb = 0.25
 
@@ -67,7 +70,7 @@ class bm_receiver_usrp:
         
         self.rxpath = receive_path(self)
         
-        self.rpc_mgr_rx = zmqblocks.rpc_manager()
+        self.rpc_mgr_rx = zeromq.rpc_manager()
         self.rpc_mgr_rx.set_reply_socket("tcp://*:5550")
         self.rpc_mgr_rx.start_watcher()
 
@@ -98,7 +101,9 @@ class bm_receiver_usrp:
             self.tb.stop()
         """
         #self.snk = blocks.null_sink(gr.sizeof_gr_complex)
-        self.src = uhd_receiver( 'type=usrp2',self.bandwidth, self.rx_freq,0.0)
+        #self.src = uhd_receiver( 'type=usrp2',self.bandwidth, self.rx_freq,0.0)
+        self.src = blocks.file_source(gr.sizeof_gr_complex,'fbmc_tx_out_benchmarking.compl')
+
 
 
         self.tb.connect(self.src,self.rxpath)

@@ -43,6 +43,15 @@ def add_options(normal,expert):
             help="enable file logs [default=%default]")
     expert.add_option("", "--static-allocation", action="store_true", default=False,
             help="Enable static resource allocation mode [default=%default]")
+    expert.add_option( "", "--ideal",
+                       action="store_true",
+                       default=False,
+                       help="Disabling inner receiver estimations")
+    expert.add_option( "", "--ideal2",
+                       action="store_true",
+                       default=False,
+                       help="Disabling inner receiver estimations including BER, SNR and GUI sinks")
+
 
     preambles.default_block_header.add_options(normal,expert)
 

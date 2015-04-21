@@ -45,8 +45,8 @@ class fbmc_overlapping_serial_to_parallel_cvc(gr.hier_block2):
         ##################################################
         # Blocks
         ##################################################
-        self.fbmc_vector_reshape_vcvc_1 = fbmc_vector_reshape_vcvc(M/2, M)
-        self.fbmc_vector_reshape_vcvc_0 = fbmc_vector_reshape_vcvc(M, M/2)
+        ##self.fbmc_vector_reshape_vcvc_1 = fbmc_vector_reshape_vcvc(M/2, M)
+        ##self.fbmc_vector_reshape_vcvc_0 = fbmc_vector_reshape_vcvc(M, M/2)
         self.fbmc_vector_copy_vcvc_0 = ofdm.fbmc_vector_copy_vcvc(M/2, 2)
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, M/2)
         # self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M/2, 1)
@@ -65,17 +65,22 @@ class fbmc_overlapping_serial_to_parallel_cvc(gr.hier_block2):
 
         # self.fbmc_vector_copy_vcvc_0 = fbmc.vector_copy_vcvc(M, 2)
         self.blocks_vector_to_stream_0 = blocks.vector_to_stream(gr.sizeof_gr_complex*1, M/2)
-        self.blocks_stream_to_vector_0_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, M)
+        self.blocks_stream_to_vector_0_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*M/2, 2)
         # self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, M)
-        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, M/2)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*M/2, 1)
 
         # ##################################################
         # # Connections
         # ##################################################
         # self.connect((self.blocks_stream_to_vector_0, 0), (self.fbmc_vector_copy_vcvc_0, 0))
-        self.connect((self.fbmc_vector_copy_vcvc_0, 0), (self.blocks_vector_to_stream_0, 0))
-        # self.connect((self.blocks_vector_to_stream_0, 0), (self.blocks_stream_to_vector_0_0, 0))
-        self.connect((self.blocks_vector_to_stream_0, 0), (self.blocks_skiphead_0, 0))
+#         self.connect((self.fbmc_vector_copy_vcvc_0, 0), (self.blocks_vector_to_stream_0, 0))
+#         # self.connect((self.blocks_vector_to_stream_0, 0), (self.blocks_stream_to_vector_0_0, 0))
+#         self.connect((self.blocks_vector_to_stream_0, 0), (self.blocks_skiphead_0, 0))
+#         self.connect((self.blocks_skiphead_0, 0), (self.blocks_stream_to_vector_0_0, 0))
+#         # self.connect((self, 0), (self.blocks_stream_to_vector_0, 0))
+#         self.connect((self.blocks_stream_to_vector_0_0, 0), (self, 0))
+        
+        self.connect((self.fbmc_vector_copy_vcvc_0, 0),(self.blocks_skiphead_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.blocks_stream_to_vector_0_0, 0))
         # self.connect((self, 0), (self.blocks_stream_to_vector_0, 0))
         self.connect((self.blocks_stream_to_vector_0_0, 0), (self, 0))

@@ -47,15 +47,21 @@ namespace gr {
       d_K(K),
       d_lp(lp),
       d_offset(offset),
-      d_ones(M,1),
+      d_ones(M,1.0),
       alternating_flag(false)
     {
+      const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+      set_alignment(std::max(1, alignment_multiple));
+
       assert(M>0 && (log(M)/log(2)) == (round(log(M)/log(2))));
       assert(K==4); //later we might also support K=3
-      d_lp = K*M-1; //for now we will only support for this filter length, which will make the process less complex.
+      //d_lp = K*M-1; //for now we will only support for this filter length, which will make the process less complex.
       // bool alternating_flag = false; //indicates alternating vector
       for (int i = 0; i< M/2;i++)
-    	  d_ones[2*i+1]=-1;
+    	  {
+    	  d_ones[2*i+1]=-1.0;
+      	  //std::cout<<d_ones[i]<<std::endl;
+    	  }
     }
 
     /*
@@ -96,26 +102,53 @@ namespace gr {
 
         // Do <+signal processing+>
         // beta = (-1)^kn * (-1)^kK
-        for(int i=0;i<noutput_items*d_M;i++){
+//        for(int i=0;i<noutput_items*d_M;i++){
+//          // int k = i%d_M;
+//          // int n = floor(i/d_M);
+//          // out[i] = in[i]*((gr_complex)(pow(-1,k*n)*pow(-1,d_K*k)));
+//          if(!alternating_flag){
+//            out[i] = in[i];
+//          }
+//          else {
+//            if(i%2==0){ //even sc
+//              out[i]=in[i];
+//            }
+//            else { //odd sc
+//              out[i] = gr_complex(-1,0)*in[i];
+//            }
+//          }
+//
+//          if(i%d_M==d_M-1){
+//            // std::cout<<i<<std::endl;
+//            alternating_flag=!alternating_flag;
+//          }
+//
+//
+//        }
+
+        for(int i=0;i<noutput_items;i++){
           // int k = i%d_M;
           // int n = floor(i/d_M);
           // out[i] = in[i]*((gr_complex)(pow(-1,k*n)*pow(-1,d_K*k)));
           if(!alternating_flag){
-            out[i] = in[i];
+            //out[i] = in[i];
+        	memcpy(&out[i*d_M], &in[i*d_M], sizeof(gr_complex)*d_M);
+        	 // memcpy(&out[i], &in[i], sizeof(gr_complex));
           }
           else {
-            if(i%2==0){ //even sc
+        	  volk_32fc_32f_multiply_32fc(&out[i*d_M], &in[i*d_M],&d_ones[0], d_M);
+/*            if(i%2==0){ //even sc
               out[i]=in[i];
             }
             else { //odd sc
               out[i] = gr_complex(-1,0)*in[i];
-            }
+            }*/
           }
 
-          if(i%d_M==d_M-1){
+          //if(i%d_M==d_M-1){
             // std::cout<<i<<std::endl;
             alternating_flag=!alternating_flag;
-          }
+          //}
 
 
         }

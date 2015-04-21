@@ -8,5 +8,7 @@ else
     . $PWD/environment_release
 fi
 
+#./benchmarking/benchmarking.py -F benchmarking/run_receiver_fbmc.json -o transmitter_fbmc.pkl $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
 ./benchmarking/benchmarking.py -F benchmarking/run_transmitter_fbmc.json -o transmitter_fbmc.pkl $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+#./benchmarking/benchmarking.py -F benchmarking/run_transmitter.json -o transmitter.pkl $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
 

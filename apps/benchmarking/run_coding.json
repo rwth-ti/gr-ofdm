@@ -1,0 +1,11 @@
+{ 
+    "directory": "bm_scripts",
+    "tests": [
+    {
+        "module": "bm_coding",
+        "testname": "bm_coding",
+        "nitems": 5000,
+        "iters": 100
+    }
+]
+}

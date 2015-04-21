@@ -64,20 +64,20 @@ class test_demapper_fbmc:
   def sim ( self, arity, snr_db, N ):
     M = 1024
     theta_sel = 0
-    syms_per_frame = 20
+    syms_per_frame = 100
     zero_pads = 1
     center_preamble = [1, -1j, -1, 1j] # assumed to be normalized to 1
     qam_size = 2**arity
     preamble = [0]*M*zero_pads+center_preamble*((int)(M/len(center_preamble)))+[0]*M*zero_pads
     # print preamble
     # num_symbols = 2**12
-    exclude_preamble = 0
+    exclude_preamble = 1
     exclude_multipath =1
     sel_taps = 5 # epa=0, eva = 1, etu=2
     freq_offset= 0
     exclude_noise = 1
     sel_noise_type =0 # gaussian
-    eq_select = 0 # 0=1-tap 1=3-taps w/linear intrp 2=3-taps w/ geo. intrp. 3= no eq.
+    eq_select = 3 # 0=1-tap 1=3-taps w/linear intrp 2=3-taps w/ geo. intrp. 3= no eq.
     carriers = M
     sel_preamble = 0 # 0: IAM-C 1: IAM-C with 3 rep. 2: IAM-R
     extra_pad=False
@@ -91,6 +91,7 @@ class test_demapper_fbmc:
     # amp = math.sqrt((10**(float(-1*snr_db)/20))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
     if exclude_preamble:
       amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10))*(2*K*M+(2*syms_per_frame-1)*M)/(4*syms_per_frame))/math.sqrt(2)
+      #amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10)))/math.sqrt(2)
     else:
       amp = normalizing_factor*math.sqrt((10**(float(-1*snr_db)/10))*(M*(syms_per_frame+1)/(syms_per_frame+1+2*zero_pads))*((K*M+(2*syms_per_frame-1)*M/2)/(M*syms_per_frame)))/math.sqrt(2)
     # print amp

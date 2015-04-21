@@ -34,6 +34,36 @@ namespace gr {
       int d_offset;
       int d_theta_sel;
       std::vector<int> d_offsets;
+      std::vector<gr_complex> d_v1_re;
+      std::vector<gr_complex> d_v1_im;
+      std::vector<gr_complex> d_v2_re;
+      std::vector<gr_complex> d_v2_im;
+      std::vector<gr_complex> d_v3_re;
+      std::vector<gr_complex> d_v3_im;
+      std::vector<gr_complex> d_v4_re;
+      std::vector<gr_complex> d_v4_im;
+      //std::vector<gr_complex> d_js;
+
+      float *xreal;
+	  float *ximag;
+	  gr_complex *sum1;
+	  gr_complex *sum2;
+	  gr_complex *sum3;
+	  gr_complex *sum4;
+	  gr_complex *sumc;
+	  gr_complex *sumcc;
+	  float *sum1_i;
+	  float *sum1_q;
+	  float *sum2_i;
+	  float *sum2_q;
+	  float *sum3_i;
+	  float *sum3_q;
+	  float *sum4_i;
+	  float *sum4_q;
+	  float *sumc_i;
+	  float *sumc_q;
+	  float *sumcc_i;
+	  float *sumcc_q;;
 
      public:
       fbmc_oqam_preprocessing_vcvc_impl(unsigned int M, int offset, int theta_sel);

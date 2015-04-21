@@ -24,6 +24,8 @@
 
 #include <gnuradio/io_signature.h>
 #include "fbmc_oqam_preprocessing_vcvc_impl.h"
+#include "malloc16.h"
+#include <volk/volk.h>
 
 namespace gr {
   namespace ofdm {
@@ -45,9 +47,39 @@ namespace gr {
 		d_M(M),
 		d_offset(offset),
 		d_theta_sel(theta_sel),
-		d_offsets(d_M,offset%2)
+		d_offsets(d_M,offset%2),
+		d_v1_re(M,0.0),
+		d_v1_im(M,0.0),
+		d_v2_re(M,0.0),
+		d_v2_im(M,0.0),
+		d_v3_re(M,0.0),
+		d_v3_im(M,0.0),
+		d_v4_re(M,0.0),
+		d_v4_im(M,0.0),
+		xreal( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		ximag( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum1_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum2_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum2_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum3_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum3_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum4_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum4_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sumc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sumc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sumcc_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sumcc_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		sum1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		sum2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		sum3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		sum4( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		sumc( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		sumcc( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) )
 	{
-		if(d_theta_sel==0){
+	      const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+	      set_alignment(std::max(1, alignment_multiple));
+		/*if(d_theta_sel==0){
 			vre0[0] = gr_complex(1,0);
 			vre0[1] = gr_complex(-1,0);
 			vim0[0] = gr_complex(0,1);
@@ -65,7 +97,40 @@ namespace gr {
 			vre1[1] = gr_complex(1,0);
 			vim1[0] = gr_complex(0,1);
 			vim1[1] = gr_complex(0,1);
-		}
+		}*/
+
+	     for (int i = 0; i< M/4;i++)
+	    	  {
+	    	  d_v1_re[4*i] = gr_complex(1,0);
+	    	  d_v1_re[4*i+2] = gr_complex(-1,0);
+
+	    	  d_v1_im[4*i+1] = gr_complex(0,1);
+	    	  d_v1_im[4*i+3 ]= gr_complex(0,-1);
+
+	    	  d_v2_im[4*i] = gr_complex(0,1);;
+	    	  d_v2_im[4*i+2]= gr_complex(0,-1);
+
+	       	  d_v2_re[4*i+1] = gr_complex(-1,0);
+	    	  d_v2_re[4*i+3 ]= gr_complex(1,0);
+
+	    	  d_v3_re[4*i] = gr_complex(-1,0);
+	    	  d_v3_re[4*i+2] = gr_complex(1,0);
+
+	    	  d_v3_im[4*i+1] = gr_complex(0,-1);
+	    	  d_v3_im[4*i+3 ]= gr_complex(0,1);
+
+	    	  d_v4_im[4*i] = gr_complex(0,-1);;
+	    	  d_v4_im[4*i+2]= gr_complex(0,1);
+
+	       	  d_v4_re[4*i+1] = gr_complex(1,0);
+	    	  d_v4_re[4*i+3 ]= gr_complex(-1,0);
+	      	  //std::cout<<d_ones[i]<<std::endl;
+	    	  }
+
+/*	     for (int i = 0; i< M;i++)
+	    	  {
+	      	  std::cout<<d_v4_im[i]<<std::endl;
+	    	  }*/
 	}
 
 	/*
@@ -83,7 +148,29 @@ namespace gr {
 		const gr_complex *in = (const gr_complex *) input_items[0];
 		gr_complex *out = (gr_complex *) output_items[0];
 
-		int ii(0); // input counter
+/*		float *xreal = new float[d_M];
+		float *ximag = new float[d_M];
+		gr_complex *sum1 = new gr_complex[d_M];
+		gr_complex *sum2 = new gr_complex[d_M];
+		gr_complex *sum3 = new gr_complex[d_M];
+		gr_complex *sum4 = new gr_complex[d_M];
+		gr_complex *sumc = new gr_complex[d_M];
+		gr_complex *sumcc = new gr_complex[d_M];
+		float *sum1_i = new float[d_M];
+		float *sum1_q= new float[d_M];
+		float *sum2_i = new float[d_M];
+		float *sum2_q= new float[d_M];
+		float *sum3_i = new float[d_M];
+		float *sum3_q= new float[d_M];
+		float *sum4_i = new float[d_M];
+		float *sum4_q= new float[d_M];
+		float *sumc_i = new float[d_M];
+		float *sumc_q= new float[d_M];
+		float *sumcc_i = new float[d_M];
+		float *sumcc_q= new float[d_M];*/
+
+/*		int ii(0); // input counter
+
 		for(int i=0;i<d_M*noutput_items;i++){
 			if(i%4==0){
 				out[i] = real(in[ii])*vre0[d_offsets[i%d_M]];
@@ -112,7 +199,69 @@ namespace gr {
 				}
 				ii++;
 			}
+		}*/
+		int ii(0); // input counter
+		for(int i=0;i<noutput_items;i++){
+			volk_32fc_deinterleave_real_32f(&xreal[0],&in[ii*d_M],d_M);
+			volk_32fc_deinterleave_imag_32f(&ximag[0],&in[ii*d_M],d_M);
+
+			if(ii%2==0){
+				volk_32fc_32f_multiply_32fc(&sum1[0],&d_v1_re[0],&xreal[0],d_M);
+				volk_32fc_32f_multiply_32fc(&sum2[0],&d_v1_im[0],&ximag[0],d_M);
+
+				volk_32fc_deinterleave_32f_x2(&sum1_i[0],&sum1_q[0],&sum1[0],d_M);
+				volk_32fc_deinterleave_32f_x2(&sum2_i[0],&sum2_q[0],&sum2[0],d_M);
+
+				volk_32f_x2_add_32f(&sumc_i[0],&sum1_i[0],&sum2_i[0],d_M);
+				volk_32f_x2_add_32f(&sumc_q[0],&sum1_q[0],&sum2_q[0],d_M);
+
+				volk_32f_x2_interleave_32fc(&out[i*d_M],&sumc_i[0],&sumc_q[0],d_M);
+
+				volk_32fc_32f_multiply_32fc(&sum3[0],&d_v2_im[0],&ximag[0],d_M);
+				volk_32fc_32f_multiply_32fc(&sum4[0],&d_v2_re[0],&xreal[0],d_M);
+
+				volk_32fc_deinterleave_32f_x2(&sum3_i[0],&sum3_q[0],&sum3[0],d_M);
+				volk_32fc_deinterleave_32f_x2(&sum4_i[0],&sum4_q[0],&sum4[0],d_M);
+
+				volk_32f_x2_add_32f(&sumcc_i[0],&sum3_i[0],&sum4_i[0],d_M);
+				volk_32f_x2_add_32f(&sumcc_q[0],&sum3_q[0],&sum4_q[0],d_M);
+
+				volk_32f_x2_interleave_32fc(&out[(i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
+
+				i++;
+				ii++;
+			}
+
+
+			else {
+				volk_32fc_32f_multiply_32fc(&sum1[0],&d_v3_re[0],&xreal[0],d_M);
+				volk_32fc_32f_multiply_32fc(&sum2[0],&d_v3_im[0],&ximag[0],d_M);
+
+				volk_32fc_deinterleave_32f_x2(&sum1_i[0],&sum1_q[0],&sum1[0],d_M);
+				volk_32fc_deinterleave_32f_x2(&sum2_i[0],&sum2_q[0],&sum2[0],d_M);
+
+				volk_32f_x2_add_32f(&sumc_i[0],&sum1_i[0],&sum2_i[0],d_M);
+				volk_32f_x2_add_32f(&sumc_q[0],&sum1_q[0],&sum2_q[0],d_M);
+
+				volk_32f_x2_interleave_32fc(&out[i*d_M],&sumc_i[0],&sumc_q[0],d_M);
+
+				volk_32fc_32f_multiply_32fc(&sum3[0],&d_v4_im[0],&ximag[0],d_M);
+				volk_32fc_32f_multiply_32fc(&sum4[0],&d_v4_re[0],&xreal[0],d_M);
+
+				volk_32fc_deinterleave_32f_x2(&sum3_i[0],&sum3_q[0],&sum3[0],d_M);
+				volk_32fc_deinterleave_32f_x2(&sum4_i[0],&sum4_q[0],&sum4[0],d_M);
+
+				volk_32f_x2_add_32f(&sumcc_i[0],&sum3_i[0],&sum4_i[0],d_M);
+				volk_32f_x2_add_32f(&sumcc_q[0],&sum3_q[0],&sum4_q[0],d_M);
+
+				volk_32f_x2_interleave_32fc(&out[(i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
+				i++;
+
+				ii++;
+			}
+
 		}
+
 
 		// Tell runtime system how many output items we produced.
 		return noutput_items;

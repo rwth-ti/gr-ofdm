@@ -62,9 +62,14 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
 
         // Do <+signal processing+>
-        for(unsigned int i=0;i<noutput_items*d_M;i++){
+/*        for(unsigned int i=0;i<noutput_items*d_M;i++){
           out[i] = in[int(floor(i/(d_interpolation*d_M))*d_M+(i%d_M))];
-        }
+        }*/
+
+        //paralelized
+        for(unsigned int i=0;i<noutput_items;i++){
+        	memcpy(&out[i*d_M], &in[ int(floor(i/(d_interpolation))*d_M)], sizeof(gr_complex)*d_M);
+         }
 
         // Tell runtime system how many output items we produced.
         return noutput_items;

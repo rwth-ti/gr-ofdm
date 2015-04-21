@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2015 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H
-#define INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H
+#ifndef INCLUDED_OFDM_ADD_VCC_IMPL_H
+#define INCLUDED_OFDM_ADD_VCC_IMPL_H
 
-#include <ofdm/fbmc_beta_multiplier_vcvc.h>
+#include <ofdm/add_vcc.h>
 
 namespace gr {
   namespace ofdm {
 
-    class fbmc_beta_multiplier_vcvc_impl : public fbmc_beta_multiplier_vcvc
+    class add_vcc_impl : public add_vcc
     {
      private:
       // Nothing to declare in this block.
-      unsigned int d_M;
-      unsigned int d_K;
-      unsigned int d_lp;
-      unsigned int d_offset;
-      bool alternating_flag;
-      std::vector<float> d_ones;
+    	size_t d_vlen;
+    	float *d_inp_i;
+    	float *d_inp_q;
+    	float *d_i;
+    	float *d_q;
 
      public:
-      fbmc_beta_multiplier_vcvc_impl(unsigned int M, unsigned int K, unsigned int lp, unsigned int offset);
-      ~fbmc_beta_multiplier_vcvc_impl();
+      add_vcc_impl(size_t vlen);
+      ~add_vcc_impl();
 
       // Where all the action really happens
       int work(int noutput_items,
@@ -50,5 +49,5 @@ namespace gr {
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_FBMC_BETA_MULTIPLIER_VCVC_IMPL_H */
+#endif /* INCLUDED_OFDM_ADD_VCC_IMPL_H */
 

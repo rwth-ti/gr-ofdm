@@ -97,7 +97,7 @@ class qa_fbmc_oqam_postprocessing_vcvc (gr_unittest.TestCase):
 		result_data = dst.data()
 		# print snk1.data()
 		self.assertEqual(expected_result,result_data)
-
+ 
 	def test_005_t (self):
 		# set up fg
 		src_data = (1+1j,2+2j,3-3j,4-4j,5+5j,-6-6j,-7+7j,8+8j,9-9j,10+10j,-11+11j,1.2-1.2j,-1.3+1.3j,1.4-14j,-15-15j,16-16j)
@@ -114,7 +114,7 @@ class qa_fbmc_oqam_postprocessing_vcvc (gr_unittest.TestCase):
 		result_data = dst.data()
 		# print snk1.data()
 		self.assertComplexTuplesAlmostEqual(expected_result,result_data,7)
-
+ 
 	def test_006_t(self):
 		M = 2**7
 		num = 2**15
@@ -131,7 +131,18 @@ class qa_fbmc_oqam_postprocessing_vcvc (gr_unittest.TestCase):
 		self.tb.run ()
 		# check data
 		result_data = dst.data()
-		# print snk1.data()
+		print result_data==tuple(src_data)
+# 		list1 = []
+# 		list2 = []
+# 		for i in range(0,2000000):#,len(result_data)):
+# 			if result_data[i] != src_data[i]:
+# 				list1.append(result_data[i])
+# 			else:
+# 				list2.append(src_data[i])
+#  				
+# 		print len(list1)
+# 		print len(list2)
+				
 		self.assertComplexTuplesAlmostEqual(tuple(src_data),result_data,7)
 
 

@@ -68,11 +68,11 @@ namespace gr {
         // int* outputs= new int[d_num_output];
         // for(int i=0;i<d_num_output;i++) *(outputs+i) = 
 
-        int timeout = d_M; //after this many samples we will change the output
+        int timeout = 1; // d_M //after this many samples we will change the output
         int current_output = 0;
         int i0(0), i1(0);
         // Do <+signal processing+>
-        for(int i=0;i<noutput_items*d_M*d_num_output;i++){
+/*        for(int i=0;i<noutput_items*d_M*d_num_output;i++){
           if(current_output==0){
             out0[i0] = in[i];
             i0++;
@@ -88,6 +88,29 @@ namespace gr {
             if(timeout==0){
               current_output = 0;
               timeout = d_M;
+            }
+          }
+
+        }*/
+
+        for(int i=0;i<noutput_items*d_num_output;i++){
+          if(current_output==0){
+        	  //out0[i0] = in[i];
+        	memcpy(&out0[i0*d_M], &in[i*d_M], sizeof(gr_complex)*d_M);
+            i0++;
+            timeout--;
+            if(timeout==0){
+              current_output = 1;
+              timeout = 1;
+            }
+          }else if(current_output==1){
+        	  //out1[i1] = in[i];
+        	 memcpy(&out1[i1*d_M], &in[i*d_M], sizeof(gr_complex)*d_M);
+            i1++;
+            timeout--;
+            if(timeout==0){
+              current_output = 0;
+              timeout = 1;
             }
           }
 

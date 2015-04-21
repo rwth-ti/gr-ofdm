@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gnuradio import gr
-from gnuradio import gr, blocks, analog, filter
+from gnuradio import gr, blocks, analog, filter, channels, fft
 import ofdm
 # import fbmc_swig as transmitter_hier_bc
 import numpy
@@ -58,22 +58,31 @@ class test_demapper:
     
   def sim ( self, arity, snr_db, N ):
     
-    vlen = 1
+    vlen = 10
     N = int( N )
     snr = 10.0**(snr_db/10.0)
     
     sigpow = 1.0
     noise_pow = sigpow / snr
     #skipping first symbol due to demapper implementation (demmaper assumes that the first symbol is ID and do not decode ui)
-    skiphead_src = blocks.skiphead( gr.sizeof_char, 1 )
-    demapper = ofdm.generic_demapper_vcb( vlen,N+1 )
+    skiphead_src = blocks.skiphead( gr.sizeof_char, vlen+3)#vlen+3 )
+    demapper = ofdm.generic_demapper_vcb( vlen,N/vlen+1 )
     const = demapper.get_constellation( arity )
     assert( len( const ) == 2**arity )
     
     symsrc = ofdm.symbol_random_src( const, vlen )
     #noise_src = ofdm.complex_white_noise( 0.0, sqrt( noise_pow ) )
-    noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, sqrt( noise_pow/2 ), 0, 8192)
+    noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 0.0, 0, 8192)
     channel = blocks.add_cc()
+    ch_model = channels.channel_model(
+            noise_voltage=0.0,
+            frequency_offset=0.0,
+            epsilon=1.0,
+            #taps = (0.998160541385960,0.0605566335500750,0.00290305927764350),
+            taps = (1,0),
+            noise_seed=8192,
+            block_tags=False
+        )
     bitmap_src = blocks.vector_source_b( [arity] * vlen, True, vlen )
     #bm_trig_src = blocks.vector_source_b( [1], True )
     ref_bitstream = blocks.unpack_k_bits_bb( arity )
@@ -84,22 +93,38 @@ class test_demapper:
     limit = blocks.head( gr.sizeof_float, 1 )
     dst = blocks.vector_sink_f()
     
-    tb = gr.top_block ( "test_block" )
+    rec_dst = blocks.vector_sink_b()
+    ref_dst = blocks.vector_sink_b()
     
-    tb.connect( (symsrc,0), (channel,0) )
+    tb = gr.top_block ( "test_block" )
+    #tb.connect( (symsrc,0),blocks.vector_to_stream(gr.sizeof_gr_complex ,vlen),blocks.head(gr.sizeof_gr_complex,N/arity),blocks.null_sink(gr.sizeof_gr_complex))
+    
+    #tb.connect( (symsrc,0),fft.fft_vcc(vlen,False,[],True),blocks.vector_to_stream(gr.sizeof_gr_complex ,vlen), ch_model, (channel,0) )
+    tb.connect( (symsrc,0),blocks.vector_to_stream(gr.sizeof_gr_complex ,vlen), ch_model, (channel,0) )
     tb.connect( noise_src,  (channel,1) )
-    tb.connect( channel,     (demapper,0), (bitstream_xor,0) )
+    #tb.connect( channel, blocks.stream_to_vector(gr.sizeof_gr_complex ,vlen),fft.fft_vcc(vlen,True,[],True),  (demapper,0), (bitstream_xor,0) )
+    tb.connect( channel, blocks.stream_to_vector(gr.sizeof_gr_complex ,vlen), (demapper,0), (bitstream_xor,0) )
     tb.connect( bitmap_src,  (demapper,1) )
     #tb.connect( bm_trig_src, (demapper,2) )
-    tb.connect( (symsrc,1),skiphead_src, ref_bitstream, (bitstream_xor,1) )
+    tb.connect( (symsrc,1),blocks.vector_to_stream(gr.sizeof_char ,vlen),skiphead_src, ref_bitstream, (bitstream_xor,1) )
     tb.connect( bitstream_xor, bitstream_c2f, acc_biterr )
     tb.connect( acc_biterr, skiphead, limit, dst )
+    tb.connect( demapper, rec_dst )
+    tb.connect( ref_bitstream,  ref_dst )
 
     tb.run()
     
     bit_errors = numpy.array( dst.data() )
     assert( len( bit_errors ) == 1 )
     bit_errors = bit_errors[0]
+    
+    rec_data = list(rec_dst.data())
+    ref_data = list(ref_dst.data())
+    
+    print "ref_data: ", ref_data[:2000]
+    print "size ref_data: ", len(ref_data)#[:2320
+    print "rec_data: ", rec_data[:500]
+    print "size rec_data: ", len(rec_data)#[:2320
     
     return bit_errors / N
     
@@ -115,12 +140,13 @@ class test_demapper:
     
     ber_curves = dict()
     
-    #narity_range = range(1,9)
-    narity_range = [2, 4, 6, 8]
+    narity_range = range(1,9)
+    #narity_range = [2, 4, 6, 8]
+    
     
     for arity in narity_range:
       ber_arr = []
-      snr_range = range(0, 31, 1)
+      snr_range = range(29, 31, 1)
       for snr_db in snr_range:
         ber = self.sim( arity, snr_db, N )
         ber_arr.append( ber )

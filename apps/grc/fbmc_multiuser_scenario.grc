@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
-<?grc format='1' created='3.7.7'?>
 <flow_graph>
-  <timestamp>Thu Jan 15 12:25:33 2015</timestamp>
+  <timestamp>Wed Mar 18 10:48:29 2015</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -69,168 +68,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>carriers</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>[boundaries[1]-boundaries[0]+1,boundaries[3]-boundaries[2]+1,boundaries[5]-boundaries[4]+1,boundaries[7]-boundaries[6]+1]</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(872, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>zero_pad</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(624, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>theta_sel</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(416, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>syms_per_frame</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>20</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(304, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>K</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(152, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>3.125e6*2/100</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(-8, 963)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>boundaries</value>
     </param>
     <param>
@@ -239,7 +76,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>[10,35,60,85,130,155,200,235]</value>
+      <value>[10,35,60,85,130,155,200,225]</value>
     </param>
     <param>
       <key>alias</key>
@@ -258,7 +95,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>M</value>
+      <value>qam_size</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -266,7 +103,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>256</value>
+      <value>64</value>
     </param>
     <param>
       <key>alias</key>
@@ -274,7 +111,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(80, 963)</value>
+      <value>(224, 963)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -312,7 +149,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>qam_size</value>
+      <value>M</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -320,7 +157,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>64</value>
+      <value>256</value>
     </param>
     <param>
       <key>alias</key>
@@ -328,7 +165,169 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 963)</value>
+      <value>(80, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>3.125e6*2/100</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(-8, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(152, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>syms_per_frame</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(304, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>theta_sel</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(416, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>zero_pad</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 963)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>carriers</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>[boundaries[1]-boundaries[0]+1,boundaries[3]-boundaries[2]+1,boundaries[5]-boundaries[4]+1,boundaries[7]-boundaries[6]+1]</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(872, 963)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -844,10 +843,6 @@
       <value>False</value>
     </param>
     <param>
-      <key>name</key>
-      <value>BER (User 1)</value>
-    </param>
-    <param>
       <key>type</key>
       <value>float</value>
     </param>
@@ -888,23 +883,11 @@
       <value></value>
     </param>
     <param>
-      <key>unit1</key>
-      <value></value>
-    </param>
-    <param>
       <key>color1</key>
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor1</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit2</key>
       <value></value>
     </param>
     <param>
@@ -912,15 +895,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor2</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit3</key>
       <value></value>
     </param>
     <param>
@@ -928,15 +903,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor3</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit4</key>
       <value></value>
     </param>
     <param>
@@ -944,15 +911,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor4</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit5</key>
       <value></value>
     </param>
     <param>
@@ -960,15 +919,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor5</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit6</key>
       <value></value>
     </param>
     <param>
@@ -976,15 +927,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor6</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit7</key>
       <value></value>
     </param>
     <param>
@@ -992,15 +935,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor7</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit8</key>
       <value></value>
     </param>
     <param>
@@ -1008,15 +943,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor8</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit9</key>
       <value></value>
     </param>
     <param>
@@ -1024,24 +951,12 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor9</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit10</key>
       <value></value>
     </param>
     <param>
       <key>color10</key>
       <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor10</key>
-      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -1071,10 +986,6 @@
       <value>False</value>
     </param>
     <param>
-      <key>name</key>
-      <value>BER (User 2)</value>
-    </param>
-    <param>
       <key>type</key>
       <value>float</value>
     </param>
@@ -1115,23 +1026,11 @@
       <value></value>
     </param>
     <param>
-      <key>unit1</key>
-      <value></value>
-    </param>
-    <param>
       <key>color1</key>
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor1</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit2</key>
       <value></value>
     </param>
     <param>
@@ -1139,15 +1038,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor2</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit3</key>
       <value></value>
     </param>
     <param>
@@ -1155,15 +1046,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor3</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit4</key>
       <value></value>
     </param>
     <param>
@@ -1171,15 +1054,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor4</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit5</key>
       <value></value>
     </param>
     <param>
@@ -1187,15 +1062,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor5</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit6</key>
       <value></value>
     </param>
     <param>
@@ -1203,15 +1070,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor6</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit7</key>
       <value></value>
     </param>
     <param>
@@ -1219,15 +1078,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor7</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit8</key>
       <value></value>
     </param>
     <param>
@@ -1235,15 +1086,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor8</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit9</key>
       <value></value>
     </param>
     <param>
@@ -1251,24 +1094,12 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor9</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit10</key>
       <value></value>
     </param>
     <param>
       <key>color10</key>
       <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor10</key>
-      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -1298,10 +1129,6 @@
       <value>False</value>
     </param>
     <param>
-      <key>name</key>
-      <value>BER (User 4)</value>
-    </param>
-    <param>
       <key>type</key>
       <value>float</value>
     </param>
@@ -1342,23 +1169,11 @@
       <value></value>
     </param>
     <param>
-      <key>unit1</key>
-      <value></value>
-    </param>
-    <param>
       <key>color1</key>
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor1</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit2</key>
       <value></value>
     </param>
     <param>
@@ -1366,15 +1181,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor2</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit3</key>
       <value></value>
     </param>
     <param>
@@ -1382,15 +1189,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor3</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit4</key>
       <value></value>
     </param>
     <param>
@@ -1398,15 +1197,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor4</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit5</key>
       <value></value>
     </param>
     <param>
@@ -1414,15 +1205,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor5</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit6</key>
       <value></value>
     </param>
     <param>
@@ -1430,15 +1213,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor6</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit7</key>
       <value></value>
     </param>
     <param>
@@ -1446,15 +1221,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor7</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit8</key>
       <value></value>
     </param>
     <param>
@@ -1462,15 +1229,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor8</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit9</key>
       <value></value>
     </param>
     <param>
@@ -1478,24 +1237,12 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor9</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit10</key>
       <value></value>
     </param>
     <param>
       <key>color10</key>
       <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor10</key>
-      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -1525,10 +1272,6 @@
       <value>False</value>
     </param>
     <param>
-      <key>name</key>
-      <value>BER (User 1)</value>
-    </param>
-    <param>
       <key>type</key>
       <value>float</value>
     </param>
@@ -1569,23 +1312,11 @@
       <value></value>
     </param>
     <param>
-      <key>unit1</key>
-      <value></value>
-    </param>
-    <param>
       <key>color1</key>
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor1</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit2</key>
       <value></value>
     </param>
     <param>
@@ -1593,15 +1324,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor2</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit3</key>
       <value></value>
     </param>
     <param>
@@ -1609,15 +1332,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor3</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit4</key>
       <value></value>
     </param>
     <param>
@@ -1625,15 +1340,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor4</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit5</key>
       <value></value>
     </param>
     <param>
@@ -1641,15 +1348,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor5</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit6</key>
       <value></value>
     </param>
     <param>
@@ -1657,15 +1356,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor6</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit7</key>
       <value></value>
     </param>
     <param>
@@ -1673,15 +1364,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor7</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit8</key>
       <value></value>
     </param>
     <param>
@@ -1689,15 +1372,7 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor8</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit9</key>
       <value></value>
     </param>
     <param>
@@ -1705,24 +1380,12 @@
       <value>("black", "black")</value>
     </param>
     <param>
-      <key>factor9</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit10</key>
       <value></value>
     </param>
     <param>
       <key>color10</key>
       <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor10</key>
-      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -2863,101 +2526,6 @@
     </param>
   </block>
   <block>
-    <key>ofdm_fbmc_receiver_multiuser_cb</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_fbmc_receiver_multiuser_cb_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>K</value>
-    </param>
-    <param>
-      <key>qam_size</key>
-      <value>qam_size</value>
-    </param>
-    <param>
-      <key>syms_per_frame</key>
-      <value>syms_per_frame</value>
-    </param>
-    <param>
-      <key>boundaries</key>
-      <value>boundaries</value>
-    </param>
-    <param>
-      <key>c1</key>
-      <value>carriers[0]</value>
-    </param>
-    <param>
-      <key>c2</key>
-      <value>carriers[1]</value>
-    </param>
-    <param>
-      <key>c3</key>
-      <value>carriers[2]</value>
-    </param>
-    <param>
-      <key>c4</key>
-      <value>carriers[3]</value>
-    </param>
-    <param>
-      <key>theta_sel</key>
-      <value>theta_sel</value>
-    </param>
-    <param>
-      <key>exclude_preamble</key>
-      <value>exclude_preamble</value>
-    </param>
-    <param>
-      <key>sel_preamble</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>zero_pads</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>extra_pad</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>sel_eq</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(680, 251)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>ofdm_fbmc_symbol_estimation_vcb</key>
     <param>
       <key>id</key>
@@ -3345,6 +2913,101 @@
     <param>
       <key>_rotation</key>
       <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_fbmc_receiver_multiuser_cb</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_fbmc_receiver_multiuser_cb_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>qam_size</key>
+      <value>qam_size</value>
+    </param>
+    <param>
+      <key>syms_per_frame</key>
+      <value>syms_per_frame</value>
+    </param>
+    <param>
+      <key>boundaries</key>
+      <value>boundaries</value>
+    </param>
+    <param>
+      <key>c1</key>
+      <value>carriers[0]</value>
+    </param>
+    <param>
+      <key>c2</key>
+      <value>carriers[1]</value>
+    </param>
+    <param>
+      <key>c3</key>
+      <value>carriers[2]</value>
+    </param>
+    <param>
+      <key>c4</key>
+      <value>carriers[3]</value>
+    </param>
+    <param>
+      <key>theta_sel</key>
+      <value>theta_sel</value>
+    </param>
+    <param>
+      <key>exclude_preamble</key>
+      <value>exclude_preamble</value>
+    </param>
+    <param>
+      <key>sel_preamble</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>zero_pads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>extra_pad</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>sel_eq</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(667, 263)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
     </param>
   </block>
   <connection>

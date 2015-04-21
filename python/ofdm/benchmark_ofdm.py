@@ -27,7 +27,7 @@ from gnuradio import filter
 
 from station_configuration import station_configuration
 
-from math import log10
+from math import log10, sqrt
 
 import sys
 import os
@@ -75,6 +75,11 @@ class ofdm_benchmark (gr.top_block):
     self._verbose            = options.verbose
 
     self._options = copy.copy( options )
+    
+    self.ideal = options.ideal
+    self.ideal2 = options.ideal2
+    
+    rms_amp                    = options.rms_amplitude
 
     self._interpolation = 1
 
@@ -133,6 +138,13 @@ class ofdm_benchmark (gr.top_block):
       print "Forcing rx filter usage"
       self.connect( self.rx_filter, self.dst )
       self.dst = self.rx_filter
+      
+    if options.ideal or self.ideal2:
+       self._amplifier = ofdm.multiply_const_ccf( 1.0 )
+       self.connect( self._amplifier, self.dst  )
+       self.dst = self._amplifier
+       self.set_rms_amplitude(rms_amp)
+       
 
 
     if options.measure:
@@ -221,6 +233,20 @@ class ofdm_benchmark (gr.top_block):
 
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)
+    
+  def set_rms_amplitude(self, ampl):
+    """
+    Sets the rms amplitude sent to the USRP
+    @param: ampl 0 <= ampl < 32768
+    """
+    # The standard output amplitude depends on the subcarrier number. E.g.
+    # if non amplified, the amplitude is sqrt(subcarriers).
+
+    self.rms = max(0.000000000001, min(ampl, 1.0))
+    #scaled_ampl = 1.0/(ampl/sqrt(self.config.subcarriers))
+    scaled_ampl = 1.0/(ampl*sqrt(self.config.fft_length))
+    self._amplification = scaled_ampl
+    self._amplifier.set_k(self._amplification)
 
 
   def _setup_rpc_manager(self):
@@ -239,35 +265,36 @@ class ofdm_benchmark (gr.top_block):
     self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
     self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
     self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
-  
+    if self.ideal or self.ideal2:
+        self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_rms_amplitude)
 
-  def supply_rx_baseband(self):
-    ## RX Spectrum
-    if self.__dict__.has_key('rx_baseband'):
-      return self.rx_baseband
-
-    config = self.config
-
-    fftlen = config.fft_length
-
-    my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
-    rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
-    rxs_trigger = blocks.vector_source_b(concatenate([[1],[0]*199]),True)
-    rxs_window = blocks.multiply_const_vcc(my_window)
-    rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
-    rxs_mag = gr.complex_to_mag(fftlen)
-    rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
-    rxs_logdb = gr.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
-    rxs_decimate_rate = gr.keep_one_in_n(gr.sizeof_float*fftlen,50)
-
-    t = self.u if self.filter is None else self.filter
-    self.connect(rxs_trigger,(rxs_sampler,1))
-    self.connect(t,rxs_sampler,rxs_window,
-                 rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate)
-    if self._options.log:
-          log_to_file(self, rxs_decimate_rate, "data/supply_rx.float")
-    self.rx_baseband = rxs_decimate_rate
-    return rxs_decimate_rate
+#   def supply_rx_baseband(self):
+#     ## RX Spectrum
+#     if self.__dict__.has_key('rx_baseband'):
+#       return self.rx_baseband
+# 
+#     config = self.config
+# 
+#     fftlen = config.fft_length
+# 
+#     my_window = window.hamming(fftlen) #.blackmanharris(fftlen)
+#     rxs_sampler = vector_sampler(gr.sizeof_gr_complex,fftlen)
+#     rxs_trigger = blocks.vector_source_b(concatenate([[1],[0]*199]),True)
+#     rxs_window = blocks.multiply_const_vcc(my_window)
+#     rxs_spectrum = gr.fft_vcc(fftlen,True,[],True)
+#     rxs_mag = gr.complex_to_mag(fftlen)
+#     rxs_avg = gr.single_pole_iir_filter_ff(0.01,fftlen)
+#     rxs_logdb = gr.nlog10_ff(20.0,fftlen,-20*log10(fftlen))
+#     rxs_decimate_rate = gr.keep_one_in_n(gr.sizeof_float*fftlen,50)
+# 
+#     t = self.u if self.filter is None else self.filter
+#     self.connect(rxs_trigger,(rxs_sampler,1))
+#     self.connect(t,rxs_sampler,rxs_window,
+#                  rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate)
+#     if self._options.log:
+#           log_to_file(self, rxs_decimate_rate, "data/supply_rx.float")
+#     self.rx_baseband = rxs_decimate_rate
+#     return rxs_decimate_rate
 
 
   def change_freqoff(self,val):

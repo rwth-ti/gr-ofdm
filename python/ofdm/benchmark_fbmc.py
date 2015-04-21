@@ -27,7 +27,7 @@ from gnuradio import filter
 
 from station_configuration import station_configuration
 
-from math import log10
+from math import log10 ,sqrt
 
 import sys
 import os
@@ -75,6 +75,10 @@ class fbmc_benchmark (gr.top_block):
     self._verbose            = options.verbose
 
     self._options = copy.copy( options )
+    
+    self.ideal = options.ideal
+    self.ideal2 = options.ideal2
+    rms_amp                    = options.rms_amplitude
     
     #Disable OFDM channel estimation preamble -> Still experimental
     options.est_preamble = 0
@@ -137,7 +141,12 @@ class fbmc_benchmark (gr.top_block):
       self.connect( self.rx_filter, self.dst )
       self.dst = self.rx_filter
 
-
+    if options.ideal or self.ideal2:
+       self._amplifier = ofdm.multiply_const_ccf( 1.0 )
+       self.connect( self._amplifier, self.dst  )
+       self.dst = self._amplifier
+       self.set_rms_amplitude(rms_amp)
+       
     if options.measure:
       self.m = throughput_measure(gr.sizeof_gr_complex)
       self.connect( self.m, self.dst )
@@ -147,7 +156,7 @@ class fbmc_benchmark (gr.top_block):
     if options.snr is not None:
       if options.berm is not None:
           #noise_sigma = 0.0001/32767.0
-          noise_sigma = 250/32767.0 #380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
+          noise_sigma = 380/32767.0#250/32767.0 #380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
           #check for fading channel
       else:
           snr_db = options.snr
@@ -227,6 +236,20 @@ class fbmc_benchmark (gr.top_block):
 
   def _setup_rx_path(self,options):
     self.rxpath = receive_path(options)
+    
+  def set_rms_amplitude(self, ampl):
+    """
+    Sets the rms amplitude sent to the USRP
+    @param: ampl 0 <= ampl < 32768
+    """
+    # The standard output amplitude depends on the subcarrier number. E.g.
+    # if non amplified, the amplitude is sqrt(subcarriers).
+
+    self.rms = max(0.000000000001, min(ampl, 1.0))
+    #scaled_ampl = 1.0/(ampl*sqrt(self.config.subcarriers/0.6863))
+    scaled_ampl = 1.0/(ampl*0.6863)
+    self._amplification = scaled_ampl
+    self._amplifier.set_k(self._amplification)
 
 
   def _setup_rpc_manager(self):
@@ -245,6 +268,8 @@ class fbmc_benchmark (gr.top_block):
     self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
     self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
     self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+    if self.ideal or self.ideal2:
+        self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_rms_amplitude)
   
 
   def supply_rx_baseband(self):

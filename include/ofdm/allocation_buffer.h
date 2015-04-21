@@ -49,6 +49,8 @@ namespace gr {
                  * creating new instances.
                  */
                 static sptr make(int subcarriers, int data_symbols, char *address, bool coding);
+                virtual void set_allocation(std::vector<uint8_t> bitloading,
+                                                            std::vector<float> power) = 0;
         };
 
     } // namespace ofdm

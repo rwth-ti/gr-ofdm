@@ -87,8 +87,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.plot_timer, QtCore.SIGNAL("timeout()"), self.probe_manager.watcher)
         self.connect(self.gui.pushButtonUpdate, QtCore.SIGNAL("clicked()"), self.update_tx_parameters)
 
-        # start GUI update timer
-        self.plot_timer.start(100)
+        # start GUI update timer (33ms for 30 FPS)
+        self.plot_timer.start(33)
 
 
     def plot_powerallocation(self, samples):

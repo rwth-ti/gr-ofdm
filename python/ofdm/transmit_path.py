@@ -140,7 +140,7 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(bitcount_src,mux_ctrl)
         if options.benchmarking:
-            self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
+            self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)
 
 
     if options.lab_special_case:
@@ -156,7 +156,6 @@ class transmit_path(gr.hier_block2):
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
     self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,self.keep_frame_n), zmq_probe_bitloading)
     zmq_probe_power = zeromq.pub_sink(gr.sizeof_float,dsubc, "tcp://*:4444")
-    #self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,40), blocks.complex_to_real(dsubc), zmq_probe_power)
     self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,self.keep_frame_n), zmq_probe_power)
 
     ## Workaround to avoid periodic structure

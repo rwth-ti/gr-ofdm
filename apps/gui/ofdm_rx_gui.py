@@ -160,7 +160,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.plot_picker, QtCore.SIGNAL("selected(const QwtDoublePoint &)"), self.subcarrier_selected)
         self.connect(self.gui.comboBoxChannelModel, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_channel_profile)
 
-        # start GUI update timer
+        # start GUI update timer (33ms for 30 FPS)
         self.update_timer.start(33)
 
         # get transmitter settings

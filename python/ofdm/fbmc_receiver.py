@@ -351,8 +351,10 @@ class fbmc_inner_receiver( gr.hier_block2 ):
       #log_to_file( self, subcarrier_mask, "data/OFDM_Blocks.compl" )
       
     
-    self.connect(ofdm_blocks,self.multiply_const)
-    self.connect(self.multiply_const, (self.skiphead, 0))
+    #self.connect(ofdm_blocks,self.multiply_const)
+    #self.connect(self.multiply_const, (self.skiphead, 0))
+    
+    self.connect(ofdm_blocks, (self.skiphead, 0))
     #log_to_file( self, self.skiphead, "data/fbmc_skiphead_4.compl" )
     
     

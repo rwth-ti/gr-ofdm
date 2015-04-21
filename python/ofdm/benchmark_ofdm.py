@@ -244,7 +244,9 @@ class ofdm_benchmark (gr.top_block):
 
     self.rms = max(0.000000000001, min(ampl, 1.0))
     #scaled_ampl = 1.0/(ampl/sqrt(self.config.subcarriers))
-    scaled_ampl = 1.0/(ampl*sqrt(self.config.fft_length))
+    print "config.fft_length: ", self.config.fft_length
+    print "config.cp_length: ", self.config.cp_length
+    scaled_ampl = 1.0/(ampl*sqrt(self.config.fft_length**2/self.config.subcarriers))
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
 

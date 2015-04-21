@@ -247,7 +247,8 @@ class fbmc_benchmark (gr.top_block):
 
     self.rms = max(0.000000000001, min(ampl, 1.0))
     #scaled_ampl = 1.0/(ampl*sqrt(self.config.subcarriers/0.6863))
-    scaled_ampl = 1.0/(ampl*0.6863)
+    #scaled_ampl = 1.0/(ampl*0.6863)#*self.config.subcarriers/self.config.fft_length)
+    scaled_ampl = 1.0/(ampl*sqrt(0.6863**(3)*self.config.fft_length**2/self.config.subcarriers))#*self.config.subcarriers/self.config.fft_length)
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
 

@@ -1,9 +1,9 @@
 <block>
-  <name>Subchannel Processing</name>
-  <key>ofdm_fbmc_subchannel_processing_vcvc</key>
+  <name>Subchannel Processing (Multiuser)</name>
+  <key>ofdm_fbmc_subchannel_processing_mu_vcvc</key>
   <category>FBMC</category>
   <import>import ofdm</import>
-  <make>ofdm.fbmc_subchannel_processing_vcvc($M, $syms_per_frame, $sel_preamble, $zero_pads, $extra_pad, $sel_eq)</make>
+  <make>ofdm.fbmc_subchannel_processing_mu_vcvc($M, $syms_per_frame, $indices, $sel_preamble, $zero_pads, $extra_pad, $sel_eq)</make>
   <param>
     <name>M</name>
     <key>M</key>
@@ -14,6 +14,12 @@
     <name>Syms_per_frame</name>
     <key>syms_per_frame</key>
     <value>syms_per_frame</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Indices</name>
+    <key>indices</key>
+    <value>Indices</value>
     <type>raw</type>
   </param>
   <param>

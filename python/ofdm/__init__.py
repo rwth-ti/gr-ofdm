@@ -64,8 +64,10 @@ from fbmc_transmitter_multiuser_bc import fbmc_transmitter_multiuser_bc
 from fbmc_receiver_multiuser_cb import fbmc_receiver_multiuser_cb
 from scfdma_transmitter_bc import scfdma_transmitter_bc
 from scfdma_receiver_cb import scfdma_receiver_cb
+from fbmc_insert_preamble_mu_vcvc import fbmc_insert_preamble_mu_vcvc
 # from scfdma_transmitter_bc import scfdma_transmitter_bc
 from scfdma_receiver_cb import scfdma_receiver_cb
+from fbmc_insert_preamble_mu_vcvc import fbmc_insert_preamble_mu_vcvc
 
 #
 

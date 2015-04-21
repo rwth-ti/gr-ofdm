@@ -228,22 +228,22 @@ class top_block(gr.top_block, Qt.QWidget):
         self.ofdm_allocation_buffer_0 = ofdm.allocation_buffer(subcarriers, data_blocks, "tcp://"+tx_hostname+":3333", 1)
         self.fft_vxx_1 = fft.fft_vcc(fft_length, False, ([]), True, 1)
         self.channels_channel_model_0 = channels.channel_model(
-        	noise_voltage=math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0),
-        	frequency_offset=0.0,
-        	epsilon=1,
-        	taps=((1.0 ), ),
-        	noise_seed=0,
-        	block_tags=False
+            noise_voltage=math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0),
+            frequency_offset=0.0,
+            epsilon=1,
+            taps=((1.0 ), ),
+            noise_seed=0,
+            block_tags=False
         )
         self.blocks_vector_source_x_0 = blocks.vector_source_b([1] + [0]*(data_blocks/2-1), True, 1, [])
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_keep_one_in_n_1 = blocks.keep_one_in_n(gr.sizeof_float*subcarriers, 20)
         self.blks2_selector_0 = grc_blks2.selector(
-        	item_size=gr.sizeof_float*1,
-        	num_inputs=2,
-        	num_outputs=1,
-        	input_index=0,
-        	output_index=0,
+            item_size=gr.sizeof_float*1,
+            num_inputs=2,
+            num_outputs=1,
+            input_index=0,
+            output_index=0,
         )
 
         ##################################################

@@ -143,6 +143,7 @@
 #include "ofdm/scfdma_subcarrier_mapper_vcvc.h"
 #include "ofdm/scfdma_subcarrier_demapper_vcvc.h"
 #include "ofdm/add_vcc.h"
+#include "ofdm/fbmc_subchannel_processing_mu_vcvc.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -461,5 +462,11 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_asymmetrical_vector_mask_vcvc);
 GR_SWIG_BLOCK_MAGIC2(ofdm, scfdma_subcarrier_mapper_vcvc);
 %include "ofdm/scfdma_subcarrier_demapper_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, scfdma_subcarrier_demapper_vcvc);
+<<<<<<< HEAD
 %include "ofdm/add_vcc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, add_vcc);
+=======
+
+%include "ofdm/fbmc_subchannel_processing_mu_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_subchannel_processing_mu_vcvc);
+>>>>>>> 1ccd817cda6acf01fe90ac31f020054a4e838690

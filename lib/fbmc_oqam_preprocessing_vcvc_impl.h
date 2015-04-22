@@ -33,6 +33,7 @@ namespace gr {
       unsigned int d_M;
       int d_offset;
       int d_theta_sel;
+      int d_tracker;
       std::vector<int> d_offsets;
       std::vector<gr_complex> d_v1_re;
       std::vector<gr_complex> d_v1_im;
@@ -79,10 +80,10 @@ namespace gr {
       int get_offset();
       void set_offset(int new_offset);
 
-      gr_complex vre0[2];
+/*      gr_complex vre0[2];
       gr_complex vre1[2];
       gr_complex vim0[2];
-      gr_complex vim1[2];
+      gr_complex vim1[2];*/
     };
 
   } // namespace ofdm

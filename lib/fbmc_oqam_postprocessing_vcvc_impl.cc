@@ -200,7 +200,7 @@ namespace gr {
 					d_tracker = 2*/;
 					//std::cout<<noutput_items<<std::endl;
 					//if (d_tracker%4==0)
-							//		d_tracker = 0;
+									d_tracker = d_tracker%4;
 					//std::cout<<d_tracker<<std::endl;
 
 					//d_tracker = (((noutput_items)*2)%4);

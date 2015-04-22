@@ -61,7 +61,7 @@ namespace gr {
         set_output_signature(io_signature::makev(3,3,out_sig));
         d_inv_ones.resize(subcarriers,1.0);
 
-        const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
+        const int alignment_multiple = volk_get_alignment() / sizeof(float);
          set_alignment(std::max(1, alignment_multiple));
 
         // generate an initial allocation with id -1

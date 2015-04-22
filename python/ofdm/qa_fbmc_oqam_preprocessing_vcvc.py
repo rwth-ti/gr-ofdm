@@ -73,41 +73,41 @@ class qa_fbmc_oqam_preprocessing_vcvc (gr_unittest.TestCase):
         result_data=dst.data()
         self.assertEqual(expected_result,result_data)
 
-#     def test_004_t(self):
-#         M= 2**7
-#         num= 2**15
-#         src_data = list()
-#         expected_result =[None]*num*2*M
-#         e = 0 #exp.res. index
-#         for i in range(M*num):
-#             k = i%M
-#             n = 2*int(i/M)
-#             re = int(random.random()*10)+1
-#             im = int(random.random()*10)+1
-#             src_data.append(re+im*1j)
-#             if k%2 == 0:
-#                 expected_result[e] = re * (1j**(k+n))
-#                 expected_result[e+M] = im * (1j**(k+n+1))
-#             else:
-#                 expected_result[e] = im * (1j**(k+n))
-#                 expected_result[e+M] = re * (1j**(k+n+1))
-#             e = e+1
-#             if k==M-1:
-#                 e = e+M
-#         src = blocks.vector_source_c(src_data,vlen=M)
-#         oqam = ofdm.fbmc_oqam_preprocessing_vcvc(M=M,offset=0,theta_sel=0)
-#         dst = blocks.vector_sink_c(vlen=M)
-#         self.tb.connect(src,oqam,dst)
-#         self.tb.run ()
-#         # check data
-#         result_data=dst.data()
-#         # print "src:"
-#         # print src_data
-#         # print "exp:"
-#         # print expected_result
-#         # print "res:"
-#         # print result_data
-#         self.assertComplexTuplesAlmostEqual(tuple(expected_result),tuple(result_data),5)
+    def test_004_t(self):
+        M= 2**7
+        num= 2**15
+        src_data = list()
+        expected_result =[None]*num*2*M
+        e = 0 #exp.res. index
+        for i in range(M*num):
+            k = i%M
+            n = 2*int(i/M)
+            re = int(random.random()*10)+1
+            im = int(random.random()*10)+1
+            src_data.append(re+im*1j)
+            if k%2 == 0:
+                expected_result[e] = re * (1j**(k+n))
+                expected_result[e+M] = im * (1j**(k+n+1))
+            else:
+                expected_result[e] = im * (1j**(k+n))
+                expected_result[e+M] = re * (1j**(k+n+1))
+            e = e+1
+            if k==M-1:
+                e = e+M
+        src = blocks.vector_source_c(src_data,vlen=M)
+        oqam = ofdm.fbmc_oqam_preprocessing_vcvc(M=M,offset=0,theta_sel=0)
+        dst = blocks.vector_sink_c(vlen=M)
+        self.tb.connect(src,oqam,dst)
+        self.tb.run ()
+        # check data
+        result_data=dst.data()
+        # print "src:"
+        # print src_data
+        # print "exp:"
+        # print expected_result
+        # print "res:"
+        # print result_data
+        self.assertComplexTuplesAlmostEqual(tuple(expected_result),tuple(result_data),5)
 
 
 if __name__ == '__main__':

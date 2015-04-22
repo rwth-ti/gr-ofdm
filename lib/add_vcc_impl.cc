@@ -51,8 +51,7 @@ namespace gr {
               d_q( static_cast< float* >( malloc16Align( sizeof( float ) *vlen ) ) ),
               d_vlen(vlen)
     {
-        const int alignment_multiple =
-        volk_get_alignment() / sizeof(float);
+        const int alignment_multiple = volk_get_alignment() / sizeof(gr_complex);
         set_alignment(std::max(1, alignment_multiple));
     }
 

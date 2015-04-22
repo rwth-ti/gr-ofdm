@@ -290,7 +290,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         #print "self.data_subcarriers: ", self.data_subcarriers
         #self.update_tx_params()
         if options.measurement:
-            if self.iii != 10:
+            if self.iii != 9:
                 #print "SET MODULATION"
                 if self.change_mod == 1:
                     #self.rpc_mgr_tx.request("set_modulation",[[self.iii]*self.data_subcarriers,[1]*self.data_subcarriers])

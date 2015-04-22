@@ -48,6 +48,7 @@ namespace gr {
 		d_offset(offset),
 		d_theta_sel(theta_sel),
 		d_offsets(d_M,offset%2),
+		d_tracker(0),
 		d_v1_re(M,0.0),
 		d_v1_im(M,0.0),
 		d_v2_re(M,0.0),
@@ -138,6 +139,48 @@ namespace gr {
 	 */
 	fbmc_oqam_preprocessing_vcvc_impl::~fbmc_oqam_preprocessing_vcvc_impl()
 	{
+		if( xreal )
+		    	    free16Align( xreal );
+		if( ximag )
+		    	    free16Align( ximag );
+		if( sum1_i)
+		    	    free16Align( sum1_i );
+		if( sum1_q )
+		    	    free16Align( sum1_q );
+		if( sum2_i)
+		    	    free16Align( sum2_i );
+		if( sum2_q )
+		    	    free16Align( sum2_q );
+		if( sum3_i)
+		    	    free16Align( sum3_i );
+		if( sum3_q )
+		    	    free16Align( sum3_q );
+		if( sum4_i)
+		    	    free16Align( sum4_i );
+		if( sum4_q )
+		    	    free16Align( sum4_q );
+		if( sumc_i)
+		    	    free16Align( sumc_i );
+		if( sumc_q )
+		    	    free16Align( sumc_q );
+		if( sumcc_i)
+		    	    free16Align( sumcc_i );
+		if( sumcc_q )
+		    	    free16Align( sumcc_q );
+		if( sum1 )
+				    	    free16Align( sum1 );
+		if( sum2)
+				    	    free16Align( sum2 );
+		if( sum3 )
+				    	    free16Align( sum3 );
+		if( sum4)
+				    	    free16Align( sum4 );
+		if( sumc )
+				    	    free16Align( sumc );
+		if( sumcc )
+				    	    free16Align( sumcc );
+		if( sumcc)
+				    	    free16Align( sumcc );
 	}
 
 	int
@@ -200,12 +243,13 @@ namespace gr {
 				ii++;
 			}
 		}*/
-		int ii(0); // input counter
-		for(int i=0;i<noutput_items;i++){
-			volk_32fc_deinterleave_real_32f(&xreal[0],&in[ii*d_M],d_M);
-			volk_32fc_deinterleave_imag_32f(&ximag[0],&in[ii*d_M],d_M);
+		//int ii(0); // input counter
+		d_tracker = d_tracker%2;
+		for(int i=0;i<noutput_items/2;i++){
+			volk_32fc_deinterleave_real_32f(&xreal[0],&in[i*d_M],d_M);
+			volk_32fc_deinterleave_imag_32f(&ximag[0],&in[i*d_M],d_M);
 
-			if(ii%2==0){
+			if(d_tracker%2==0){
 				volk_32fc_32f_multiply_32fc(&sum1[0],&d_v1_re[0],&xreal[0],d_M);
 				volk_32fc_32f_multiply_32fc(&sum2[0],&d_v1_im[0],&ximag[0],d_M);
 
@@ -215,7 +259,7 @@ namespace gr {
 				volk_32f_x2_add_32f(&sumc_i[0],&sum1_i[0],&sum2_i[0],d_M);
 				volk_32f_x2_add_32f(&sumc_q[0],&sum1_q[0],&sum2_q[0],d_M);
 
-				volk_32f_x2_interleave_32fc(&out[i*d_M],&sumc_i[0],&sumc_q[0],d_M);
+				volk_32f_x2_interleave_32fc(&out[2*i*d_M],&sumc_i[0],&sumc_q[0],d_M);
 
 				volk_32fc_32f_multiply_32fc(&sum3[0],&d_v2_im[0],&ximag[0],d_M);
 				volk_32fc_32f_multiply_32fc(&sum4[0],&d_v2_re[0],&xreal[0],d_M);
@@ -226,10 +270,10 @@ namespace gr {
 				volk_32f_x2_add_32f(&sumcc_i[0],&sum3_i[0],&sum4_i[0],d_M);
 				volk_32f_x2_add_32f(&sumcc_q[0],&sum3_q[0],&sum4_q[0],d_M);
 
-				volk_32f_x2_interleave_32fc(&out[(i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
-
-				i++;
-				ii++;
+				volk_32f_x2_interleave_32fc(&out[(2*i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
+				d_tracker++;
+				//i++;
+				//ii++;
 			}
 
 
@@ -243,7 +287,7 @@ namespace gr {
 				volk_32f_x2_add_32f(&sumc_i[0],&sum1_i[0],&sum2_i[0],d_M);
 				volk_32f_x2_add_32f(&sumc_q[0],&sum1_q[0],&sum2_q[0],d_M);
 
-				volk_32f_x2_interleave_32fc(&out[i*d_M],&sumc_i[0],&sumc_q[0],d_M);
+				volk_32f_x2_interleave_32fc(&out[2*i*d_M],&sumc_i[0],&sumc_q[0],d_M);
 
 				volk_32fc_32f_multiply_32fc(&sum3[0],&d_v4_im[0],&ximag[0],d_M);
 				volk_32fc_32f_multiply_32fc(&sum4[0],&d_v4_re[0],&xreal[0],d_M);
@@ -254,10 +298,11 @@ namespace gr {
 				volk_32f_x2_add_32f(&sumcc_i[0],&sum3_i[0],&sum4_i[0],d_M);
 				volk_32f_x2_add_32f(&sumcc_q[0],&sum3_q[0],&sum4_q[0],d_M);
 
-				volk_32f_x2_interleave_32fc(&out[(i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
-				i++;
+				volk_32f_x2_interleave_32fc(&out[(2*i+1)*d_M],&sumcc_i[0],&sumcc_q[0],d_M);
+				d_tracker++;
+				//i++;
 
-				ii++;
+				//ii++;
 			}
 
 		}

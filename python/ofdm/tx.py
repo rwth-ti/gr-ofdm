@@ -99,6 +99,8 @@ class tx_top_block(gr.top_block):
                           help="Output file for modulated samples")
         parser.add_option("", "--multipath", action="store_true", default=False,
                           help="Enable multipath channel")
+        parser.add_option("", "--itu-channel", action="store_true", default=False,
+                          help="Enable itu channel model (ported from itpp)")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

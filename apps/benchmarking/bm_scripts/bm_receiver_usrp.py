@@ -42,7 +42,7 @@ class bm_receiver_usrp:
         self.sfo_feedback = False
         self.enable_ber2 = False
         self.sinr_est = False
-        self.old_receiver = False
+        self.old_receiver = True
         self.logcir = False
         self.ideal = False
         self.ideal2 = False

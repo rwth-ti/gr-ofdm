@@ -107,7 +107,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
             #log_to_file( self, self.tm, "data/rec_sc_metric_ofdm.float" )
             
             timingmetric_shift = -2#int(-cp_length/4)# 0#-2 #int(-cp_length * 0.8)
-            tmfilter = filter.fir_filter_fff(1, [1./cp_length]*cp_length)
+            tmfilter = filter.fft_filter_fff(1, [1./cp_length]*cp_length)
             self.connect( self.tm, tmfilter )
             self.tm = tmfilter
         

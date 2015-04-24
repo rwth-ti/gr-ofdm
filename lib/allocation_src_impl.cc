@@ -274,7 +274,7 @@ namespace gr {
         {
             level = (d_power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
             counter--;
-            if(counter < 160) return;
+            if(counter < 150) break;
 
 
 
@@ -285,6 +285,18 @@ namespace gr {
             }
             else break;
         }
+
+		if(counter<180)
+        {
+            // default data modulation scheme is BPSK
+            d_allocation.bitloading.clear();
+            d_allocation.bitloading.assign(200,1);
+            // init power allocation vector
+            d_allocation.power.clear();
+            d_allocation.power.assign(200,1);
+        }
+        else
+        {
 
         //scale power to 1 and send scaling factor to time domain
         //d_amplitude_abs = ((level*counter)-std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/d_subcarriers;
@@ -304,6 +316,7 @@ namespace gr {
                 d_allocation.bitloading[i] = 0;
             }
         }
+		}
 
         // clear and write power output vector
         d_allocation_out.power = d_allocation.power;
@@ -311,7 +324,8 @@ namespace gr {
         // clear and write bitloading output vector
         d_allocation_out.bitloading.clear();
         // insert data symbol modulation at the end ONCE
-        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
+        //d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
+        d_allocation_out.bitloading=d_allocation.bitloading;
 
         int sum_of_elems = 0;
         for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)

@@ -2,16 +2,18 @@ gr-ofdm GNU Radio module
 =============================
 Provides blocks and Python classes to build an OFDM transmitter and receiver
 for research and teaching purposes with dynamically configurable transmission
-parameters. Includes QT based GUI for visualization.
+parameters. Includes Python Qt based GUI for visualization.
 
 
 Build requirements
 ------------------
 In order to build the gr-ofdm module you will need to install the following prerequisites
-- GNU Radio (http://gnuradio.org/)
 - ZeroMQ including the C++ and Python bindings (http://zeromq.org/)
-- gr-zmqblocks (https://github.com/iohannez/gr-zmqblocks)
+- UHD Driver for USRP hardware
+- GNU Radio (http://gnuradio.org/)
 - ITPP (http://itpp.sourceforge.net/)
+- python-qwt5-qt4
+- python-scipy
 
 
 How to build
@@ -61,7 +63,7 @@ necessary to apply a small manual correction of a few kHz.
 
 Copyright information
 ------------------
-Copyright © 2014 Institute for Theoretical Information Technology,
+Copyright © 2015 Institute for Theoretical Information Technology,
                  RWTH Aachen University <https://www.ti.rwth-aachen.de/>
 
 Unless otherwise stated, all files are distributed under GPL v3 license.

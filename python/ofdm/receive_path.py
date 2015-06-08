@@ -139,10 +139,10 @@ class receive_path(gr.hier_block2):
     frame_start = ( inner_receiver, 1 )
     disp_ctf = ( inner_receiver, 2 )
     disp_cfo =  ( inner_receiver, 3 )
-    
+
     self.zmq_probe_freqoff = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5557")
     self.connect(disp_cfo, self.zmq_probe_freqoff)
-    
+
 
 
 
@@ -356,7 +356,7 @@ class receive_path(gr.hier_block2):
 
     ## Allocation Control
     if options.static_allocation: #DEBUG
-        
+
         if options.coding:
             mode = 1 # Coding mode 1-9
             bitspermode = [0.5,1,1.5,2,3,4,4.5,5,6] # Information bits per mode
@@ -405,7 +405,7 @@ class receive_path(gr.hier_block2):
     ## Depuncturer
     dp_trig = [0]*(config.frame_data_blocks/2)
     dp_trig[0] = 1
-    dp_trig = blocks.vector_source_b(dp_trig,True) # TODO   
+    dp_trig = blocks.vector_source_b(dp_trig,True) # TODO
 
 
     if(options.coding):
@@ -413,7 +413,7 @@ class receive_path(gr.hier_block2):
         if options.interleave:
             int_object=trellis.interleaver(2000,666)
             deinterlv = trellis.permutation(int_object.K(),int_object.DEINTER(),1,gr.sizeof_float)
-        
+
         demod = self._data_demodulator = generic_softdemapper_vcf(dsubc, config.frame_data_part, config.coding)
         #self.connect(dm_csi,blocks.stream_to_vector(gr.sizeof_float,dsubc),(demod,2))
         if(options.ideal):
@@ -428,7 +428,7 @@ class receive_path(gr.hier_block2):
     if options.benchmarking:
         # Do receiver benchmarking until the number of frames x symbols are collected
         self.connect(pda,blocks.head(gr.sizeof_gr_complex*dsubc, options.N*config.frame_data_blocks),demod)
-    else:        
+    else:
         self.connect(pda,demod)
     self.connect(bitloading_src,(demod,1))
 
@@ -445,12 +445,12 @@ class receive_path(gr.hier_block2):
         print "Number of chunks at Viterbi decoder: ", chunkdivisor
         decoding = self._data_decoder = ofdm.viterbi_combined_fb(fo,dsubc,-1,-1,2,chunkdivisor,[-1,-1,-1,1,1,-1,1,1],ofdm.TRELLIS_EUCLIDEAN)
 
-        
+
         if options.log and options.coding:
             log_to_file(self, decoding, "data/decoded.char")
             if not options.nopunct:
                 log_to_file(self, depuncturing, "data/vit_in.float")
-                    
+
         if not options.nopunct:
             if options.interleave:
                 self.connect(demod,deinterlv,depuncturing,decoding)
@@ -459,7 +459,7 @@ class receive_path(gr.hier_block2):
         else:
             self.connect(demod,decoding)
         self.connect(self.bitcount_src, multiply_const_ii(1./chunkdivisor), (decoding,1))
-        
+
     if options.scatterplot or options.scatter_plot_before_phase_tracking:
         scatter_vec_elem = self._scatter_vec_elem = ofdm.vector_element(dsubc,1)
         scatter_s2v = self._scatter_s2v = blocks.stream_to_vector(gr.sizeof_gr_complex,config.frame_data_blocks)
@@ -609,8 +609,6 @@ class receive_path(gr.hier_block2):
       self.connect( dm_trig, (cfilter,2) )
       log_to_file( self, cfilter, files[i] )
     print "done"
-  # ---------------------------------------------------------------------------#
-  # RX Performance Measure propagation through corba event channel
 
   def _rx_performance_measure_initialized(self):
     return self.__dict__.has_key('rx_performance_measure_initialized') \
@@ -639,17 +637,6 @@ class receive_path(gr.hier_block2):
 
     self.zmq_probe_ctf = zeromq.pub_sink(gr.sizeof_float,config.data_subcarriers, "tcp://*:5559")
     self.connect(ctf, blocks.keep_one_in_n(gr.sizeof_float*config.data_subcarriers,self.keep_frame_n) ,self.zmq_probe_ctf)
-#    self.rx_per_sink = rpsink = corba_rxinfo_sink("himalaya",config.ns_ip,
-#                                    config.ns_port,vlen,config.rx_station_id)
-
-
-    #if self.__dict__.has_key('_img_xfer_inprog') is False:
-
-#      print "BER img xfer"
-#      self.connect(ber_mst,(rpsink,3))
-#      ## no sampling needed
-      # 3. SNR
-
 
     print "Normal BER measurement"
 
@@ -881,17 +868,6 @@ class receive_path(gr.hier_block2):
     #print "CHANGE set_k", val[0]
     #self.set_rms_amplitude(val[0])
 
-  def enable_estim_power_adjust(self,unique_id):
-    self.servants.append(corba_push_vector_f_servant(str(unique_id),1,
-        self.change_estim_power,
-        msg="Changing estim power output rms level\n"))
-
-  def publish_estim_power(self,unique_id):
-    def dummy_reset():
-      pass
-    self.servants.append(corba_ndata_buffer_servant(str(unique_id),
-        self.get_rms_amplitude,dummy_reset))
-
   def filter_ctf(self):
     if self.__dict__.has_key('filtered_ctf'):
       return self.filtered_ctf
@@ -922,66 +898,6 @@ class receive_path(gr.hier_block2):
 
     self.filtered_ctf = lp_filter
     return lp_filter
-
-
-  def publish_ctf(self,unique_id):
-    """
-    corbaname: ofdm_ti.unique_id
-    """
-
-    config = self.config
-    vlen = config.data_subcarriers
-
-    msgq = gr.msg_queue(2)
-    msg_sink = gr.message_sink(gr.sizeof_float*vlen,msgq,True)
-
-    ctf = self.filter_ctf()
-    self.connect( ctf, msg_sink )
-
-    self.servants.append(corba_data_buffer_servant(str(unique_id),vlen,msgq))
-
-    print "Publishing CTF under id: %s" % (unique_id)
-
-
-  def publish_sinrsc(self,unique_id):
-    """
-    corbaname: ofdm_ti.unique_id
-    """
-
-    config = self.config
-    vlen = config.subcarriers
-
-    msgq = gr.msg_queue(2)
-    msg_sink = gr.message_sink(gr.sizeof_float*vlen,msgq,True)
-
-    sinrsc = self._sinr_measurement
-    self.connect( sinrsc, msg_sink )
-
-    self.servants.append(corba_data_buffer_servant(str(unique_id),vlen,msgq))
-
-  def publish_tm_window(self,unique_id):
-    """
-    corbaname: ofdm_ti.unique_id
-    """
-    raise SystemError,"Bad guy! Obey the gnuradio hierarchy ..."
-
-    config = self.config
-    msgq = gr.msg_queue(10)
-    msg_sink = gr.message_sink(gr.sizeof_float*config.fft_length,msgq,True)
-    sampler = vector_sampler(gr.sizeof_float,config.fft_length)
-
-    self.connect(self.receiver.timing_metric,(sampler,0))
-    self.connect(self.receiver.time_sync,delay(gr.sizeof_char,config.fft_length/2-1),(sampler,1))
-    self.connect(sampler,msg_sink)
-
-    self.servants.append(corba_data_buffer_servant(str(unique_id),config.fft_length,msgq))
-
-  def publish_packetloss(self,unique_id):
-    """
-    corbaname: ofdm_ti.unique_id
-    """
-    self.servants.append(corba_ndata_buffer_servant(str(unique_id),
-        self.trigger_watcher.lost_triggers,self.trigger_watcher.reset_counter))
 
   def set_scatterplot_subc(self, subc):
      return self._scatter_vec_elem.set_element(int(subc))

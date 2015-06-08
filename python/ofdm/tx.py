@@ -76,9 +76,9 @@ class tx_top_block(gr.top_block):
     def _setup_tx_path(self,options):
         print "OPTIONS", options
         self.txpath = transmit_path(options)
-        
+
     def set_tx_gain(self, gain):
-        self.sink.set_gain(gain)
+        return self.sink.set_gain(gain)
 
     def _setup_rpc_manager(self):
       ## Adding rpc manager for Transmitter

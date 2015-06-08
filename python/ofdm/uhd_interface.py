@@ -44,7 +44,7 @@ def add_freq_option(parser):
 class uhd_interface:
     def __init__(self, istx, ismimo, args, bandwidth, freq=None, lo_offset=None,
                  gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
-        
+
         if(istx):
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
@@ -54,12 +54,12 @@ class uhd_interface:
                 self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
         # Set clock source to external.
-        if(clock_source):        
+        if(clock_source):
             print "clock_source: ", clock_source
             self.u.set_clock_source(clock_source, 0)
-            
+
         if(time_source):
-            print "time_source: ", time_source        
+            print "time_source: ", time_source
             self.u.set_time_source(time_source, 0)
 
         # Set the subdevice spec
@@ -69,7 +69,7 @@ class uhd_interface:
         # Set the antenna
         if(antenna):
             self.u.set_antenna(antenna, 0)
-        
+
         self._args = args
         self._ant  = antenna
         self._ismimo = ismimo
@@ -84,30 +84,35 @@ class uhd_interface:
     def set_sample_rate(self, bandwidth):
         self.u.set_samp_rate(bandwidth)
         actual_bw = self.u.get_samp_rate()
-        
+
         return actual_bw
 
     def get_sample_rate(self):
         return self.u.get_samp_rate()
-    
-    def set_gain(self, gain=None):
-        if gain is None:
+
+    def set_gain(self, gain_rel=None):
+        gain_range = self.u.get_gain_range()
+        if gain_rel is None:
             # if no gain was specified, use the mid-point in dB
-            g = self.u.get_gain_range()
-            gain = float(g.start()+g.stop())/2
+            gain_abs = float(gain_range.start()+gain_range.stop())/2
             print "\nNo gain specified."
             print "Setting gain to %f (from [%f, %f])" % \
-                (gain, g.start(), g.stop())
-                
-        print "Setting gain to %f " % gain
-        self.u.set_gain(gain, 0)
-        return gain
+                (gain_abs, gain_range.start(), gain_range.stop())
+        else:
+            gain_delta = gain_range.stop() - gain_range.start()
+            gain_abs_delta = gain_rel * gain_delta
+            gain_abs = gain_range.start() + gain_abs_delta
+            print "Gain range: ", gain_range
+            print "Setting gain to %f dB " % gain_abs
+            self.u.set_gain(gain_abs, 0)
+
+        return gain_abs
 
     def set_freq(self, freq=None, lo_offset=None):
         if(freq is None):
             sys.stderr.write("You must specify -f FREQ or --freq FREQ\n")
             sys.exit(1)
-        
+
         r = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),0)
         if(self._ismimo):
             s = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),1)
@@ -130,7 +135,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         gr.hier_block2.__init__(self, "uhd_transmitter",
                                 gr.io_signature(1,1,gr.sizeof_gr_complex),
                                 gr.io_signature(0,0,0))
-        
+
         #Make adjustments for usrp1
         if (args == 'type=usrp1'):
                 args ='fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
@@ -144,7 +149,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
 
         if(verbose):
             self._print_verbage()
-            
+
     def add_options(parser):
         add_freq_option(parser)
         parser.add_option("-a", "--args", type="string", default="",
@@ -159,7 +164,7 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
         parser.add_option("", "--lo-offset", type="eng_float", default=0,
                           help="set local oscillator offset in Hz (default is 0)")
         parser.add_option("", "--tx-gain", type="eng_float", default=None,
-                          help="set transmit gain in dB (default is midpoint)")
+                          help="set relative transmit gain (default is midpoint)")
         parser.add_option("-C", "--clock-source", type="string", default=None,
                           help="select clock source (e.g. 'external', 'mimo') [default=%default]")
         parser.add_option("-T", "--time-source", type="string", default=None,
@@ -197,7 +202,7 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
         gr.hier_block2.__init__(self, "uhd_receiver",
                                 gr.io_signature(0,0,0),
                                 gr.io_signature(1,1,gr.sizeof_gr_complex))
-      
+
         # Set up the UHD interface as a receiver
         uhd_interface.__init__(self, False, False, args, bandwidth,
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
@@ -221,7 +226,7 @@ class uhd_receiver(uhd_interface, gr.hier_block2):
         parser.add_option("", "--lo-offset", type="eng_float", default=0,
                           help="set local oscillator offset in Hz (default is 0)")
         parser.add_option("", "--rx-gain", type="eng_float", default=None,
-                          help="set receive gain in dB (default is midpoint)")
+                          help="set relative receive gain (default is midpoint)")
         parser.add_option("-C", "--clock-source", type="string", default=None,
                           help="select clock source (e.g. 'external', 'mimo') [default=%default]")
         parser.add_option("-T", "--time-source", type="string", default=None,
@@ -253,12 +258,12 @@ class uhd_mimo_receiver(uhd_interface, gr.hier_block2):
         gr.hier_block2.__init__(self, "uhd_receiver",
                                 gr.io_signature(0,0,0),
                                 gr.io_signature2(2,2,gr.sizeof_gr_complex,gr.sizeof_gr_complex))
-      
+
         # Set up the UHD interface as a receiver
         uhd_interface.__init__(self, False, True, args, bandwidth,
                                freq, lo_offset, gain, spec, antenna, clock_source, time_source)
 
-        
+
         self.u.set_clock_source("mimo", 1)
         self.u.set_time_source("mimo", 1)
         #self.u.set_time_source("mimo", 0)

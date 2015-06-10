@@ -29,19 +29,12 @@
     <value>address</value>
     <type>string</type>
   </param>  
-  <param>
+   <param>
     <name>Coding</name>
     <key>coding</key>
-    <type>enum</type>
-    <option>
-      <name>Off</name>
-      <key>0</key>
-    </option>
-    <option>
-      <name>On</name>
-      <key>1</key>
-    </option>
-  </param>
+    <value>coding</value>
+    <type>raw</type>
+  </param> 
 
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)

@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
-<?grc format='1' created='3.7.7'?>
 <flow_graph>
-  <timestamp>Tue Apr 21 12:27:34 2015</timestamp>
+  <timestamp>Wed Jun 10 07:55:21 2015</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -96,276 +95,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>training_data</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>default_block_header(data_subcarriers,fft_length,fbmc,estimation_preamble,[])</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1104, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>whitener_pn</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>[randint(0,1) for i in range(used_id_bits*repeated_id_bits)]</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(824, 84)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>4*250000</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(184, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>SNR</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>30</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(472, 75)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>cp_length</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>fft_length/8</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1504, 75)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>initial_modulation</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(544, 123)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>repeated_id_bits</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>data_subcarriers/used_id_bits</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(672, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>data_part</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>data_blocks + id_blocks</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1424, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>estimation_preamble</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(792, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>chunkdivisor</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>int(numpy.ceil(data_blocks/5.0))</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1288, 91)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>ber_window</value>
     </param>
     <param>
@@ -382,7 +111,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1376, 83)</value>
+      <value>(1397, 83)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -393,7 +122,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>coding</value>
+      <value>data_subcarriers</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -401,7 +130,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0</value>
+      <value>200</value>
     </param>
     <param>
       <key>alias</key>
@@ -409,277 +138,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(184, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>data_blocks</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(464, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>id_blocks</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1304, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>used_id_bits</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(568, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>256</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(272, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>interleaver</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>trellis.interleaver(2000,666)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(968, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>disable_freq_sync</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1152, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>whitener_seed</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>seed(1)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1696, 43)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>filter_length</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(936, 19)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>fbmc</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1032, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>data_subcarriers+8</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(368, 11)</value>
+      <value>(1504, 147)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -717,7 +176,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>data_subcarriers</value>
+      <value>subcarriers</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -725,7 +184,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200</value>
+      <value>data_subcarriers+8</value>
     </param>
     <param>
       <key>alias</key>
@@ -733,7 +192,547 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1504, 147)</value>
+      <value>(368, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>fbmc</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1032, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>filter_length</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(936, 19)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>whitener_seed</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>seed(1)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1696, 43)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>interleaver</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>trellis.interleaver(2000,666)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(968, 83)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>used_id_bits</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(568, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>id_blocks</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1304, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>data_blocks</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(464, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>coding</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(184, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>chunkdivisor</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>int(numpy.ceil(data_blocks/5.0))</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1288, 91)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>estimation_preamble</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(792, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>data_part</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>data_blocks + id_blocks</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1424, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>repeated_id_bits</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>data_subcarriers/used_id_bits</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(672, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>initial_modulation</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(544, 123)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>cp_length</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fft_length/8</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1504, 75)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4*250000</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(184, 83)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>whitener_pn</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>[randint(0,1) for i in range(used_id_bits*repeated_id_bits)]</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(824, 84)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>default_block_header(data_subcarriers,fft_length,fbmc,estimation_preamble,[])</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1104, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>disable_freq_sync</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1152, 83)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(272, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>SNR</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>40</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(472, 75)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -822,127 +821,6 @@
     </param>
   </block>
   <block>
-    <key>rx_rpc_manager</key>
-    <param>
-      <key>id</key>
-      <value>rx_rpc_manager_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(48, 979)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_divide_frame_fc</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_divide_frame_fc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>frame_size</key>
-      <value>data_part</value>
-    </param>
-    <param>
-      <key>subc</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1184, 552)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>tigr_scatterplot</key>
-    <param>
-      <key>id</key>
-      <value>tigr_scatterplot_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>fbmc</key>
-      <value>fbmc</value>
-    </param>
-    <param>
-      <key>fft_length</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>estimation_preamble</key>
-      <value>estimation_preamble</value>
-    </param>
-    <param>
-      <key>data_blocks</key>
-      <value>data_blocks</value>
-    </param>
-    <param>
-      <key>data_part</key>
-      <value>11</value>
-    </param>
-    <param>
-      <key>frame_length</key>
-      <value>frame_length</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1456, 547)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_keep_one_in_n</key>
     <param>
       <key>id</key>
@@ -1016,10 +894,6 @@
       <value>100</value>
     </param>
     <param>
-      <key>pass_tags</key>
-      <value>False</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1030,49 +904,6 @@
     <param>
       <key>_coordinate</key>
       <value>(1760, 371)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_function_probe</key>
-    <param>
-      <key>id</key>
-      <value>variable_function_probe_2</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>block_id</key>
-      <value>rx_rpc_manager_0</value>
-    </param>
-    <param>
-      <key>function_name</key>
-      <value>add_set_scatter_subcarrier_interface</value>
-    </param>
-    <param>
-      <key>function_args</key>
-      <value>self.tigr_scatterplot_0.ofdm_vector_element_0.set_element</value>
-    </param>
-    <param>
-      <key>poll_rate</key>
-      <value>0.000000001</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(240, 955)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1170,96 +1001,6 @@
     </param>
   </block>
   <block>
-    <key>ofdm_cyclic_prefixer</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_cyclic_prefixer_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>input_size</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>output_size</key>
-      <value>fft_length + cp_length</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1216, 155)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_pilot_block_filter</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_pilot_block_filter_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>frame_length</key>
-      <value>frame_length</value>
-    </param>
-    <param>
-      <key>training_data</key>
-      <value>training_data</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1000, 379)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>tigr_ofdm_snr_estimator</key>
     <param>
       <key>id</key>
@@ -1335,175 +1076,6 @@
     <param>
       <key>_coordinate</key>
       <value>(72, 568)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_pilot_subcarrier_filter</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_pilot_subcarrier_filter_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>itemsize</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>data_subcarriers</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>training_data</key>
-      <value>training_data</value>
-    </param>
-    <param>
-      <key>complex_value</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1240, 323)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_ofdm_pilot_block_inserter</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_ofdm_pilot_block_inserter_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>frame_length</key>
-      <value>frame_length</value>
-    </param>
-    <param>
-      <key>fft_length</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>cp_length</key>
-      <value>cp_length</value>
-    </param>
-    <param>
-      <key>training_data</key>
-      <value>training_data</value>
-    </param>
-    <param>
-      <key>ant</key>
-      <value>5</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(976, 155)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fft_vxx</key>
-    <param>
-      <key>id</key>
-      <value>fft_vxx_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>fft_size</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>forward</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>window</key>
-      <value>[]</value>
-    </param>
-    <param>
-      <key>shift</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>nthreads</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(768, 155)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1632,81 +1204,6 @@
     </param>
   </block>
   <block>
-    <key>tigr_transmit_control</key>
-    <param>
-      <key>id</key>
-      <value>tigr_transmit_control_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>fft_length</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>used_id_bits</key>
-      <value>used_id_bits</value>
-    </param>
-    <param>
-      <key>estimation_preamble</key>
-      <value>estimation_preamble</value>
-    </param>
-    <param>
-      <key>filter_length</key>
-      <value>filter_length</value>
-    </param>
-    <param>
-      <key>fbmc</key>
-      <value>fbmc</value>
-    </param>
-    <param>
-      <key>data_blocks</key>
-      <value>data_blocks</value>
-    </param>
-    <param>
-      <key>data_part</key>
-      <value>data_blocks + 1</value>
-    </param>
-    <param>
-      <key>coding</key>
-      <value>coding</value>
-    </param>
-    <param>
-      <key>repeated_id_bits</key>
-      <value>repeated_id_bits</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 123)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_throttle</key>
     <param>
       <key>id</key>
@@ -1751,6 +1248,316 @@
     <param>
       <key>_coordinate</key>
       <value>(72, 419)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>zeromq_pub_sink</key>
+    <param>
+      <key>id</key>
+      <value>zeromq_pub_sink_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>address</key>
+      <value>"tcp://*:5557"</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1760, 291)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_frame_sampler</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_frame_sampler_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>subcarriers</value>
+    </param>
+    <param>
+      <key>frame_length</key>
+      <value>frame_length</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(848, 288)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>tigr_transmit_control</key>
+    <param>
+      <key>id</key>
+      <value>tigr_transmit_control_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>fft_length</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>used_id_bits</key>
+      <value>used_id_bits</value>
+    </param>
+    <param>
+      <key>estimation_preamble</key>
+      <value>estimation_preamble</value>
+    </param>
+    <param>
+      <key>filter_length</key>
+      <value>filter_length</value>
+    </param>
+    <param>
+      <key>fbmc</key>
+      <value>fbmc</value>
+    </param>
+    <param>
+      <key>data_blocks</key>
+      <value>data_blocks</value>
+    </param>
+    <param>
+      <key>data_part</key>
+      <value>data_blocks + 1</value>
+    </param>
+    <param>
+      <key>repeated_id_bits</key>
+      <value>repeated_id_bits</value>
+    </param>
+    <param>
+      <key>coding</key>
+      <value>coding</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 123)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_pilot_subcarrier_filter</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_pilot_subcarrier_filter_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>itemsize</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>data_subcarriers</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>subcarriers</value>
+    </param>
+    <param>
+      <key>training_data</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>complex_value</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(772, 521)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_pilot_block_filter</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_pilot_block_filter_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>subcarriers</value>
+    </param>
+    <param>
+      <key>frame_length</key>
+      <value>frame_length</value>
+    </param>
+    <param>
+      <key>training_data</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1001, 353)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_coded_bpsk_soft_decoder</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_coded_bpsk_soft_decoder_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>output_bits</key>
+      <value>used_id_bits</value>
+    </param>
+    <param>
+      <key>whitener</key>
+      <value>whitener_pn</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(240, 579)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1817,6 +1624,312 @@
     </param>
   </block>
   <block>
+    <key>ofdm_pilot_subcarrier_filter</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_pilot_subcarrier_filter_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>itemsize</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>data_subcarriers</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>subcarriers</value>
+    </param>
+    <param>
+      <key>training_data</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>complex_value</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1240, 323)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>tigr_scatterplot</key>
+    <param>
+      <key>id</key>
+      <value>tigr_scatterplot_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>fbmc</key>
+      <value>fbmc</value>
+    </param>
+    <param>
+      <key>fft_length</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>estimation_preamble</key>
+      <value>estimation_preamble</value>
+    </param>
+    <param>
+      <key>data_blocks</key>
+      <value>data_blocks</value>
+    </param>
+    <param>
+      <key>data_part</key>
+      <value>11</value>
+    </param>
+    <param>
+      <key>frame_length</key>
+      <value>frame_length</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1456, 547)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_generic_demapper_vcb</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_generic_demapper_vcb_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>frame_size</key>
+      <value>data_part</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(810, 723)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_multiply_frame_fc</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_multiply_frame_fc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frame_size</key>
+      <value>data_part</value>
+    </param>
+    <param>
+      <key>subc</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1195, 600)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>tigr_ofdm_inner_receiver</key>
+    <param>
+      <key>id</key>
+      <value>tigr_ofdm_inner_receiver_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>fft_length</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>data_blocks</key>
+      <value>data_blocks</value>
+    </param>
+    <param>
+      <key>frame_length</key>
+      <value>frame_length</value>
+    </param>
+    <param>
+      <key>cp_length</key>
+      <value>cp_length</value>
+    </param>
+    <param>
+      <key>estimation_preamble</key>
+      <value>estimation_preamble</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>subcarriers</value>
+    </param>
+    <param>
+      <key>data_subcarriers</key>
+      <value>data_subcarriers</value>
+    </param>
+    <param>
+      <key>fbmc</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>disable_freq_sync</key>
+      <value>disable_freq_sync</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(504, 307)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_dynamic_trigger_ib</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_dynamic_trigger_ib_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>first_or_last</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(584, 790)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>tx_rpc_manager</key>
     <param>
       <key>id</key>
@@ -1860,7 +1973,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(48, 811)</value>
+      <value>(141, 667)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1868,34 +1981,14 @@
     </param>
   </block>
   <block>
-    <key>variable_function_probe</key>
+    <key>rx_rpc_manager</key>
     <param>
       <key>id</key>
-      <value>variable_function_probe_0</value>
+      <value>rx_rpc_manager_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>block_id</key>
-      <value>tx_rpc_manager_0</value>
-    </param>
-    <param>
-      <key>function_name</key>
-      <value>add_tx_ampl_interface</value>
-    </param>
-    <param>
-      <key>function_args</key>
-      <value>self.rms.set_rms_amplitude</value>
-    </param>
-    <param>
-      <key>poll_rate</key>
-      <value>0.000000001</value>
     </param>
     <param>
       <key>alias</key>
@@ -1903,7 +1996,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 827)</value>
+      <value>(278, 771)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1946,7 +2039,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(184, 819)</value>
+      <value>(0, 830)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1954,86 +2047,85 @@
     </param>
   </block>
   <block>
-    <key>ofdm_fbmc_channel_hier_cc</key>
+    <key>variable_function_probe</key>
     <param>
       <key>id</key>
-      <value>ofdm_fbmc_channel_hier_cc_0</value>
+      <value>variable_function_probe_0</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
-      <key>M</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>filter_length</value>
-    </param>
-    <param>
-      <key>syms_per_frame</key>
-      <value>13</value>
-    </param>
-    <param>
-      <key>exclude_multipath</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>sel_taps</key>
+      <key>value</key>
       <value>0</value>
     </param>
     <param>
-      <key>freq_offset</key>
-      <value>0.0</value>
+      <key>block_id</key>
+      <value>tx_rpc_manager_0</value>
     </param>
     <param>
-      <key>exclude_noise</key>
-      <value>0</value>
+      <key>function_name</key>
+      <value>add_tx_ampl_interface</value>
     </param>
     <param>
-      <key>sel_noise_type</key>
-      <value>201</value>
+      <key>function_args</key>
+      <value>self.rms.set_rms_amplitude</value>
     </param>
     <param>
-      <key>SNR</key>
-      <value>SNR</value>
-    </param>
-    <param>
-      <key>exclude_preamble</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>sel_preamble</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>zero_pads</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>extra_pad</key>
-      <value>1</value>
+      <key>poll_rate</key>
+      <value>0.000000001</value>
     </param>
     <param>
       <key>alias</key>
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
+      <key>_coordinate</key>
+      <value>(181, 828)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_function_probe</key>
+    <param>
+      <key>id</key>
+      <value>variable_function_probe_2</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>block_id</key>
+      <value>rx_rpc_manager_0</value>
+    </param>
+    <param>
+      <key>function_name</key>
+      <value>add_set_scatter_subcarrier_interface</value>
+    </param>
+    <param>
+      <key>function_args</key>
+      <value>self.tigr_scatterplot_0.ofdm_vector_element_0.set_element</value>
+    </param>
+    <param>
+      <key>poll_rate</key>
+      <value>0.000000001</value>
+    </param>
+    <param>
+      <key>alias</key>
       <value></value>
     </param>
     <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(266, 300)</value>
+      <value>(363, 828)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2124,223 +2216,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_pilot_subcarrier_filter</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_pilot_subcarrier_filter_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>itemsize</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>data_subcarriers</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>training_data</key>
-      <value>training_data</value>
-    </param>
-    <param>
-      <key>complex_value</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(800, 515)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>zeromq_pub_sink</key>
-    <param>
-      <key>id</key>
-      <value>zeromq_pub_sink_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>address</key>
-      <value>"tcp://*:5557"</value>
-    </param>
-    <param>
-      <key>timeout</key>
-      <value>100</value>
-    </param>
-    <param>
-      <key>pass_tags</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1760, 291)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>tigr_ofdm_inner_receiver</key>
-    <param>
-      <key>id</key>
-      <value>tigr_ofdm_inner_receiver_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>fft_length</key>
-      <value>fft_length</value>
-    </param>
-    <param>
-      <key>data_blocks</key>
-      <value>data_blocks</value>
-    </param>
-    <param>
-      <key>frame_length</key>
-      <value>frame_length</value>
-    </param>
-    <param>
-      <key>cp_length</key>
-      <value>cp_length</value>
-    </param>
-    <param>
-      <key>estimation_preamble</key>
-      <value>estimation_preamble</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>data_subcarriers</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>fbmc</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>disable_freq_sync</key>
-      <value>disable_freq_sync</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(504, 307)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_frame_sampler</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_frame_sampler_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>subcarriers</key>
-      <value>subcarriers</value>
-    </param>
-    <param>
-      <key>frame_length</key>
-      <value>frame_length</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(848, 288)</value>
+      <value>(237, 245)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2391,195 +2267,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 584)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_coded_bpsk_soft_decoder</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_coded_bpsk_soft_decoder_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>output_bits</key>
-      <value>used_id_bits</value>
-    </param>
-    <param>
-      <key>whitener</key>
-      <value>whitener_pn</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(240, 579)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>channels_channel_model</key>
-    <param>
-      <key>id</key>
-      <value>channels_channel_model_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>noise_voltage</key>
-      <value>math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0)</value>
-    </param>
-    <param>
-      <key>freq_offset</key>
-      <value>0.1/fft_length</value>
-    </param>
-    <param>
-      <key>epsilon</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>seed</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>block_tags</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(256, 683)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_dynamic_trigger_ib</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_dynamic_trigger_ib_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>first_or_last</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(560, 771)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>ofdm_generic_demapper_vcb</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_generic_demapper_vcb_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>data_subcarriers</value>
-    </param>
-    <param>
-      <key>frame_size</key>
-      <value>data_part</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(760, 712)</value>
+      <value>(412, 624)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2630,7 +2318,223 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1144, 896)</value>
+      <value>(1252, 845)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>channels_channel_model</key>
+    <param>
+      <key>id</key>
+      <value>channels_channel_model_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>noise_voltage</key>
+      <value>math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0)</value>
+    </param>
+    <param>
+      <key>freq_offset</key>
+      <value>0.0/fft_length</value>
+    </param>
+    <param>
+      <key>epsilon</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>seed</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>block_tags</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(278, 476)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_cyclic_prefixer</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_cyclic_prefixer_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>input_size</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>output_size</key>
+      <value>fft_length + cp_length</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1263, 179)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_ofdm_pilot_block_inserter</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_ofdm_pilot_block_inserter_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frame_length</key>
+      <value>frame_length</value>
+    </param>
+    <param>
+      <key>fft_length</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>cp_length</key>
+      <value>cp_length</value>
+    </param>
+    <param>
+      <key>training_data</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>ant</key>
+      <value>5</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1016, 155)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fft_vxx</key>
+    <param>
+      <key>id</key>
+      <value>fft_vxx_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>fft_size</key>
+      <value>fft_length</value>
+    </param>
+    <param>
+      <key>forward</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>window</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>shift</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>nthreads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(779, 155)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2640,12 +2544,6 @@
   <connection>
     <source_block_id>single_pole_iir_filter_xx_0</source_block_id>
     <sink_block_id>blocks_keep_one_in_n_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>ofdm_divide_frame_fc_0</source_block_id>
-    <sink_block_id>tigr_scatterplot_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2674,18 +2572,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>ofdm_fbmc_channel_hier_cc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>ofdm_divide_frame_fc_0</source_block_id>
-    <sink_block_id>ofdm_generic_demapper_vcb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>ofdm_allocation_buffer_0</source_block_id>
     <sink_block_id>ofdm_generic_demapper_vcb_0</sink_block_id>
     <source_key>1</source_key>
@@ -2706,12 +2592,6 @@
   <connection>
     <source_block_id>fft_vxx_1</source_block_id>
     <sink_block_id>ofdm_ofdm_pilot_block_inserter_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>ofdm_fbmc_channel_hier_cc_0</source_block_id>
-    <sink_block_id>tigr_ofdm_inner_receiver_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2746,12 +2626,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>ofdm_allocation_buffer_0</source_block_id>
-    <sink_block_id>ofdm_divide_frame_fc_0</sink_block_id>
-    <source_key>2</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
     <source_block_id>ofdm_pilot_subcarrier_filter_0_0</source_block_id>
     <sink_block_id>single_pole_iir_filter_xx_0</sink_block_id>
     <source_key>0</source_key>
@@ -2778,12 +2652,6 @@
   <connection>
     <source_block_id>ofdm_ofdm_pilot_block_inserter_0</source_block_id>
     <sink_block_id>ofdm_cyclic_prefixer_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>ofdm_pilot_subcarrier_filter_0</source_block_id>
-    <sink_block_id>ofdm_divide_frame_fc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2870,5 +2738,29 @@
     <sink_block_id>tigr_ber_measurement_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>2</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_pilot_subcarrier_filter_0</source_block_id>
+    <sink_block_id>ofdm_multiply_frame_fc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_allocation_buffer_0</source_block_id>
+    <sink_block_id>ofdm_multiply_frame_fc_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_multiply_frame_fc_0</source_block_id>
+    <sink_block_id>tigr_scatterplot_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_multiply_frame_fc_0</source_block_id>
+    <sink_block_id>ofdm_generic_demapper_vcb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
 </flow_graph>

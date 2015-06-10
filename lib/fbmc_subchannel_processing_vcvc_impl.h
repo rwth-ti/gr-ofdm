@@ -35,15 +35,20 @@ namespace gr {
       unsigned int d_M;
       unsigned int d_syms_per_frame;
       std::vector<gr_complex> d_preamble;
+      std::vector<float> d_preamble_1;
+      std::vector<gr_complex> d_preamble_2;
       int d_sel_eq;
       unsigned int d_preamble_length;
       unsigned int d_frame_length;
       std::vector<gr_complex> d_estimation;
+      std::vector<gr_complex> d_estimation_1;
+      std::vector<gr_complex> d_estimation_2;
       std::vector<gr_complex> d_eq_coef;
       int ii;
       int fr;
       int estimation_point;
       float normalization_factor;
+      float normalization_factor2;
       int d_sel_preamble;
       // std::vector<gr_complex> d_zero_v;
       // std::vector<gr_complex> d_center;
@@ -53,7 +58,10 @@ namespace gr {
       float *d_squared;
       float *d_divide;
       std::vector<float> d_norm_vect;
+      std::vector<float> d_norm_vect2;
       gr_complex *d_conj1;
+      gr_complex *d_conj2;
+      gr_complex *d_conj3;
       float *d_squared1;
       float *d_divide1;
       std::vector<float> d_ones;
@@ -69,6 +77,22 @@ namespace gr {
 	  float *d_sum3_q;
 	  float *d_sumc_i;
 	  float *d_sumc_q;
+
+	  gr_complex *d_starte;
+	  float *d_starte_i;
+	  float *d_starte_q;
+	  float *d_start1_i;
+	  float *d_start1_q;
+	  float *d_start2_i;
+	  float *d_start2_q;
+	  float *d_estimation_1_i;
+	  float *d_estimation_1_q;
+	  float *d_estimation_2_i;
+	  float *d_estimation_2_q;
+	  float *d_estimation_i;
+	  float *d_estimation_q;
+
+
 
      public:
       fbmc_subchannel_processing_vcvc_impl(unsigned int M, unsigned int syms_per_frame, int sel_preamble, int zero_pads, bool extra_pad, int sel_eq);

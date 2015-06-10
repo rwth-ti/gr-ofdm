@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Top Block
-# Generated: Tue Apr 21 12:24:16 2015
+# Generated: Wed Jun 10 14:44:53 2015
 ##################################################
 
 execfile("/home/zivkovic/.grc_gnuradio/tigr_ber_measurement.py")
@@ -84,7 +84,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.variable_function_probe_2 = variable_function_probe_2 = 0
         self.variable_function_probe_1 = variable_function_probe_1 = 0
         self.variable_function_probe_0 = variable_function_probe_0 = 0
-        self.tx_hostname = tx_hostname = "neat"
+        self.tx_hostname = tx_hostname = "localhost"
         self.samp_rate = samp_rate = 4*250000
         self.interleaver = interleaver = trellis.interleaver(2000,666)
         self.frame_length = frame_length = 2*data_part + training_data.fbmc_no_preambles
@@ -94,7 +94,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.chunkdivisor = chunkdivisor = int(numpy.ceil(data_blocks/5.0))
         self.ber_window = ber_window = 100000
         self.amplitude = amplitude = 1
-        self.SNR = SNR = -2
+        self.SNR = SNR = 40
 
         ##################################################
         # Blocks
@@ -132,8 +132,8 @@ class top_block(gr.top_block, Qt.QWidget):
             fbmc=fbmc,
             data_blocks=data_blocks,
             data_part=data_part,
-            coding=coding,
             repeated_id_bits=repeated_id_bits,
+            coding=coding,
         )
         self.tigr_scatterplot_0 = tigr_scatterplot(
             subcarriers=subcarriers,
@@ -210,6 +210,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.ofdm_viterbi_combined_fb_0 = ofdm.viterbi_combined_fb(ofdm.fsm(ofdm.fsm(1,2,[91,121])), subcarriers, -1, -1, 2, chunkdivisor, ([-1,-1,-1,1,1,-1,1,1]), ofdm.TRELLIS_EUCLIDEAN)
         self.ofdm_vector_sampler_0 = ofdm.vector_sampler(gr.sizeof_gr_complex*subcarriers, 1)
         self.ofdm_vector_padding_0 = ofdm.vector_padding(subcarriers, fft_length,  -1)
+        self.ofdm_multiply_frame_fc_0 = ofdm.multiply_frame_fc(data_part, subcarriers)
         self.ofdm_multiply_const_ii_0 = ofdm.multiply_const_ii(1./int(numpy.ceil(data_blocks/5.0)))
         self.ofdm_generic_softdemapper_vcf_0 = ofdm.generic_softdemapper_vcf(subcarriers, data_part, 1)
         self.ofdm_fbmc_separate_vcvc_1 = ofdm.fbmc_separate_vcvc(fft_length, 2)
@@ -222,28 +223,27 @@ class top_block(gr.top_block, Qt.QWidget):
         self.ofdm_fbmc_frame_sampler_0 = fbmc_frame_sampler(subcarriers, frame_length, data_part, training_data)
         self.ofdm_fbmc_beta_multiplier_vcvc_0 = ofdm.fbmc_beta_multiplier_vcvc(fft_length, filter_length, fft_length*fft_length-1, 0)
         self.ofdm_dynamic_trigger_ib_0 = ofdm.dynamic_trigger_ib(0)
-        self.ofdm_divide_frame_fc_0 = ofdm.divide_frame_fc(data_part, subcarriers)
         self.ofdm_depuncture_ff_0 = ofdm.depuncture_ff(subcarriers, 0)
         self.ofdm_coded_bpsk_soft_decoder_0 = ofdm.coded_bpsk_soft_decoder(subcarriers, used_id_bits, (whitener_pn))
         self.ofdm_allocation_buffer_0 = ofdm.allocation_buffer(subcarriers, data_blocks, "tcp://"+tx_hostname+":3333", 1)
         self.fft_vxx_1 = fft.fft_vcc(fft_length, False, ([]), True, 1)
         self.channels_channel_model_0 = channels.channel_model(
-            noise_voltage=math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0),
-            frequency_offset=0.0,
-            epsilon=1,
-            taps=((1.0 ), ),
-            noise_seed=0,
-            block_tags=False
+        	noise_voltage=math.sqrt(1.0*fft_length/subcarriers)*math.sqrt(0.5)*10**(-SNR/20.0),
+        	frequency_offset=0.0/fft_length,
+        	epsilon=1,
+        	taps=((1.0 ), ),
+        	noise_seed=0,
+        	block_tags=False
         )
         self.blocks_vector_source_x_0 = blocks.vector_source_b([1] + [0]*(data_blocks/2-1), True, 1, [])
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_keep_one_in_n_1 = blocks.keep_one_in_n(gr.sizeof_float*subcarriers, 20)
         self.blks2_selector_0 = grc_blks2.selector(
-            item_size=gr.sizeof_float*1,
-            num_inputs=2,
-            num_outputs=1,
-            input_index=0,
-            output_index=0,
+        	item_size=gr.sizeof_float*1,
+        	num_inputs=2,
+        	num_outputs=1,
+        	input_index=0,
+        	output_index=0,
         )
 
         ##################################################
@@ -260,12 +260,9 @@ class top_block(gr.top_block, Qt.QWidget):
         self.connect((self.single_pole_iir_filter_xx_0, 0), (self.blocks_keep_one_in_n_1, 0))
         self.connect((self.ofdm_fbmc_frame_sampler_0, 1), (self.ofdm_fbmc_pilot_block_filter_0, 1))
         self.connect((self.ofdm_fbmc_frame_sampler_0, 0), (self.ofdm_fbmc_pilot_block_filter_0, 0))
-        self.connect((self.ofdm_divide_frame_fc_0, 0), (self.tigr_scatterplot_0, 0))
         self.connect((self.ofdm_fbmc_pilot_block_filter_0, 1), (self.ofdm_vector_sampler_0, 1))
         self.connect((self.ofdm_vector_sampler_0, 0), (self.ofdm_coded_bpsk_soft_decoder_0, 0))
         self.connect((self.ofdm_coded_bpsk_soft_decoder_0, 0), (self.ofdm_allocation_buffer_0, 0))
-        self.connect((self.ofdm_allocation_buffer_0, 2), (self.ofdm_divide_frame_fc_0, 1))
-        self.connect((self.ofdm_divide_frame_fc_0, 0), (self.ofdm_generic_softdemapper_vcf_0, 0))
         self.connect((self.ofdm_allocation_buffer_0, 1), (self.ofdm_generic_softdemapper_vcf_0, 1))
         self.connect((self.single_pole_iir_filter_xx_0, 0), (self.ofdm_generic_softdemapper_vcf_0, 2))
         self.connect((self.ofdm_generic_softdemapper_vcf_0, 0), (self.trellis_permutation_0, 0))
@@ -281,9 +278,7 @@ class top_block(gr.top_block, Qt.QWidget):
         self.connect((self.ofdm_fbmc_frame_sampler_0, 1), (self.tigr_fbmc_snr_estimator_0, 1))
         self.connect((self.tigr_fbmc_inner_receiver_0, 1), (self.ofdm_fbmc_frame_sampler_0, 1))
         self.connect((self.tigr_fbmc_inner_receiver_0, 2), (self.ofdm_fbmc_frame_sampler_0, 0))
-        self.connect((self.ofdm_fbmc_pilot_block_filter_0, 0), (self.ofdm_divide_frame_fc_0, 0))
         self.connect((self.rms, 0), (self.blocks_throttle_0, 0))
-        self.connect((self.ofdm_fbmc_pilot_block_filter_0, 0), (self.ofdm_vector_sampler_0, 0))
         self.connect((self.tigr_fbmc_inner_receiver_0, 3), (self.zeromq_pub_sink_0, 0))
         self.connect((self.blocks_keep_one_in_n_1, 0), (self.zeromq_pub_sink_1, 0))
         self.connect((self.ofdm_vector_padding_0, 0), (self.ofdm_fbmc_beta_multiplier_vcvc_0, 0))
@@ -297,6 +292,11 @@ class top_block(gr.top_block, Qt.QWidget):
         self.connect((self.ofdm_generic_softdemapper_vcf_0, 0), (self.blks2_selector_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.channels_channel_model_0, 0))
         self.connect((self.channels_channel_model_0, 0), (self.tigr_fbmc_inner_receiver_0, 0))
+        self.connect((self.ofdm_fbmc_pilot_block_filter_0, 0), (self.ofdm_vector_sampler_0, 0))
+        self.connect((self.ofdm_allocation_buffer_0, 2), (self.ofdm_multiply_frame_fc_0, 1))
+        self.connect((self.ofdm_fbmc_pilot_block_filter_0, 0), (self.ofdm_multiply_frame_fc_0, 0))
+        self.connect((self.ofdm_multiply_frame_fc_0, 0), (self.tigr_scatterplot_0, 0))
+        self.connect((self.ofdm_multiply_frame_fc_0, 0), (self.ofdm_generic_softdemapper_vcf_0, 0))
 
 
     def closeEvent(self, event):
@@ -321,11 +321,11 @@ class top_block(gr.top_block, Qt.QWidget):
         self.set_training_data(default_block_header(self.subcarriers,self.fft_length,self.fbmc,self.estimation_preamble,[]))
         self.set_repeated_id_bits(self.subcarriers/self.used_id_bits)
         self.tigr_ber_measurement_0.set_subcarriers(self.subcarriers)
-        self.tigr_scatterplot_0.set_subcarriers(self.subcarriers)
         self.tigr_fbmc_snr_estimator_0.set_subcarriers(self.subcarriers)
         self.tigr_transmit_control_0.set_subcarriers(self.subcarriers)
         self.channels_channel_model_0.set_noise_voltage(math.sqrt(1.0*self.fft_length/self.subcarriers)*math.sqrt(0.5)*10**(-self.SNR/20.0))
         self.tigr_fbmc_inner_receiver_0.set_subcarriers(self.subcarriers)
+        self.tigr_scatterplot_0.set_subcarriers(self.subcarriers)
 
     def get_id_blocks(self):
         return self.id_blocks
@@ -341,11 +341,12 @@ class top_block(gr.top_block, Qt.QWidget):
         self.fft_length = fft_length
         self.set_training_data(default_block_header(self.subcarriers,self.fft_length,self.fbmc,self.estimation_preamble,[]))
         self.tigr_ber_measurement_0.set_fft_length(self.fft_length)
-        self.tigr_scatterplot_0.set_fft_length(self.fft_length)
         self.tigr_fbmc_snr_estimator_0.set_fft_length(self.fft_length)
         self.tigr_transmit_control_0.set_fft_length(self.fft_length)
         self.channels_channel_model_0.set_noise_voltage(math.sqrt(1.0*self.fft_length/self.subcarriers)*math.sqrt(0.5)*10**(-self.SNR/20.0))
+        self.channels_channel_model_0.set_frequency_offset(0.0/self.fft_length)
         self.tigr_fbmc_inner_receiver_0.set_fft_length(self.fft_length)
+        self.tigr_scatterplot_0.set_fft_length(self.fft_length)
 
     def get_fbmc(self):
         return self.fbmc
@@ -354,9 +355,9 @@ class top_block(gr.top_block, Qt.QWidget):
         self.fbmc = fbmc
         self.set_training_data(default_block_header(self.subcarriers,self.fft_length,self.fbmc,self.estimation_preamble,[]))
         self.tigr_ber_measurement_0.set_fbmc(self.fbmc)
-        self.tigr_scatterplot_0.set_fbmc(self.fbmc)
         self.tigr_fbmc_snr_estimator_0.set_fbmc(self.fbmc)
         self.tigr_transmit_control_0.set_fbmc(self.fbmc)
+        self.tigr_scatterplot_0.set_fbmc(self.fbmc)
 
     def get_estimation_preamble(self):
         return self.estimation_preamble
@@ -365,22 +366,22 @@ class top_block(gr.top_block, Qt.QWidget):
         self.estimation_preamble = estimation_preamble
         self.set_training_data(default_block_header(self.subcarriers,self.fft_length,self.fbmc,self.estimation_preamble,[]))
         self.tigr_ber_measurement_0.set_estimation_preamble(self.estimation_preamble)
-        self.tigr_scatterplot_0.set_estimation_preamble(self.estimation_preamble)
         self.tigr_fbmc_snr_estimator_0.set_estimation_preamble(self.estimation_preamble)
         self.tigr_transmit_control_0.set_estimation_preamble(self.estimation_preamble)
         self.tigr_fbmc_inner_receiver_0.set_estimation_preamble(self.estimation_preamble)
+        self.tigr_scatterplot_0.set_estimation_preamble(self.estimation_preamble)
 
     def get_data_blocks(self):
         return self.data_blocks
 
     def set_data_blocks(self, data_blocks):
         self.data_blocks = data_blocks
-        self.set_data_part(self.data_blocks + self.id_blocks)
         self.set_chunkdivisor(int(numpy.ceil(self.data_blocks/5.0)))
+        self.set_data_part(self.data_blocks + self.id_blocks)
         self.tigr_ber_measurement_0.set_data_blocks(self.data_blocks)
-        self.tigr_scatterplot_0.set_data_blocks(self.data_blocks)
         self.tigr_transmit_control_0.set_data_blocks(self.data_blocks)
         self.tigr_fbmc_inner_receiver_0.set_data_blocks(self.data_blocks)
+        self.tigr_scatterplot_0.set_data_blocks(self.data_blocks)
 
     def get_training_data(self):
         return self.training_data
@@ -460,9 +461,9 @@ class top_block(gr.top_block, Qt.QWidget):
 
     def set_frame_length(self, frame_length):
         self.frame_length = frame_length
-        self.tigr_scatterplot_0.set_frame_length(self.frame_length)
         self.tigr_fbmc_snr_estimator_0.set_frame_length(self.frame_length)
         self.tigr_fbmc_inner_receiver_0.set_frame_length(self.frame_length)
+        self.tigr_scatterplot_0.set_frame_length(self.frame_length)
 
     def get_filter_length(self):
         return self.filter_length

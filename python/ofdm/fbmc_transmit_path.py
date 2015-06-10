@@ -160,7 +160,7 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
         self.connect(modul_bitcount_src,mux_ctrl)
         #Initial allocation
-        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)   
+        self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)   
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        
 
@@ -328,6 +328,7 @@ class transmit_path(gr.hier_block2):
       
     beta_mult = self._beta_mult = fbmc_beta_multiplier_vcvc(config.fft_length, 4, 4*config.fft_length-1, 0)
     self.connect(vsubc, beta_mult)
+    #log_to_file(self, vsubc, "data/beta_mult.compl")
 
     if options.log:
       log_to_file(self, vsubc, "data/vsubc_out.compl")
@@ -380,6 +381,7 @@ class transmit_path(gr.hier_block2):
     amp = self._amplifier = ofdm.multiply_const_ccf( 1.0 )
     self.connect( lastblock, amp )
     self.set_rms_amplitude(rms_amp)
+    #log_to_file(self, amp, "data/amp_tx_out.compl")
 
     if options.log:
       log_to_file(self, amp, "data/amp_tx_out.compl")

@@ -18,15 +18,8 @@
   <param>
     <name>Coding</name>
     <key>coding</key>
-    <type>enum</type>
-    <option>
-      <name>Off</name>
-      <key>0</key>
-    </option>
-    <option>
-      <name>On</name>
-      <key>1</key>
-    </option>
+    <value>0</value>
+    <type>raw</type>
   </param>
   <param>
     <name>Frame Size</name>

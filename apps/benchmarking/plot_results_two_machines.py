@@ -186,10 +186,12 @@ class plotter:
         self.fig100 = plt.figure(100+self.fignum, figsize=(18,10), facecolor='w')
         self.fig100.clf()
         self.sp101 = self.fig100.add_subplot(1,1,1)
+        self.blks_times[:] = [x/250000*1000000/208 for x in self.blks_times]
+        print "SUMSUM: ", sum(self.blks_times)
         self.sp101.barh(self.blks_x, self.blks_times, height=2*width,
                         alpha=0.55)
         self.sp101.set_title(self.title, fontsize=22, fontweight='bold')
-        self.sp101.set_xlabel("Time (ms)", fontsize=16, fontweight='bold')
+        self.sp101.set_xlabel("Execution time per sample (ns)", fontsize=16, fontweight='bold')
         self.sp101.set_yticks(self.blks_x+width)
         self.sp101.set_yticklabels(self.blks_keys, fontweight='bold')
         self.sp101.grid()

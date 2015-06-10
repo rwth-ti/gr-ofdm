@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
-<?grc format='1' created='3.7.5'?>
 <flow_graph>
-  <timestamp>Thu Feb 19 13:39:10 2015</timestamp>
+  <timestamp>Tue Jun  9 16:01:12 2015</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -69,7 +68,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>training_data</value>
+      <value>pd_threshold</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -77,7 +76,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>default_block_header(data_subcarriers,fft_length,fbmc,estimation_preamble,[])</value>
+      <value>0.4</value>
     </param>
     <param>
       <key>alias</key>
@@ -85,61 +84,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 91)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>variable_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(320, 579)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>inv_preamble_fd</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1./numpy.array( training_data.pilotsym_fd[training_data.channel_estimation_pilot[0] ] )</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1088, 99)</value>
+      <value>(224, 99)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -177,7 +122,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>pd_threshold</value>
+      <value>inv_preamble_fd</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -185,7 +130,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0.4</value>
+      <value>1./numpy.array( training_data.pilotsym_fd[training_data.channel_estimation_pilot[0] ] )</value>
     </param>
     <param>
       <key>alias</key>
@@ -193,7 +138,61 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 99)</value>
+      <value>(1088, 99)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>variable_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(320, 579)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>training_data</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>default_block_header(data_subcarriers,fft_length,fbmc,estimation_preamble,[])</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(832, 91)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1772,61 +1771,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_vector_source_x</key>
-    <param>
-      <key>id</key>
-      <value>blocks_vector_source_x_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>vector</key>
-      <value>[0.1]</value>
-    </param>
-    <param>
-      <key>tags</key>
-      <value>[]</value>
-    </param>
-    <param>
-      <key>repeat</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 452)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blks2_selector</key>
     <param>
       <key>id</key>
@@ -1973,6 +1917,61 @@
     <param>
       <key>_coordinate</key>
       <value>(368, 392)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_vector_source_x</key>
+    <param>
+      <key>id</key>
+      <value>blocks_vector_source_x_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>vector</key>
+      <value>[0.0]</value>
+    </param>
+    <param>
+      <key>tags</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>repeat</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 452)</value>
     </param>
     <param>
       <key>_rotation</key>

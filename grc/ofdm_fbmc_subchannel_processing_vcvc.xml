@@ -32,6 +32,10 @@
       <name>IAM-R</name>
       <key>2</key>
     </option>
+    <option>
+      <name>New</name>
+      <key>3</key>
+    </option>
   </param>
   <param>
     <name>Zero padding</name>

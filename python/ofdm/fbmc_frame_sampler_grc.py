@@ -36,7 +36,8 @@ class fbmc_frame_sampler( gr.hier_block2 ):
 
     self.connect( self, frame_sampler, symbol_output ,self)
 
-    self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,frame_data_part + training_data.fbmc_no_preambles/2,2*frame_data_part + training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
+    #self.connect( (self,1), blocks.keep_m_in_n(gr.sizeof_char,frame_data_part + training_data.fbmc_no_preambles/2,2*frame_data_part + training_data.fbmc_no_preambles,0),delayed_frame_start, ( frame_sampler, 1 ) )
+    self.connect( (self,1),delayed_frame_start, ( frame_sampler, 1 ) )
 
     #self.connect( self, blocks.multiply_const_vcc(([1.0]*total_subc)) ,self)
     #terminate_stream(self,frame_sampler)

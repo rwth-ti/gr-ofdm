@@ -69,12 +69,40 @@ class default_block_header (object):
     fbmc_fd_2_l_list_norm = [1.0j/math.sqrt(norm_fact), -1.0/math.sqrt(norm_fact), -1.0j/math.sqrt(norm_fact), 1.0/math.sqrt(norm_fact)]* (int)(vlen/4)
     fbmc_fd_2_r_list_norm = [-1.0j/math.sqrt(norm_fact), 1.0/math.sqrt(norm_fact), 1.0j/math.sqrt(norm_fact), -1.0/math.sqrt(norm_fact)]* (int)(vlen/4)
 
+
+    fbmc_fd_4_list = [-1, -1j, 1, 1j]* (int)(vlen/4)
+    fbmc_fd_5_list = [1, 1j, -1, -1j]* (int)(vlen/4)
+    
+    #fbmc_fd_4 = numpy.array(fbmc_fd_4_list)
+    #fbmc_fd_5 = numpy.array(fbmc_fd_5_list)
+    
+    fbmc_fd_4_list = [-1j, -1, 1j, 1]* (int)(vlen/4)
+    fbmc_fd_5_list = [1j, 1, -1j, -1]* (int)(vlen/4)
+    
+    fbmc_fd_4 = numpy.array(fbmc_fd_4_list)
+    fbmc_fd_5 = numpy.array(fbmc_fd_5_list)
+    
     if norm_fact !=1:
         #norm_fact=norm_fact+2
         norm_fact = 2.128
         #norm_fact=2.37 # channel estimation factor
+    fbmc_fd_2_list = [1, -1, 1, -1]* (int)(vlen/4)
     
-    fbmc_fd_2 = numpy.array(fbmc_fd_2_list)
+    
+    # New idea, random quazi-random-preamble
+    hh1 = fixed_real_pn1[0:vlen/4]
+    fbmc_fd_2_list = [0]*vlen
+    fbmc_fd_2_list[0:len(fbmc_fd_2_list)/2:2] = hh1
+    fbmc_fd_2_list[len(fbmc_fd_2_list)/2:len(fbmc_fd_2_list):2] = hh1
+    fbmc_fd_2 = numpy.array(fbmc_fd_2_list)#*sqrt(2)
+    fbmc_fd_3 = 1j*numpy.roll(fbmc_fd_2,1+vlen/2)
+    #fbmc_fd_3 = numpy.roll(fbmc_fd_2,1)
+
+
+    
+    
+    
+    #fbmc_fd_2 = numpy.array(fbmc_fd_2_list)
     fbmc_fd_2_l = numpy.array(fbmc_fd_2_l_list)
     fbmc_fd_2_r = numpy.array(fbmc_fd_2_r_list)
     fbmc_fd_2_norm = numpy.array(fbmc_fd_2_list_norm)

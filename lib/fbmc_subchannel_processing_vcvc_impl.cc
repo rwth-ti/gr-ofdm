@@ -47,15 +47,20 @@ namespace gr {
 		d_M(M),
 		d_syms_per_frame(syms_per_frame),
 		d_preamble(),
+		d_preamble_2(),
 		d_sel_eq(sel_eq),
 		d_sel_preamble(sel_preamble),
 		d_estimation(M,1),
+		d_estimation_1(M,1),
+		d_estimation_2(M,1),
 		d_eq_coef(3*d_M,1),
 		d_conj( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
 		d_squared( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
 		d_divide( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
 		//d_norm_vect(d_M,1./2.128),
 		d_conj1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_conj2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_conj3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
 		d_squared1( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
 		d_divide1( static_cast< float * >( malloc16Align( sizeof( float ) *M ) ) ),
 		d_sum1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
@@ -69,10 +74,29 @@ namespace gr {
 		d_sum1( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
 		d_sum2( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
 		d_sum3( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_starte( static_cast< gr_complex * >( malloc16Align( sizeof( gr_complex ) *M ) ) ),
+		d_starte_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_starte_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_start1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_start1_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_start2_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_start2_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_1_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_1_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_2_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_2_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_i( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+		d_estimation_q( static_cast< float* >( malloc16Align( sizeof( float ) *M ) ) ),
+
+
+
+
+
 		d_ones(d_M,1.0),
 		ii(0),
 		fr(0),
 		normalization_factor(1),
+		normalization_factor2(1),
 		d_zero_pads(zero_pads),
 		d_extra_pad(extra_pad)
 		{
@@ -101,12 +125,12 @@ namespace gr {
 				}
 			}else if(d_sel_preamble == 1){ // standard preamble with triple repetition
 				// normalization_factor = 1;
-				normalization_factor = 2.128;
+				normalization_factor = 2.6074;
 				std::vector<gr_complex> dummy;
 				dummy.push_back(gr_complex(1,0));
-				dummy.push_back(gr_complex(0,-1));
 				dummy.push_back(gr_complex(-1,0));
-				dummy.push_back(gr_complex(0,1));				
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(-1,0));
 				for(int i=0;i<(int)(d_M/4);i++){
 					d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
 				}
@@ -129,6 +153,190 @@ namespace gr {
 				if(d_extra_pad){
 					d_preamble_length+=d_M;
 				}
+			}else if(d_sel_preamble == 3){ // standard preamble with triple repetition
+
+				float fixed_real_pn1 [4200] = { 1, -1, -1, -1, -1, -1,  1,  1,  1, -1,  1, -1,  1,  1,  1, -1,  1, -1,  1,
+				    1, -1, -1, -1, -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,  1,  1, -1, -1,  1,
+				   -1, -1, -1,  1,  1,  1,  1, -1, -1, -1,  1, -1, -1, -1, -1,  1, -1,  1, -1,
+				   -1,  1,  1,  1, -1,  1, -1, -1,  1, -1, -1,  1,  1, -1,  1,  1,  1, -1,  1,
+				   -1, -1, -1,  1, -1, -1,  1,  1, -1, -1, -1,  1,  1,  1, -1,  1,  1, -1, -1,
+				   -1, -1,  1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1,  1, -1,  1, -1, -1, -1,
+				   -1, -1,  1,  1, -1,  1,  1,  1,  1, -1, -1, -1,  1, -1,  1,  1, -1, -1, -1,
+				    1, -1,  1, -1,  1, -1,  1,  1, -1, -1, -1,  1,  1, -1, -1,  1,  1, -1,  1,
+				   -1,  1, -1,  1, -1,  1,  1,  1,  1, -1, -1, -1,  1,  1,  1,  1, -1, -1, -1,
+				   -1, -1,  1,  1, -1, -1,  1, -1,  1, -1,  1,  1,  1, -1, -1, -1, -1,  1,  1,
+				   -1,  1, -1, -1,  1, -1,  1, -1,  1, -1, -1, -1, -1, -1,  1, -1,  1, -1, -1,
+				   -1, -1,  1,  1,  1,  1, -1,  1,  1,  1,  1,  1, -1, -1, -1, -1, -1,  1,  1,
+				   -1,  1, -1, -1,  1, -1,  1, -1, -1, -1,  1, -1,  1, -1, -1, -1,  1,  1, -1,
+				   -1, -1, -1, -1, -1,  1,  1,  1,  1, -1, -1, -1,  1, -1,  1, -1, -1, -1, -1,
+				    1, -1, -1,  1,  1, -1,  1, -1,  1, -1, -1, -1, -1,  1, -1,  1, -1, -1, -1,
+				   -1,  1, -1,  1, -1, -1,  1,  1, -1,  1,  1, -1, -1, -1,  1,  1,  1,  1,  1,
+				   -1, -1,  1, -1,  1,  1, -1, -1, -1,  1, -1,  1, -1, -1,  1,  1, -1,  1, -1,
+				   -1, -1,  1, -1, -1,  1, -1, -1, -1,  1, -1,  1,  1, -1,  1, -1,  1, -1,  1,
+				    1, -1, -1, -1,  1,  1, -1,  1, -1, -1,  1, -1, -1, -1, -1, -1,  1, -1, -1,
+				   -1, -1, -1,  1,  1, -1, -1, -1, -1, -1,  1, -1, -1,  1,  1, -1,  1,  1,  1,
+				   -1, -1,  1,  1,  1,  1,  1,  1,  1,  1,  1, -1, -1,  1,  1, -1,  1, -1,  1,
+				    1, -1,  1, -1, -1,  1, -1, -1,  1, -1,  1,  1,  1, -1,  1,  1, -1,  1,  1,
+				   -1, -1,  1, -1, -1,  1, -1, -1,  1, -1,  1,  1, -1, -1, -1,  1,  1,  1,  1,
+				    1, -1,  1,  1, -1, -1,  1, -1,  1,  1, -1, -1, -1,  1,  1, -1, -1,  1,  1,
+				    1, -1,  1,  1, -1, -1,  1, -1, -1, -1, -1,  1, -1, -1, -1, -1,  1, -1,  1,
+				   -1, -1, -1, -1,  1, -1, -1,  1,  1, -1,  1,  1, -1,  1, -1,  1,  1,  1, -1,
+				    1,  1, -1,  1, -1, -1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, -1,
+				   -1, -1,  1, -1, -1, -1,  1,  1, -1,  1, -1,  1,  1,  1, -1, -1,  1,  1,  1,
+				    1, -1, -1, -1,  1,  1,  1, -1, -1, -1,  1, -1,  1, -1,  1,  1, -1, -1, -1,
+				   -1,  1, -1, -1, -1,  1,  1, -1, -1,  1,  1,  1,  1, -1,  1,  1,  1,  1,  1,
+				   -1, -1,  1, -1, -1, -1, -1,  1, -1, -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+				   -1, -1, -1, -1,  1,  1,  1,  1,  1, -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
+				    1,  1, -1,  1, -1, -1, -1, -1,  1,  1, -1,  1,  1,  1, -1, -1, -1, -1,  1,
+				    1,  1,  1, -1, -1, -1, -1, -1,  1,  1,  1,  1, -1,  1,  1,  1, -1, -1, -1,
+				    1,  1, -1, -1,  1,  1, -1, -1, -1,  1, -1, -1, -1,  1,  1,  1, -1,  1, -1,
+				   -1, -1,  1,  1,  1,  1,  1,  1,  1, -1,  1,  1,  1, -1,  1,  1,  1,  1, -1,
+				    1, -1, -1,  1, -1, -1,  1,  1, -1,  1,  1, -1,  1,  1, -1,  1, -1, -1,  1,
+				    1, -1,  1,  1, -1,  1, -1, -1, -1,  1, -1,  1,  1, -1,  1,  1, -1,  1,  1,
+				   -1,  1,  1,  1,  1,  1,  1,  1,  1,  1, -1, -1,  1, -1,  1,  1, -1, -1,  1,
+				    1,  1, -1, -1,  1, -1, -1, -1,  1, -1,  1,  1, -1,  1,  1, -1, -1, -1,  1,
+				   -1,  1,  1,  1, -1, -1,  1,  1, -1, -1,  1, -1, -1, -1,  1, -1,  1,  1,  1,
+				   -1,  1, -1, -1,  1, -1,  1,  1,  1,  1, -1, -1,  1,  1,  1,  1, -1,  1,  1,
+				    1, -1, -1, -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,  1,  1,  1,  1, -1, -1,
+				   -1, -1,  1, -1, -1, -1,  1,  1,  1, -1, -1,  1, -1,  1, -1,  1,  1, -1, -1,
+				    1, -1,  1,  1, -1, -1, -1,  1, -1,  1, -1, -1, -1,  1,  1, -1, -1,  1, -1,
+				    1,  1, -1, -1, -1, -1, -1,  1,  1,  1,  1, -1, -1,  1,  1, -1, -1,  1,  1,
+				    1,  1, -1, -1, -1, -1,  1, -1,  1, -1,  1, -1, -1, -1, -1,  1,  1, -1,  1,
+				   -1,  1, -1, -1,  1, -1,  1, -1,  1,  1, -1, -1, -1,  1, -1,  1, -1,  1,  1,
+				    1,  1, -1, -1, -1, -1, -1, -1,  1, -1,  1,  1, -1, -1, -1, -1,  1,  1,  1,
+				   -1, -1,  1,  1,  1,  1, -1,  1, -1,  1,  1,  1, -1, -1, -1, -1, -1, -1,  1,
+				   -1,  1, -1, -1,  1,  1,  1,  1,  1,  1, -1,  1, -1, -1, -1,  1,  1, -1,  1,
+				   -1,  1, -1, -1,  1, -1,  1, -1,  1, -1,  1,  1, -1, -1,  1,  1,  1,  1, -1,
+				   -1,  1,  1, -1, -1, -1,  1, -1, -1,  1,  1, -1,  1,  1, -1, -1, -1,  1, -1,
+				   -1, -1,  1, -1, -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,  1,  1, -1,  1,  1,
+				    1, -1, -1, -1, -1,  1, -1,  1, -1, -1, -1, -1,  1, -1,  1, -1, -1,  1, -1,
+				   -1,  1,  1, -1, -1,  1, -1, -1,  1, -1, -1,  1, -1, -1, -1, -1,  1, -1,  1,
+				    1,  1,  1, -1, -1,  1, -1,  1,  1,  1, -1, -1,  1,  1, -1,  1, -1,  1, -1,
+				   -1, -1, -1, -1,  1,  1, -1, -1,  1,  1,  1, -1,  1, -1, -1,  1,  1, -1, -1,
+				    1, -1, -1, -1, -1,  1,  1, -1, -1,  1, -1,  1,  1,  1,  1, -1, -1, -1, -1,
+				   -1,  1, -1,  1, -1, -1,  1,  1,  1, -1,  1, -1,  1,  1,  1,  1,  1, -1, -1,
+				    1,  1, -1,  1,  1, -1,  1,  1,  1, -1, -1, -1,  1,  1,  1, -1,  1, -1,  1,
+				   -1,  1,  1, -1, -1,  1,  1,  1, -1, -1, -1, -1,  1,  1, -1,  1, -1,  1, -1,
+				    1, -1,  1, -1,  1, -1,  1,  1, -1,  1, -1,  1, -1,  1,  1,  1, -1, -1,  1,
+				   -1, -1,  1,  1,  1, -1, -1,  1,  1, -1,  1, -1,  1,  1,  1,  1, -1,  1,  1,
+				   -1, -1, -1, -1, -1, -1,  1,  1,  1,  1, -1,  1,  1,  1,  1,  1, -1, -1,  1,
+				    1,  1,  1, -1, -1,  1, -1,  1,  1, -1, -1,  1, -1, -1, -1,  1, -1, -1,  1,
+				   -1, -1,  1, -1,  1,  1, -1,  1, -1, -1, -1, -1, -1, -1,  1,  1, -1,  1, -1,
+				   -1, -1,  1, -1,  1,  1, -1,  1, -1, -1,  1, -1,  1,  1,  1, -1,  1,  1,  1,
+				   -1, -1,  1, -1, -1, -1, -1, -1, -1,  1, -1, -1,  1, -1, -1, -1,  1,  1,  1,
+				   -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1,  1, -1, -1,  1,  1, -1, -1, -1,
+				   -1, -1,  1,  1,  1,  1, -1,  1,  1, -1, -1, -1,  1,  1,  1, -1,  1,  1,  1,
+				   -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,  1,  1, -1,  1, -1,  1,  1, -1, -1,
+				    1,  1,  1, -1, -1,  1, -1,  1,  1,  1,  1,  1, -1, -1, -1, -1, -1,  1,  1,
+				    1,  1,  1, -1, -1, -1, -1, -1,  1,  1, -1,  1, -1,  1, -1, -1, -1, -1,  1,
+				    1, -1,  1,  1, -1, -1,  1,  1,  1, -1, -1, -1,  1,  1, -1, -1, -1, -1,  1,
+				    1, -1,  1,  1, -1, -1, -1, -1, -1, -1,  1,  1, -1, -1, -1,  1,  1,  1, -1,
+				    1, -1,  1, -1, -1, -1,  1,  1, -1, -1, -1, -1,  1,  1, -1,  1,  1, -1,  1,
+				    1,  1, -1,  1,  1, -1, -1,  1, -1, -1, -1,  1,  1, -1,  1, -1,  1,  1, -1,
+				    1, -1, -1, -1, -1, -1, -1,  1, -1, -1,  1,  1, -1,  1, -1,  1, -1,  1, -1,
+				    1, -1, -1,  1,  1, -1, -1, -1,  1,  1,  1,  1,  1,  1, -1, -1,  1,  1,  1,
+				   -1, -1,  1,  1,  1,  1,  1, -1,  1,  1, -1,  1,  1,  1,  1, -1,  1, -1,  1,
+				   -1,  1, -1,  1,  1,  1,  1,  1, -1, -1,  1, -1,  1, -1, -1, -1,  1, -1,  1,
+				    1, -1,  1,  1, -1,  1,  1,  1,  1, -1, -1,  1,  1, -1, -1,  1, -1, -1,  1,
+				    1, -1, -1, -1, -1,  1, -1,  1, -1, -1,  1,  1,  1,  1,  1,  1, -1, -1, -1,
+				   -1,  1, -1,  1,  1,  1,  1,  1,  1, -1,  1,  1, -1,  1,  1, -1,  1, -1, -1,
+				   -1,  1,  1,  1,  1,  1, -1, -1,  1, -1, -1,  1,  1,  1,  1,  1,  1,  1,  1,
+				    1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,  1,  1, -1,  1, -1, -1,
+				   -1,  1,  1, -1,  1,  1, -1,  1,  1,  1, -1,  1,  1, -1,  1,  1,  1,  1,  1,
+				    1, -1, -1,  1,  1, -1,  1, -1, -1, -1,  1, -1, -1,  1,  1, -1,  1, -1,  1,
+				   -1, -1,  1, -1, -1,  1,  1,  1,  1,  1,  1,  1, -1,  1,  1, -1, -1,  1, -1,
+				   -1, -1,  1,  1,  1, -1,  1,  1, -1,  1, -1, -1, -1, -1, -1,  1,  1, -1, -1,
+				    1,  1,  1, -1, -1, -1, -1, -1,  1,  1, -1, -1, -1, -1, -1,  1, -1,  1, -1,
+				    1,  1,  1,  1, -1, -1,  1,  1, -1, -1,  1,  1, -1,  1, -1, -1,  1, -1,  1,
+				   -1, -1,  1, -1,  1, -1,  1, -1,  1,  1, -1,  1,  1, -1,  1,  1, -1, -1, -1,
+				   -1,  1, -1,  1, -1,  1, -1,  1, -1, -1, -1,  1,  1, -1,  1,  1, -1, -1, -1,
+				    1,  1, -1,  1,  1,  1, -1, -1, -1,  1,  1,  1,  1, -1, -1,  1,  1, -1,  1,
+				    1, -1,  1,  1,  1,  1, -1, -1, -1,  1, -1, -1,  1,  1, -1, -1, -1, -1,  1,
+				   -1, -1,  1,  1,  1,  1,  1,  1,  1, -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+				    1,  1,  1, -1,  1, -1, -1,  1, -1,  1,  1,  1,  1,  1, -1, -1,  1,  1,  1,
+				    1,  1, -1, -1, -1, -1,  1,  1,  1,  1,  1, -1,  1,  1, -1,  1, -1,  1, -1,
+				    1,  1,  1, -1,  1,  1,  1, -1,  1, -1,  1,  1,  1,  1, -1, -1,  1, -1, -1,
+				    1, -1, -1,  1,  1,  1,  1, -1, -1, -1, -1, -1,  1, -1, -1, -1,  1, -1,  1,
+				   -1, -1, -1,  1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1, -1,
+				   -1, -1, -1,  1,  1, -1, -1,  1, -1,  1, -1,  1, -1, -1,  1, -1, -1,  1,  1,
+				   -1, -1, -1,  1,  1, -1,  1,  1,  1,  1,  1,  1,  1,  1, -1,  1, -1, -1, -1,
+				   -1, -1,  1,  1, -1, -1, -1, -1,  1,  1,  1,  1, -1, -1,  1, -1, -1,  1,  1,
+				   -1,  1, -1,  1, -1, -1, -1,  1,  1, -1, -1, -1,  1,  1,  1, -1, -1,  1, -1,
+				    1,  1,  1, -1, -1,  1,  1, -1, -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,  1,
+				    1, -1, -1, -1, -1,  1,  1,  1, -1, -1,  1, -1,  1,  1, -1, -1, -1, -1,  1,
+				    1, -1,  1, -1, -1,  1,  1,  1, -1,  1,  1, -1,  1,  1,  1, -1, -1, -1,  1,
+				   -1, -1,  1,  1,  1,  1,  1,  1,  1,  1, -1, -1,  1, -1, -1, -1,  1, -1,  1,
+				   -1, -1,  1,  1, -1, -1,  1,  1,  1,  1, -1, -1,  1,  1,  1, -1,  1, -1, -1,
+				   -1, -1, -1,  1, -1,  1,  1,  1,  1, -1, -1, -1,  1,  1, -1, -1, -1,  1, -1,
+				   -1, -1, -1,  1,  1,  1,  1,  1, -1, -1,  1,  1, -1,  1,  1,  1,  1,  1, -1,
+				    1, -1, -1, -1, -1,  1,  1, -1,  1, -1,  1,  1, -1, -1, -1,  1, -1,  1,  1,
+				   -1,  1,  1,  1,  1,  1,  1,  1,  1,  1, -1,  1,  1, -1, -1,  1, -1, -1, -1,
+				    1, -1, -1, -1, -1,  1,  1, -1, -1, -1, -1,  1,  1, -1,  1, -1,  1,  1,  1,
+				   -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,  1,  1,  1,  1, -1, -1, -1,  1,  1,
+				    1, -1,  1,  1,  1,  1, -1,  1, -1, -1, -1,  1, -1, -1, -1,  1, -1,  1, -1,
+				    1, -1,  1, -1,  1, -1,  1, -1,  1, -1, -1,  1, -1,  1, -1,  1,  1,  1, -1,
+				    1,  1, -1,  1, -1, -1,  1,  1, -1,  1,  1, -1,  1, -1, -1, -1,  1, -1,  1,
+				   -1,  1,  1,  1, -1,  1, -1,  1,  1, -1,  1,  1,  1, -1, -1, -1,  1, -1,  1,
+				   -1, -1, -1, -1, -1, -1,  1, -1,  1, -1,  1,  1, -1, -1, -1,  1, -1,  1, -1,
+				    1, -1, -1, -1, -1,  1, -1, -1,  1,  1,  1,  1,  1,  1, -1, -1,  1, -1,  1,
+				    1, -1,  1,  1,  1,  1, -1,  1, -1,  1, -1,  1,  1, -1,  1, -1,  1, -1,  1,
+				   -1,  1, -1,  1,  1, -1,  1, -1, -1, -1, -1, -1,  1, -1,  1, -1, -1,  1,  1,
+				   -1,  1,  1, -1,  1,  1,  1,  1,  1,  1, -1,  1, -1,  1,  1,  1,  1, -1, -1,
+				    1,  1, -1,  1, -1,  1, -1,  1,  1,  1, -1, -1,  1,  1,  1,  1,  1,  1,  1,
+				    1, -1,  1, -1, -1, -1,  1, -1,  1,  1,  1,  1,  1, -1, -1,  1, -1,  1,  1,
+				   -1, -1, -1,  1,  1,  1, -1,  1, -1, -1,  1, -1, -1, -1, -1, -1,  1,  1, -1,
+				    1, -1, -1, -1, -1, -1,  1,  1,  1,  1,  1,  1,  1,  1,  1, -1,  1,  1,  1,
+				   -1, -1,  1, -1, -1,  1, -1,  1,  1, -1, -1,  1, -1,  1,  1, -1, -1,  1, -1,
+				   -1, -1,  1,  1, -1, -1, -1,  1,  1,  1, -1, -1, -1,  1, -1, -1, -1,  1,  1,
+				    1,  1, -1,  1, -1, -1,  1, -1,  1,  1,  1,  1, -1,  1, -1, -1, -1, -1, -1,
+				    1, -1, -1,  1,  1, -1, -1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,
+				   -1,  1, -1,  1,  1,  1, -1, -1, -1, -1, -1,  1, -1, -1,  1, -1, -1,  1, -1,
+				   -1, -1, -1, -1,  1,  1,  1, -1,  1,  1,  1,  1, -1, -1,  1,  1, -1,  1, -1,
+				   -1, -1,  1,  1,  1,  1,  1,  1,  1, -1,  1, -1, -1,  1,  1, -1, -1, -1, -1,
+				   -1, -1, -1,  1, -1, -1,  1,  1, -1, -1,  1,  1,  1,  1,  1,  1, -1, -1,  1,
+				   -1,  1, -1,  1,  1,  1,  1, -1, -1, -1,  1,  1, -1, -1,  1,  1, -1, -1, -1,
+				   -1, -1,  1, -1, -1,  1,  1, -1,  1, -1, -1,  1,  1, -1, -1,  1,  1,  1,  1,
+				   -1,  1, -1,  1,  1,  1,  1, -1,  1, -1, -1, -1, -1, -1,  1, -1,  1, -1, -1,
+				    1, -1,  1,  1, -1,  1,  1, -1,  1, -1,  1,  1,  1,  1,  1,  1, -1,  1, -1,
+				    1, -1,  1,  1,  1,  1, -1, -1, -1, -1,  1, -1,  1, -1, -1,  1, -1,  1, -1,
+				   -1, -1, -1, -1, -1,  1, -1,  1,  1, -1, -1, -1, -1, -1,  1,  1,  1,  1,  1,
+				   -1,  1,  1,  1,  1, -1,  1,  1, -1,  1,  1, -1, -1, -1, -1, -1, -1,  1,  1,
+				    1, -1,  1,  1, -1, -1,  1, -1,  1, -1,  1, -1,  1,  1, -1,  1,  1,  1, -1};
+
+
+
+
+
+
+				//normalization_factor = 1.41421356;//2.6074;
+				//normalization_factor = 3.010577831579845; //(1 + 2*0.5644)*sqrt(2)
+				normalization_factor = 2.1288; //(1 + 2*0.5644)
+				normalization_factor2 = 2*1.41421356;//2.6074;
+/*				std::vector<gr_complex> dummy;
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(-1,0));
+				dummy.push_back(gr_complex(1,0));
+				dummy.push_back(gr_complex(-1,0));*/
+				for(int i=0;i<(int)(d_M/2);i++){
+					//d_preamble.insert(d_preamble.end(), dummy.begin(), dummy.end());
+					//d_preamble.push_back(fixed_real_pn1[i]);
+					//d_preamble.push_back(gr_complex(0,0));
+					d_preamble_1.push_back(fixed_real_pn1[i%(d_M/4)]);
+					d_preamble_1.push_back(0.0);
+					d_preamble_2.push_back(0.0);
+					d_preamble_2.push_back(gr_complex(0,fixed_real_pn1[(i+d_M/4	)%(d_M/2)]));
+					//d_preamble_2.push_back(gr_complex(fixed_real_pn1[i],0));
+
+				}
+				/*for(int i=0;i<(int)(d_M);i++){
+				std::cout<<d_preamble_1[i]<<std::endl;
+				std::cout<<d_preamble_2[i]<<std::endl;
+				}*/
+				d_preamble_length = d_M*(3+2*d_zero_pads);
+				if(d_extra_pad){
+					d_preamble_length+=d_M;
+				}
+				d_norm_vect2.resize(d_M,-1.0/normalization_factor2);
 			}else{ // standard one vector center preamble [1,-j,-1,j]
 				normalization_factor = 1;
 				std::vector<gr_complex> dummy;
@@ -151,6 +359,7 @@ namespace gr {
 			estimation_point=(((int(d_preamble_length/d_M)-1)/2)+1);
 			//std::cout<<preamble.size()<<std::endl;
 			d_norm_vect.resize(d_M,1.0/normalization_factor);
+
 
 			//d_norm_vect.resize(d_M,1./normalization_factor);
 			// if(extra_pad){
@@ -218,6 +427,30 @@ namespace gr {
 								    	    free16Align( d_sumc_i );
 			if( d_sumc_q )
 								    	    free16Align( d_sumc_q );
+			if( d_starte_i)
+											free16Align( d_starte_i);
+			if( d_starte_q)
+											free16Align( d_starte_q);
+			if( d_start1_i)
+											free16Align( d_start1_i);
+			if( d_start1_q)
+											free16Align( d_start1_q);
+			if( d_start2_i)
+											free16Align( d_start2_i);
+			if( d_start2_q)
+											free16Align( d_start2_q);
+			if( d_estimation_1_i)
+											free16Align( d_estimation_1_i);
+			if( d_estimation_1_q)
+											free16Align( d_estimation_1_q);
+			if( d_estimation_2_i)
+											free16Align( d_estimation_2_i);
+			if( d_estimation_2_q)
+											free16Align( d_estimation_2_q);
+			if( d_estimation_i)
+											free16Align( d_estimation_i);
+			if( d_estimation_q)
+											free16Align( d_estimation_q);
 		}
 
 		void 
@@ -239,15 +472,68 @@ namespace gr {
 				// estimation_data<<"fr "<<fr<<"\t"<<i<<"\t"<<*(start-d_M+i+1)<<"\t"<<(d_preamble[i+d_M])<<"\t"<<d_estimation[i]<<"\t"<<((abs(d_estimation[i])-abs(*(start-d_M+i+1)))>0?"TR":"FA")<<"\n";
 			//d_norm_vect.resize(d_M,1.0/normalization_factor);
 
-				volk_32fc_x2_multiply_conjugate_32fc(&d_conj[0],start, &d_preamble[0],d_M);
+
+
+				// True estimator
+				/*volk_32fc_x2_multiply_conjugate_32fc(&d_conj[0],start, &d_preamble[0],d_M);
 				volk_32fc_magnitude_squared_32f(&d_squared[0],&d_preamble[0],d_M);
 				volk_32f_x2_divide_32f(&d_divide[0],&d_norm_vect[0],&d_squared[0],d_M);
 				volk_32fc_32f_multiply_32fc(&d_estimation[0],&d_conj[0],&d_divide[0],d_M);
+				*/
+
+				volk_32fc_32f_multiply_32fc(&d_conj[0],start,&d_preamble_1[0],d_M);
+				volk_32fc_32f_multiply_32fc(&d_estimation[0],&d_conj[0],&d_norm_vect[0],d_M);
+
+/*
+				std::cout<<"FRAME: "<<std::endl;
+				for(int i=0;i<d_M/2;i++){
+				//	std::cout<<d_estimation[i]<<std::endl;
+					d_estimation[2*i+1 ]= d_estimation[2*i];
 
 
+				}
+
+				for(int i=0;i<d_M;i++){
+								std::cout<<d_estimation[i]<<std::endl;
+
+
+							}
+*/
+
+		/*		volk_32fc_deinterleave_32f_x2(&d_start1_i[0],&d_start1_q[0],start-d_M,d_M);
+				volk_32fc_deinterleave_32f_x2(&d_start2_i[0],&d_start2_q[0],start+d_M,d_M);
+				volk_32f_x2_add_32f(&d_starte_i[0],&d_start1_i[0],&d_start2_i[0],d_M);
+				volk_32f_x2_add_32f(&d_starte_q[0],&d_start1_q[0],&d_start2_q[0],d_M);
+				volk_32f_x2_interleave_32fc(&d_starte[0],&d_starte_i[0],&d_starte_q[0],d_M);
+
+				volk_32fc_x2_multiply_32fc(&d_conj2[0],&d_starte[0],&d_preamble_2[0],d_M);
+				volk_32fc_32f_multiply_32fc(&d_estimation_2[0],&d_conj2[0],&d_norm_vect2[0],d_M);
+
+
+
+
+				volk_32fc_deinterleave_32f_x2(&d_estimation_1_i[0],&d_estimation_1_q[0],&d_estimation_1[0],d_M);
+				volk_32fc_deinterleave_32f_x2(&d_estimation_2_i[0],&d_estimation_2_q[0],&d_estimation_2[0],d_M);
+				volk_32f_x2_add_32f(&d_estimation_i[0],&d_estimation_1_i[0],&d_estimation_2_i[0],d_M);
+				volk_32f_x2_add_32f(&d_estimation_q[0],&d_estimation_1_q[0],&d_estimation_2_q[0],d_M);
+				volk_32f_x2_interleave_32fc(&d_estimation[0],&d_estimation_i[0],&d_estimation_q[0],d_M);
+*/
+				//std::cout<<"FRAME: "<<std::endl;
+				for(int i=0;i<d_M/2;i++){
+				//	std::cout<<d_estimation[i]<<std::endl;
+					d_estimation[2*i+1 ]= d_estimation[2*i];
+
+
+				}
+
+/*				for(int i=0;i<d_M;i++){
+								std::cout<<d_estimation[i]<<std::endl;
+
+
+							}*/
 
 			// // equalizer_data<<"----------------------------------"<<"\n";
-			fr++;		
+			//fr++;
 		}
 
 		void 

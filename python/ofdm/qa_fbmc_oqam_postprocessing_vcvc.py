@@ -79,7 +79,7 @@ class qa_fbmc_oqam_postprocessing_vcvc (gr_unittest.TestCase):
 		# check data
 		result_data = dst.data()
 		# print snk1.data()
-		self.assertComplexTuplesAlmostEqual(expected_result,result_data,7)
+		self.assertComplexTuplesAlmostEqual(expected_result,result_data,5)
 
 	def test_004_t (self):
 		# set up fg

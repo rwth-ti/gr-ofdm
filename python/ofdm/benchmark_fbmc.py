@@ -166,9 +166,11 @@ class fbmc_benchmark (gr.top_block):
       print " Noise St. Dev. %d" % (noise_sigma)
       awgn_chan = blocks.add_cc()
       #awgn_noise_src = ofdm.complex_white_noise( 0.0, noise_sigma )
+      #noise_sigma = 0.000000000001
       awgn_noise_src = analog.fastnoise_source_c(analog.GR_GAUSSIAN, noise_sigma, 0, 8192)
       self.connect( awgn_noise_src, (awgn_chan,1) )
-      self.connect( awgn_chan, self.dst )
+      self.connect( awgn_chan,self.dst )
+      #self.connect( awgn_chan, blocks.skiphead( gr.sizeof_gr_complex, 3* config.fft_length ),self.dst )
       self.dst = awgn_chan
       
 
@@ -218,6 +220,8 @@ class fbmc_benchmark (gr.top_block):
       print "Scatterplot enabled"
 
     self.connect( self.txpath,self.dst )
+    #log_to_file( self, self.txpath, "data/fbmc_rx_input.compl" )
+
 
 
     print "Hit Strg^C to terminate"

@@ -49,10 +49,15 @@ namespace gr {
                  * class. ofdm::allocation_src::make is the public interface for
                  * creating new instances.
                  */
-                static sptr make(int subcarriers, int data_symbols, char *address, bool coding);
+                static sptr make(int subcarriers, int data_symbols, bool coding, char *address, char *fb_address);
 
                 virtual void set_allocation(std::vector<uint8_t> bitloading,
                                             std::vector<float> power) = 0;
+                virtual void set_allocation_scheme(int allocation_scheme) = 0;
+                virtual void set_power_limit(int power_limit) = 0;
+                virtual void set_data_rate(int data_rate) = 0;
+                virtual void set_gap(float gap) = 0;
+
         };
 
     } // namespace ofdm

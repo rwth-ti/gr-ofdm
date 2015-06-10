@@ -137,5 +137,7 @@ install(FILES
     vector_padding_dc_null.h
     snr_estimator_dc_null.h
     vector_mask_dc_null.h
-    lms_phase_tracking_dc_null.h DESTINATION include/ofdm
+    lms_phase_tracking_dc_null.h 
+    feedback_sink_vf.h
+    vector_element_vff.h DESTINATION include/ofdm
 )

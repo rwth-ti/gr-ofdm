@@ -144,7 +144,9 @@ list(APPEND ofdm_sources
     vector_padding_dc_null_impl.cc
     snr_estimator_dc_null_impl.cc
     vector_mask_dc_null_impl.cc
-    lms_phase_tracking_dc_null_impl.cc )
+    lms_phase_tracking_dc_null_impl.cc
+    feedback_sink_vf_impl.cc
+    vector_element_vff_impl.cc)
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm

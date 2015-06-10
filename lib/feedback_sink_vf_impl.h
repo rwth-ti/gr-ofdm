@@ -1,8 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 Institute for Theoretical Information Technology,
- *                RWTH Aachen University
- *                www.ti.rwth-aachen.de
+ * Copyright 2014 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,39 +18,34 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_SINR_ESTIMATOR_IMPL_H
-#define INCLUDED_OFDM_SINR_ESTIMATOR_IMPL_H
+#ifndef INCLUDED_OFDM_FEEDBACK_SINK_VF_IMPL_H
+#define INCLUDED_OFDM_FEEDBACK_SINK_VF_IMPL_H
 
-#include <ofdm/sinr_estimator.h>
+#include <ofdm/feedback_sink_vf.h>
+#include <zmq.hpp>
 
-#include <boost/shared_array.hpp>
-
-
-/*!
-  Implementation of Milan's SNR estimation,
-  taking the 1st and 2nd preamble as input and giving
-  per subcarrier SINR estimate at the output (only on nulled subcarriers).
- */
 
 namespace gr {
   namespace ofdm {
 
-    class sinr_estimator_impl : public sinr_estimator
+    class feedback_sink_vf_impl : public feedback_sink_vf
     {
      private:
-    	  int   d_vlen;
-    	  int	d_skip;
-    	  //std::vector<int>   d_load_index;
-    	  boost::shared_array<float> d_taps;
-    	  boost::shared_array<float> d_taps1;
-          int d_dc_null;
+
+      size_t d_subc;
+      zmq::context_t  *d_context;
+      zmq::socket_t   *d_socket;
+
 
      public:
-      sinr_estimator_impl(int vlen, int skip, int dc_null);
-      ~sinr_estimator_impl();
+      feedback_sink_vf_impl(size_t subc, char *address);
+      ~feedback_sink_vf_impl();
+
+      void send_snr(short *id, float *snr);
 
       // Where all the action really happens
-      int work(int noutput_items,
+      int general_work(int noutput_items,
+               gr_vector_int &ninput_items,
 	       gr_vector_const_void_star &input_items,
 	       gr_vector_void_star &output_items);
     };
@@ -60,5 +53,5 @@ namespace gr {
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_SINR_ESTIMATOR_IMPL_H */
+#endif /* INCLUDED_OFDM_FEEDBACK_SINK_VF_IMPL_H */
 

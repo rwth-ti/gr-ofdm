@@ -540,7 +540,6 @@ class receive_path(gr.hier_block2):
       id_phase = gr.complex_to_arg(dsubc)
       self.connect( id_mult, id_phase )
 
-      log_to_file( self, id_phase, "data/id_phase.float" )
 
       est=ofdm.LS_estimator_straight_slope(dsubc)
       self.connect(id_phase,est)
@@ -548,8 +547,6 @@ class receive_path(gr.hier_block2):
       slope=blocks.multiply_const_ff(1e6/2/3.14159265)
       self.connect( (est,0), slope )
 
-      log_to_file( self, slope, "data/slope.float" )
-      log_to_file( self, (est,1), "data/offset.float" )
 
     # ------------------------------------------------------------------------ #
 
@@ -581,7 +578,6 @@ class receive_path(gr.hier_block2):
       self.connect(rxs_trigger,(rxs_sampler,1))
       self.connect(self.input,rxs_sampler,rxs_window,
                    rxs_spectrum,rxs_mag,rxs_avg,rxs_logdb, rxs_decimate_rate)
-      log_to_file( self, rxs_decimate_rate, "data/psd_input.float" )
 
 
     #output branches
@@ -661,6 +657,14 @@ class receive_path(gr.hier_block2):
           self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
           self.connect(snr_mst,blocks.keep_one_in_n(gr.sizeof_float,self.keep_frame_n) ,self.zmq_probe_snr)
 
+    else:
+          snr_vec_elem = self._snr_vec_elem = ofdm.vector_element_vff(config.subcarriers,1)
+          self.zmq_probe_snr = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5555")
+          self.connect(self._sinr_measurement,  snr_vec_elem,blocks.keep_one_in_n(gr.sizeof_float,20), self.zmq_probe_snr)
+          #self.connect((self._sinr_measurement,1), blocks.keep_one_in_n(gr.sizeof_float,20), self.zmq_probe_snr)
+
+          self.zmq_probe_ber = zeromq.pub_sink(gr.sizeof_float, 1, "tcp://*:5556")
+          self.connect(ber_sampler,blocks.keep_one_in_n(gr.sizeof_float,20) ,self.zmq_probe_ber)
 
 
   ##############################################################################
@@ -831,10 +835,21 @@ class receive_path(gr.hier_block2):
         self.connect(self.symbol_output,snr_est_filt_2)
         self.connect(self.frame_trigger,(snr_est_filt_2,1))
 
+
+
         sinrm = self._sinr_measurement = milans_sinr_sc_estimator2( vlen, vlen, L )
 
         self.connect(snr_est_filt,sinrm)
         self.connect(snr_est_filt_2,(sinrm,1))
+
+        self.feedback_sink = ofdm.feedback_sink_vf(vlen,"tcp://*:3322")
+        self.connect(self.id_dec, self.feedback_sink)
+
+
+
+        self.connect((sinrm,1),blocks.null_sink(gr.sizeof_float))
+        self.connect((sinrm,0),(self.feedback_sink,1))
+
         if self._options.log:
             log_to_file(self, (self._sinr_measurement,0), "data/milan_sinr_sc.float")
             log_to_file(self, (self._sinr_measurement,1), "data/milan_snr.float")
@@ -901,6 +916,9 @@ class receive_path(gr.hier_block2):
 
   def set_scatterplot_subc(self, subc):
      return self._scatter_vec_elem.set_element(int(subc))
+
+  def set_snr_subc(self, subc):
+     return self._snr_vec_elem.set_element(int(subc))
 
   def add_options(normal, expert):
     """

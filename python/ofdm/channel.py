@@ -229,6 +229,11 @@ class itpp_channel(gr.hier_block2):
 
     self.connect(self, fad_chan, self)
 
+    fad_chan.set_norm_doppler( pow(10,-10) )
+
+  def set_norm_doppler(self, doppler):
+      self.fad_chan.set_norm_doppler( doppler )
+
   def set_channel_profile(self, profile):
       lookup_profile = {'ITU Vehicular A' : ofdm.ITU_Vehicular_A,
                         'ITU Vehicular B' : ofdm.ITU_Vehicular_B,

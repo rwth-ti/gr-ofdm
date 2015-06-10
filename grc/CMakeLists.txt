@@ -122,5 +122,8 @@ install(FILES
     ofdm_vector_padding_dc_null.xml
     ofdm_snr_estimator_dc_null.xml
     ofdm_vector_mask_dc_null.xml
-    ofdm_lms_phase_tracking_dc_null.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_lms_phase_tracking_dc_null.xml
+    ofdm_feedback_sink_vf.xml
+    ofdm_vector_element_vff.xml 
+	DESTINATION share/gnuradio/grc/blocks
 )

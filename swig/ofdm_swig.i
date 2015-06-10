@@ -129,6 +129,8 @@
 #include "ofdm/snr_estimator_dc_null.h"
 #include "ofdm/vector_mask_dc_null.h"
 #include "ofdm/lms_phase_tracking_dc_null.h"
+#include "ofdm/feedback_sink_vf.h"
+#include "ofdm/vector_element_vff.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -420,3 +422,7 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, snr_estimator_dc_null);
 GR_SWIG_BLOCK_MAGIC2(ofdm, vector_mask_dc_null);
 %include "ofdm/lms_phase_tracking_dc_null.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, lms_phase_tracking_dc_null);
+%include "ofdm/feedback_sink_vf.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, feedback_sink_vf);
+%include "ofdm/vector_element_vff.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, vector_element_vff);

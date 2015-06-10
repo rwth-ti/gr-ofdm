@@ -202,7 +202,7 @@
     <item row="2" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabTransmitter">
        <attribute name="title">
@@ -654,20 +654,20 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Gap:</string>
+            <string>Target BER:</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
           <widget class="QSlider" name="horizontalSliderGap">
            <property name="minimum">
-            <number>10000</number>
+            <number>0</number>
            </property>
            <property name="maximum">
-            <number>200000</number>
+            <number>5000000</number>
            </property>
            <property name="value">
-            <number>81954</number>
+            <number>9998</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -697,7 +697,7 @@
             </size>
            </property>
            <property name="text">
-            <string>8.19</string>
+            <string>0.001</string>
            </property>
            <property name="placeholderText">
             <string/>

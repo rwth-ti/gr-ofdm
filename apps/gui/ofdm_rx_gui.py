@@ -349,21 +349,21 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_tx.request("set_data_rate",[bit_data_rate])
 
     def slide_gap(self, gap):
-        displayed_gap = gap/10000.0
+        displayed_gap = gap/10000000.0
         self.gui.lineEditGap.setText(QtCore.QString.number(displayed_gap,'f',4))
         self.gap = gap
         self.rpc_mgr_tx.request("set_gap",[displayed_gap])
 
     def edit_gap(self):
         gap = self.lineEditGap.text().toFloat()[0]
-        gap = min(gap,20.0)
-        gap = max(gap,1.0)
+        gap = min(gap,0.5)
+        gap = max(gap,1e-10)
         self.gui.lineEditGap.setText(QtCore.QString("%1").arg(gap))
         self.gap = gap
         # block signals to avoid feedback loop
         self.gui.horizontalSliderGap.blockSignals(True)
         # note slider positions are int (!)
-        self.gui.horizontalSliderGap.setValue(gap*10000.0)
+        self.gui.horizontalSliderGap.setValue(gap*10000000.0)
         self.gui.horizontalSliderGap.blockSignals(False)
         self.rpc_mgr_tx.request("set_gap",[self.gap])
 

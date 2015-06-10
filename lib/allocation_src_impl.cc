@@ -106,6 +106,8 @@ namespace gr {
         //set_max_output_buffer (3, 2*sizeof(gr_complex)*(1+d_data_symbols)*d_subcarriers);
         set_min_noutput_items((1+d_data_symbols));
         //set_max_noutput_items((1+d_data_symbols)*d_subcarriers);
+
+        init_gap_map();
     }
 
     /*
@@ -286,7 +288,7 @@ namespace gr {
             else break;
         }
 
-		if(counter<180)
+        if(counter<180)
         {
             // default data modulation scheme is BPSK
             d_allocation.bitloading.clear();
@@ -307,8 +309,10 @@ namespace gr {
             if(inv_snr[i]!=0)
             {
                 d_allocation.power.push_back(sqrt(level - inv_snr[i])/d_amplitude_abs);
-                if(d_feedback_information.snr[i] > 1659.6) d_allocation.bitloading[i] = 8;
-                else d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*d_feedback_information.snr[i])/ d_gap ));
+                //if(d_feedback_information.snr[i] > 1659.6) d_allocation.bitloading[i] = 8;
+                //else 
+                    d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*d_feedback_information.snr[i])/ d_gap ));
+                    if(d_allocation.bitloading[i]>8) d_allocation.bitloading[i]=8;
             }
             else
             {
@@ -316,7 +320,7 @@ namespace gr {
                 d_allocation.bitloading[i] = 0;
             }
         }
-		}
+        }
 
         // clear and write power output vector
         d_allocation_out.power = d_allocation.power;
@@ -407,6 +411,30 @@ namespace gr {
         d_bitcount_out = sum_of_elems*d_data_symbols;
     }
 
+    void
+    allocation_src_impl::init_gap_map()
+    {
+        d_gap_map[0.00705930124968]=17.6861667633;
+        d_gap_map[0.00145799992606]=19.6811962128;
+        d_gap_map[0.000147700062371]=21.6702270508;
+        d_gap_map[0.49996471405]=-65.7821578979;
+        d_gap_map[0.499103397131]=-4.07673358917;
+        d_gap_map[0.493141263723]=-2.78180670738;
+        d_gap_map[0.47038424015]=-0.984365165234;
+        d_gap_map[0.420552909374]=1.47982990742;
+        d_gap_map[0.360013961792]=3.14165472984;
+        d_gap_map[0.295007318258]=5.20545005798;
+        d_gap_map[0.232737958431]=6.37246417999;
+        d_gap_map[0.177854716778]=7.8739490509;
+        d_gap_map[0.128163740039]=9.68508338928;
+        d_gap_map[0.0842084139585]=11.6712675095;
+        d_gap_map[0.0474758036435]=13.6737070084;
+        d_gap_map[0.0214185025543]=15.6705417633;
+        d_gap_map[4.7000826271e-06]=23.6781864166;
+        d_gap_map[1.00000001335e-10]=25.6884059906;
+
+    }
+
 
     void
     allocation_src_impl::set_allocation_scheme(int allocation_scheme)
@@ -429,7 +457,12 @@ namespace gr {
     void
     allocation_src_impl::set_gap(float gap)
     {
-        d_gap = pow(10, gap/10.0);
+        //d_gap = pow(10, gap/10.0);
+        std::cout<<std::endl<<gap<<std::endl<<d_gap_map.lower_bound(gap)->first<<"->" <<d_gap_map.lower_bound(gap)->second;
+        d_gap = pow(10,((d_gap_map.lower_bound(gap)->second)/10))/(pow(2,4)-1);
+        std::cout<<"Gap:"<<d_gap<<std::endl;
+
+
     }
 
 

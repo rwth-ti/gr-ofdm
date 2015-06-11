@@ -8,4 +8,4 @@ else
     . $PWD/environment_release
 fi
 
-test_demapper.py
+../python/test_demapper.py

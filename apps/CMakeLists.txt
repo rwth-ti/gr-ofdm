@@ -36,6 +36,8 @@ install(
     run_usrp_rx.sh
     run_usrp_tx_gui.sh
     run_usrp_tx.sh
+	run_test_demapper_fbmc.sh
+	run_grc.sh
     DESTINATION bin
 )
 

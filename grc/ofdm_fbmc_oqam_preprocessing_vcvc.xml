@@ -1,0 +1,35 @@
+<block>
+  <name>OQAM Preprocessing</name>
+  <key>ofdm_fbmc_oqam_preprocessing_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_oqam_preprocessing_vcvc($M, $offset, $theta_sel)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>raw</type>    
+  </param>
+  <param>
+    <name>Offset</name>
+    <key>offset</key>
+    <value>0</value>
+    <type>int</type>    
+  </param>
+  <param>
+    <name>Theta selection</name>
+    <key>theta_sel</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </source>
+</block>

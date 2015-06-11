@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##OFDM RMS Amplifier
+###################################################
+ -->
+<block>
+  <name>OFDM RMS Amplifier</name>
+  <key>ofdm_rms_amplifier</key>
+  <category>ofdm</category>
+  <import>from ofdm.ofdm_rms_amplifier_grc import ofdm_rms_amplifier</import>
+  <make>ofdm_rms_amplifier($amplitude, $subcarriers)</make>
+  <callback>set_rms_amplitude($amplitude)</callback>
+  <param>
+    <name>Amplitude</name>
+    <key>amplitude</key>
+    <value>1</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+  <doc>OFDM RMS Amplifier
+	Wrapper Block
+  </doc>
+</block>

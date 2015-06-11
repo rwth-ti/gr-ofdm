@@ -59,7 +59,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.setWindowTitle("Transmitter")
 
         #Plots
-        self.gui.qwtPlotPowerallocation.setTitle("Subcarrier Powerallocation")
+        self.gui.qwtPlotPowerallocation.setTitle("Subcarrier Power Allocation")
         self.gui.qwtPlotPowerallocation.setAxisTitle(Qwt.QwtPlot.xBottom, "Subcarrier Index")
         self.gui.qwtPlotPowerallocation.setAxisScale(Qwt.QwtPlot.xBottom, -99, 100)
         self.gui.qwtPlotPowerallocation.setAxisScale(Qwt.QwtPlot.yLeft, 0, 3)

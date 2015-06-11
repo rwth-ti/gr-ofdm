@@ -39,23 +39,25 @@ namespace gr {
   namespace ofdm {
 
     mm_frequency_estimator::sptr
-    mm_frequency_estimator::make(int vlen, int identical_parts)
+    mm_frequency_estimator::make(int vlen, int identical_parts, int scale, bool fbmc)
     {
       return gnuradio::get_initial_sptr
-        (new mm_frequency_estimator_impl(vlen, identical_parts));
+        (new mm_frequency_estimator_impl(vlen, identical_parts, scale, fbmc));
     }
 
     /*
      * The private constructor
      */
-    mm_frequency_estimator_impl::mm_frequency_estimator_impl(int vlen, int identical_parts)
+    mm_frequency_estimator_impl::mm_frequency_estimator_impl(int vlen, int identical_parts, int scale=1, bool fbmc)
       : gr::sync_block("mm_frequency_estimator",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen),
               gr::io_signature::make(1, 1, sizeof(float)))
     	, d_vlen(vlen)
     	, d_L(identical_parts)
     	, d_M(vlen/identical_parts)
+    	, d_O(scale)
     	, d_weights(identical_parts/2, 0.0)
+    	, d_fbmc(fbmc)
     {
     	assert(d_M*d_L == vlen);
 
@@ -94,18 +96,34 @@ namespace gr {
     	  for(int i = 0; i < noutput_items; ++i, in += d_vlen){
 
     	    // compute correlations between identical parts
+    		  if (d_fbmc==1)
+    		  {
     	    for(int m = 1; m <= H; ++m){
 
     	      gr_complexd acc(0.0,0.0);
     	      const int shift = m*d_M;
 
     	      for(int k = shift; k < d_vlen; ++k){
-    	        acc += in[k]*std::conj(in[k-shift])*static_cast<gr_complex>(pow(-1, m));
+    	        acc += in[k]*std::conj(in[k-shift]);
     	        //*static_cast<gr_complex>(pow(-1, m)) added due to DC nulling and shifting of the M&M sequence
     	      }
 
     	      R[m] = acc;
     	    }
+    		  }
+    		  else
+    		  {    	    for(int m = 1; m <= H; ++m){
+
+        	      gr_complexd acc(0.0,0.0);
+        	      const int shift = m*d_M;
+
+        	      for(int k = shift; k < d_vlen; ++k){
+        	        acc += in[k]*std::conj(in[k-shift])*static_cast<gr_complex>(pow(-1, m));
+        	        //*static_cast<gr_complex>(pow(-1, m)) added due to DC nulling and shifting of the M&M sequence
+        	      }
+
+        	      R[m] = acc;
+        	    }}
 
     	    // estimate the frequency offset
     	    double est = 0.0;
@@ -115,7 +133,7 @@ namespace gr {
     	      est += d_weights[m-1] * phase_diff; // (argR[m] - argR[m-1]);
     	    }
 
-    	    est = d_L / two_pi * est;
+    	    est = d_L / two_pi * est*d_O + (d_O-1)/2.0;
 
     	    out[i] = static_cast<float>(est);
 

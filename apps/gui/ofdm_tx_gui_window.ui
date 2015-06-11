@@ -318,7 +318,7 @@
    </layout>
    <zorder>qwtPlotBitloading</zorder>
    <zorder>groupBox</zorder>
-   <zorder>qwtPlotPowerallocation</zorder>
+   <zorder>qwtPlotPower allocation</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

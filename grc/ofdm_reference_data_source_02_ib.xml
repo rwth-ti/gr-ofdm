@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <block>
-  <name>reference_data_source_02_ib</name>
+  <name>Reference Data Source</name>
   <key>ofdm_reference_data_source_02_ib</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.reference_data_source_02_ib($&ref_data)</make>
+  <make>ofdm.reference_data_source_02_ib($ref_data)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+	<name>Reference Data</name>
+    <key>ref_data</key>
+    <type>char_vector</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -22,8 +22,12 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>in_id</name>
+    <type>short</type>
+  </sink>
+  <sink>
+    <name>in_cnt</name>
+    <type>int</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -32,7 +36,7 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>out_bits</name>
+    <type>char</type>
   </source>
 </block>

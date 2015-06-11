@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>dynamic_trigger_ib</name>
+  <name>Dynamic Trigger</name>
   <key>ofdm_dynamic_trigger_ib</key>
   <category>ofdm</category>
   <import>import ofdm</import>
@@ -11,9 +11,17 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>First Or Last</name>
+    <key>first_or_last</key>
+    <type>enum</type>
+    <option>
+      <name>True</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>False</name>
+      <key>0</key>
+    </option>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +31,7 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>int</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +41,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>byte</type>
   </source>
 </block>

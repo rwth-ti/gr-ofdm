@@ -1,20 +1,69 @@
 <?xml version="1.0"?>
 <block>
-  <name>viterbi_combined_fb</name>
+  <name>Viterbi Combined</name>
   <key>ofdm_viterbi_combined_fb</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.viterbi_combined_fb($&FSM, $K, $S0, $SK, $D, $chunkdivisor, $&TABLE, $TYPE)</make>
+  <make>ofdm.viterbi_combined_fb(ofdm.fsm($fsm_args), $K, $init_state, $final_state, $dim, $chunkdivisor, $table, $metric_type)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
-  <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
-  </param>
+	<param>
+		<name>FSM Args</name>
+		<key>fsm_args</key>
+		<type>raw</type>
+	</param>
+	<param>
+		<name>Block Size</name>
+		<key>K</key>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Initial State</name>
+		<key>init_state</key>
+		<value>0</value>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Final State</name>
+		<key>final_state</key>
+		<value>-1</value>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Dimensionality</name>
+		<key>dim</key>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Chunk Divisor</name>
+		<key>chunkdivisor</key>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Constellation</name>
+		<key>table</key>
+		<type>float_vector</type>
+	</param>
+	<param>
+		<name>Metric Type</name>
+		<key>metric_type</key>
+		<type>enum</type>
+		<option>
+			<name>Euclidean</name>
+			<key>ofdm.TRELLIS_EUCLIDEAN</key>
+		</option>
+		<option>
+			<name>Hard Symbol</name>
+			<key>ofdm.TRELLIS_HARD_SYMBOL</key>
+		</option>
+		<option>
+			<name>Hard Bit</name>
+			<key>ofdm.TRELLIS_HARD_BIT</key>
+		</option>
+	</param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
@@ -23,7 +72,11 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>int</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +86,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>byte</type>
   </source>
 </block>

@@ -67,9 +67,9 @@ namespace gr {
         {
     	std::vector<int> out_sig(5);
         out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(int);                               // bitcount
+        out_sig[1] = sizeof(float)*subcarriers;                 // power
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(float)*subcarriers;                 // power
+        out_sig[3] = sizeof(int);                				// bitcount
         out_sig[4] = sizeof(int);                               // bitcount
         set_output_signature(io_signature::makev(5,5,out_sig));
         }
@@ -77,9 +77,9 @@ namespace gr {
         {
     	std::vector<int> out_sig(4);
         out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(int);                               // bitcount
+        out_sig[1] = sizeof(float)*subcarriers;                 // power
         out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(float)*subcarriers;                 // power
+        out_sig[3] = sizeof(int);                				// bitcount
         set_output_signature(io_signature::makev(4,4,out_sig));
         }
 
@@ -205,9 +205,9 @@ namespace gr {
         gr::thread::scoped_lock guard(d_mutex);
 
         short *out_id = (short *) output_items[0];
-        int *out_bitcount = (int *) output_items[1];
+        int *out_bitcount = (int *) output_items[3];
         uint8_t *out_bitloading = (uint8_t *) output_items[2];
-        float *out_power = (float *) output_items[3];
+        float *out_power = (float *) output_items[1];
         int *out_modulbitcount = (int *) output_items[4];
 
         if (d_coding)
@@ -237,33 +237,29 @@ namespace gr {
 			}
         else
 		for (int i = 0; i < (noutput_items); i++) {
-					// send the allocation to Rx
-					send_allocation();
+				// send the allocation to Rx
+				send_allocation();
 
-					// now generate outputs
-					out_id[i] = d_allocation_out.id;
-					out_bitcount[i] = d_bitcount_out;
-					//FIXME: probably dirty hack
-					// output vectors data (bpsk is used for id)
-					int bl_idx = i*d_subcarriers;
-					memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
-					// output 1 vector for id and the rest for data
-					int p_idx = i*d_subcarriers;
-					memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
+				// now generate outputs
+				out_id[i] = d_allocation_out.id;
+				out_bitcount[i] = d_bitcount_out;
+				//FIXME: probably dirty hack
+				// output vectors data (bpsk is used for id)
+				int bl_idx = i*d_subcarriers;
+				memcpy(&out_bitloading[bl_idx], &d_allocation_out.bitloading[0], sizeof(uint8_t)*d_subcarriers);
+				// output 1 vector for id and the rest for data
+				int p_idx = i*d_subcarriers;
+				memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
 
-					//increase frame id, [0..255]
-					d_allocation.id++;
-					if (d_allocation.id > 255) {
-						d_allocation.id = 0;
-					}
-					d_allocation_out.id = d_allocation.id;
+				//increase frame id, [0..255]
+				d_allocation.id++;
+				if (d_allocation.id > 255) {
+					d_allocation.id = 0;
 				}
-
-
+				d_allocation_out.id = d_allocation.id;
+			}
         return noutput_items;
     }
-
-
   } /* namespace ofdm */
 } /* namespace gr */
 

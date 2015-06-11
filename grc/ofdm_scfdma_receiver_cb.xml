@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<block>
+  <name>SC-FDMA Receiver</name>
+  <key>ofdm_scfdma_receiver_cb</key>
+  <category>SC-FDMA</category>
+  <import>import ofdm</import>
+  <make>ofdm.scfdma_receiver_cb($N, $M, $indices, $mapping, $modulation, $cp_ratio)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+  <name>N</name>
+  <key>N</key>
+  <value>N</value>
+  <type>int</type>
+  </param>
+  <param>
+  <name>M</name>
+  <key>M</key>
+  <value>M</value>
+  <type>int</type>
+  </param>
+  <param>
+    <name>Num Users</name>
+    <key>num_users</key>
+    <value>len(indices)</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Start indices</name>
+    <key>indices</key>
+    <value>indices</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Mapping</name>
+    <key>mapping</key>
+    <type>enum</type>
+    <option>
+      <name>LFDMA</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>DFDMA</name>
+      <key>1</key>
+    </option>
+  </param>
+  <param>
+    <name>modulation</name>
+    <key>modulation</key>
+    <value>modulation</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>cp_ratio</name>
+    <key>cp_ratio</key>
+    <value>cp_ratio</value>
+    <type>raw</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+     * name (an identifier for the GUI)
+     * type
+     * vlen
+     * optional (set to 1 for optional inputs) -->
+  <sink>
+  <name>in</name>
+  <type>complex</type>
+  <vlen>1</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+     * name (an identifier for the GUI)
+     * type
+     * vlen
+     * optional (set to 1 for optional inputs) -->
+  <source>
+  <name>out</name>
+  <type>byte</type>
+  <vlen>1</vlen>
+  <nports>$num_users</nports>
+  </source>
+</block>

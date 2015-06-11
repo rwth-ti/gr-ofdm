@@ -10,5 +10,5 @@ fi
 
 ofdm_tx_gui.py &
 
-tx.py -f 2.45G --bandwidth=1M --fft-length=256 --subcarriers=200 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
+tx.py  --bandwidth=1M --fft-length=256 --subcarriers=200 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14
 

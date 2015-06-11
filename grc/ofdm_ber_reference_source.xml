@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##OFDM BER Reference Source
+###################################################
+ -->
+<block>
+  <name>OFDM BER Reference Source</name>
+  <key>ofdm_ber_reference_source</key>
+  <category>ofdm</category>
+  <import>import ofdm</import>
+  <make>ofdm.ber_reference_source_grc($subcarriers, $data_blocks)</make>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Data Blocks</name>
+    <key>data_blocks</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>short</type>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>int</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+  <doc>OFDM BER Reference Source
+	Wrapper Block
+  </doc>
+</block>

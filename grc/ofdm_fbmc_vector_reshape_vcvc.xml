@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<block>
+  <name>Vector Reshape</name>
+  <key>ofdm_fbmc_vector_reshape_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_vector_reshape_vcvc($len_in, $len_out)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Input Length</name>
+    <key>len_in</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Output Length</name>
+    <key>len_out</key>
+    <type>raw</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$len_in</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$len_out</vlen>
+  </source>
+</block>

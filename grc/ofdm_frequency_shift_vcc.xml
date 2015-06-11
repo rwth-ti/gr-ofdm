@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>frequency_shift_vcc</name>
+  <name>Frequency Shift</name>
   <key>ofdm_frequency_shift_vcc</key>
   <category>ofdm</category>
   <import>import ofdm</import>
@@ -11,9 +11,19 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Sensitivity</name>
+    <key>sensitivity</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Cyclic Prefix Length</name>
+    <key>cp_length</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +33,16 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
+  </sink>
+    <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+    <sink>
+    <name>in</name>
+    <type>byte</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +52,7 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </source>
 </block>

@@ -36,7 +36,6 @@ install(FILES
     bit_position_dependent_ber.h
     calc_metric.h
     channel_equalizer_mimo_2.h
-    channel_equalizer_mimo_12.h
     channel_equalizer_mimo_3.h
     channel_equalizer_mimo.h
     channel_equalizer.h
@@ -137,5 +136,24 @@ install(FILES
     vector_padding_dc_null.h
     snr_estimator_dc_null.h
     vector_mask_dc_null.h
-    lms_phase_tracking_dc_null.h DESTINATION include/ofdm
+    lms_phase_tracking_dc_null.h
+    midamble_insert.h 
+    fbmc_oqam_preprocessing_vcvc.h
+    fbmc_oqam_postprocessing_vcvc.h
+    fbmc_beta_multiplier_vcvc.h
+    fbmc_separate_vcvc.h
+    fbmc_snr_estimator.h
+    fbmc_polyphase_network_vcvc.h
+    fbmc_postprocess_CTF_estimate.h
+    fbmc_vector_copy_vcvc.h
+    fbmc_junction_vcvc.h
+    fbmc_subchannel_processing_vcvc.h
+    fbmc_weighted_spreading_vcvc.h
+    fbmc_weighted_despreading_vcvc.h
+    fbmc_asymmetrical_vector_padding_vcvc.h
+    fbmc_asymmetrical_vector_mask_vcvc.h
+    scfdma_subcarrier_mapper_vcvc.h
+    scfdma_subcarrier_demapper_vcvc.h
+    add_vcc.h
+    fbmc_subchannel_processing_mu_vcvc.h DESTINATION include/ofdm
 )

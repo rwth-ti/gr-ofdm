@@ -1,29 +1,71 @@
 <?xml version="1.0"?>
 <block>
-  <name>vector_sampler</name>
+  <name>Vector Sampler</name>
   <key>ofdm_vector_sampler</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.vector_sampler($itemsize, $vlen)</make>
+  <make>ofdm.vector_sampler($type.size*$itemsize, $vlen)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
-  <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+<param>
+    <name>IO Type</name>
+    <key>type</key>
+    <type>enum</type>
+    <option>
+      <name>Complex</name>
+      <key>complex</key>
+      <opt>size:gr.sizeof_gr_complex</opt>
+    </option>
+    <option>
+      <name>Float</name>
+      <key>float</key>
+      <opt>size:gr.sizeof_float</opt>
+    </option>
+    <option>
+      <name>Int</name>
+      <key>int</key>
+      <opt>size:gr.sizeof_int</opt>
+    </option>
+    <option>
+      <name>Short</name>
+      <key>short</key>
+      <opt>size:gr.sizeof_short</opt>
+    </option>
+    <option>
+      <name>Byte</name>
+      <key>byte</key>
+      <opt>size:gr.sizeof_char</opt>
+    </option>
   </param>
-
+  <param>
+    <name>itemsize</name>
+    <key>itemsize</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <check>$vlen &gt; 0</check>
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
        * type
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>iptr</name>
+    <type>$type</type>
+    <vlen>$itemsize</vlen>
+  </sink>
+  <sink>
+    <name>trigger</name>
+    <type>byte</type>
+    <vlen>1</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -32,7 +74,8 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>optr</name>
+    <type>$type</type>
+    <vlen>$itemsize*$vlen</vlen>
   </source>
 </block>

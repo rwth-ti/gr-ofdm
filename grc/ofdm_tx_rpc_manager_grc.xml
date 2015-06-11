@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##Tx RPC Manager
+###################################################
+ -->
+<block>
+  <name>Tx RPC Manager</name>
+  <key>tx_rpc_manager</key>
+  <category>ofdm</category>
+  <import>from ofdm.tx_rpc_manager_grc import tx_rpc_manager</import>
+  <make>tx_rpc_manager($fft_length, $subcarriers, $data_blocks, $frame_length, $cp_length, $tx_freq, $bandwidth)</make>
+  <param>
+    <name>FFT Length</name>
+    <key>fft_length</key>
+    <value>fft_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>subcarriers</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Data Blocks</name>
+    <key>data_blocks</key>
+    <value>data_blocks</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Length</name>
+    <key>frame_length</key>
+    <value>frame_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CP Length</name>
+    <key>cp_length</key>
+    <value>cp_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Tx Frequency</name>
+    <key>tx_freq</key>
+    <value>tx_freq</value>
+    <type>float</type>
+  </param>
+    <param>
+    <name>Bandwidth</name>
+    <key>bandwidth</key>
+    <value>bandwidth</value>
+    <type>int</type>
+  </param>
+  <doc>Tx RPC Manager
+	Wrapper Block
+  </doc>
+</block>

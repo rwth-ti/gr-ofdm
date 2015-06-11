@@ -29,6 +29,7 @@ from gnuradio import blocks
 from uhd_interface import uhd_receiver
 
 from receive_path import receive_path
+from fbmc_receive_path import receive_path as fbmc_receive_path
 from gr_tools import log_to_file
 
 import os
@@ -38,21 +39,34 @@ class rx_top_block(gr.top_block):
     def __init__(self, options):
         gr.top_block.__init__(self)
 
-        if options.rx_freq is not None:
+        if(options.rx_freq is not None):
             self.source = uhd_receiver(options.args,
                                        options.bandwidth, options.rx_freq, 
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
                                        options.clock_source, options.verbose)
-        elif options.from_file is not None:
-            self.source = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
+        elif(options.from_file is not None):
+            self.file = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
+            self.source = blocks.throttle(gr.sizeof_gr_complex,1e7)
+            self.connect( self.file, self.source )
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
 
-        self.rxpath = receive_path(options)
-        self.setup_rpc_manager()
+
+        if options.fbmc:
+            print "fbmc_transmit_path"
+            options.est_preamble = 0
+            self.rxpath = fbmc_receive_path(options)
+            
+        else:
+            self.rxpath = receive_path(options)
+            
+        self._setup_rpc_manager()
 
         self.connect(self.source, self.rxpath)
+  
+        if options.scatterplot:
+          print "Scatterplot enabled"
 
     def set_rx_gain(self, gain):
         return self.source.set_gain(gain)
@@ -72,6 +86,10 @@ class rx_top_block(gr.top_block):
                           help="Specifiy configuration file, default: none")
         parser.add_option("","--from-file", default=None,
                           help="input file of samples to demod")
+        parser.add_option('', '--fbmc', action='store_true', default=False,
+                      help='Enable FBMC')
+        parser.add_option("", "--from-file", type="string", default=None,
+                      help="Run Receiver on recorded stream")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

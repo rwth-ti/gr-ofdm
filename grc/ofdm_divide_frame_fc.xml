@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<block>
+  <name>Divide Frame</name>
+  <key>ofdm_divide_frame_fc</key>
+  <category>ofdm</category>
+  <import>import ofdm</import>
+  <make>ofdm.divide_frame_fc($frame_size, $subc)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Frame Size</name>
+    <key>frame_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subc</key>
+    <type>int</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in_samples</name>
+    <type>complex</type>
+    <vlen>$subc</vlen>
+  </sink>
+  <sink>
+    <name>in_power</name>
+    <type>float</type>
+    <vlen>$subc</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subc</vlen>
+  </source>
+</block>

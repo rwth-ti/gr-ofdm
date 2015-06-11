@@ -66,6 +66,7 @@ list(APPEND ofdm_sources
     depuncture_bb_impl.cc
     depuncture_ff_impl.cc
     time_sync_impl.cc
+    time_sync2_impl.cc
     dynamic_trigger_ib_impl.cc
     extract_block_from_frame_impl.cc
     find_cir_shift_impl.cc
@@ -144,7 +145,26 @@ list(APPEND ofdm_sources
     vector_padding_dc_null_impl.cc
     snr_estimator_dc_null_impl.cc
     vector_mask_dc_null_impl.cc
-    lms_phase_tracking_dc_null_impl.cc )
+    lms_phase_tracking_dc_null_impl.cc
+    midamble_insert_impl.cc 
+    fbmc_oqam_preprocessing_vcvc_impl.cc
+    fbmc_oqam_postprocessing_vcvc_impl.cc
+    fbmc_beta_multiplier_vcvc_impl.cc
+    fbmc_separate_vcvc_impl.cc
+    fbmc_snr_estimator_impl.cc
+    fbmc_polyphase_network_vcvc_impl.cc
+    fbmc_postprocess_CTF_estimate_impl.cc
+    fbmc_vector_copy_vcvc_impl.cc
+    fbmc_junction_vcvc_impl.cc
+    fbmc_subchannel_processing_vcvc_impl.cc
+    fbmc_weighted_spreading_vcvc_impl.cc
+    fbmc_weighted_despreading_vcvc_impl.cc
+    fbmc_asymmetrical_vector_padding_vcvc_impl.cc
+    fbmc_asymmetrical_vector_mask_vcvc_impl.cc
+    scfdma_subcarrier_mapper_vcvc_impl.cc
+    scfdma_subcarrier_demapper_vcvc_impl.cc
+    add_vcc_impl.cc 
+    fbmc_subchannel_processing_mu_vcvc_impl.cc )
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm
@@ -157,6 +177,7 @@ target_link_libraries(gnuradio-ofdm
     ${GNURADIO_TRELLIS_LIBRARIES}
     ${ITPP_LIBRARIES}
     ${ZEROMQ_LIBRARIES}
+    ${VOLK_LIBRARIES}
     )
 
 add_dependencies(gnuradio-ofdm gnuradio-runtime gnuradio-fft gnuradio-blocks gnuradio-filter gnuradio-fec gnuradio -trellis)

@@ -1,0 +1,33 @@
+<block>
+  <name>Assym. Vector Mask</name>
+  <key>ofdm_fbmc_asymmetrical_vector_mask_vcvc</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_asymmetrical_vector_mask_vcvc($M, $start, $end)</make>
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Start</name>
+    <key>start</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>End</name>
+    <key>end</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$M</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>($end-$start+1)</vlen>
+  </source>
+</block>

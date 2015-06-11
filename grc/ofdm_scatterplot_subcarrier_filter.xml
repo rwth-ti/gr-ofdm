@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<block>
+  <name>Scatterplot Subcarrier Filter</name>
+  <key>scatterplot_subcarrier_filter</key>
+  <category>ofdm</category>
+  <import>from ofdm.preambles_grc import scatterplot_subcarrier_filter</import>
+  <make>scatterplot_subcarrier_filter($subcarriers, $data_blocks)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+     <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>subcarriers</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Data Blocks</name>
+    <key>data_blocks</key>
+    <value>data_blocks</value>
+    <type>int</type>
+  </param>
+  <check>$subcarriers &gt; 0</check>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <doc>Scatterplot Subcarrier Filter
+    Wrapper Block
+  </doc>
+</block>

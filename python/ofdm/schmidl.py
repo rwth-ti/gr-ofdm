@@ -264,6 +264,7 @@ class recursive_timing_metric( gr.hier_block2 ):
     
     self.connect(input,st1,st2,output)
     self.connect((st1,1),(st2,1))
+    self.connect((st1,2),(st2,2))
     
 
 class recursive_timing_metric_simple( gr.hier_block2 ):

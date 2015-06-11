@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<block>
+  <name>FBMC Pilot Block Inserter</name>
+  <key>ofdm_fbmc_pilot_block_inserter</key>
+  <category>FBMC</category>
+  <import>from ofdm.preambles_grc import fbmc_pilot_block_inserter</import>
+  <make>fbmc_pilot_block_inserter($subcarriers, $frame_data_part, $training_data, $ant)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Data Part</name>
+    <key>frame_data_part</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Training Data</name>
+    <key>training_data</key>
+    <value></value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Antennas</name>
+    <key>ant</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <check>$frame_data_part &gt; 0</check>
+  <check>$subcarriers &gt; 0</check>
+  <check>$ant &gt; 0</check>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <doc>FBMC Pilot Block Inserter
+	Add Cyclic Prefix allways false!
+	Wrapper Block
+	</doc>
+</block>

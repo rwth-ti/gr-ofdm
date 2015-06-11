@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-from gnuradio import gr, blocks, digital, analog
+from gnuradio import gr, blocks, digital, analog, zeromq
 #from ofdm import snr_estimator
 from transmit_path import transmit_path
 from uhd_interface import uhd_transmitter
 import random, numpy
 import os
-import zmqblocks
 from configparse import OptionParser
 
 class bm_transmitter_usrp:
@@ -32,6 +31,8 @@ class bm_transmitter_usrp:
         self.bandwidth = 2500000.0
         self.tx_freq = 2480000000
         self.bm = True
+        self.fbmc = 0
+        self.benchmarking = 1
         #self.sps = 4
         #self.eb = 0.25
 
@@ -46,7 +47,7 @@ class bm_transmitter_usrp:
         self.tb = gr.top_block()
         self.txpath = transmit_path(self)
         
-        self.rpc_mgr_tx = zmqblocks.rpc_manager()
+        self.rpc_mgr_tx = zeromq.rpc_manager()
         self.rpc_mgr_tx.set_reply_socket("tcp://*:6660")
         self.rpc_mgr_tx.start_watcher()
 
@@ -79,10 +80,14 @@ class bm_transmitter_usrp:
         except KeyboardInterrupt,ex:
             self.tb.stop()
         """
-        self.snk = uhd_transmitter( 'type=usrp2',self.bandwidth, 2480000000.0,0.0)
+        #self.snk = uhd_transmitter( 'type=usrp2',self.bandwidth, 2480000000.0,0.0)
+        #self.snk = blocks.null_sink(gr.sizeof_gr_complex)
+        self.file_sink = blocks.file_sink(gr.sizeof_gr_complex,'fbmc_tx_out_benchmarking.compl')
 
 
-        self.tb.connect(self.txpath,self.snk) 
+
+        #self.tb.connect(self.txpath,self.snk)
+        self.tb.connect(self.txpath,self.file_sink) 
         self.tb.run()
 
 """

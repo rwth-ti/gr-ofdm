@@ -26,27 +26,32 @@ import preambles
 def add_options(normal,expert):
     def_data_blocks_per_frame = 9
     expert.add_option("", "--data-blocks", type="int", default=def_data_blocks_per_frame,
-            help="set the number of data blocks per ofdm frame [default=%default]")
+                      help="set the number of data blocks per ofdm frame [default=%default]")
     normal.add_option("", "--fft-length", type="int", default=256,
-            help="set the number of FFT bins [default=%default]")
+                      help="set the number of FFT bins [default=%default]")
     expert.add_option("", "--subcarriers", type="int", default=200,
-            help="set the number of occupied FFT bins. Default: fft window size - Pilot Subcarriers")
+                      help="set the number of occupied FFT bins. Default: fft window size - Pilot Subcarriers")
     expert.add_option("", "--cp-length", type="int", default=None,
-            help="set the number of bits in the cyclic prefix. Default: 12.5% of fft window size")
+                      help="set the number of bits in the cyclic prefix. Default: 12.5% of fft window size")
     expert.add_option("", "--bandwidth", type="eng_float", default='1M',
-            help="set total bandwidth. [default=%default]")
+                      help="set total bandwidth. [default=%default]")
     expert.add_option("", "--tx-hostname", type="string", default="localhost",
-            help="Set Tx hostname for zeromq")
+                      help="Set Tx hostname for zeromq")
     expert.add_option("", "--gui-frame-rate", type="int", default=25,
-            help="Set the display frame rate of the GUI, necessary to stream data out of flowgraph")
+                      help="Set the display frame rate of the GUI, necessary to stream data out of flowgraph")
     normal.add_option("", "--dot-graph", action="store_true", default=False)
     normal.add_option("-v", "--verbose", action="store_true", default=False)
     expert.add_option("", "--log", action="store_true", default=False,
-            help="enable file logs [default=%default]")
+                      help="enable file logs [default=%default]")
     expert.add_option("", "--static-allocation", action="store_true", default=False,
-            help="Enable static resource allocation mode [default=%default]")
+                      help="Enable static resource allocation mode [default=%default]")
     expert.add_option("", "--dc-null", type="intx", default=0,
                       help="set the number of nulled DC subcarries (has to be even number). Default: NO DC null - 0")
+    expert.add_option( "", "--ideal", action="store_true", default=False,
+                      help="Disabling inner receiver estimations")
+    expert.add_option( "", "--ideal2", action="store_true", default=False,
+                      help="Disabling inner receiver estimations including BER, SNR and GUI sinks")
+
     preambles.default_block_header.add_options(normal,expert)
 
 def defaults(options):

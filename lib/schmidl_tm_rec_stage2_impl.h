@@ -34,6 +34,7 @@ namespace gr {
         int         d_delay;
         gr_complex  d_acc1;
         float       d_acc2;
+        float       d_acc3;
 
      public:
       schmidl_tm_rec_stage2_impl(int window);

@@ -1,19 +1,30 @@
 <?xml version="1.0"?>
 <block>
-  <name>generic_mapper_bcv</name>
+  <name>Generic Mapper</name>
   <key>ofdm_generic_mapper_bcv</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.generic_mapper_bcv($vlen, $coding)</make>
+  <make>ofdm.generic_mapper_bcv($vlen, $coding, $frame_size)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Coding</name>
+    <key>coding</key>
+    <value>0</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Frame Size</name>
+    <key>frame_size</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -22,8 +33,13 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>data</name>
+    <type>byte</type>
+  </sink>
+  <sink>
+    <name>cv</name>
+    <type>byte</type>
+    <vlen>$vlen</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -32,7 +48,8 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>blk</name>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </source>
 </block>

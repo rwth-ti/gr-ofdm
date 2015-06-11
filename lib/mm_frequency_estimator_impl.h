@@ -48,11 +48,13 @@ namespace gr {
     	int  d_vlen;
 		int  d_L;
 		int  d_M;
+		int  d_O;
+		bool  d_fbmc;
 
 		std::vector<float> d_weights;
 
      public:
-      mm_frequency_estimator_impl(int vlen, int identical_parts);
+      mm_frequency_estimator_impl(int vlen, int identical_parts, int scale, bool fbmc = 0);
       ~mm_frequency_estimator_impl();
 
       // Where all the action really happens

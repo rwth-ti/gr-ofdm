@@ -1,19 +1,29 @@
 <?xml version="1.0"?>
 <block>
-  <name>mm_frequency_estimator</name>
+  <name>Morelli-Mengali Frequency Estimator</name>
   <key>ofdm_mm_frequency_estimator</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.mm_frequency_estimator($vlen, $identical_parts)</make>
+  <make>ofdm.mm_frequency_estimator($vlen, $identical_parts, $scale)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Identical Parts</name>
+    <key>identical_parts</key>
+    <type>int</type>
+  </param>
+    <param>
+    <name>Scale</name>
+    <key>scale</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +33,8 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +44,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
   </source>
 </block>

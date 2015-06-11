@@ -42,11 +42,12 @@ namespace gr {
      */
     schmidl_tm_rec_stage2_impl::schmidl_tm_rec_stage2_impl(int window)
       : gr::sync_block("schmidl_tm_rec_stage2",
-              gr::io_signature::make2(2, 2, sizeof(gr_complex), sizeof(float) ),
+              gr::io_signature::make2(3, 3, sizeof(gr_complex), sizeof(float) ),
               gr::io_signature::make(1, 1, sizeof(float)))
     , d_delay( window+1 )
     , d_acc1( 0.0,0.0 )
     , d_acc2( 0.0 )
+    , d_acc3( 0.0 )
     {
     	  set_history( d_delay + 1 );
     }
@@ -69,11 +70,15 @@ namespace gr {
     	  const float * r_del = static_cast<const float*>(input_items[1]);
     	  const float * r = r_del + d_delay;
 
+    	  const float * q_del = static_cast<const float*>(input_items[2]);
+    	  const float * q = q_del + d_delay;
+
     	  float * out = static_cast<float*>(output_items[0]);
 
     	  // use local variable for accumulators, read recent values
     	  gr_complex acc1 = d_acc1;
     	  float      acc2 = d_acc2;
+    	  float      acc3 = d_acc3;
 
     	  // use references for simpler access
     	  float & x = acc1.real();
@@ -98,16 +103,26 @@ namespace gr {
     	      acc2 += t;
     	    }
 
+    	    {
+    	      float const t1 = q[i];
+    	      float const t2 = q_del[i];
+    	      float const t = t1 - t2;
+    	      acc3 += t;
+    	    }
+
     	    float const acc2_sq = acc2 * acc2;
+    	    float const acc3_sq = acc3 * acc3;
     	    float const x2 = x*x; // squared real part of acc1
     	    float const y2 = y*y; // same for imaginary part
     	    float const x2y2 = x2 + y2;
-    	    out[i] = x2y2 / acc2_sq;
+    	    out[i] = 4.0 * x2y2 / (acc2_sq + acc3_sq);
+    	    //out[i] =  x2y2 / (acc2_sq);
 
     	  } // for-loop
 
     	  d_acc1 = acc1;
     	  d_acc2 = acc2;
+    	  d_acc3 = acc3;
 
     	  return noutput_items;
     }

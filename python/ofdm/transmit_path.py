@@ -44,7 +44,6 @@ from station_configuration import *
 from random import seed,randint, getrandbits
 
 
-
 class transmit_path(gr.hier_block2):
   """
   output:
@@ -70,6 +69,7 @@ class transmit_path(gr.hier_block2):
     config.coding              = options.coding
     config.bandwidth           = options.bandwidth
     config.gui_frame_rate      = options.gui_frame_rate
+    config.fbmc                = options.fbmc
 
 
     config.frame_id_blocks     = 1 # FIXME
@@ -139,12 +139,18 @@ class transmit_path(gr.hier_block2):
         id_src = blocks.vector_source_s(id_vec,True,1)
         # bitloading for ID symbol and then once for data symbols
         #bitloading_vec = [1]*dsubc+[0]*(dsubc/2)+[2]*(dsubc/2)
-        bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        
+        #test_allocation = [bitloading]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [bitloading]*(int)(config.data_subcarriers/8)
+        #bitloading_vec = [1]*dsubc+[bitloading]*dsubc
+        test_allocation = [bitloading]*dsubc
+        bitloading_vec = [bitloading]*dsubc+test_allocation
         bitloading_src = blocks.vector_source_b(bitloading_vec,True,dsubc)
         # bitcount for frames
         #bitcount_vec = [config.data_subcarriers*config.frame_data_blocks*bitloading]
-        #bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
+        bitcount_vec = [config.frame_data_blocks*sum(test_allocation)]
+        bitcount_src = blocks.vector_source_i(bitcount_vec,True,1)
         # power loading, here same for all symbols
+        #power_vec = [1]*(int)(config.data_subcarriers/8)+ [0]*(int)(config.data_subcarriers/4*3) + [1]*(int)(config.data_subcarriers/8)
         power_vec = [1]*config.data_subcarriers
         power_src = blocks.vector_source_f(power_vec,True,dsubc)
         # mux control stream to mux id and data bits
@@ -152,9 +158,9 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
         id_src = (self.allocation_src,0)
-        bitcount_src = (self.allocation_src,1)
+        bitcount_src = (self.allocation_src,3)
         bitloading_src = (self.allocation_src,2)
-        power_src = (self.allocation_src,3)
+        power_src = (self.allocation_src,1)
         if options.coding: 
             modul_bitcount_src = (self.allocation_src,4)
         else:
@@ -179,9 +185,13 @@ class transmit_path(gr.hier_block2):
 
     ## GUI probe output
     zmq_probe_bitloading = zeromq.pub_sink(gr.sizeof_char,dsubc, "tcp://*:4445")
-    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,self.keep_frame_n), zmq_probe_bitloading)
+    # also skip ID symbol bitloading with keep_one_in_n (side effect)
+    # factor 2 for bitloading because we have two vectors per frame, one for id symbol and one for all payload/data symbols
+    # factor config.frame_data_part for power because there is one vector per ofdm symbol per frame
+    self.connect(bitloading_src, blocks.keep_one_in_n(gr.sizeof_char*dsubc,2*40), zmq_probe_bitloading)
     zmq_probe_power = zeromq.pub_sink(gr.sizeof_float,dsubc, "tcp://*:4444")
-    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,self.keep_frame_n), zmq_probe_power)
+    #self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_gr_complex*dsubc,40), blocks.complex_to_real(dsubc), zmq_probe_power)
+    self.connect(power_src, blocks.keep_one_in_n(gr.sizeof_float*dsubc,40), zmq_probe_power)
 
     ## Workaround to avoid periodic structure
     seed(1)
@@ -207,6 +217,16 @@ class transmit_path(gr.hier_block2):
     if options.log:
       log_to_file(self, btrig, "data/bitmap_trig.char")
 
+    ## Bitmap Update Trigger for puncturing
+    if not options.nopunct:
+        bmaptrig_stream_puncturing = [1]+[0]*(config.frame_data_blocks/2-1)
+
+        btrig_puncturing = self._bitmap_trigger_puncturing = blocks.vector_source_b(bmaptrig_stream_puncturing, True)
+        bmapsrc_stream_puncturing = [1]*dsubc + [2]*dsubc
+        bsrc_puncturing = self._bitmap_src_puncturing = blocks.vector_source_b(bmapsrc_stream_puncturing, True, dsubc)
+
+    if options.log and options.coding and not options.nopunct:
+      log_to_file(self, btrig_puncturing, "data/bitmap_trig_puncturing.char")
 
     ## Frame Trigger
     ftrig_stream = [1]+[0]*(config.frame_data_part-1)
@@ -294,7 +314,7 @@ class transmit_path(gr.hier_block2):
     ## Pilot subcarriers
     psubc = self._pilot_subcarrier_inserter = pilot_subcarrier_inserter()
     self.connect(pa,psubc)
-
+    
     if options.log:
       log_to_file(self, psubc, "data/psubc_out.compl")
 
@@ -354,7 +374,7 @@ class transmit_path(gr.hier_block2):
         options.tx_freq = 0.0
     self.tx_parameters = {'carrier_frequency':options.tx_freq/1e9,'fft_size':config.fft_length, 'cp_size':config.cp_length \
                           , 'subcarrier_spacing':options.bandwidth/config.fft_length/1e3 \
-                          ,'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
+                          , 'data_subcarriers':config.data_subcarriers, 'bandwidth':options.bandwidth/1e6 \
                           , 'frame_length':config.frame_length  \
                           , 'symbol_time':(config.cp_length + config.fft_length)/options.bandwidth*1e6, 'max_data_rate':(bits/tb)/1e6}
 
@@ -403,9 +423,8 @@ class transmit_path(gr.hier_block2):
                       help="Enable channel coding")
     normal.add_option("", "--nopunct", action="store_true", default=False,
                       help="Disable puncturing/depuncturing")
-    normal.add_option("", "--interleave", action="store_true",
-              default=False,
-              help="Enable interleaving")
+    normal.add_option("", "--interleave", action="store_true", default=False,
+                      help="Enable interleaving")
     normal.add_option("", "--imgxfer", action="store_true", default=False,
                       help="Enable IMG Transfer mode")
     expert.add_option("", "--freqoff", type="eng_float", default=None,
@@ -414,6 +433,8 @@ class transmit_path(gr.hier_block2):
                       help='For lab exercise, use only half of the subcarriers and multipath')
     expert.add_option('', '--benchmarking', action='store_true', default=False,
                       help='Modify transmitter for the benchmarking mode')
+    expert.add_option('', '--fbmc', action='store_true', default=False,
+                      help='Enable FBMC')
 
 
   # Make a static method to call before instantiation

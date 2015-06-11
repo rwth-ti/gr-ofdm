@@ -1,19 +1,37 @@
 <?xml version="1.0"?>
 <block>
-  <name>generic_softdemapper_vcf</name>
+  <name>Generic Soft Demapper</name>
   <key>ofdm_generic_softdemapper_vcf</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.generic_softdemapper_vcf($vlen, $coding)</make>
+  <make>ofdm.generic_softdemapper_vcf($vlen, $frame_size, $coding)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Length</name>
+    <key>vlen</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame Size</name>
+    <key>frame_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Coding</name>
+    <key>coding</key>
+    <type>enum</type>
+    <option>
+      <name>Off</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>On</name>
+      <key>1</key>
+    </option>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -22,8 +40,19 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>sym_in</name>
+    <type>complex</type>
+    <vlen>$vlen</vlen>
+  </sink>
+  <sink>
+    <name>cv_in</name>
+    <type>byte</type>
+    <vlen>$vlen</vlen>
+  </sink>
+  <sink>
+    <name>csi_in</name>
+    <type>float</type>
+    <vlen>$vlen</vlen>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -33,6 +62,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
   </source>
 </block>

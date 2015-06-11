@@ -1,30 +1,47 @@
 <?xml version="1.0"?>
 <block>
-  <name>allocation_src</name>
+  <name>Allocation Source</name>
   <key>ofdm_allocation_src</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.allocation_src($subcarriers)</make>
+  <make>ofdm.allocation_src($subcarriers, $data_symbols, $address, $coding)</make>
+  <callback>set_allocation(char_vector, float_vector)</callback>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <value>subcarriers</value>
+    <type>int</type>
   </param>
+  <param>
+    <name>Data Symbols</name>
+    <key>data_symbols</key>
+    <value>data_symbols</value>
+    <type>int</type>
+  </param>  
+  <param>
+    <name>Address</name>
+    <key>address</key>
+    <value>address</value>
+    <type>string</type>
+  </param>  
+   <param>
+    <name>Coding</name>
+    <key>coding</key>
+    <value>coding</value>
+    <type>raw</type>
+  </param> 
 
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
        * type
        * vlen
-       * optional (set to 1 for optional inputs) -->
-  <sink>
-    <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
-  </sink>
+       * optional (set to 1 for optional inputs) -->   
+
 
   <!-- Make one 'source' node per output. Sub-nodes:
        * name (an identifier for the GUI)
@@ -32,7 +49,24 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>id</name>
+    <type>short</type>
+    <vlen>1</vlen>
+  </source>
+  <source>
+    <name>power</name>
+    <type>float</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <source>
+    <name>bitloading</name>
+    <type>byte</type>
+    <vlen>$subcarriers</vlen>
+  </source>
+  <source>
+    <name>bitcount</name>
+    <type>int</type>
+    <vlen>1</vlen>
+    <nports>$coding+1</nports>
   </source>
 </block>

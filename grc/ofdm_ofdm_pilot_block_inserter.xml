@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<block>
+  <name>OFDM Pilot Block Inserter</name>
+  <key>ofdm_ofdm_pilot_block_inserter</key>
+  <category>ofdm</category>
+  <import>from ofdm.preambles_grc import ofdm_pilot_block_inserter</import>
+  <make>ofdm_pilot_block_inserter($frame_length, $fft_length, $cp_length, $training_data, $ant)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Frame Length</name>
+    <key>frame_length</key>
+    <value>frame_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>FFT Length</name>
+    <key>fft_length</key>
+    <value>fft_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CP Length</name>
+    <key>cp_length</key>
+    <value>cp_length</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Training Data</name>
+    <key>training_data</key>
+    <value>training_data</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Antennas</name>
+    <key>ant</key>
+    <value>5</value>
+    <type>int</type>
+  </param>
+  <check>$frame_length &gt; 0</check>
+  <check>$fft_length&gt; 0</check>
+  <check>$ant &gt; 0</check>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$fft_length</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$fft_length</vlen>
+  </source>
+  <doc>OFDM Pilot Block Inserter
+	Wrapper Block
+	</doc>
+</block>

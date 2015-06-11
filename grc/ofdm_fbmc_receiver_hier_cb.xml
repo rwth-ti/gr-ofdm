@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<block>
+  <name>Receiver</name>
+  <key>ofdm_fbmc_receiver_hier_cb</key>
+  <category>FBMC</category>
+  <import>import ofdm</import>
+  <make>ofdm.fbmc_receiver_hier_cb($M, $K, $qam_size, $syms_per_frame, $carriers, $theta_sel, $sel_eq, $exclude_preamble, $sel_preamble, $zero_pads, $extra_pad)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>M</name>
+    <key>M</key>
+    <value>M</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>K</name>
+    <key>K</key>
+    <value>K</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>qam_size</name>
+    <key>qam_size</key>
+    <value>qam_size</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>syms_per_frame</name>
+    <key>syms_per_frame</key>
+    <value>syms_per_frame</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>theta_sel</name>
+    <key>theta_sel</key>
+    <value>theta_sel</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Number of Carriers</name>
+    <key>carriers</key>
+    <value>carriers</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>exclude_preamble</name>
+    <key>exclude_preamble</key>
+    <value>exclude_preamble</value>
+    <type>int</type>
+  </param>
+<!--   <param>
+    <name>Preamble Center</name>
+    <key>center_preamble</key>
+    <value>center_preamble</value>
+    <type>raw</type>
+  </param> -->
+<!--   <param>
+    <name>sel_preamble</name>
+    <key>sel_preamble</key>
+    <value>sel_preamble</value>
+    <type>raw</type>
+  </param> -->
+  <param>
+    <name>sel_preamble</name>
+    <key>sel_preamble</key>
+    <type>enum</type>
+    <option>
+      <name>IAM-C</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>IAM-C with triple rep.</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>IAM-R</name>
+      <key>2</key>
+    </option>
+  </param>
+  <param>
+    <name>Zero padding</name>
+    <key>zero_pads</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Extra padding</name>
+    <key>extra_pad</key>
+    <type>enum</type>
+    <option>
+      <name>Off</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>On</name>
+      <key>1</key>
+    </option>
+  </param>
+  <param>
+    <name>sel_eq</name>
+    <key>sel_eq</key>
+    <type>enum</type>
+    <option>
+      <name>One Tap</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Three taps, linear interpolation</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Three taps, geometric interpolation</name>
+      <key>2</key>
+    </option>
+    <option>
+      <name>No equalizer</name>
+      <key>3</key>
+    </option>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+  </source>
+</block>

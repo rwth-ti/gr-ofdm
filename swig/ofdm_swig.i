@@ -149,6 +149,8 @@
 #include "ofdm/scfdma_subcarrier_demapper_vcvc.h"
 #include "ofdm/add_vcc.h"
 #include "ofdm/fbmc_subchannel_processing_mu_vcvc.h"
+#include "ofdm/feedback_sink_vf.h"
+#include "ofdm/vector_element_vff.h"
 //#include "ofdm/corba_bitcount_src_02_si.h"
 %}
 
@@ -480,4 +482,8 @@ GR_SWIG_BLOCK_MAGIC2(ofdm, scfdma_subcarrier_demapper_vcvc);
 GR_SWIG_BLOCK_MAGIC2(ofdm, add_vcc);
 %include "ofdm/fbmc_subchannel_processing_mu_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(ofdm, fbmc_subchannel_processing_mu_vcvc);
+%include "ofdm/feedback_sink_vf.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, feedback_sink_vf);
+%include "ofdm/vector_element_vff.h"
+GR_SWIG_BLOCK_MAGIC2(ofdm, vector_element_vff);
 

@@ -23,7 +23,7 @@
 from gnuradio import gr, blocks, analog, zeromq
 from gnuradio import eng_notation
 from configparse import OptionParser
-from gnuradio import filter
+from gnuradio import filter, channels
 
 from station_configuration import station_configuration
 
@@ -184,10 +184,16 @@ class ofdm_benchmark (gr.top_block):
       if options.itu_channel:
         self.fad_chan = channel.itpp_channel(options.bandwidth)
         self.rpc_mgr_tx.add_interface("set_channel_profile",self.fad_chan.set_channel_profile)
+        self.rpc_mgr_tx.add_interface("set_norm_doppler",self.fad_chan.set_norm_doppler)
       else:
         #self.fad_chan = filter.fir_filter_ccc(1,[1.0,0.0,2e-1+0.1j,1e-4-0.04j])
         # filter coefficients for the lab exercise
-        self.fad_chan = filter.fir_filter_ccc(1,[0,0,0.3267,0.8868,0.3267])
+        self.fad_chan = filter.fir_filter_ccc(1,[0.3267,0.8868,0.3267])
+        #self.fad_chan = filter.fir_filter_ccc(1,[0,0,0.1,0.2,0.01,0.3])#0.3267,0.8868,0.3267])
+        #self.fad_chan = channels.selective_fading_model(5, 0.1, False, 1, -1, [0, 0, 0], [0.3267,0.8868,0.3267], 10 )
+        #self.fad_chan = channels.fading_model(6, 0.05, False);
+        #self.fad_chan = channels.dynamic_channel_model(1000000, 0, 0, 0, 0, 3, 0.01, False, 0, [2e-6,4e-6,8e-6],[0.3267,0.8868,0.3267], 20, 0, 0)
+
 
       self.connect(self.fad_chan, self.dst)
       self.dst = self.fad_chan
@@ -269,8 +275,18 @@ class ofdm_benchmark (gr.top_block):
     self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
     self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
     self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+    self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
+    self.rpc_mgr_tx.add_interface("set_allocation_scheme",self.txpath.allocation_src.set_allocation_scheme)
+    self.rpc_mgr_tx.add_interface("set_data_rate",self.txpath.allocation_src.set_data_rate)
+    self.rpc_mgr_tx.add_interface("set_power_limit",self.txpath.allocation_src.set_power_limit)
+    self.rpc_mgr_tx.add_interface("set_gap",self.txpath.allocation_src.set_gap)
     if self.ideal or self.ideal2:
         self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_rms_amplitude)
+    else:
+        self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_fake_amplitude)
+
+  def set_fake_amplitude(self, amplitude):
+        print
 
 #   def supply_rx_baseband(self):
 #     ## RX Spectrum

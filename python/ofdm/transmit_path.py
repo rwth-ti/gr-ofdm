@@ -105,7 +105,6 @@ class transmit_path(gr.hier_block2):
     vsubc = config.virtual_subcarriers
 
     # Adaptive Transmitter Concept
-
     used_id_bits = config.used_id_bits = 8 #TODO: no constant in source code
     rep_id_bits = config.rep_id_bits = config.data_subcarriers/used_id_bits #BPSK
     if config.data_subcarriers % used_id_bits <> 0:
@@ -115,7 +114,7 @@ class transmit_path(gr.hier_block2):
     self.keep_frame_n = int(1.0 / ( config.frame_length * (config.cp_length + config.fft_length) / config.bandwidth ) / config.gui_frame_rate)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", config.coding)
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, config.coding, "tcp://*:3333", "tcp://"+options.rx_hostname+":3322")
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
         
@@ -158,11 +157,11 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
         id_src = (self.allocation_src,0)
-        bitcount_src = (self.allocation_src,3)
+        bitcount_src = (self.allocation_src,4)
         bitloading_src = (self.allocation_src,2)
         power_src = (self.allocation_src,1)
         if options.coding: 
-            modul_bitcount_src = (self.allocation_src,4)
+            modul_bitcount_src = (self.allocation_src,5)
         else:
             modul_bitcount_src = bitcount_src
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
@@ -352,6 +351,15 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, cp, "data/cp_out.compl")
+
+    #Digital Amplifier for resource allocation
+    #if not options.coding:
+    rep = blocks.repeat(gr.sizeof_gr_complex, config.frame_length * config.block_length)
+    amp = blocks.multiply_cc()
+    self.connect( lastblock, (amp,0) )
+    self.connect((self.allocation_src,3), rep , (amp,1) )
+    lastblock = amp
+
 
     ## Digital Amplifier
     #amp = self._amplifier = gr.multiply_const_cc(1)

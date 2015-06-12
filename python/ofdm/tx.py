@@ -50,8 +50,6 @@ class tx_top_block(gr.top_block):
             self.connect( self.sink, self.file )
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
-            
-            
 
 
 
@@ -98,8 +96,16 @@ class tx_top_block(gr.top_block):
        ## Adding interfaces
         self.rpc_mgr_tx.add_interface("set_amplitude",self.txpath.set_rms_amplitude)
         self.rpc_mgr_tx.add_interface("get_tx_parameters",self.txpath.get_tx_parameters)
-        self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation)
+        self.rpc_mgr_tx.add_interface("set_modulation",self.txpath.allocation_src.set_allocation) 
+        self.rpc_mgr_tx.add_interface("set_allocation_scheme",self.txpath.allocation_src.set_allocation_scheme)
+        self.rpc_mgr_tx.add_interface("set_data_rate",self.txpath.allocation_src.set_data_rate)
+        self.rpc_mgr_tx.add_interface("set_power_limit",self.txpath.allocation_src.set_power_limit)
+        self.rpc_mgr_tx.add_interface("set_gap",self.txpath.allocation_src.set_gap)
         self.rpc_mgr_tx.add_interface("set_tx_gain",self.set_tx_gain)
+        self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_fake_amplitude)
+    
+    def set_fake_amplitude(self, amplitude):
+        print
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,
@@ -112,6 +118,8 @@ class tx_top_block(gr.top_block):
                       help='Enable FBMC')
         parser.add_option("", "--to-file", type="string", default=None,
                       help="Record transmitter to disk, not being sent to usrp")
+        parser.add_option("", "--itu-channel", action="store_true", default=False,
+                          help="Enable itu channel model (ported from itpp)")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

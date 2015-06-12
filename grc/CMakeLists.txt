@@ -176,5 +176,8 @@ install(FILES
     ofdm_scfdma_receiver_cb.xml
     ofdm_add_vcc.xml
     ofdm_fbmc_insert_preamble_mu_vcvc.xml
-    ofdm_fbmc_subchannel_processing_mu_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    ofdm_fbmc_subchannel_processing_mu_vcvc.xml
+    ofdm_feedback_sink_vf.xml
+    ofdm_vector_element_vff.xml 
+    DESTINATION share/gnuradio/grc/blocks
 )

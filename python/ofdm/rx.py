@@ -27,8 +27,10 @@ from configparse import OptionParser
 
 from gnuradio import blocks
 from uhd_interface import uhd_receiver
+from uhd_interface import uhd_mimo_receiver
 
-from receive_path import receive_path
+from receive_path import receive_path as receive_path
+from receive_path12 import receive_path as receive_path_12
 from fbmc_receive_path import receive_path as fbmc_receive_path
 from gr_tools import log_to_file
 
@@ -40,36 +42,66 @@ class rx_top_block(gr.top_block):
         gr.top_block.__init__(self)
 
         if(options.rx_freq is not None):
-            self.source = uhd_receiver(options.args,
+            if options.rx_ant == 1:
+                self.source = uhd_receiver(options.args,
                                        options.bandwidth, options.rx_freq, 
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
-                                       options.clock_source, options.verbose)
+                                       options.clock_source, options.time_source,options.verbose)
+            else:
+                self.source = uhd_mimo_receiver(options.args,
+                                       options.bandwidth, options.rx_freq, 
+                                       options.lo_offset, options.rx_gain,
+                                       options.spec, options.antenna,
+                                       options.clock_source, options.time_source, options.verbose)
         elif(options.from_file is not None):
             self.file = blocks.file_source(gr.sizeof_gr_complex, options.from_file)
             self.source = blocks.throttle(gr.sizeof_gr_complex,1e7)
             self.connect( self.file, self.source )
         else:
             self.source = blocks.null_source(gr.sizeof_gr_complex)
-
-
-        if options.fbmc:
-            print "fbmc_transmit_path"
-            options.est_preamble = 0
-            self.rxpath = fbmc_receive_path(options)
-            
+        '''
+        if options.tx_ant == 1:
+            if options.rx_ant == 1:
+                self.rxpath = receive_path(options)
+                self._setup_rpc_manager()
+                self.connect(self.source, self.rxpath)
+            else:
+                self.rxpath = receive_path_12(options)
+                self._setup_rpc_manager()
+                self.connect(self.source, self.rxpath)
+                self.connect((self.source,1), (self.rxpath,1)) 
+                '''
+        if (options.rx_ant == 1):
+            self._setup_rx_path(options)        
+            self.setup_rpc_manager()
+            self.dst    = (self.rxpath,0)
+            self.connect((self.source,0), self.dst)
         else:
-            self.rxpath = receive_path(options)
-            
-        self._setup_rpc_manager()
+            self._setup_rx_path(options)        
+            self.setup_rpc_manager()
+            self.dst    = (self.rxpath,0)
+            self.dst2     = (self.rxpath,1)
+            self.connect((self.source,0), self.dst)
+            #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
+            self.connect((self.source,1), self.dst2)
+                    
+                
+        #self._setup_rpc_manager()
 
-        self.connect(self.source, self.rxpath)
+
+
+            
+        #self.setup_rpc_manager()
+
+        #self.connect(self.source, self.rxpath)
   
         if options.scatterplot:
           print "Scatterplot enabled"
-
+    
     def set_rx_gain(self, gain):
-        return self.source.set_gain(gain)
+        self.source.set_gain(gain)      
+
 
     def setup_rpc_manager(self):
       ## Adding rpc manager for Receiver
@@ -80,6 +112,28 @@ class rx_top_block(gr.top_block):
       ## Adding interfaces
       self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
       self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
+      #self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
+      self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
+      
+      
+    def _setup_rx_path(self,options):
+        if options.tx_ant == 1:
+            if options.rx_ant == 1:
+                if options.fbmc:
+                    print "fbmc_transmit_path"
+                    options.est_preamble = 0
+                    self.rxpath = fbmc_receive_path(options)
+                else:
+                    self.rxpath = receive_path(options)
+                #self._setup_rpc_manager()
+                #self.connect(self.source, self.rxpath)
+            else:
+                print "1X21X21X21X2"
+                #self.rxpath = receive_path(options)
+                self.rxpath = receive_path_12(options)
+                #self._setup_rpc_manager()
+                #self.connect(self.source, self.rxpath)
+                #self.connect((self.source,1), (self.rxpath,1)) 
 
     def add_options(parser):
         parser.add_option("-c", "--cfg", action="store", type="string", default=None,
@@ -90,6 +144,10 @@ class rx_top_block(gr.top_block):
                       help='Enable FBMC')
         parser.add_option("", "--from-file", type="string", default=None,
                       help="Run Receiver on recorded stream")
+        parser.add_option("", "--tx-ant", type="int", default=1,
+                      help="the number of transmit antennas")
+        parser.add_option("", "--rx-ant", type="int", default=1,
+                      help="the number of receive antennas")
 
     # Make a static method to call before instantiation
     add_options = staticmethod(add_options)

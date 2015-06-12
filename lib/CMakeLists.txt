@@ -164,7 +164,9 @@ list(APPEND ofdm_sources
     scfdma_subcarrier_mapper_vcvc_impl.cc
     scfdma_subcarrier_demapper_vcvc_impl.cc
     add_vcc_impl.cc 
-    fbmc_subchannel_processing_mu_vcvc_impl.cc )
+    fbmc_subchannel_processing_mu_vcvc_impl.cc 
+    feedback_sink_vf_impl.cc
+    vector_element_vff_impl.cc)
 SET ( CMAKE_CXX_FLAGS "-O3 -march=core2 -mfpmath=sse" )
 add_library(gnuradio-ofdm SHARED ${ofdm_sources})
 target_link_libraries(gnuradio-ofdm

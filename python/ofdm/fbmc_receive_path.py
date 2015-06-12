@@ -86,7 +86,7 @@ class receive_path(gr.hier_block2):
     config = self.config = station_configuration()
 
     config.data_subcarriers     = dsubc = options.subcarriers
-    config.cp_length            = options.cp_length
+    config.cp_length            = 0
     config.frame_data_blocks    = options.data_blocks
     config._verbose             = options.verbose #TODO: update
     config.fft_length           = options.fft_length

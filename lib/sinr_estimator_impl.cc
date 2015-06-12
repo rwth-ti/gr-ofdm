@@ -36,21 +36,22 @@ namespace gr {
   namespace ofdm {
 
     sinr_estimator::sptr
-    sinr_estimator::make(int vlen, int skip)
+    sinr_estimator::make(int vlen, int skip, int dc_null)
     {
       return gnuradio::get_initial_sptr
-        (new sinr_estimator_impl(vlen, skip));
+        (new sinr_estimator_impl(vlen, skip, dc_null));
     }
 
     /*
      * The private constructor
      */
-    sinr_estimator_impl::sinr_estimator_impl(int vlen, int skip)
+    sinr_estimator_impl::sinr_estimator_impl(int vlen, int skip, int dc_null)
       : gr::sync_block("sinr_estimator",
               gr::io_signature::make(2, 2, sizeof(gr_complex) * vlen),
               gr::io_signature::make(1, 1, sizeof( float )*vlen*(skip-1)/ skip))
     	, d_vlen( vlen )
     	, d_skip( skip )
+        , d_dc_null (dc_null)
     {
     	  assert( d_vlen > 0 );
     	  d_taps.reset(new float[vlen]);
@@ -89,26 +90,36 @@ namespace gr {
 
     	    for( int i = 0; i < d_vlen ; ++i )
     	    {
+                if (i< (d_vlen)/2)
+                {
+                    if ( i % d_skip != 4 + d_dc_null/2 )
+                    {
+                            d_taps[i] = 0.01*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.99*d_taps[i];
+                            d_taps1[i] = 0.01*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.99*d_taps1[i];
+                            estim = d_taps1[i]/d_taps[i] - 1;
 
+                            *out = (estim);
+                            out += 1;
 
-    	    	if ( i % d_skip != 0 )
-    	    	{
-    	    		/*null_0 = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
-    	    		null_1 = in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag();
-    	    		estim = null_1/null_0 - 1;
-    	    		*out = static_cast<float>(estim);
-    	    		out += 1;*/
+                    }
+                }
+                else
+                {
+                    if ( i % d_skip != 4 - d_dc_null/2 )
+                    {
+                            d_taps[i] = 0.01*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.99*d_taps[i];
+                            d_taps1[i] = 0.01*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.99*d_taps1[i];
+                            estim = d_taps1[i]/d_taps[i] - 1;
 
-    	    		d_taps[i] = 0.01*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.99*d_taps[i];
-    	    		d_taps1[i] = 0.01*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.99*d_taps1[i];
-    	    		estim = d_taps1[i]/d_taps[i] - 1;
+                            *out = (estim);
+                            out += 1;
 
-    	    		*out = (estim);
-    	    		 out += 1;
-    	    	}
-    		}
+                    }
+                }
+            }
 
     	  }
+
     	  return noutput_items;
     }
 

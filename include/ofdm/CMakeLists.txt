@@ -36,6 +36,7 @@ install(FILES
     bit_position_dependent_ber.h
     calc_metric.h
     channel_equalizer_mimo_2.h
+    channel_equalizer_mimo_12.h
     channel_equalizer_mimo_3.h
     channel_equalizer_mimo.h
     channel_equalizer.h
@@ -155,5 +156,8 @@ install(FILES
     scfdma_subcarrier_mapper_vcvc.h
     scfdma_subcarrier_demapper_vcvc.h
     add_vcc.h
-    fbmc_subchannel_processing_mu_vcvc.h DESTINATION include/ofdm
+    fbmc_subchannel_processing_mu_vcvc.h
+    feedback_sink_vf.h
+    vector_element_vff.h 
+    DESTINATION include/ofdm
 )

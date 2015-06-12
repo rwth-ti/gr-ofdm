@@ -1,8 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 Institute for Theoretical Information Technology,
- *                RWTH Aachen University
- *                www.ti.rwth-aachen.de
+ * Copyright 2014 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +18,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_SINR_ESTIMATOR_H
-#define INCLUDED_OFDM_SINR_ESTIMATOR_H
+
+#ifndef INCLUDED_OFDM_VECTOR_ELEMENT_VFF_H
+#define INCLUDED_OFDM_VECTOR_ELEMENT_VFF_H
 
 #include <ofdm/api.h>
 #include <gnuradio/sync_block.h>
@@ -34,24 +33,26 @@ namespace gr {
      * \ingroup ofdm
      *
      */
-    class OFDM_API sinr_estimator : virtual public gr::sync_block
+    class OFDM_API vector_element_vff : virtual public gr::sync_block
     {
      public:
-      typedef boost::shared_ptr<sinr_estimator> sptr;
+      typedef boost::shared_ptr<vector_element_vff> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of ofdm::sinr_estimator.
+       * \brief Return a shared_ptr to a new instance of ofdm::vector_element_vff.
        *
-       * To avoid accidental use of raw pointers, ofdm::sinr_estimator's
+       * To avoid accidental use of raw pointers, ofdm::vector_element_vff's
        * constructor is in a private implementation
-       * class. ofdm::sinr_estimator::make is the public interface for
+       * class. ofdm::vector_element_vff::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen, int skip, int dc_null);
+      static sptr make(int vlen, int element);
+
+      virtual void set_element(const int element)= 0;
     };
 
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_SINR_ESTIMATOR_H */
+#endif /* INCLUDED_OFDM_VECTOR_ELEMENT_VFF_H */
 

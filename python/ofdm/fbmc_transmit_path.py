@@ -61,7 +61,7 @@ class transmit_path(gr.hier_block2):
     config = self.config = station_configuration()
 
     config.data_subcarriers    = options.subcarriers
-    config.cp_length           = options.cp_length
+    config.cp_length           = 0
     config.frame_data_blocks   = options.data_blocks
     config._verbose            = options.verbose
     config.fft_length          = options.fft_length
@@ -70,6 +70,7 @@ class transmit_path(gr.hier_block2):
                                           config.fft_length,config.dc_null,options)
     config.coding              = options.coding
     config.fbmc                = options.fbmc
+    config.adaptive_fbmc       = options.adaptive_fbmc
 
 
     config.frame_id_blocks     = 1 # FIXME
@@ -111,7 +112,7 @@ class transmit_path(gr.hier_block2):
       raise SystemError,"Data subcarriers need to be multiple of %d" % (used_id_bits)
 
     ## Allocation Control
-    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, "tcp://*:3333", config.coding)
+    self.allocation_src = allocation_src(config.data_subcarriers, config.frame_data_blocks, config.coding, "tcp://*:3333", "tcp://"+options.rx_hostname+":3322")
     if options.static_allocation: #DEBUG
         # how many bits per subcarrier
          
@@ -151,11 +152,11 @@ class transmit_path(gr.hier_block2):
         mux_ctrl = blocks.vector_source_b(mux_vec,True,1)
     else:
         id_src = (self.allocation_src,0)
-        bitcount_src = (self.allocation_src,3)
+        bitcount_src = (self.allocation_src,4)
         bitloading_src = (self.allocation_src,2)
         power_src = (self.allocation_src,1)
         if options.coding: 
-            modul_bitcount_src = (self.allocation_src,4)
+            modul_bitcount_src = (self.allocation_src,5)
         else:
             modul_bitcount_src = bitcount_src
         mux_ctrl = ofdm.tx_mux_ctrl(dsubc)
@@ -378,6 +379,17 @@ class transmit_path(gr.hier_block2):
 
     if options.log:
       log_to_file(self, overlap_p2s, "data/overlap_p2s_out.compl")
+
+
+    #Digital Amplifier for resource allocation
+    if config.adaptive_fbmc:
+        rep = blocks.repeat(gr.sizeof_gr_complex, config.frame_length * config.block_length)
+        amp = blocks.multiply_cc()
+        self.connect( lastblock, (amp,0) )
+        self.connect((self.allocation_src,3), rep , (amp,1) )
+        lastblock = amp
+    else:
+        self.connect((self.allocation_src,3), blocks.null_sink(gr.sizeof_gr_complex) )
 
     ## Digital Amplifier
     #amp = self._amplifier = gr.multiply_const_cc(1)

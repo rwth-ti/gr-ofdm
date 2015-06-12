@@ -1,8 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 Institute for Theoretical Information Technology,
- *                RWTH Aachen University
- *                www.ti.rwth-aachen.de
+ * Copyright 2014 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,59 +23,54 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "vector_element_impl.h"
-
-#include <iostream>
+#include "vector_element_vff_impl.h"
 
 namespace gr {
   namespace ofdm {
 
-    vector_element::sptr
-    vector_element::make(int vlen, int element)
+    vector_element_vff::sptr
+    vector_element_vff::make(int vlen, int element)
     {
       return gnuradio::get_initial_sptr
-        (new vector_element_impl(vlen, element));
+        (new vector_element_vff_impl(vlen, element));
     }
 
     /*
      * The private constructor
      */
-    vector_element_impl::vector_element_impl(int vlen, int element)
-      : gr::sync_block("vector_element",
-              gr::io_signature::make(1, 1, vlen * sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)))
-    	, d_vlen( vlen )
+    vector_element_vff_impl::vector_element_vff_impl(int vlen, int element)
+      : gr::sync_block("vector_element_vff",
+              gr::io_signature::make(1, 1, vlen * sizeof(float)),
+              gr::io_signature::make(1, 1, sizeof(float)))
+        , d_vlen( vlen )
         , d_element( element )
-    {
-        assert( element <= vlen );
-        assert( element > 0 );
-    }
+    {}
 
     /*
      * Our virtual destructor.
      */
-    vector_element_impl::~vector_element_impl()
+    vector_element_vff_impl::~vector_element_vff_impl()
     {
     }
 
     int
-    vector_element_impl::work(int noutput_items,
+    vector_element_vff_impl::work(int noutput_items,
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
-        const gr_complex *in = static_cast< const gr_complex* > ( input_items[0] );
-        gr_complex *out = static_cast< gr_complex* > ( output_items[0] );
+        const float *in = static_cast< const float* > ( input_items[0] );
+        float *out = static_cast< float* > ( output_items[0] );
 
         for( int i = 0; i < noutput_items; ++i )
         {
-            memcpy( out, in + d_element - 1, sizeof(gr_complex) );
+            memcpy( out, in + d_element - 1, sizeof(float) );
             in += d_vlen;
             out++;
         }
         return noutput_items;
     }
 
-    void vector_element_impl::set_element(const int element)
+    void vector_element_vff_impl::set_element(const int element)
     {
         if ( element < 0)
             d_element = 0;
@@ -85,8 +78,8 @@ namespace gr {
             d_element = d_vlen;
         else
             d_element = element;
-        //std::cout << "set element: " << d_element << std::endl;
     };
+
 
   } /* namespace ofdm */
 } /* namespace gr */

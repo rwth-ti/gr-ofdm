@@ -275,7 +275,12 @@ class fbmc_benchmark (gr.top_block):
     self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
     if self.ideal or self.ideal2:
         self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_rms_amplitude)
-  
+    else:
+        self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_fake_amplitude)
+
+    
+  def set_fake_amplitude(self, amplitude):
+        print
 
   def supply_rx_baseband(self):
     ## RX Spectrum

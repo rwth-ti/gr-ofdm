@@ -27,6 +27,7 @@
 #include <gnuradio/thread/thread.h>
 #include <zmq.hpp>
 #include <stdint.h>
+#include <fstream>
 
 #include <ctime>
 
@@ -41,6 +42,11 @@ namespace gr {
                     std::vector<uint8_t> bitloading;
                     std::vector<float> power;
                 };
+                struct d_feedback_information_struct {
+                    std::vector<float> snr;
+                    short id;
+                };
+
                 // local copy of allocation
                 d_allocation_struct d_allocation;
                 // output vectors have a different format, see set_allocation()
@@ -54,14 +60,40 @@ namespace gr {
                 int d_modulbitspermode[9];
                 gr::thread::mutex d_mutex;
 
+                d_feedback_information_struct d_feedback_information;
+                enum d_allocation_scheme_enum {CM, RA, MA};
+                d_allocation_scheme_enum d_allocation_scheme;
+                int d_power_limit;
+                int d_data_rate;
+                float d_gap;
+                std::map<float, float> d_gap_map;
+                void init_gap_map();
+                gr_complex d_amplitude_out;
+                float d_amplitude_abs;
+                std::vector<float> d_amplitude;
+
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
+                zmq::context_t  *d_context_feedback;
+                zmq::socket_t   *d_socket_feedback;
+
+                void calculate_bitloading_MA();
+                void calculate_bitloading_RA();
+
             public:
-                allocation_src_impl(int subcarriers, int data_symbols, char *address, bool coding);
+                allocation_src_impl(int subcarriers, int data_symbols, bool coding, char *address, char *fb_address);
                 ~allocation_src_impl();
 
                 void send_allocation();
+                void recv_snr();
+                void calculate_bitloading();
+
+                void set_allocation_scheme(int allocation_scheme);
+                void set_power_limit(int power_limit);
+                void set_data_rate(int data_rate);
+                void set_gap(float gap);
+
 
                 void set_allocation(std::vector<uint8_t> bitloading,
                         std::vector<float> power);

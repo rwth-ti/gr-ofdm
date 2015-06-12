@@ -37,6 +37,8 @@ def add_options(normal,expert):
                       help="set total bandwidth. [default=%default]")
     expert.add_option("", "--tx-hostname", type="string", default="localhost",
                       help="Set Tx hostname for zeromq")
+    expert.add_option("", "--rx-hostname", type="string", default="localhost",
+            help="Set Rx hostname for zeromq")
     expert.add_option("", "--gui-frame-rate", type="int", default=25,
                       help="Set the display frame rate of the GUI, necessary to stream data out of flowgraph")
     normal.add_option("", "--dot-graph", action="store_true", default=False)
@@ -51,6 +53,8 @@ def add_options(normal,expert):
                       help="Disabling inner receiver estimations")
     expert.add_option( "", "--ideal2", action="store_true", default=False,
                       help="Disabling inner receiver estimations including BER, SNR and GUI sinks")
+    expert.add_option( "", "--adaptive-fbmc", action="store_true", default=False,
+                      help="Enabling adaptive FBMC")
 
     preambles.default_block_header.add_options(normal,expert)
 
@@ -59,5 +63,5 @@ def defaults(options):
     if options.subcarriers is None:
         options.subcarriers = options.fft_length-8 #TODO: pilot subcarrier number!!
     if options.cp_length is None:
-        options.cp_length = int(options.fft_length/20)
+        options.cp_length = int(options.fft_length/16)
 

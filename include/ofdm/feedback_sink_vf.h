@@ -1,8 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 Institute for Theoretical Information Technology,
- *                RWTH Aachen University
- *                www.ti.rwth-aachen.de
+ * Copyright 2014 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +18,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_OFDM_SINR_ESTIMATOR_H
-#define INCLUDED_OFDM_SINR_ESTIMATOR_H
+
+#ifndef INCLUDED_OFDM_FEEDBACK_SINK_VF_H
+#define INCLUDED_OFDM_FEEDBACK_SINK_VF_H
 
 #include <ofdm/api.h>
 #include <gnuradio/sync_block.h>
@@ -34,24 +33,24 @@ namespace gr {
      * \ingroup ofdm
      *
      */
-    class OFDM_API sinr_estimator : virtual public gr::sync_block
+    class OFDM_API feedback_sink_vf : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<sinr_estimator> sptr;
+      typedef boost::shared_ptr<feedback_sink_vf> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of ofdm::sinr_estimator.
+       * \brief Return a shared_ptr to a new instance of ofdm::feedback_sink_vf.
        *
-       * To avoid accidental use of raw pointers, ofdm::sinr_estimator's
+       * To avoid accidental use of raw pointers, ofdm::feedback_sink_vf's
        * constructor is in a private implementation
-       * class. ofdm::sinr_estimator::make is the public interface for
+       * class. ofdm::feedback_sink_vf::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int vlen, int skip, int dc_null);
+      static sptr make(size_t subc, char *address);
     };
 
   } // namespace ofdm
 } // namespace gr
 
-#endif /* INCLUDED_OFDM_SINR_ESTIMATOR_H */
+#endif /* INCLUDED_OFDM_FEEDBACK_SINK_VF_H */
 

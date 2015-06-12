@@ -29,6 +29,10 @@ from gr_tools import log_to_file
 from ofdm import skip, vector_sum_vff, static_mux_v, sinr_interpolator, sinr_estimator, sinr_estimator_02
 from gnuradio.blocks import null_sink, divide_ff, add_const_vff, add_vff
 
+from gnuradio import blocks, filter
+
+from station_configuration import *
+
 
 
 class milans_snr_estimator(gr.hier_block2):
@@ -440,6 +444,8 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
 
     print "Created Milan's SINR estimator 2"
 
+    config = station_configuration()
+
 #    trigger = [0]*vlen
 #    trigger[0] = 1
 #
@@ -477,9 +483,9 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
 #    
     # For average
     sum_all = vector_sum_vff(vlen)
-    mult = gr.multiply_const_ff(1./vlen)
-    scsnr_db_av = gr.nlog10_ff(10,1,0)
-    filt_end_av = gr.single_pole_iir_filter_ff(0.1)
+    mult = blocks.multiply_const_ff(1./vlen)
+    scsnr_db_av = blocks.nlog10_ff(10,1,0)
+    filt_end_av = filter.single_pole_iir_filter_ff(0.1)
 #
 #
 #    self.connect((self,0),v2s_pr0,skip2_pr0,s2v2_pr0,mag_sq_zeros_pr0,filt_zeros_pr0)
@@ -496,17 +502,24 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
 #    self.connect(filt_zeros_pr0,neg_nomin_z,(sum_zeros,1))
 #    self.connect(sum_zeros,div_z)
 #    self.connect(filt_zeros_pr0,(div_z,1))
+    
 
-    estimator = sinr_estimator(vlen, ss)
+    estimator = sinr_estimator(vlen, ss, config.dc_null)
 
-    scsnr_db = gr.nlog10_ff(10,vlen,0)
-    filt_end = gr.single_pole_iir_filter_ff(0.1,vlen)
+    scsnr_db = blocks.nlog10_ff(10,vlen,0)
+    filt_end = filter.single_pole_iir_filter_ff(0.1,vlen)
 
 
 
     dd = []
+    #for i in range (vlen/ss):
+    #    dd.extend([i*ss])
     for i in range (vlen/ss):
-        dd.extend([i*ss])
+        if i < (vlen/ss)/2:
+            dd.extend([i*ss + 4 + config.dc_null/2])
+        else:
+            dd.extend([i*ss + 4 - config.dc_null/2])
+
     #print dd
     interpolator = sinr_interpolator(vlen, ss,dd)
     

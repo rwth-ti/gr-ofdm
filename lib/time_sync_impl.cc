@@ -68,8 +68,8 @@ namespace gr {
               , d_blocklen( vlen + cplen )
               , d_state( ACQUISITION )
               , d_avg_blocks( 10 )
-              , d_sc_threshold( 0.2 )
-              , d_gi_threshold( 0.2 * d_avg_blocks )
+              , d_sc_threshold( 0.25 )
+              , d_gi_threshold( 0.25 * d_avg_blocks )
               , d_s0_max_ind_err( cplen ) // 10
               , d_s1_gi_failures( 0 )
               , d_s1_max_failures( 20 )

@@ -71,6 +71,8 @@ namespace gr {
                 gr_complex d_amplitude_out;
                 float d_amplitude_abs;
                 std::vector<float> d_amplitude;
+                std::vector<float> d_inv_power;
+                std::vector<float> d_inv_ones;
 
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;

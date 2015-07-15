@@ -527,6 +527,9 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
     self.connect((self,1),(estimator,1))
     self.connect(estimator,interpolator,filt_end,scsnr_db,self)
     self.connect(interpolator,sum_all,mult,scsnr_db_av,filt_end_av,(self,1))
+    log_to_file(self,estimator , "data/estimator.float")
+    log_to_file(self,interpolator, "data/interpolator.float")
+
 
 ################################################################################
 ################################################################################

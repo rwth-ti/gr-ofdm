@@ -14,8 +14,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -181,7 +181,7 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0">
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="5,3">
       <item>
        <widget class="QwtPlot" name="qwtPlotCSI">
@@ -199,7 +199,7 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="0">
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>0</number>
@@ -652,196 +652,190 @@
        <attribute name="title">
         <string>Allocation</string>
        </attribute>
-       <widget class="QWidget" name="widget" native="true">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>1111</width>
-          <height>161</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="lineEditPowerLimit">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>200</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="comboBoxScheme">
-           <item>
-            <property name="text">
-             <string>Uniform</string>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="lineEditGap">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
             </property>
-           </item>
-           <item>
             <property name="text">
-             <string>Rate Adaptive</string>
+             <string>0.001</string>
             </property>
-           </item>
-           <item>
+            <property name="placeholderText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSlider" name="horizontalSliderPowerLimit">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>200</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
+            <property name="tickInterval">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBoxScheme">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Uniform</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Rate Adaptive</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Margin Adaptive</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSlider" name="horizontalSliderDataRate">
+            <property name="maximum">
+             <number>450</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="pageStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>119</number>
+            </property>
+            <property name="sliderPosition">
+             <number>119</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
+            <property name="tickInterval">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLineEdit" name="lineEditDataRate">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Margin Adaptive</string>
+             <string>1.1</string>
             </property>
-           </item>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSlider" name="horizontalSliderDataRate">
-           <property name="maximum">
-            <number>450</number>
-           </property>
-           <property name="singleStep">
-            <number>5</number>
-           </property>
-           <property name="pageStep">
-            <number>5</number>
-           </property>
-           <property name="value">
-            <number>119</number>
-           </property>
-           <property name="sliderPosition">
-            <number>119</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
-           </property>
-           <property name="tickInterval">
-            <number>1000</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Power Limit:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLineEdit" name="lineEditDataRate">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>1.1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Data Rate:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Scheme:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSlider" name="horizontalSliderPowerLimit">
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>1000</number>
-           </property>
-           <property name="pageStep">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>200</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
-           </property>
-           <property name="tickInterval">
-            <number>50</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Target BER:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSlider" name="horizontalSliderGap">
-           <property name="minimum">
-            <number>3010</number>
-           </property>
-           <property name="maximum">
-            <number>50000</number>
-           </property>
-           <property name="value">
-            <number>30000</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Mbit/s</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEditGap">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>0.001</string>
-           </property>
-           <property name="placeholderText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Data Rate:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Scheme:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Power Limit:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="lineEditPowerLimit">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>200</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSlider" name="horizontalSliderGap">
+            <property name="minimum">
+             <number>3010</number>
+            </property>
+            <property name="maximum">
+             <number>50000</number>
+            </property>
+            <property name="value">
+             <number>30000</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Target BER:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Mbit/s</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
    </layout>
    <zorder></zorder>
    <zorder>tabWidget</zorder>
+   <zorder></zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

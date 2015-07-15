@@ -28,6 +28,7 @@
 #include "allocation_src_impl.h"
 #include <iostream>
 #include <pmt/pmt.h>
+#include <volk/volk.h>
 
 #include <numeric>
 
@@ -74,24 +75,24 @@ namespace gr {
     {
         if (d_coding)
         {
-    	std::vector<int> out_sig(6);
-        out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(float)*subcarriers;                 // power
-        out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(gr_complex);                        // amplitude
-        out_sig[4] = sizeof(int);                				// bitcount
-        out_sig[5] = sizeof(int);                               // bitcount
-        set_output_signature(io_signature::makev(6,6,out_sig));
+            std::vector<int> out_sig(6);
+            out_sig[0] = sizeof(short);                             // id
+            out_sig[1] = sizeof(float)*subcarriers;                 // power
+            out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
+            out_sig[3] = sizeof(gr_complex);                        // amplitude
+            out_sig[4] = sizeof(int);                               // uncoded bitcount
+            out_sig[5] = sizeof(int);                               // coded bitcount
+            set_output_signature(io_signature::makev(6,6,out_sig));
         }
-    	else
+        else
         {
-    	std::vector<int> out_sig(5);
-        out_sig[0] = sizeof(short);                             // id
-        out_sig[1] = sizeof(float)*subcarriers;                 // power
-        out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
-        out_sig[3] = sizeof(gr_complex);                        // amplitude
-        out_sig[4] = sizeof(int);                               // bitcount
-        set_output_signature(io_signature::makev(5,5,out_sig));
+            std::vector<int> out_sig(5);
+            out_sig[0] = sizeof(short);                             // id
+            out_sig[1] = sizeof(float)*subcarriers;                 // power
+            out_sig[2] = sizeof(uint8_t)*subcarriers;               // bitloading
+            out_sig[3] = sizeof(gr_complex);                        // amplitude
+            out_sig[4] = sizeof(int);                               // bitcount
+            set_output_signature(io_signature::makev(5,5,out_sig));
         }
 
 
@@ -116,6 +117,8 @@ namespace gr {
         {
             d_amplitude.push_back(1.0);
         }
+
+        d_inv_ones.resize(subcarriers,1.0);
 
         d_context = new zmq::context_t(1);
         d_socket = new zmq::socket_t(*d_context, ZMQ_PUB);
@@ -167,17 +170,26 @@ namespace gr {
 //        zmq::message_t msg(msg_str.size()+1);
 //        memcpy(msg.data(), (void *)msg_str.c_str(), msg_str.size()+1);
 
+        // inverse Power
+        d_inv_power = d_allocation.power;
+        for(int i = 0; i< d_subcarriers; i++)
+        {
+            if(d_inv_power[i]==0)
+                d_inv_power[i]=1;
+        }
+        volk_32f_x2_divide_32f(&d_inv_power[0], &d_inv_ones[0], &d_inv_power[0], d_subcarriers);
+
         // just write datagram to message with raw copying (much faster)
         zmq::message_t msg(sizeof(d_allocation.id)
                            + d_subcarriers*sizeof(d_allocation.bitloading[0])
-                           + d_subcarriers*sizeof(d_allocation.power[0]));
+                           + d_subcarriers*sizeof(d_inv_power[0]));
         memcpy(msg.data(), &d_allocation.id, sizeof(d_allocation.id));
         memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id),
                                  &d_allocation.bitloading[0],
                                  d_subcarriers*sizeof(d_allocation.bitloading[0]));
         memcpy((uint8_t*)msg.data()+sizeof(d_allocation.id)+d_subcarriers*sizeof(d_allocation.bitloading[0]),
-                                 &d_allocation.power[0],
-                                 d_subcarriers*sizeof(d_allocation.power[0]));
+                                 &d_inv_power[0],
+                                 d_subcarriers*sizeof(d_inv_power[0]));
         d_socket->send(msg, ZMQ_NOBLOCK);
     }
 
@@ -199,10 +211,10 @@ namespace gr {
                 // copy message into allocation struct and find id to put into buffer
                 d_feedback_information.id = *(short*)msg.data();
                 d_feedback_information.snr.clear();
-                d_feedback_information.snr.assign((float*)msg.data()+sizeof(short),
-                                                              (float*)msg.data()
+                d_feedback_information.snr.assign((float*)((char*)msg.data()+sizeof(short)),
+                                                              (float*)((char*)msg.data()
                                                               +sizeof(short)
-                                                              +d_subcarriers*sizeof(float));
+                                                              +d_subcarriers*sizeof(float)));
 
                 for(int i= 0;i<d_subcarriers; i++)
                 {
@@ -383,15 +395,40 @@ namespace gr {
             G+= log2(snr_sort[i]);
         }
         //if(G < d_data_rate) return;
-        if(G < 200) return;
+        if(G < 200)
+        {
+            // default data modulation scheme is BPSK
+            d_allocation.bitloading.clear();
+            d_allocation.bitloading.assign(200,1);
+            // init power allocation vector
+            d_allocation.power.clear();
+            d_allocation.power.assign(200,1);
+
+            // clear and write power output vector
+            d_allocation_out.power = d_allocation.power;
+
+            // clear and write bitloading output vector
+            d_allocation_out.bitloading.clear();
+            // insert data symbol modulation at the end ONCE
+            d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
+
+            int sum_of_elems = 0;
+            for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
+                sum_of_elems += *j;
+            d_bitcount_out = sum_of_elems*d_data_symbols;
+
+            return;
+        }
         std::sort(snr_sort.begin(), snr_sort.end());
         level = d_gap * pow(2, ((d_data_rate-G)/d_subcarriers));
 
         //Get Water Level
         while(level < (d_gap / snr_sort[it]))
         {
-            if(it>50) return;
-
+            if(it>50)
+            {
+                return;
+            }
             G-= log2(snr_sort[it]);
             it++;
             level = d_gap * pow(2, (d_data_rate-G) / (d_subcarriers - it));
@@ -593,7 +630,8 @@ namespace gr {
 			// output 1 vector for id and the rest for data
 			int p_idx = i*d_subcarriers;
 			memcpy(&out_power[p_idx], &d_allocation_out.power[0], sizeof(float)*d_subcarriers);
-            memcpy(&out_amplitude[i], &d_amplitude_out, sizeof(gr_complex));
+                        volk_32f_x2_multiply_32f(&out_power[p_idx], &out_power[p_idx],&out_power[p_idx], d_subcarriers);
+                        memcpy(&out_amplitude[i], &d_amplitude_out, sizeof(gr_complex));
 			//increase frame id, [0..255]
 			d_allocation.id++;
 			if (d_allocation.id > 255) {

@@ -51,7 +51,6 @@ namespace gr {
     	, d_data_symbols(data_symbols)
     	, d_allocation_buffer(256) //TODO: id size hardcoded
 		,d_coding( coding )
-    	//,d_inv_ones(subcarriers)
 		,d_bitspermode( {1,2,3,4,6,8,9,10,12})
     {
         std::vector<int> out_sig(3);
@@ -59,7 +58,7 @@ namespace gr {
         out_sig[1] = sizeof(uint8_t)*subcarriers;                  // bitloading
         out_sig[2] = sizeof(float)*subcarriers;            // power
         set_output_signature(io_signature::makev(3,3,out_sig));
-        d_inv_ones.resize(subcarriers,1.0);
+        //d_inv_ones.resize(subcarriers,1.0);
 
         const int alignment_multiple = volk_get_alignment() / sizeof(float);
          set_alignment(std::max(1, alignment_multiple));
@@ -209,8 +208,7 @@ namespace gr {
             // output vector for data (bpsk is used for id)
             memcpy(&out_bitloading[i*d_subcarriers], &d_bitloading_out[0], sizeof(uint8_t)*d_subcarriers);
             // output 1 vector for id and the rest for data
-            //memcpy(&out_power[i*d_subcarriers], &d_power_out[0], sizeof(float)*d_subcarriers);
-            volk_32f_x2_divide_32f(&out_power[i*d_subcarriers], &d_inv_ones[0], &d_power_out[0], d_subcarriers);
+            memcpy(&out_power[i*d_subcarriers], &d_power_out[0], sizeof(float)*d_subcarriers);
         }
         return noutput_items;
     }

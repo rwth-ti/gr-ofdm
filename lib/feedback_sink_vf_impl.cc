@@ -63,11 +63,11 @@ namespace gr {
     feedback_sink_vf_impl::send_snr(short *id, float *snr)
     {
         zmq::message_t msg(sizeof(short)
-                           + 200*sizeof(float));
+                           + d_subc*sizeof(float));
         memcpy(msg.data(), id, sizeof(short));
-        memcpy((short*)msg.data()+sizeof(short),
+        memcpy((char*)msg.data()+sizeof(short),
                                  snr,
-                                 200*sizeof(float));
+                                 d_subc*sizeof(float));
 
         d_socket->send(msg, ZMQ_NOBLOCK);
 

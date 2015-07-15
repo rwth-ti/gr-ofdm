@@ -41,7 +41,6 @@ namespace gr {
                 std::vector<d_allocation_struct> d_allocation_buffer;
                 std::vector<uint8_t> d_bitloading_out;
                 std::vector<float> d_power_out;
-                std::vector<float> d_inv_ones;
                 int d_bitcount_out;
                 int d_subcarriers;
                 int d_data_symbols;

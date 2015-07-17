@@ -711,12 +711,17 @@
             </item>
             <item>
              <property name="text">
-              <string>Rate Adaptive</string>
+              <string>Rate Adaptive (Bitloading)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Margin Adaptive</string>
+              <string>Rate Adaptive (Bitloading, Power)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Margin Adaptive (Bitloading, Power)</string>
              </property>
             </item>
            </widget>

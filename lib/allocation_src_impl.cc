@@ -66,8 +66,8 @@ namespace gr {
         ,d_modulbitspermode( {1,2,2,4,4,6,6,6,8} )
         ,d_modulbitcount_out(2000)
         ,d_allocation_scheme(CM)
-        ,d_power_limit(200)
-        ,d_data_rate(600)
+        ,d_power_limit(subcarriers)
+        ,d_data_rate(subcarriers*3)
         ,d_gap(6.6)
         ,d_amplitude_out(1.0 + 1.0i)
         ,d_amplitude_abs(1)
@@ -234,6 +234,10 @@ namespace gr {
                     case MA:
                         calculate_bitloading_MA();
                         break;
+                    case LA:
+                        d_amplitude_abs=1;
+                        calculate_bitloading_loading_adaptive();
+                        break;
                     default:
                         std::cout<<"Choose Allocation Scheme!"<<std::endl;
                 }
@@ -300,7 +304,6 @@ namespace gr {
         std::vector<float>::iterator it;
         std::vector<float> inv_snr;
 
-
         for(int i = 0; i < d_subcarriers; i++)
         {
             if(d_feedback_information.snr[i]>7.6)//&& d_feedback_information.snr[i]< 40)
@@ -316,7 +319,7 @@ namespace gr {
         {
             level = (d_power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
             counter--;
-            if(counter < 150) break;
+            if(counter < 0.75 * d_subcarriers) break;
 
 
 
@@ -328,14 +331,14 @@ namespace gr {
             else break;
         }
 
-        if(counter<150)
+        if(counter< 0.75 * d_subcarriers)
         {
             // default data modulation scheme is BPSK
             d_allocation.bitloading.clear();
-            d_allocation.bitloading.assign(200,1);
+            d_allocation.bitloading.assign(d_subcarriers,1);
             // init power allocation vector
             d_allocation.power.clear();
-            d_allocation.power.assign(200,1);
+            d_allocation.power.assign(d_subcarriers,1);
         }
         else
         {
@@ -395,14 +398,14 @@ namespace gr {
             G+= log2(snr_sort[i]);
         }
         //if(G < d_data_rate) return;
-        if(G < 200)
+        if(G < d_subcarriers)
         {
             // default data modulation scheme is BPSK
             d_allocation.bitloading.clear();
-            d_allocation.bitloading.assign(200,1);
+            d_allocation.bitloading.assign(d_subcarriers,1);
             // init power allocation vector
             d_allocation.power.clear();
-            d_allocation.power.assign(200,1);
+            d_allocation.power.assign(d_subcarriers,1);
 
             // clear and write power output vector
             d_allocation_out.power = d_allocation.power;
@@ -475,6 +478,49 @@ namespace gr {
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
     }
+
+
+    void
+    allocation_src_impl::calculate_bitloading_loading_adaptive()
+    {
+        int count=0;
+
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            d_allocation.bitloading[i] = (char)log2(1 + ((d_feedback_information.snr[i])/ d_gap ));
+            if(d_allocation.bitloading[i]>8) d_allocation.bitloading[i]=8;
+        }
+
+        for(int i = 0; i < d_subcarriers; i++)
+        {
+            if(d_allocation.bitloading[i]==0) count++;
+        }
+
+        if(count>30)
+        {
+            // default data modulation scheme is BPSK
+            d_allocation.bitloading.clear();
+            d_allocation.bitloading.assign(d_subcarriers,1);
+        }
+
+        // init power allocation vector
+        d_allocation.power.clear();
+        d_allocation.power.assign(d_subcarriers,1);
+
+        // clear and write power output vector
+        d_allocation_out.power = d_allocation.power;
+
+        // clear and write bitloading output vector
+        d_allocation_out.bitloading.clear();
+        d_allocation_out.bitloading=d_allocation.bitloading;
+
+        int sum_of_elems = 0;
+        for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
+            sum_of_elems += *j;
+        d_bitcount_out = sum_of_elems*d_data_symbols;
+
+    }
+
 
     void
     allocation_src_impl::init_gap_map()

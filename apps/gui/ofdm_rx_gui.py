@@ -330,13 +330,11 @@ class OFDMRxGUI(QtGui.QMainWindow):
                     self.update_tx_params()
                     self.change_mod = 0
                     sleep(1)
-                
                 filename_prefix = "M_"+str(int(self.iii))
                 if not os.path.isfile("./" + self.dirname+filename_prefix+'_ber.dat'):
                     self.testfile = open(self.dirname+filename_prefix+'_ber.dat','w')
                 if not os.path.isfile("./" + self.dirname+filename_prefix+'_datarate.dat'):
                     self.testfile2 = open(self.dirname+filename_prefix+'_datarate.dat','w')        
-                
                 if not ((not self.ii != self.snr_points-1) or (not self.meas_ber > 1e-7 and self.iii<7) ) :
                 #if self.ii != self.snr_points:
                     #if self.ii==0 and self.i == 0:
@@ -344,7 +342,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
                         #self.rpc_mgr_tx.request("set_allocation_scheme",[2])
                         #self.update_tx_params()
                 #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-            
                     if self.i != self.iter_points:
                         if self.i>=20:
                             self.ber=self.ber+samples
@@ -360,8 +357,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
                         self.meas_ber = self.ber/(self.iter_points-20)
                         self.ii=self.ii+1
                         #self.rpc_mgr_tx.request("set_power_limit",[10])
-        
-    
                         #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
                         #self.rpc_mgr_tx.request("set_amplitude",[(pow(10,self.ii/10.)*0.01)])
                         self.snrsum=0
@@ -375,21 +370,18 @@ class OFDMRxGUI(QtGui.QMainWindow):
                             #self.testfile.close()
                             #self.testfile2.close()
                 #print "self.ii: ", self.ii
-                            #print "Modulation: "+str(int(self.iii))+" fertig!!!!!!!!"
+                            #print "Modulation: "+str(int(self.iii))+" done!"
                             #self.meas_ber = 0.5
                             ##self.meas_ber_prev = 0.5
                             #self.iii = self.iii + 1
                             #self.i = 0
                             #self.ii = 0
-                            
                         #print"hi"
                         #print"self.ii: ", self.ii
-                
-                        
                 else:
                     self.testfile.close()
                     self.testfile2.close()
-                    print "Modulation: "+str(int(self.iii))+" fertig!!!!!!!!"
+                    print "Modulation: "+str(int(self.iii))+" done!"
                     self.meas_ber = 0.5
                     self.iii = self.iii + 1
                     self.change_mod = 1
@@ -397,9 +389,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
                     self.ii = 0
                     self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
                     self.rpc_mgr_tx.request("set_amplitude_ideal",[numpy.sqrt(self.txpow_range[self.ii])])
-                    
             else:
-                print"fertig!!!!!!!!"
+                print"done!"
 
     def plot_freqoffset(self, samples):
         self.freqoffset_y = numpy.append(samples,self.freqoffset_y)
@@ -432,9 +423,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.qwtPlotScatter.replot()
 
     def set_allocation_scheme(self, scheme_str):
-        scheme = {'Uniform'    : 0,
-                  'Rate Adaptive'    : 1,
-                  'Margin Adaptive'   : 2,
+        scheme = {'Uniform'                            : 0,
+                  'Rate Adaptive (Bitloading, Power)'  : 1,
+                  'Margin Adaptive (Bitloading, Power)': 2,
+                  'Rate Adaptive (Bitloading)'         : 3,
                  }[str(scheme_str)]
         if scheme == 0:
             self.rpc_mgr_tx.request("set_modulation",[[1]*self.data_subcarriers,[1]*self.data_subcarriers])

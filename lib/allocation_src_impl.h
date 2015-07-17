@@ -61,7 +61,7 @@ namespace gr {
                 gr::thread::mutex d_mutex;
 
                 d_feedback_information_struct d_feedback_information;
-                enum d_allocation_scheme_enum {CM, RA, MA};
+                enum d_allocation_scheme_enum {CM, RA, MA, LA};
                 d_allocation_scheme_enum d_allocation_scheme;
                 int d_power_limit;
                 int d_data_rate;
@@ -82,6 +82,7 @@ namespace gr {
 
                 void calculate_bitloading_MA();
                 void calculate_bitloading_RA();
+                void calculate_bitloading_loading_adaptive();
 
             public:
                 allocation_src_impl(int subcarriers, int data_symbols, bool coding, char *address, char *fb_address);

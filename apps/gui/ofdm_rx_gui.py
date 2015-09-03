@@ -164,8 +164,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.horizontalSliderTxGain, QtCore.SIGNAL("valueChanged(int)"), self.slide_tx_gain)
         self.connect(self.gui.horizontalSliderRxGain, QtCore.SIGNAL("valueChanged(int)"), self.slide_rx_gain)
         self.connect(self.gui.comboBoxScheme, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_allocation_scheme)
-        self.connect(self.gui.horizontalSliderPowerLimit, QtCore.SIGNAL("valueChanged(int)"), self.slide_power_limit)
-        self.connect(self.gui.lineEditPowerLimit, QtCore.SIGNAL("editingFinished()"), self.edit_power_limit)
         self.connect(self.gui.horizontalSliderDataRate, QtCore.SIGNAL("valueChanged(int)"), self.slide_data_rate)
         self.connect(self.gui.lineEditDataRate, QtCore.SIGNAL("editingFinished()"), self.edit_data_rate)
         self.connect(self.gui.horizontalSliderGap, QtCore.SIGNAL("valueChanged(int)"), self.slide_gap)
@@ -439,27 +437,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
         self.rpc_mgr_tx.request("set_allocation_scheme",[scheme])
         self.update_tx_params()
-
-
-    def slide_power_limit(self, power_limit):
-        self.gui.lineEditPowerLimit.setText(QtCore.QString.number(power_limit))
-        self.rpc_mgr_tx.request("set_power_limit",[power_limit])
-
-
-        #self.rpc_mgr_tx.request("set_modulation",[[5]*self.data_subcarriers,[power_limit/200.]*self.data_subcarriers])
-        #self.update_tx_params()
-
-    def edit_power_limit(self):
-        power_limit = self.lineEditPowerLimit.text().toInt()[0]
-        power_limit = min(power_limit,1000)
-        power_limit = max(power_limit,0)
-        self.gui.lineEditPowerLimit.setText(QtCore.QString("%1").arg(power_limit))
-        # block signals to avoid feedback loop
-        self.gui.horizontalSliderPowerLimit.blockSignals(True)
-        # note slider positions are int (!)
-        self.gui.horizontalSliderPowerLimit.setValue(power_limit)
-        self.gui.horizontalSliderPowerLimit.blockSignals(False)
-        self.rpc_mgr_tx.request("set_power_limit",[power_limit])
 
     def slide_data_rate(self, data_rate):
         bit_data_rate = (int) ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3))

@@ -659,31 +659,6 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSlider" name="horizontalSliderPowerLimit">
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>1000</number>
-            </property>
-            <property name="pageStep">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>200</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksBelow</enum>
-            </property>
-            <property name="tickInterval">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
            <widget class="QSlider" name="horizontalSliderDataRate">
             <property name="maximum">
              <number>450</number>
@@ -711,7 +686,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="2" column="2">
            <widget class="QLineEdit" name="lineEditDataRate">
             <property name="maximumSize">
              <size>
@@ -724,7 +699,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_15">
             <property name="text">
              <string>Data Rate:</string>
@@ -735,26 +710,6 @@
            <widget class="QLabel" name="label_13">
             <property name="text">
              <string>Scheme:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Power Limit:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="lineEditPowerLimit">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>200</string>
             </property>
            </widget>
           </item>
@@ -793,7 +748,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
+          <item row="2" column="3">
            <widget class="QLabel" name="label_14">
             <property name="text">
              <string>Mbit/s</string>

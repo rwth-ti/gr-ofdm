@@ -317,28 +317,33 @@ namespace gr {
                 inv_snr.push_back( d_gap / d_resource_blocks.snr[i]); 
                 counter ++;
             }
-            else inv_snr.push_back(0);
+            else 
+            {
+                inv_snr.push_back(0);
+            }
 
         }
 
         while(1)
         {
             level = (d_resource_blocks.power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
-            counter--;
             // break if too many subcarriers nulled
             if(counter < (0.75 * d_resource_blocks.number))
+            {
                 break;
+            }
 
             it = std::max_element(inv_snr.begin(), inv_snr.end());
             if(*it > level)
             {
+                counter--;
                 *it = 0;
             }
 
             else break;
         }
 
-        if(counter< 0.75 * d_resource_blocks.number)
+        if(counter < (0.75 * d_resource_blocks.number))
         {
             // default data modulation scheme is BPSK
             d_resource_blocks.bitloading.clear();
@@ -533,8 +538,8 @@ namespace gr {
             //d_feedback_information.snr[i] /= d_amplitude[d_feedback_information.id];
         }
 
-        d_resource_blocks.power_limit = d_power_limit*(d_resource_blocks.number + 1.)/d_subcarriers;
-        d_resource_blocks.data_rate = d_data_rate*(d_resource_blocks.number + 1.)/d_subcarriers;
+        d_resource_blocks.power_limit = (float)d_power_limit*(d_resource_blocks.number)/d_subcarriers;
+        d_resource_blocks.data_rate = (float)d_data_rate*(d_resource_blocks.number)/d_subcarriers;
 
 //        std::cout<<d_resource_blocks.snr[100]<<"  "<<d_feedback_information.snr[100] <<std::endl;
 

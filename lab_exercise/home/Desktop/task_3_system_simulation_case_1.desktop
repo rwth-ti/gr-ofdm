@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon
 Name=task_3_system_simulation_case_1
-Exec=/opt/lab-ofdm/gr-ofdm/bin/run_benchmark_gui.sh --multipath
+Exec=/opt/gr-ofdm/bin/run_benchmark_gui.sh --multipath

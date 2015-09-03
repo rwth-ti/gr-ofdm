@@ -60,6 +60,16 @@ and
 be careful with the frequency offset of you radio frontend. It might be
 necessary to apply a small manual correction of a few kHz.
 
+Additional features:
+
+Coding
+
+    ./run_benchmark_gui.sh  --coding  --data-blocks=10
+
+Adaptive OFDM
+
+    ./run_benchmark_gui.sh --sinr-est --multipath
+
 
 Copyright information
 ------------------

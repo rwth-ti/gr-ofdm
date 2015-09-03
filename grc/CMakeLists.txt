@@ -18,18 +18,17 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     ofdm_uhd_transmitter.xml
-	ofdm_ofdm_pilot_block_inserter.xml
-	ofdm_fbmc_snr_filter.xml
-	ofdm_snr_filter.xml
+    ofdm_ofdm_pilot_block_inserter.xml
+    ofdm_fbmc_snr_filter.xml
+    ofdm_snr_filter.xml
     ofdm_scatterplot_subcarrier_filter.xml
-	ofdm_rx_rpc_manager.xml
-	ofdm_fbmc_rms_amplifier.xml
-	ofdm_fbmc_snr_estimator.xml
-	ofdm_fbmc_postprocess_CTF_estimate.xml
-	ofdm_pilot_block_filter.xml
-	ofdm_frame_sampler.xml
-	ofdm_fbmc_frame_sampler.xml
-	ofdm_fbmc_pilot_block_filter.xml
+    ofdm_fbmc_rms_amplifier.xml
+    ofdm_fbmc_snr_estimator.xml
+    ofdm_fbmc_postprocess_CTF_estimate.xml
+    ofdm_pilot_block_filter.xml
+    ofdm_frame_sampler.xml
+    ofdm_fbmc_frame_sampler.xml
+    ofdm_fbmc_pilot_block_filter.xml
     ofdm_pilot_subcarrier_filter.xml
     ofdm_ber_reference_source.xml
     ofdm_recursive_timing_metric.xml
@@ -38,7 +37,7 @@ install(FILES
     ofdm_autocorrelator_stage2.xml
     ofdm_accumulator_ff.xml
     ofdm_autocorrelator0.xml
-    fdm_autocorrelator.xml
+    ofdm_autocorrelator.xml
     ofdm_ber_measurement.xml
     ofdm_bernoulli_bit_src.xml
     ofdm_bit_position_dependent_ber.xml

@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon
 Name=task_4_system_simulation
-Exec=/opt/lab-ofdm/gr-ofdm/bin/run_benchmark_gui.sh --disable-freq-sync
+Exec=/opt/gr-ofdm/bin/run_benchmark_gui.sh --sinr-est --multipath

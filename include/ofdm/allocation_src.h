@@ -57,6 +57,8 @@ namespace gr {
                 virtual void set_power_limit(int power_limit) = 0;
                 virtual void set_data_rate(int data_rate) = 0;
                 virtual void set_gap(float gap) = 0;
+                virtual void set_resource_block_size(int resource_block_size) = 0;
+                virtual void set_resource_block_number(int block_number) = 0;
 
         };
 

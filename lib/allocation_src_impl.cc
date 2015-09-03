@@ -139,6 +139,7 @@ namespace gr {
         //set_max_noutput_items((1+d_data_symbols)*d_subcarriers);
 
         init_gap_map();
+        set_resource_block_size( 1);
     }
 
     /*
@@ -216,11 +217,13 @@ namespace gr {
                                                               +sizeof(short)
                                                               +d_subcarriers*sizeof(float)));
 
-                for(int i= 0;i<d_subcarriers; i++)
+/*                for(int i= 0;i<d_subcarriers; i++)
                 {
                     d_feedback_information.snr[i] = pow(10, d_feedback_information.snr[i]/10);
                     //d_feedback_information.snr[i] /= d_amplitude[d_feedback_information.id];
                 }
+
+*/
 
                 switch (d_allocation_scheme)
                 {
@@ -298,17 +301,20 @@ namespace gr {
     void
     allocation_src_impl::calculate_bitloading_RA()
     {
+        combine_snr();
+
         float level=0;
         int counter = 0;
-        d_allocation.power.clear();
+        d_resource_blocks.power.clear();
+        d_resource_blocks.bitloading.clear();
         std::vector<float>::iterator it;
         std::vector<float> inv_snr;
 
-        for(int i = 0; i < d_subcarriers; i++)
+        for(int i = 0; i < d_resource_blocks.number; i++)
         {
-            if(d_feedback_information.snr[i]>7.6)//&& d_feedback_information.snr[i]< 40)
+            if(d_resource_blocks.snr[i]>7.6)//&& d_resource_blocks.snr[i]< 40)
             {
-                inv_snr.push_back( d_gap / d_feedback_information.snr[i]); 
+                inv_snr.push_back( d_gap / d_resource_blocks.snr[i]); 
                 counter ++;
             }
             else inv_snr.push_back(0);
@@ -317,53 +323,257 @@ namespace gr {
 
         while(1)
         {
-            level = (d_power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
+            level = (d_resource_blocks.power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
             counter--;
-            if(counter < 0.75 * d_subcarriers) break;
-
-
+            // break if too many subcarriers nulled
+            if(counter < (0.75 * d_resource_blocks.number))
+                break;
 
             it = std::max_element(inv_snr.begin(), inv_snr.end());
             if(*it > level)
             {
                 *it = 0;
             }
+
             else break;
         }
 
-        if(counter< 0.75 * d_subcarriers)
+        if(counter< 0.75 * d_resource_blocks.number)
         {
             // default data modulation scheme is BPSK
-            d_allocation.bitloading.clear();
-            d_allocation.bitloading.assign(d_subcarriers,1);
+            d_resource_blocks.bitloading.clear();
+            d_resource_blocks.bitloading.assign(d_resource_blocks.number,1);
             // init power allocation vector
-            d_allocation.power.clear();
-            d_allocation.power.assign(d_subcarriers,1);
+            d_resource_blocks.power.clear();
+            d_resource_blocks.power.assign(d_resource_blocks.number,1);
         }
         else
         {
 
         //scale power to 1 and send scaling factor to time domain
-        //d_amplitude_abs = ((level*counter)-std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/d_subcarriers;
+        //d_amplitude_abs = ((level*counter)-std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/d_resource_blocks.number;
 
         //for(it =  inv_snr.begin(); it!= inv_snr.end(); it++)
-        for(int i = 0; i < d_subcarriers; i++)
+        for(int i = 0; i < d_resource_blocks.number; i++)
         {
             if(inv_snr[i]!=0)
             {
-                d_allocation.power.push_back(sqrt(level - inv_snr[i])/d_amplitude_abs);
-                //if(d_feedback_information.snr[i] > 1659.6) d_allocation.bitloading[i] = 8;
+                d_resource_blocks.power.push_back(sqrt(level - inv_snr[i])/d_amplitude_abs);
+                //if(d_resource_blocks.snr[i] > 1659.6) d_resource_blocks.bitloading[i] = 8;
                 //else 
-                    d_allocation.bitloading[i] = (char)log2(1 + ((d_allocation.power[i]*d_feedback_information.snr[i])/ d_gap ));
-                    if(d_allocation.bitloading[i]>8) d_allocation.bitloading[i]=8;
+                    d_resource_blocks.bitloading.push_back((char)log2(1 + ((d_resource_blocks.power[i]*d_resource_blocks.snr[i])/ d_gap )));
+                    if(d_resource_blocks.bitloading[i]>8) d_resource_blocks.bitloading[i]=8;
             }
             else
             {
-                d_allocation.power.push_back(0);
-                d_allocation.bitloading[i] = 0;
+                d_resource_blocks.power.push_back(0);
+                d_resource_blocks.bitloading.push_back( 0);
             }
         }
         }
+
+        duplicate_allocation();
+    }
+
+    void
+    allocation_src_impl::calculate_bitloading_MA()
+    {
+        combine_snr();
+
+        std::vector<float> snr_sort;
+        float G = 0;
+        float level;
+        int it = 0;
+        d_resource_blocks.power.clear();
+        d_resource_blocks.bitloading.clear();
+
+        //Inizialise
+        for(int i = 0; i < d_resource_blocks.number; i++)
+        {
+            snr_sort.push_back(d_resource_blocks.snr[i]);
+            G+= log2(snr_sort[i]);
+        }
+        //if(G < d_resource_blocks.data_rate) return;
+        if(G < d_resource_blocks.number)
+        {
+            // default data modulation scheme is BPSK
+            d_resource_blocks.bitloading.clear();
+            d_resource_blocks.bitloading.assign(d_resource_blocks.number,1);
+            // init power allocation vector
+            d_resource_blocks.power.clear();
+            d_resource_blocks.power.assign(d_resource_blocks.number,1);
+
+            duplicate_allocation();
+
+            return;
+        }
+        std::sort(snr_sort.begin(), snr_sort.end());
+        level = d_gap * pow(2, ((d_resource_blocks.data_rate-G)/d_resource_blocks.number));
+
+        //Get Water Level
+        while(level < (d_gap / snr_sort[it]))
+        {
+            if(it>50)
+            {
+                return;
+            }
+            G-= log2(snr_sort[it]);
+            it++;
+            level = d_gap * pow(2, (d_resource_blocks.data_rate-G) / (d_resource_blocks.number - it));
+        }
+
+        //scale power to 1 and send scaling factor to time domain
+        d_amplitude_abs=0;
+        for(int i = 0; i < d_resource_blocks.number; i++)
+        {
+            if(level > (d_gap /d_resource_blocks.snr[i] ))
+                d_amplitude_abs += level - d_gap/d_resource_blocks.snr[i];
+        }
+        d_amplitude_abs =sqrt(d_amplitude_abs/d_resource_blocks.number);
+
+        //Allocate
+        for(int i = 0; i < d_resource_blocks.number; i++)
+        {
+            if(d_resource_blocks.snr[i] < snr_sort[it])
+            {
+                d_resource_blocks.power.push_back( 0);
+                d_resource_blocks.bitloading.push_back( 0);
+            }
+            else
+            {
+                d_resource_blocks.power.push_back( sqrt((level - d_gap/d_resource_blocks.snr[i]))/ d_amplitude_abs );
+                if(d_resource_blocks.power[i] > 5) d_resource_blocks.power[i] = 5;
+                d_resource_blocks.bitloading.push_back(  (char)log2(1 + ((d_resource_blocks.power[i]*d_amplitude_abs*d_resource_blocks.snr[i])/ d_gap )));
+                if(d_resource_blocks.bitloading[i] > 8) d_resource_blocks.bitloading[i] = 8;
+            }
+        }
+
+        duplicate_allocation();
+    }
+
+
+    void
+    allocation_src_impl::calculate_bitloading_loading_adaptive()
+    {
+        combine_snr();
+
+        int count=0;
+        d_resource_blocks.bitloading.clear();
+        d_resource_blocks.bitloading.assign(d_resource_blocks.number,0);
+
+        for(int i = 0; i < d_resource_blocks.number; i++)
+        {
+            d_resource_blocks.bitloading[i] = (char)log2(1 + ((d_resource_blocks.snr[i])/ d_gap ));
+            if(d_resource_blocks.bitloading[i]>8) d_resource_blocks.bitloading[i]=8;
+        }
+
+        for(int i = 0; i < d_resource_blocks.number; i++)
+        {
+            if(d_resource_blocks.bitloading[i]==0)
+                count++;
+        }
+
+        if(count > (0.25 * d_resource_blocks.number))
+        {
+            // default data modulation scheme is BPSK
+            d_resource_blocks.bitloading.clear();
+            d_resource_blocks.bitloading.assign(d_resource_blocks.number,1);
+        }
+
+        // init power allocation vector
+        d_resource_blocks.power.clear();
+        d_resource_blocks.power.assign(d_resource_blocks.number,1);
+
+        duplicate_allocation();
+    }
+
+
+    void
+    allocation_src_impl::combine_snr()
+    {
+        bool firstBlock = 0;
+        if(d_resource_blocks.size_first != 0) firstBlock = 1;
+
+        // FIXME How to average?
+        d_resource_blocks.snr.clear();
+        for(int i=0; i<d_resource_blocks.number; i++)
+        {
+            if(i == 0 && firstBlock == 1)
+            {
+                d_resource_blocks.snr.push_back(0);
+                for(int ii=0; ii<d_resource_blocks.size_first; ii++)
+                {
+                    d_resource_blocks.snr[i] += exp(- d_feedback_information.snr[ii]);
+                }
+                d_resource_blocks.snr[i] = -log( d_resource_blocks.snr[i]/d_resource_blocks.size_first);
+            }
+            else if(i == d_resource_blocks.number - 1  && d_resource_blocks.size_last != 0)
+            {
+                d_resource_blocks.snr.push_back(0);
+                for(int ii=0; ii<d_resource_blocks.size_last; ii++)
+                {
+                    d_resource_blocks.snr[i] += exp(- d_feedback_information.snr[(i-firstBlock)*d_resource_blocks.size + ii + d_resource_blocks.size_first]);
+                }
+                d_resource_blocks.snr[i] = -log(d_resource_blocks.snr[i]/d_resource_blocks.size_last);
+
+            }
+            else
+            {
+                d_resource_blocks.snr.push_back(0);
+                for(int ii=0; ii<d_resource_blocks.size; ii++)
+                {
+                    d_resource_blocks.snr[i] +=exp(- d_feedback_information.snr[(i - firstBlock)*d_resource_blocks.size + ii + d_resource_blocks.size_first]);
+                }
+                d_resource_blocks.snr[i] = -log( d_resource_blocks.snr[i]/d_resource_blocks.size);
+            }
+        }
+        for(int i= 0;i<d_resource_blocks.number; i++)
+        {
+            d_resource_blocks.snr[i] = pow(10, d_resource_blocks.snr[i]/10);
+            //d_feedback_information.snr[i] /= d_amplitude[d_feedback_information.id];
+        }
+
+        d_resource_blocks.power_limit = d_power_limit*(d_resource_blocks.number + 1.)/d_subcarriers;
+        d_resource_blocks.data_rate = d_data_rate*(d_resource_blocks.number + 1.)/d_subcarriers;
+
+//        std::cout<<d_resource_blocks.snr[100]<<"  "<<d_feedback_information.snr[100] <<std::endl;
+
+    }
+
+
+    void
+    allocation_src_impl::duplicate_allocation()
+    {
+        d_allocation.power.clear();
+        d_allocation.bitloading.clear();
+        for(int i=0; i<d_resource_blocks.number; i++)
+        {
+            if(i == 0 && d_resource_blocks.size_first != 0)
+            {
+                for(int ii=0; ii<d_resource_blocks.size_first; ii++)
+                {
+                    d_allocation.power.push_back(d_resource_blocks.power[i]);
+                    d_allocation.bitloading.push_back(d_resource_blocks.bitloading[i]);
+                }
+            }
+            else if(i == d_resource_blocks.number - 1  && d_resource_blocks.size_last != 0)
+            {
+                for(int ii=0; ii<d_resource_blocks.size_last; ii++)
+                {
+                    d_allocation.power.push_back(d_resource_blocks.power[i]);
+                    d_allocation.bitloading.push_back(d_resource_blocks.bitloading[i]);
+                }
+            }
+            else
+            {
+                for(int ii=0; ii<d_resource_blocks.size; ii++)
+                {
+                    d_allocation.power.push_back(d_resource_blocks.power[i]);
+                    d_allocation.bitloading.push_back(d_resource_blocks.bitloading[i]);
+                }
+            }
+        }
+
 
         // clear and write power output vector
         d_allocation_out.power = d_allocation.power;
@@ -378,147 +588,41 @@ namespace gr {
         for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
             sum_of_elems += *j;
         d_bitcount_out = sum_of_elems*d_data_symbols;
-
-    }
-
-    void
-    allocation_src_impl::calculate_bitloading_MA()
-    {
-        std::vector<float> snr_sort;
-        float G = 0;
-        float level;
-        int it = 0;
-        d_allocation.power.clear();
-        d_allocation.bitloading.clear();
-
-        //Inizialise
-        for(int i = 0; i < d_subcarriers; i++)
-        {
-            snr_sort.push_back(d_feedback_information.snr[i]);
-            G+= log2(snr_sort[i]);
-        }
-        //if(G < d_data_rate) return;
-        if(G < d_subcarriers)
-        {
-            // default data modulation scheme is BPSK
-            d_allocation.bitloading.clear();
-            d_allocation.bitloading.assign(d_subcarriers,1);
-            // init power allocation vector
-            d_allocation.power.clear();
-            d_allocation.power.assign(d_subcarriers,1);
-
-            // clear and write power output vector
-            d_allocation_out.power = d_allocation.power;
-
-            // clear and write bitloading output vector
-            d_allocation_out.bitloading.clear();
-            // insert data symbol modulation at the end ONCE
-            d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
-
-            int sum_of_elems = 0;
-            for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
-                sum_of_elems += *j;
-            d_bitcount_out = sum_of_elems*d_data_symbols;
-
-            return;
-        }
-        std::sort(snr_sort.begin(), snr_sort.end());
-        level = d_gap * pow(2, ((d_data_rate-G)/d_subcarriers));
-
-        //Get Water Level
-        while(level < (d_gap / snr_sort[it]))
-        {
-            if(it>50)
-            {
-                return;
-            }
-            G-= log2(snr_sort[it]);
-            it++;
-            level = d_gap * pow(2, (d_data_rate-G) / (d_subcarriers - it));
-        }
-
-        //scale power to 1 and send scaling factor to time domain
-        d_amplitude_abs=0;
-        for(int i = 0; i < d_subcarriers; i++)
-        {
-            if(level > (d_gap /d_feedback_information.snr[i] ))
-                d_amplitude_abs += level - d_gap/d_feedback_information.snr[i];
-        }
-        d_amplitude_abs =sqrt(d_amplitude_abs/d_subcarriers);
-        
-
-        //Allocate
-        for(int i = 0; i < d_subcarriers; i++)
-        {
-            if(d_feedback_information.snr[i] < snr_sort[it])
-            {
-                d_allocation.power.push_back( 0);
-                d_allocation.bitloading.push_back( 0);
-            }
-            else
-            {
-                d_allocation.power.push_back( sqrt((level - d_gap/d_feedback_information.snr[i]))/ d_amplitude_abs );
-                if(d_allocation.power[i] > 5) d_allocation.power[i] = 5;
-                d_allocation.bitloading.push_back(  (char)log2(1 + ((d_allocation.power[i]*d_amplitude_abs*d_feedback_information.snr[i])/ d_gap )));
-                if(d_allocation.bitloading[i] > 8) d_allocation.bitloading[i] = 8;
-            }
-        }
-
-
-        // clear and write power output vector
-        d_allocation_out.power = d_allocation.power;
-
-        // clear and write bitloading output vector
-        d_allocation_out.bitloading.clear();
-        // insert data symbol modulation at the end ONCE
-        d_allocation_out.bitloading.insert(d_allocation_out.bitloading.end(), d_allocation.bitloading.begin(), d_allocation.bitloading.end());
-
-        int sum_of_elems = 0;
-        for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
-            sum_of_elems += *j;
-        d_bitcount_out = sum_of_elems*d_data_symbols;
     }
 
 
     void
-    allocation_src_impl::calculate_bitloading_loading_adaptive()
+    allocation_src_impl::set_resource_block_size(int block_size)
     {
-        int count=0;
+        int remain = d_subcarriers % block_size;
+        d_resource_blocks.size = block_size;
+        d_resource_blocks.number = (int) d_subcarriers / block_size;
 
-        for(int i = 0; i < d_subcarriers; i++)
+        if(remain == 0)
         {
-            d_allocation.bitloading[i] = (char)log2(1 + ((d_feedback_information.snr[i])/ d_gap ));
-            if(d_allocation.bitloading[i]>8) d_allocation.bitloading[i]=8;
+            d_resource_blocks.size_first = 0;
+            d_resource_blocks.size_last = 0;
         }
-
-        for(int i = 0; i < d_subcarriers; i++)
+        else
         {
-            if(d_allocation.bitloading[i]==0) count++;
+            d_resource_blocks.size_first = (int) (remain / 2);
+            d_resource_blocks.size_last = remain - d_resource_blocks.size_first;
+            if(d_resource_blocks.size_first == 0) d_resource_blocks.number++;
+            else d_resource_blocks.number+=2;
         }
+     }
 
-        if(count>30)
-        {
-            // default data modulation scheme is BPSK
-            d_allocation.bitloading.clear();
-            d_allocation.bitloading.assign(d_subcarriers,1);
-        }
 
-        // init power allocation vector
-        d_allocation.power.clear();
-        d_allocation.power.assign(d_subcarriers,1);
+    void
+    allocation_src_impl::set_resource_block_number(int block_number)
+    {
+        int remain = d_subcarriers % block_number;
 
-        // clear and write power output vector
-        d_allocation_out.power = d_allocation.power;
+        d_resource_blocks.number = block_number;
+        d_resource_blocks.size = (int) d_subcarriers / block_number;
 
-        // clear and write bitloading output vector
-        d_allocation_out.bitloading.clear();
-        d_allocation_out.bitloading=d_allocation.bitloading;
-
-        int sum_of_elems = 0;
-        for(std::vector<uint8_t>::iterator j=d_allocation.bitloading.begin();j!=d_allocation.bitloading.end();++j)
-            sum_of_elems += *j;
-        d_bitcount_out = sum_of_elems*d_data_symbols;
-
+        d_resource_blocks.size_first = d_resource_blocks.size + (int) (remain / 2);
+        d_resource_blocks.size_last = d_resource_blocks.size + remain - (int) (remain / 2);
     }
 
 

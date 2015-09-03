@@ -101,6 +101,8 @@ class tx_top_block(gr.top_block):
         self.rpc_mgr_tx.add_interface("set_data_rate",self.txpath.allocation_src.set_data_rate)
         self.rpc_mgr_tx.add_interface("set_power_limit",self.txpath.allocation_src.set_power_limit)
         self.rpc_mgr_tx.add_interface("set_gap",self.txpath.allocation_src.set_gap)
+        self.rpc_mgr_tx.add_interface("set_resource_block_size",self.txpath.allocation_src.set_resource_block_size)
+        self.rpc_mgr_tx.add_interface("set_resource_block_number",self.txpath.allocation_src.set_resource_block_number)
         self.rpc_mgr_tx.add_interface("set_tx_gain",self.set_tx_gain)
         self.rpc_mgr_tx.add_interface("set_amplitude_ideal",self.set_fake_amplitude)
     

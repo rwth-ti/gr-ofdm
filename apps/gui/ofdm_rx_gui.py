@@ -154,7 +154,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         #Signals
         self.connect(self.update_timer, QtCore.SIGNAL("timeout()"), self.probe_manager.watcher)
         self.connect(self.gui.pushButtonMeasure, QtCore.SIGNAL("clicked()"),  self.measure_average)
-        self.connect(self.gui.pushButtonUpdate, QtCore.SIGNAL("clicked()"), self.update_modulation)
+        #self.connect(self.gui.pushButtonUpdate, QtCore.SIGNAL("clicked()"), self.update_modulation)
         self.connect(self.gui.horizontalSliderAmplitude, QtCore.SIGNAL("valueChanged(int)"), self.slide_amplitude)
         self.connect(self.gui.lineEditAmplitude, QtCore.SIGNAL("editingFinished()"), self.edit_amplitude)
         self.connect(self.gui.horizontalSliderOffset, QtCore.SIGNAL("valueChanged(int)"), self.slide_freq_offset)
@@ -170,6 +170,11 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.lineEditDataRate, QtCore.SIGNAL("editingFinished()"), self.edit_data_rate)
         self.connect(self.gui.horizontalSliderGap, QtCore.SIGNAL("valueChanged(int)"), self.slide_gap)
         self.connect(self.gui.lineEditGap, QtCore.SIGNAL("editingFinished()"), self.edit_gap)
+        self.connect(self.gui.horizontalSliderResourceBlockSize, QtCore.SIGNAL("valueChanged(int)"), self.slide_resource_block_size)
+        self.connect(self.gui.lineEditResourceBlockSize, QtCore.SIGNAL("editingFinished()"), self.edit_resource_block_size)
+        self.connect(self.gui.comboBoxResourceBlocksScheme, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_resource_block_scheme)
+        self.connect(self.gui.comboBoxModulation, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_modulation_scheme)
+
 
 
         if options.measurement:
@@ -492,6 +497,59 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.gui.horizontalSliderGap.setValue(math.log(gap, 10)*(-10000.))
         self.gui.horizontalSliderGap.blockSignals(False)
         self.rpc_mgr_tx.request("set_gap",[self.gap])
+
+    def slide_resource_block_size(self, ResourceBlockSize):
+        displayed_ResourceBlockSize = ResourceBlockSize
+        self.gui.lineEditResourceBlockSize.setText(QtCore.QString("%1").number(ResourceBlockSize))
+        self.ResourceBlockSize = ResourceBlockSize
+        if self.gui.comboBoxResourceBlocksScheme.currentText() == "Size":
+            self.rpc_mgr_tx.request("set_resource_block_size",[ResourceBlockSize])
+        else:
+            if self.gui.comboBoxResourceBlocksScheme.currentText() == "Number":
+                self.rpc_mgr_tx.request("set_resource_block_number",[ResourceBlockSize])
+            else:
+                print "Error"
+
+    def edit_resource_block_size(self):
+        ResourceBlockSize = self.lineEditResourceBlockSize.text().toInt()[0]
+        ResourceBlockSize = min(ResourceBlockSize,200)
+        ResourceBlockSize = max(ResourceBlockSize, 1)
+        self.gui.lineEditResourceBlockSize.setText(QtCore.QString("%1").arg(ResourceBlockSize))
+        self.ResourceBlockSize = ResourceBlockSize
+        # block signals to avoid feedback loop
+        self.gui.horizontalSliderResourceBlockSize.blockSignals(True)
+        # note slider positions are int (!)
+        self.gui.horizontalSliderResourceBlockSize.setValue(ResourceBlockSize)
+        self.gui.horizontalSliderResourceBlockSize.blockSignals(False)
+        if self.gui.comboBoxResourceBlocksScheme.currentText() == "Size":
+            self.rpc_mgr_tx.request("set_resource_block_size",[ResourceBlockSize])
+        else:
+            if self.gui.comboBoxResourceBlocksScheme.currentText() == "Number":
+                self.rpc_mgr_tx.request("set_resource_block_number",[ResourceBlockSize])
+            else:
+                print "Error"
+
+    def set_resource_block_scheme(self, scheme):
+        if self.gui.comboBoxResourceBlocksScheme.currentText() == "Size":
+            self.rpc_mgr_tx.request("set_resource_block_size",[self.lineEditResourceBlockSize.text().toInt()[0]])
+        else:
+            if self.gui.comboBoxResourceBlocksScheme.currentText() == "Number":
+                self.rpc_mgr_tx.request("set_resource_block_number",[self.lineEditResourceBlockSize.text().toInt()[0]])
+            else:
+                print "Error"
+
+    def set_modulation_scheme(self, scheme):
+        bitloading = {'BPSK'    : 1,
+                      'QPSK'    : 2,
+                      '8-PSK'   : 3,
+                      '16-QAM'  : 4,
+                      '32-QAM'  : 5,
+                      '64-QAM'  : 6,
+                      '128-QAM' : 7,
+                      '256-QAM' : 8,
+                     }[str(scheme)]
+        self.rpc_mgr_tx.request("set_modulation",[[bitloading]*self.data_subcarriers,[1]*self.data_subcarriers])
+        self.update_tx_params()
 
 
 

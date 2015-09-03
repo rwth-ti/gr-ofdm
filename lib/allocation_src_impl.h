@@ -46,6 +46,17 @@ namespace gr {
                     std::vector<float> snr;
                     short id;
                 };
+                struct d_resource_blocks_struct {
+                    int size;
+                    int number;
+                    int size_first;
+                    int size_last;
+                    float power_limit;
+                    float data_rate;
+                    std::vector<float> snr;
+                    std::vector<uint8_t> bitloading;
+                    std::vector<float> power;
+                };
 
                 // local copy of allocation
                 d_allocation_struct d_allocation;
@@ -74,6 +85,8 @@ namespace gr {
                 std::vector<float> d_inv_power;
                 std::vector<float> d_inv_ones;
 
+                d_resource_blocks_struct d_resource_blocks;
+
                 zmq::context_t  *d_context;
                 zmq::socket_t   *d_socket;
 
@@ -83,6 +96,8 @@ namespace gr {
                 void calculate_bitloading_MA();
                 void calculate_bitloading_RA();
                 void calculate_bitloading_loading_adaptive();
+                void combine_snr();
+                void duplicate_allocation();
 
             public:
                 allocation_src_impl(int subcarriers, int data_symbols, bool coding, char *address, char *fb_address);
@@ -96,6 +111,8 @@ namespace gr {
                 void set_power_limit(int power_limit);
                 void set_data_rate(int data_rate);
                 void set_gap(float gap);
+                void set_resource_block_size(int block_size);
+                void set_resource_block_number(int block_number);
 
 
                 void set_allocation(std::vector<uint8_t> bitloading,

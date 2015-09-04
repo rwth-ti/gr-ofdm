@@ -10,4 +10,4 @@ fi
 
 ofdm_rx_gui.py $1 &
 
-rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14
+rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 --freq=2.45G $*

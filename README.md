@@ -70,6 +70,11 @@ Adaptive OFDM
 
     ./run_benchmark_gui.sh --sinr-est --multipath
 
+with USRPs and adaptive OFDM enabled
+
+    ./run_usrp_tx_gui.sh --rx-hostname=<hostname or ip> -f 2.45G --tx-gain=<gain>
+    ./run_usrp_rx_gui.sh --tx-hostname=<hostname or ip> -f 2.45G --sinr-est
+
 
 Copyright information
 ------------------

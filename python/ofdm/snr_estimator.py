@@ -440,7 +440,7 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
     gr.hier_block2.__init__(self, "new_snr_estimator",
         gr.io_signature(2,2,gr.sizeof_gr_complex*vlen),
         #gr.io_signature2(2,2,gr.sizeof_float*vlen,gr.sizeof_float*vlen/ss*(ss-1)))
-        gr.io_signature2(2,2,gr.sizeof_float*vlen,gr.sizeof_float))
+        gr.io_signature(1,1,gr.sizeof_float*vlen))
 
     print "Created Milan's SINR estimator 2"
 
@@ -482,10 +482,10 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
 #    sum_zeros = add_vff(vlen/ss*(ss-1))
 #    
     # For average
-    sum_all = vector_sum_vff(vlen)
-    mult = blocks.multiply_const_ff(1./vlen)
-    scsnr_db_av = blocks.nlog10_ff(10,1,0)
-    filt_end_av = filter.single_pole_iir_filter_ff(0.1)
+    #sum_all = vector_sum_vff(vlen)
+    #mult = blocks.multiply_const_ff(1./vlen)
+    #scsnr_db_av = blocks.nlog10_ff(10,1,0)
+    #filt_end_av = filter.single_pole_iir_filter_ff(0.1)
 #
 #
 #    self.connect((self,0),v2s_pr0,skip2_pr0,s2v2_pr0,mag_sq_zeros_pr0,filt_zeros_pr0)
@@ -507,7 +507,7 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
     estimator = sinr_estimator(vlen, ss, config.dc_null)
 
     scsnr_db = blocks.nlog10_ff(10,vlen,0)
-    filt_end = filter.single_pole_iir_filter_ff(0.1,vlen)
+    #filt_end = filter.single_pole_iir_filter_ff(0.1,vlen)
 
 
 
@@ -525,8 +525,9 @@ class milans_sinr_sc_estimator2(gr.hier_block2):
     
     self.connect((self,0),(estimator,0))
     self.connect((self,1),(estimator,1))
-    self.connect(estimator,interpolator,filt_end,scsnr_db,self)
-    self.connect(interpolator,sum_all,mult,scsnr_db_av,filt_end_av,(self,1))
+    #self.connect(estimator,interpolator,filt_end,scsnr_db,self)
+    self.connect(estimator,interpolator,scsnr_db,self)
+    #self.connect(interpolator,sum_all,mult,scsnr_db_av,filt_end_av,(self,1))
     #log_to_file(self,estimator , "data/estimator.float")
     #log_to_file(self,interpolator, "data/interpolator.float")
 

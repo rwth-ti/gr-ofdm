@@ -885,7 +885,7 @@ class receive_path(gr.hier_block2):
         self.feedback_sink = ofdm.feedback_sink_vf(config.data_subcarriers,"tcp://*:3322")
         self.connect(self.id_dec, self.feedback_sink)
 
-        self.connect((sinrm,1),blocks.null_sink(gr.sizeof_float))
+        #self.connect((sinrm,1),blocks.null_sink(gr.sizeof_float))
         self.connect((sinrm,0),pilot_subcarrier_filter(False), (self.feedback_sink,1))
 
         if self._options.log:

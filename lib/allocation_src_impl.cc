@@ -407,6 +407,7 @@ namespace gr {
             // init power allocation vector
             d_resource_blocks.power.clear();
             d_resource_blocks.power.assign(d_resource_blocks.number,1);
+            d_amplitude_abs=1;
 
             duplicate_allocation();
 
@@ -434,7 +435,8 @@ namespace gr {
             if(level > (d_gap /d_resource_blocks.snr[i] ))
                 d_amplitude_abs += level - d_gap/d_resource_blocks.snr[i];
         }
-        d_amplitude_abs =sqrt(d_amplitude_abs/d_resource_blocks.number);
+        //Set minimum to 0.1 possibility for improvement
+        d_amplitude_abs = std::max(0.1, sqrt(d_amplitude_abs/d_resource_blocks.number));
 
         //Allocate
         for(int i = 0; i < d_resource_blocks.number; i++)

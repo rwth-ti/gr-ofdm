@@ -94,8 +94,8 @@ namespace gr {
                 {
                     if ( i % d_skip != 4 + d_dc_null/2 )
                     {
-                            d_taps[i] = 0.01*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.99*d_taps[i];
-                            d_taps1[i] = 0.01*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.99*d_taps1[i];
+                            d_taps[i] = 0.005*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.995*d_taps[i];
+                            d_taps1[i] = 0.005*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.995*d_taps1[i];
                             estim = d_taps1[i]/d_taps[i] - 1;
 
                             *out = (estim);
@@ -107,8 +107,8 @@ namespace gr {
                 {
                     if ( i % d_skip != 4 - d_dc_null/2 )
                     {
-                            d_taps[i] = 0.01*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.99*d_taps[i];
-                            d_taps1[i] = 0.01*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.99*d_taps1[i];
+                            d_taps[i] = 0.005*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.995*d_taps[i];
+                            d_taps1[i] = 0.005*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.995*d_taps1[i];
                             estim = d_taps1[i]/d_taps[i] - 1;
 
                             *out = (estim);

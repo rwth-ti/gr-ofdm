@@ -77,8 +77,8 @@ namespace gr {
                 int d_power_limit;
                 int d_data_rate;
                 float d_gap;
-                std::map<float, float> d_gap_map;
-                void init_gap_map();
+                std::map<float, float> d_ber_snr_map;
+                void init_ber_snr_map();
                 gr_complex d_amplitude_out;
                 float d_amplitude_abs;
                 std::vector<float> d_amplitude;

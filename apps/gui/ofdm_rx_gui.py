@@ -52,6 +52,8 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.probe_manager = zeromq.probe_manager()
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5555", 'float32', self.plot_snr)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5556", 'float32', self.plot_ber)
+        if options.measurement:
+            self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5556", 'float32', self.take_measurement)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5557", 'float32', self.plot_freqoffset)
         self.probe_manager.add_socket("tcp://"+self.options.tx_hostname+":4445", 'uint8', self.plot_rate)
         self.probe_manager.add_socket("tcp://"+self.options.rx_hostname+":5559", 'float32', self.plot_csi)
@@ -173,25 +175,22 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.connect(self.gui.comboBoxResourceBlocksScheme, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_resource_block_scheme)
         self.connect(self.gui.comboBoxModulation, QtCore.SIGNAL("currentIndexChanged(QString)"), self.set_modulation_scheme)
 
-
-
         if options.measurement:
             self.rpc_mgr_tx.request("set_amplitude",[0.018])
             self.rpc_mgr_tx.request("set_amplitude_ideal",[0.018])
             self.i = 0
             self.ii = 0
             self.iii = 1
-            self.ber=0.
-            self.snr=0.
-            self.snrsum=0.
-            self.datarate=0.
-            self.ratesum=0.
+            self.ber=0.0
+            self.snr=0.0
+            self.snrsum=0.0
+            self.datarate=0.0
+            self.ratesum=0.0
             self.dirname = "Simulation_"+strftime("%Y_%m_%d_%H_%M_%S",gmtime())+"/"
             print self.dirname
             if not os.path.isdir("./" + self.dirname):
                 os.mkdir("./" + self.dirname + "/")
-              
-            self.iter_points = 60  
+            self.iter_points = 60
             self.snr_points = 30
             amp_min_log = numpy.log10(0.018**2)
             amp_max_log = numpy.log10(0.7**2)
@@ -212,7 +211,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
             self.frame_length = self.tx_params.get('frame_length')
             self.symbol_time = self.tx_params.get('symbol_time')
         else:
-            print "Fail to update TX_params."
+            print "Failed to update TX_params."
 
     def measure_average(self):
         avg_snr = float(sum(self.snr_y))/len(self.snr_y)
@@ -318,82 +317,84 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.curve_ber.setData(self.ber_x, self.ber_y)
         self.gui.qwtPlotBER.replot()
         self.gui.labelBEREstimate.setText(QtCore.QString.number(self.ber_y[0],'e',3))
-        #print "self.data_subcarriers: ", self.data_subcarriers
-        #self.update_tx_params()
-        if options.measurement:
-            if self.iii != 9:
-                #print "SET MODULATION"
-                if self.change_mod == 1:
-                    #self.rpc_mgr_tx.request("set_modulation",[[self.iii]*self.data_subcarriers,[1]*self.data_subcarriers])
-    #self.rpc_mgr_tx.request("set_allocation_scheme",[0])
+
+    def take_measurement(self, samples):
+        while self.tx_params == None:
+            self.update_tx_params()
+            return
+        if self.iii != 9:
+            #print "SET MODULATION"
+            if self.change_mod == 1:
+                #self.rpc_mgr_tx.request("set_modulation",[[self.iii]*self.data_subcarriers,[1]*self.data_subcarriers])
+                #self.rpc_mgr_tx.request("set_allocation_scheme",[0])
                 #print "self.ii: ", self.ii
                 #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-                    print "SET MODULATION: ", self.iii
-                    self.rpc_mgr_tx.request("set_modulation",[[self.iii]*self.data_subcarriers,[1]*self.data_subcarriers])
-                    self.update_tx_params()
-                    self.change_mod = 0
-                    sleep(1)
-                filename_prefix = "M_"+str(int(self.iii))
-                if not os.path.isfile("./" + self.dirname+filename_prefix+'_ber.dat'):
-                    self.testfile = open(self.dirname+filename_prefix+'_ber.dat','w')
-                if not os.path.isfile("./" + self.dirname+filename_prefix+'_datarate.dat'):
-                    self.testfile2 = open(self.dirname+filename_prefix+'_datarate.dat','w')        
-                if not ((not self.ii != self.snr_points-1) or (not self.meas_ber > 1e-7 and self.iii<7) ) :
-                #if self.ii != self.snr_points:
-                    #if self.ii==0 and self.i == 0:
-                       # self.rpc_mgr_tx.request("set_modulation",[[1]*self.data_subcarriers,[1]*self.data_subcarriers])
-                        #self.rpc_mgr_tx.request("set_allocation_scheme",[2])
-                        #self.update_tx_params()
+                print "SET MODULATION: ", self.iii
+                self.rpc_mgr_tx.request("set_modulation",[[self.iii]*self.data_subcarriers,[1]*self.data_subcarriers])
+                self.update_tx_params()
+                self.change_mod = 0
+                sleep(1)
+            filename_prefix = "M_"+str(int(self.iii))
+            if not os.path.isfile("./" + self.dirname+filename_prefix+'_ber.dat'):
+                self.testfile = open(self.dirname+filename_prefix+'_ber.dat','w')
+            if not os.path.isfile("./" + self.dirname+filename_prefix+'_datarate.dat'):
+                self.testfile2 = open(self.dirname+filename_prefix+'_datarate.dat','w')        
+            if not ((not self.ii != self.snr_points-1) or (not self.meas_ber > 1e-7 and self.iii<7) ) :
+            #if self.ii != self.snr_points:
+                #if self.ii==0 and self.i == 0:
+                    # self.rpc_mgr_tx.request("set_modulation",[[1]*self.data_subcarriers,[1]*self.data_subcarriers])
+                    #self.rpc_mgr_tx.request("set_allocation_scheme",[2])
+                    #self.update_tx_params()
                 #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-                    if self.i != self.iter_points:
-                        if self.i>=20:
-                            self.ber=self.ber+samples
-                            self.snrsum=self.snrsum + self.snr
-                            self.ratesum=self.ratesum + self.datarate
-                        self.i=self.i+1
-                    else:
-                        self.i=0
-                        print "WRITING"
-                        self.testfile.write(str(float(self.snrsum/(self.iter_points-20)))+' '+str(float(self.ber/(self.iter_points-20)))+'\n')
-                        self.testfile2.write(str(float(self.snrsum/(self.iter_points-20)))+' '+str(float(self.ratesum/(self.iter_points-20)))+'\n')
-                        #self.meas_ber_prev = self.meas_ber
-                        self.meas_ber = self.ber/(self.iter_points-20)
-                        self.ii=self.ii+1
-                        #self.rpc_mgr_tx.request("set_power_limit",[10])
-                        #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-                        #self.rpc_mgr_tx.request("set_amplitude",[(pow(10,self.ii/10.)*0.01)])
-                        self.snrsum=0
-                        self.ber=0
-                        self.ratesum=0
-                        print "self.ii: ", self.ii
-                        if not self.ii == self.snr_points:
-                            self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-                            self.rpc_mgr_tx.request("set_amplitude_ideal",[numpy.sqrt(self.txpow_range[self.ii])])
-                        #if self.meas_ber < 1e-7:# and self.ii>4:
-                            #self.testfile.close()
-                            #self.testfile2.close()
-                #print "self.ii: ", self.ii
-                            #print "Modulation: "+str(int(self.iii))+" done!"
-                            #self.meas_ber = 0.5
-                            ##self.meas_ber_prev = 0.5
-                            #self.iii = self.iii + 1
-                            #self.i = 0
-                            #self.ii = 0
+                if self.i != self.iter_points:
+                    if self.i>=20:
+                        self.ber=self.ber+samples
+                        self.snrsum=self.snrsum + self.snr
+                        self.ratesum=self.ratesum + self.datarate
+                    self.i=self.i+1
+                else:
+                    self.i=0
+                    print "WRITING"
+                    self.testfile.write(str(float(self.snrsum/(self.iter_points-20)))+' '+str(float(self.ber/(self.iter_points-20)))+'\n')
+                    self.testfile2.write(str(float(self.snrsum/(self.iter_points-20)))+' '+str(float(self.ratesum/(self.iter_points-20)))+'\n')
+                    #self.meas_ber_prev = self.meas_ber
+                    self.meas_ber = self.ber/(self.iter_points-20)
+                    self.ii=self.ii+1
+                    #self.rpc_mgr_tx.request("set_power_limit",[10])
+                    #self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
+                    #self.rpc_mgr_tx.request("set_amplitude",[(pow(10,self.ii/10.)*0.01)])
+                    self.snrsum=0
+                    self.ber=0
+                    self.ratesum=0
+                    print "self.ii: ", self.ii
+                    if not self.ii == self.snr_points:
+                        self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
+                        self.rpc_mgr_tx.request("set_amplitude_ideal",[numpy.sqrt(self.txpow_range[self.ii])])
+                    #if self.meas_ber < 1e-7:# and self.ii>4:
+                        #self.testfile.close()
+                        #self.testfile2.close()
+                        #print "self.ii: ", self.ii
+                        #print "Modulation: "+str(int(self.iii))+" done!"
+                        #self.meas_ber = 0.5
+                        ##self.meas_ber_prev = 0.5
+                        #self.iii = self.iii + 1
+                        #self.i = 0
+                        #self.ii = 0
                         #print"hi"
                         #print"self.ii: ", self.ii
-                else:
-                    self.testfile.close()
-                    self.testfile2.close()
-                    print "Modulation: "+str(int(self.iii))+" done!"
-                    self.meas_ber = 0.5
-                    self.iii = self.iii + 1
-                    self.change_mod = 1
-                    self.i = 0
-                    self.ii = 0
-                    self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
-                    self.rpc_mgr_tx.request("set_amplitude_ideal",[numpy.sqrt(self.txpow_range[self.ii])])
             else:
-                print"done!"
+                self.testfile.close()
+                self.testfile2.close()
+                print "Modulation: "+str(int(self.iii))+" done!"
+                self.meas_ber = 0.5
+                self.iii = self.iii + 1
+                self.change_mod = 1
+                self.i = 0
+                self.ii = 0
+                self.rpc_mgr_tx.request("set_amplitude",[numpy.sqrt(self.txpow_range[self.ii])])
+                self.rpc_mgr_tx.request("set_amplitude_ideal",[numpy.sqrt(self.txpow_range[self.ii])])
+        else:
+            print"done!"
 
     def plot_freqoffset(self, samples):
         self.freqoffset_y = numpy.append(samples,self.freqoffset_y)

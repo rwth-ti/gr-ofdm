@@ -89,12 +89,17 @@ GR_PYTHON_INSTALL(
     ofdm_receiver.py
     preambles.py
     receive_path.py
+    receive_path12.py
+    receive_path21.py
+    receive_path22_neu.py
     schmidl.py
     snr_estimator.py
     station_configuration.py
     transmit_path2.py
     transmit_path.py
     fbmc_transmit_path.py
+    fbmc_receive_path.py
+    fbmc_receiver.py
     uhd_interface.py
     vector_equalizer.py
     DESTINATION ${GR_PYTHON_DIR}/ofdm

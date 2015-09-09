@@ -17,4 +17,4 @@ TXHOSTNAME=$(zenity --entry --title "Tx Hostname" --text "Enter transmitter's Ho
 echo $CARRIER > carrier
 echo $TXHOSTNAME > txhostname
 
-/opt/gr-ofdm/bin/run_usrp_rx_gui.sh --tx-hostname $TXHOSTNAME -f $CARRIER
+/opt/gr-ofdm/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER

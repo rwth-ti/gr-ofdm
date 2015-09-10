@@ -14,25 +14,25 @@ end
 x_em2 = data(2:3:end,1);
 y_em2 = data(4:3:end,1);
 
-x_em4 = data(2:3:end,2);
-y_em4 = data(4:3:end,2);
+%x_em4 = data(2:3:end,2);
+%y_em4 = data(4:3:end,2);
 
 x_em2_plot = [0 ];
 y_em2_plot = [0 0];
-x_em4_plot = [0 ];
-y_em4_plot = [0 0];
+%x_em4_plot = [0 ];
+%y_em4_plot = [0 0];
 
 
 for x = 1:length(x_em2)
     if x == length(x_em2)
         x_em2_plot = [x_em2_plot x_em2(x) x_em2(x) 45];
-        x_em4_plot = [x_em4_plot x_em4(x) x_em4(x) 45];
+%       x_em4_plot = [x_em4_plot x_em4(x) x_em4(x) 45];
     else
         x_em2_plot = [x_em2_plot x_em2(x) x_em2(x) ];
-        x_em4_plot = [x_em4_plot x_em4(x) x_em4(x) ];
+%       x_em4_plot = [x_em4_plot x_em4(x) x_em4(x) ];
     end
     y_em2_plot = [y_em2_plot y_em2(x) y_em2(x)];
-    y_em4_plot = [y_em4_plot y_em4(x) y_em4(x)];
+%   y_em4_plot = [y_em4_plot y_em4(x) y_em4(x)];
 end
 
 bpsk_x =[0 x_em2(1)];
@@ -56,20 +56,22 @@ qam128_y =[y_em2(6) y_em2(6)];
 
 ber_em2 = data(3:3:end,1);
 
-ber_em4 = data(3:3:end,2);
+%ber_em4 = data(3:3:end,2);
 
 figure2 = figure (2);
-plot3 = semilogy (x_em2,ber_em2,x_em4,ber_em4);
+%plot3 = semilogy (x_em2,ber_em2,x_em4,ber_em4);
+plot3 = semilogy (x_em2,ber_em2);
 set(plot3(1),'Color','r','DisplayName','BER = 1e-2','LineWidth',1.5);
-set(plot3(2),'Color','b','DisplayName','BER = 1e-3','LineWidth',1.5);
+%set(plot3(2),'Color','b','DisplayName','BER = 1e-3','LineWidth',1.5);
 legend1 = legend('toggle');
 legend('show');
 grid on;
 hold on
 
-plot4 = semilogy (x_em2,ber_em2,x_em4,ber_em4);
+%plot4 = semilogy (x_em2,ber_em2,x_em4,ber_em4);
+plot4 = semilogy (x_em2,ber_em2);
 set(plot4(1),'Color','k','Marker','x','DisplayName','BER = 1e-3','MarkerSize',12,'LineStyle','none');
-set(plot4(2),'Color','k','Marker','x','DisplayName','BER = 1e-3','MarkerSize',12,'LineStyle','none');
+%set(plot4(2),'Color','k','Marker','x','DisplayName','BER = 1e-3','MarkerSize',12,'LineStyle','none');
 hold off
 
 title (['BER for OFDM system with 1 MHz bandwidth,',sprintf('\n'),'200 data subcarriers, 256 FFT length']);
@@ -79,9 +81,10 @@ ylabel('BER');
 
 
 figure1 = figure (1);
-plot1 = plot (x_em2_plot,y_em2_plot, x_em4_plot,y_em4_plot);%,x_16qam,y_16qam,x_64qam,y_64qam,'LineWidth',1);
+%plot1 = plot (x_em2_plot,y_em2_plot, x_em4_plot,y_em4_plot);%,x_16qam,y_16qam,x_64qam,y_64qam,'LineWidth',1);
+plot1 = plot (x_em2_plot,y_em2_plot);%,x_16qam,y_16qam,x_64qam,y_64qam,'LineWidth',1);
 set(plot1(1),'Color',[1 0 0],'DisplayName','BER = 1e-2','LineWidth',2);
-set(plot1(2),'Color',[0 0 1],'DisplayName','BER = 1e-3','LineWidth',2);
+%set(plot1(2),'Color',[0 0 1],'DisplayName','BER = 1e-3','LineWidth',2);
 legend1 = legend('toggle');
 legend('show');
 set(legend1,'Position',[0.6849 0.2836 0.1615 0.07309]);

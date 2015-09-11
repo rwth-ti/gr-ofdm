@@ -952,11 +952,10 @@ class receive_path(gr.hier_block2):
     self.filtered_ctf = lp_filter
     return lp_filter
 
-  def set_scatterplot_subc(self, subc):
-     return self._scatter_vec_elem.set_element(int(subc))
-
-  def set_snr_subc(self, subc):
-     return self._snr_vec_elem.set_element(int(subc))
+  def set_observed_subc(self, subc):
+    self._scatter_vec_elem.set_element(int(subc))
+    if self._options.sinr_est:
+      self._snr_vec_elem.set_element(int(subc))
 
   def add_options(normal, expert):
     """

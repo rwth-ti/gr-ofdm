@@ -9,3 +9,8 @@ if [ "`echo $USER | tr -d [0-9]`" = "ofdmlab" ] ; then
         rsync -av --del /home/ofdmlab0/ .
     fi
 fi
+
+#Gnuradio
+if [ -f /opt/gr-ofdmn/bin/environment ]; then
+         . /opt/gr-ofdm/bin/environment
+fi

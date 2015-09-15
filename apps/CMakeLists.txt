@@ -44,6 +44,7 @@ install(
 install(
     FILES
     environment_release
+    environment_lab
     gui/ofdm_rx_gui_window.ui
     gui/ofdm_mrrc_rx_gui_window.ui
     gui/ofdm_tx_gui_window.ui

@@ -1,0 +1,5 @@
+export PATH=/opt/gr-ofdm/bin/:/opt/uhd/bin:/opt/gnuradio-3.7.8/bin:$PATH
+export LD_LIBRARY_PATH=/opt/gr-ofdm/lib/:/opt/uhd/lib/:/opt/gnuradio-3.7.8/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=/opt/gr-ofdm/lib/python2.7/dist-packages/:/opt/gnuradio-3.7.8/lib/python2.7/dist-packages/:$PYTHONPATH
+export PKG_CONFIG_PATH=/opt/gnuradio-3.7.8/lib/pkgconfig:$PKG_CONFIG_PATH
+

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 export  TODAY=${HOSTNAME}_`date '+%Y_%m_%d'`
 cd ~/latex
 echo $HOSTNAME > envar.tex

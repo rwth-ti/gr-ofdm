@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -l
 
 if [ -f carrier ]
 then

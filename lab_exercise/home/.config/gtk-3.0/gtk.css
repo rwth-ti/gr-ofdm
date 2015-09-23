@@ -1,0 +1,29 @@
+
+/************
+.nemo-desktop.nemo-canvas-item {
+	color: #FFFFFF;
+	text-shadow: 1px 1px @desktop_item_text_shadow;
+	}
+.nemo-desktop.nemo-canvas-item:selected {
+	background-color: alpha(#D64A38, 0.9);
+	background-image: none;
+	color: #FFFFFF;
+	text-shadow: none;
+	}
+ gnu gray= #71706E
+ radio orange= #FE6905
+*******/
+
+.nemo-desktop.nemo-canvas-item {
+	color: #FE6905;
+	/*
+         * text-shadow: 2px 2px alpha(#000, 0.2);
+         */
+	}
+
+.nemo-desktop.nemo-canvas-item:selected {
+	background-color: alpha(@theme_selected_bg_color, 0.8);
+	background-image: none;
+	color: @theme_selected_fg_color;
+	text-shadow: none;
+	}

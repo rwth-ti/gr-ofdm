@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon
 Name=task_5_system_simulation
-Exec=/opt/gr-ofdm/bin/run_benchmark_gui.sh --disable-freq-sync
+Exec=env LD_LIBRARY_PATH=/opt/gr-ofdm/lib/:/opt/uhd/lib/:/opt/gnuradio-3.7.8/lib /opt/gr-ofdm/bin/run_benchmark_gui.sh --disable-freq-sync

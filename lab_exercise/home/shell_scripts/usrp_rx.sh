@@ -1,4 +1,5 @@
 #!/bin/bash -l
+. /opt/gr-ofdm/environment
 
 if [ -f carrier ]
 then

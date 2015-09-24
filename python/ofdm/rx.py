@@ -110,7 +110,8 @@ class rx_top_block(gr.top_block):
       self.rpc_mgr_rx.start_watcher()
 
       ## Adding interfaces
-      self.rpc_mgr_rx.add_interface("set_scatter_subcarrier",self.rxpath.set_scatterplot_subc)
+      self.rpc_mgr_rx.add_interface("set_observed_subcarrier",self.rxpath.set_observed_subc)
+
       self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
       #self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
       self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)

@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/bin/bash
 . /opt/gr-ofdm/environment
 
 if [ -f carrier ]

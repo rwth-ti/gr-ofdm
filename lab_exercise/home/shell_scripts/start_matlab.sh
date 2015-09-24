@@ -1,3 +1,3 @@
-#!/bin/bash -l
+#!/bin/bash
 
 cd ~/matlab && matlab -desktop

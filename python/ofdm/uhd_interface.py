@@ -53,6 +53,27 @@ class uhd_interface:
             else:
                 self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
+        # check the USRP model name
+        self._usrp_model = self.u.get_usrp_info().get("mboard_id")
+        print "Running USRP model:", self._usrp_model
+
+        #Make adjustments for USRP1 halfband filters
+        if istx and self._usrp_model == 'USRP1':
+            bandwidth=(bandwidth/2.0)
+
+        # write the other parameters to member variables
+        self._istx=istx
+        self._args = args
+        self._ant  = antenna
+        self._ismimo = ismimo
+        self._spec = spec
+        self._gain = self.set_gain(gain)
+        self._lo_offset = lo_offset
+        self._freq = self.set_freq(freq, lo_offset)
+        self._rate = self.set_sample_rate(bandwidth)
+        self._clock_source = clock_source
+        self._time_source = time_source
+
         # Set clock source to external.
         if(clock_source):
             print "clock_source: ", clock_source
@@ -70,16 +91,6 @@ class uhd_interface:
         if(antenna):
             self.u.set_antenna(antenna, 0)
 
-        self._args = args
-        self._ant  = antenna
-        self._ismimo = ismimo
-        self._spec = spec
-        self._gain = self.set_gain(gain)
-        self._lo_offset = lo_offset
-        self._freq = self.set_freq(freq, lo_offset)
-        self._rate = self.set_sample_rate(bandwidth)
-        self._clock_source = clock_source
-        self._time_source = time_source
 
     def set_sample_rate(self, bandwidth):
         self.u.set_samp_rate(bandwidth)
@@ -93,10 +104,15 @@ class uhd_interface:
     def set_gain(self, gain_rel=None):
         gain_range = self.u.get_gain_range()
         if gain_rel is None:
-            # if no gain was specified, use the mid-point in dB
-            gain_abs = float(gain_range.start()+gain_range.stop())/2
-            print "\nNo gain specified."
-            print "Setting gain to %f (from [%f, %f])" % \
+            if (self._istx and (self._usrp_model == 'B210')):
+                self.u.set_gain(gain_range.stop())
+                print 'Running a B210, needs high gain, set gain to', gain_range.stop()
+                gain_abs=gain_range.stop()
+            else:
+                # if no gain was specified, use the mid-point in dB
+                gain_abs = float(gain_range.start()+gain_range.stop())/2
+                print "No gain specified."
+                print "Setting gain to %f (from [%f, %f])" % \
                 (gain_abs, gain_range.start(), gain_range.stop())
         else:
             gain_delta = gain_range.stop() - gain_range.start()
@@ -136,10 +152,6 @@ class uhd_transmitter(uhd_interface, gr.hier_block2):
                                 gr.io_signature(1,1,gr.sizeof_gr_complex),
                                 gr.io_signature(0,0,0))
 
-        #Make adjustments for usrp1
-        if (args == 'type=usrp1'):
-                args ='fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
-                bandwidth=(bandwidth/2.0)
 
         # Set up the UHD interface as a transmitter
         uhd_interface.__init__(self, True, False, args, bandwidth,

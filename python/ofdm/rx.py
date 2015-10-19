@@ -44,13 +44,13 @@ class rx_top_block(gr.top_block):
         if(options.rx_freq is not None):
             if options.rx_ant == 1:
                 self.source = uhd_receiver(options.args,
-                                       options.bandwidth, options.rx_freq, 
+                                       options.bandwidth, options.rx_freq,
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
                                        options.clock_source, options.time_source,options.verbose)
             else:
                 self.source = uhd_mimo_receiver(options.args,
-                                       options.bandwidth, options.rx_freq, 
+                                       options.bandwidth, options.rx_freq,
                                        options.lo_offset, options.rx_gain,
                                        options.spec, options.antenna,
                                        options.clock_source, options.time_source, options.verbose)
@@ -70,37 +70,26 @@ class rx_top_block(gr.top_block):
                 self.rxpath = receive_path_12(options)
                 self._setup_rpc_manager()
                 self.connect(self.source, self.rxpath)
-                self.connect((self.source,1), (self.rxpath,1)) 
+                self.connect((self.source,1), (self.rxpath,1))
                 '''
         if (options.rx_ant == 1):
-            self._setup_rx_path(options)        
+            self._setup_rx_path(options)
             self.setup_rpc_manager()
             self.dst    = (self.rxpath,0)
             self.connect((self.source,0), self.dst)
         else:
-            self._setup_rx_path(options)        
+            self._setup_rx_path(options)
             self.setup_rpc_manager()
             self.dst    = (self.rxpath,0)
             self.dst2     = (self.rxpath,1)
             self.connect((self.source,0), self.dst)
-            #self.connect((self.source,1), blocks.null_sink(gr.sizeof_gr_complex))     
             self.connect((self.source,1), self.dst2)
-                    
-                
-        #self._setup_rpc_manager()
 
-
-
-            
-        #self.setup_rpc_manager()
-
-        #self.connect(self.source, self.rxpath)
-  
         if options.scatterplot:
           print "Scatterplot enabled"
-    
+
     def set_rx_gain(self, gain):
-        self.source.set_gain(gain)      
+        return self.source.set_gain(gain)
 
 
     def setup_rpc_manager(self):
@@ -114,9 +103,7 @@ class rx_top_block(gr.top_block):
 
       self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
       #self.rpc_mgr_rx.add_interface("set_snr_subcarrier",self.rxpath.set_snr_subc)
-      self.rpc_mgr_rx.add_interface("set_rx_gain",self.set_rx_gain)
-      
-      
+
     def _setup_rx_path(self,options):
         if options.tx_ant == 1:
             if options.rx_ant == 1:

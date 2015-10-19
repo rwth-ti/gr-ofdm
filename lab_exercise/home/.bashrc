@@ -64,9 +64,17 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 	}
 fi
 
+#Source environment
+if [ -f /opt/gr-ofdm/environment ]
+    then
+    . /opt/gr-ofdm/environment
+else
+    . /opt/gr-ofdm/bin/environment_lab
+fi
+
 #Personal settings
 alias ll='ls --color=auto -al'
-
-
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
 
 

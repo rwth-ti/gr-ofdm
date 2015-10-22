@@ -419,7 +419,7 @@ namespace gr {
         //Get Water Level
         while(level < (d_gap / snr_sort[it]))
         {
-            if(it>50)
+            if(it > d_resource_blocks.number * 0.25)
             {
                 return;
             }

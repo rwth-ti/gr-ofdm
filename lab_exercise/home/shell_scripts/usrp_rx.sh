@@ -19,15 +19,15 @@ else
     TXHOSTNAME="TXHOSTNAME"
 fi
 CARRIER=$(zenity --entry --title "Carrier frequency" --text "Enter transmitter's carrier frequency:" --entry-text "$CARRIER")
-TXHOSTNAME=$(zenity --entry --title "Tx Hostname" --text "Enter transmitter's Hostname:" --entry-text "$TXHOSTNAME")
+TXHOSTNAME=$(zenity --entry --title "Tx hostname" --text "Enter transmitter's hostname:" --entry-text "$TXHOSTNAME")
 echo $CARRIER > carrier
 echo $TXHOSTNAME > txhostname
 
 while [ "$TXHOSTNAME" == "TXHOSTNAME" ]
 do
 
-	zenity --info --text="Please enter the Hostname of the Transceiver. You find it on the sticker of the Transceiver-PC"
-	TXHOSTNAME=$(zenity --entry --title "Tx Hostname" --text "Enter transmitter's Hostname:" --entry-text "$TXHOSTNAME")
+	zenity --info --text="Please enter the hostname of the transmitter. You find it on the sticker of the transmitter PC"
+	TXHOSTNAME=$(zenity --entry --title "tx hostname" --text "Enter transmitter's hostname:" --entry-text "$TXHOSTNAME")
 echo $TXHOSTNAME > txhostname
 done
 if [ -f txhostname ]
@@ -57,4 +57,4 @@ else
 
 fi
 
-/opt/gr-ofdm/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --dc-null=2
+/opt/gr-ofdm/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --gui-frame-rate=950

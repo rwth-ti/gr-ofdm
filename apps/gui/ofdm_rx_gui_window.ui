@@ -310,6 +310,9 @@
           </item>
           <item row="2" column="1">
            <widget class="QComboBox" name="comboBoxModulation">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
             <item>
              <property name="text">
               <string>BPSK</string>

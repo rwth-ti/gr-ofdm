@@ -4,5 +4,5 @@ Type=Application
 Terminal=true
 Icon=ti-icon
 Name=task_1_usrp_rx
-Exec=shell_scripts/usrp_rx.sh
+Exec=shell_scripts/lab_env.sh  shell_scripts/usrp_rx.sh
 

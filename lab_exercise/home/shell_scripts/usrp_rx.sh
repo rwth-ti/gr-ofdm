@@ -1,11 +1,4 @@
 #!/bin/bash
-if [ -f /opt/gr-ofdm/environment ]
-    then
-    . /opt/gr-ofdm/environment
-else
-    . /opt/gr-ofdm/bin/environment_lab
-fi
-
 if [ -f carrier ]
 then
     CARRIER=`cat carrier`
@@ -57,4 +50,4 @@ else
 
 fi
 
-/opt/gr-ofdm/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --gui-frame-rate=950
+$GROFDM_DIR/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --gui-frame-rate=950

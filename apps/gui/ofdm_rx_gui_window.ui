@@ -221,19 +221,22 @@
           <item row="0" column="1">
            <widget class="QSlider" name="horizontalSliderAmplitude">
             <property name="maximum">
-             <number>10000</number>
+             <number>12720</number>
+            </property>
+            <property name="minimum">
+             <number>-1</number>
             </property>
             <property name="singleStep">
-             <number>10</number>
+             <number>1</number>
             </property>
             <property name="pageStep">
-             <number>10</number>
+             <number>1</number>
             </property>
             <property name="value">
-             <number>2000</number>
+             <number>11505</number>
             </property>
             <property name="sliderPosition">
-             <number>2000</number>
+             <number>11505</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -719,19 +722,19 @@
           <item row="1" column="1">
            <widget class="QSlider" name="horizontalSliderGap">
             <property name="minimum">
-             <number>3010</number>
+             <number>-1</number>
             </property>
             <property name="maximum">
-             <number>50000</number>
+                <number>13495</number>
             </property>
             <property name="singleStep">
-             <number>100</number>
+             <number>1</number>
             </property>
             <property name="pageStep">
-             <number>100</number>
+             <number>1</number>
             </property>
             <property name="value">
-             <number>30000</number>
+             <number>4890</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

@@ -1,8 +1,7 @@
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../build/lib"
-export PYTHONPATH="$PYTHONPATH:$PWD/../build/swig:$PWD/../python:$PWD/../python/ofdm"
-export PATH="$PATH:$PWD/gui:$PWD/../python/ofdm"
-
 if ! grep -q "grc" $HOME/.gnuradio/config.conf ; then
 echo "[grc]
 local_blocks_path=$PWD/../grc/" >> $HOME/.gnuradio/config.conf
 fi
+export LD_LIBRARY_PATH=":$PWD/../build/lib:$LD_LIBRARY_PATH"
+export PYTHONPATH="$PWD/../build/swig:$PWD/../python:$PYTHONPATH"
+export PATH="$PWD/gui:$PWD/../python/ofdm:$PATH"

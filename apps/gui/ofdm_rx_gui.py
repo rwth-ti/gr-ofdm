@@ -217,7 +217,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         avg_snr = float(sum(self.snr_y))/len(self.snr_y)
         avg_ber = float(sum(self.ber_y))/len(self.ber_y)
         self.gui.labelSNRAverage.setText(QtCore.QString.number(avg_snr,'f',3))
-        self.gui.labelBERAverage.setText(QtCore.QString.number(avg_ber,'e',3))
+        self.gui.labelAverage.setText(QtCore.QString.number(avg_ber,'e',3))
 
     def update_modulation(self):
         modulation_str = str(self.gui.comboBoxModulation.currentText())
@@ -234,7 +234,10 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.update_tx_params()
 
     def slide_amplitude(self, amplitude):
-        displayed_amplitude = amplitude/10000.0
+        if amplitude == -1:
+            displayed_amplitude=0.0
+        else:
+            displayed_amplitude = pow(10,amplitude/5000.)/1000.0
         self.gui.lineEditAmplitude.setText(QtCore.QString.number(displayed_amplitude,'f',4))
         self.amplitude = amplitude
         self.rpc_mgr_tx.request("set_amplitude",[displayed_amplitude])
@@ -242,14 +245,14 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
     def edit_amplitude(self):
         amplitude = self.lineEditAmplitude.text().toFloat()[0]
-        amplitude = min(amplitude,1.0)
-        amplitude = max(amplitude,0.0)
+        amplitude = min(amplitude,0.5)
+        amplitude = max(amplitude,1e-10)
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
         self.amplitude = amplitude
         # block signals to avoid feedback loop
         self.gui.horizontalSliderAmplitude.blockSignals(True)
         # note slider positions are int (!)
-        self.gui.horizontalSliderAmplitude.setValue(amplitude*10000.0)
+        self.gui.horizontalSliderAmplitude.setValue(math.log(amplitude,10)*1000.0-1)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
         self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
         self.rpc_mgr_tx.request("set_amplitude_ideal",[self.amplitude])
@@ -457,21 +460,24 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.rpc_mgr_tx.request("set_data_rate",[bit_data_rate])
 
     def slide_gap(self, gap):
-        displayed_gap = pow(10, - gap/10000.)
+        if gap == -1:
+            displayed_gap=0.0
+        else:
+            displayed_gap = pow(10, gap/5000.)/10000.0
         self.gui.lineEditGap.setText(QtCore.QString.number(displayed_gap,'f',4))
         self.gap = gap
         self.rpc_mgr_tx.request("set_gap",[displayed_gap])
 
     def edit_gap(self):
         gap = self.lineEditGap.text().toFloat()[0]
-        gap = min(gap,0.5)
-        gap = max(gap,1e-10)
+        gap = min(gap,1e-10)
+        gap = max(gap,0.5)
         self.gui.lineEditGap.setText(QtCore.QString("%1").arg(gap))
         self.gap = gap
         # block signals to avoid feedback loop
         self.gui.horizontalSliderGap.blockSignals(True)
         # note slider positions are int (!)
-        self.gui.horizontalSliderGap.setValue(math.log(gap, 10)*(-10000.))
+        self.gui.horizontalSliderGap.setValue(math.log(gap,10)*(10000.-1))
         self.gui.horizontalSliderGap.blockSignals(False)
         self.rpc_mgr_tx.request("set_gap",[self.gap])
 

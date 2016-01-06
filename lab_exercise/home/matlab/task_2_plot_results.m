@@ -75,7 +75,7 @@ set(plot4(1),'Color','k','Marker','x','DisplayName','BER = 1e-3','MarkerSize',12
 hold off
 
 title (['BER for OFDM system with 1 MHz bandwidth,',sprintf('\n'),'200 data subcarriers, 256 FFT length']);
-
+axis ([0 35 10^(-3) 10^(-1)]);
 xlabel('E_S/N_0 [dB]');
 ylabel('BER');
 

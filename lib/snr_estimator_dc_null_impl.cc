@@ -117,9 +117,9 @@ namespace gr {
                 }
 */
 
-                    if (i < (d_vlen-d_dc_null)/2)
+                    if (i < d_vlen-d_dc_null/2)
                     {
-                        if ( i % d_skip ==0 )
+                        if ( i % d_skip ==(4+d_dc_null/2) ) //First four Values are Null!
                         {
                             sum_load+=square;
                         }
@@ -127,35 +127,14 @@ namespace gr {
                         {
                             if (DEBUG)
                             {
-                                std::cout <<"sum_null from line 94 at "<< i <<" in "<< j<< "\n";
+                                std::cout <<"sum_null from line 130 at "<< i <<" in "<< j<< "\n";
                             }
                             sum_null+=square;
                         }
                     }
-                    else if (i < (d_vlen + d_dc_null)/2)
-                    {
-                        sum_null+=square;
-                        if (DEBUG)
-                        {
-                            std::cout <<"sum_null from line 101 at "<< i <<" in "<< j<< "\n";
-                        }
-                    }
                     else
                     {
-                        {
-                            if ( i % d_skip == 0)
-                            {
-                                sum_load+=square;
-                            }
-                            else
-                            {
-                                if (DEBUG)
-                                {
-                                    std::cout <<"sum_null from line 112 at "<< i <<" in "<< j<< "\n";
-                                }
-                                sum_null+=square;
-                            }
-                        }
+                        sum_null+=square;
                     }
                 }
                 if (DEBUG)

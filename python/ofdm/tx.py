@@ -38,16 +38,16 @@ class tx_top_block(gr.top_block):
     def __init__(self, options):
         gr.top_block.__init__(self)
 
-        if(options.tx_freq is not None):
+        if(options.to_file is not None):
+            self.file = blocks.file_sink(gr.sizeof_gr_complex, options.to_file)
+            self.sink = blocks.throttle(gr.sizeof_gr_complex,1e6)
+            self.connect( self.sink, self.file )
+        elif(options.tx_freq is not None):
             self.sink = uhd_transmitter(options.args,
                                         options.bandwidth, options.tx_freq, 
                                         options.lo_offset, options.tx_gain,
                                         options.spec, options.antenna,
                                         options.clock_source, options.verbose)
-        elif(options.to_file is not None):
-            self.file = blocks.file_sink(gr.sizeof_gr_complex, options.to_file)
-            self.sink = blocks.throttle(gr.sizeof_gr_complex,1e6)
-            self.connect( self.sink, self.file )
         else:
             self.sink = blocks.null_sink(gr.sizeof_gr_complex)
 

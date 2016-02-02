@@ -1,12 +1,18 @@
-if [ -f /opt/gr-ofdm/environment ]
+if [ -f $HOME/env ]
 then
-    . /opt/gr-ofdm/environment
+    . $HOME/env
 else
-    . /opt/gr-ofdm/bin/environment_lab
+    if [ -f /opt/gr-ofdm/environment ]
+    then
+        . /opt/gr-ofdm/environment
+    else
+        . /opt/gr-ofdm/bin/environment_lab
+    fi
 fi
-bash -c $*||{
+    
+bash -c "$*"||{
     echo "Programm start failed."
-    echo $1
+    echo "$*"
     zenity --error --text "Programm start failed. Please make sure that no other USRP programm or terminal is running!"
     }            
 

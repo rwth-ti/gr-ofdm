@@ -13,12 +13,28 @@ dvipdfmx -o resultsA4_$TODAY.pdf results.dvi
 pdfnup --nup 2x1 resultsA4_$TODAY.pdf --outfile results_$TODAY.pdf
 if [[ $USER == *"ofdmlab"* ]];
 then
-lpr results_$TODAY.pdf -P $PRINTER -o Duplex=DuplexTumble
-lpr results_$TODAY.pdf -P $PRINTER -o Duplex=DuplexTumble
-lpr results_$TODAY.pdf -P $PRINTER -o Duplex=DuplexTumble
-lpr results_$TODAY.pdf -P $PRINTER -o Duplex=DuplexTumble
+    ans=$(zenity --list --column="Persons" 1 2 3 4 --text="How many copies do you need?")
+
+    echo $ans
+    echo "copies..."
+    if (( $ans > 4 ))
+    then
+        persons=4
+        echo "Not more then 4 copies, please."
+    else
+        persons=$ans
+    fi
+
+    i=1
+    echo "printing..."
+    while [ "$i" -le "$persons" ];do
+        echo $i
+        lpr results_$TODAY.pdf -P $PRINTER -o Duplex=DuplexTumble
+        let i=i+1
+    done
+
 else
-echo "ERROR:No ofdmlab-account! Abort printing."
+    echo "ERROR:No ofdmlab-account! Abort printing."
 fi
 #put resultsA4_$TODAY.pdf zivkovic
 #put resultsA4_$TODAY.pdf reyer

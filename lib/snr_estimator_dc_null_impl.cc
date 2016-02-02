@@ -28,7 +28,7 @@
 #include <string.h>
 #include <iostream>
 
-#define DEBUG 0
+#define DEBUG 0 
 
 namespace gr {
     namespace ofdm {
@@ -82,59 +82,35 @@ namespace gr {
                 {
                     //square = std::abs(in[i]*std::conj(in[i]));
                     square = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
-/*
-                    if (i < (d_vlen)/2)
-                    {
-                        if ( i % d_skip == 4 + d_dc_null/2 )
-                        {
-                            sum_load+=square;
-                        }
-                        else
-                        {
-                            std::cout <<"sum_null from line 94 at "<< i <<" in "<< j<< "\n";
-                            sum_null+=square;
-                        }
-                    }
-                    else if (i < (d_vlen + d_dc_null)/2)
-                    {
-                        sum_null+=square;
-                         std::cout <<"sum_null from line 101 at "<< i <<" in "<< j<< "\n";
-                    }
-                    else
-                    {
-                        {
-                            if ( i % d_skip == 0 - d_dc_null/2 )
-                            {
-                                sum_load+=square;
-                            }
-                            else
-                            {
-                                 std::cout <<"sum_null from line 112 at "<< i <<" in "<< j<< "\n";
-                                sum_null+=square;
-                            }
-                        }
-                    }
-                }
-*/
 
-                    if (i < d_vlen-d_dc_null/2)
+                    if (i>d_dc_null/2 && i < d_vlen-(d_dc_null+d_skip)/2)
                     {
-                        if ( i % d_skip ==(4+d_dc_null/2) ) //First four Values are Null!
+                        if ( (i-d_dc_null/2) % d_skip ==(d_skip)/2 ) 
                         {
-                            sum_load+=square;
+                           if (DEBUG)
+                           {
+                              std::cout <<"sum_load from line 92 at "<< i <<" in "<< j<< "\n";
+                           }
+
+                           sum_load+=square;
                         }
                         else
                         {
-                            if (DEBUG)
-                            {
-                                std::cout <<"sum_null from line 130 at "<< i <<" in "<< j<< "\n";
-                            }
-                            sum_null+=square;
+                           if (DEBUG)
+                           {
+                              std::cout <<"sum_null from line 97 at "<< i <<" in "<< j<< "\n";
+                           }
+                           sum_null+=square;
                         }
                     }
                     else
                     {
-                        sum_null+=square;
+                       if (DEBUG)
+                       {
+                           std::cout <<"sum_null from line 97 at "<< i <<" in "<< j<< "\n";
+                       }
+
+                       sum_null+=square;
                     }
                 }
                 if (DEBUG)

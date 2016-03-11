@@ -35,6 +35,11 @@ for x = 1:length(x_em2)
 %   y_em4_plot = [y_em4_plot y_em4(x) y_em4(x)];
 end
 
+if ~numel(x_em2)
+    fprintf(2,'ERROR: No values found. Did you save the document as task_2_results.xls?\n')
+    break
+end
+
 bpsk_x =[0 x_em2(1)];
 bpsk_y =[y_em2(1) y_em2(1)];
 

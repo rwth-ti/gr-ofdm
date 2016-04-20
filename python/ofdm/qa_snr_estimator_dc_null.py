@@ -41,8 +41,8 @@ class qa_snr_estimator_dc_null (gr_unittest.TestCase):
         sum_null=0
 
         #noise
-        noise=np.random.normal(0,1,1000)
-        src_data=[2,1]*10
+#        noise=np.random.normal(0,1,1000)
+#        src_data=[2,1]*10
 #        src_data=[sum(x) for x in zip(data,noise)]
         src=blocks.vector_source_c(src_data,vlen=4)
         snr=ofdm.snr_estimator(d_vlen,d_skip)
@@ -67,20 +67,20 @@ class qa_snr_estimator_dc_null (gr_unittest.TestCase):
         print "output", dst.data()
         print "output dc_null", dst_dc_null.data()
         # calculate reference data
-        dc_null_noise=dst_dc_null.data()
-        if not d_dc_null:
-            for index,number in enumerate(src_data):
-                square=number*number.conjugate()
-                if not index%d_skip:
-                    sum_load+=square
-                else:
-                    sum_null+=square
-            estim =(1./d_skip)*((d_skip-1)*sum_load/sum_null-1)
-            estim_noise = sum_null*d_skip/(d_skip-1)/d_vlen
-        else:
-            results=[0]*80
-            estim_noise=results
-            estim=results
+        #dc_null_noise=dst_dc_null.data()
+        #if not d_dc_null:
+        #    for index,number in enumerate(src_data):
+        #        square=number*number.conjugate()
+        #        if not index%d_skip:
+        #            sum_load+=square
+        #        else:
+        #            sum_null+=square
+        #    estim =(1./d_skip)*((d_skip-1)*sum_load/sum_null-1)
+        #    estim_noise = sum_null*d_skip/(d_skip-1)/d_vlen
+        #else:
+        #    results=[0]*80
+        #    estim_noise=results
+        #    estim=results
 
 #Compare with snr_estimator_block
         self.assertEqual(dst_dc_null.data(),dst.data())

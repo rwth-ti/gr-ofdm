@@ -75,6 +75,25 @@ with USRPs and adaptive OFDM enabled
     ./run_usrp_tx_gui.sh --rx-hostname=<hostname or ip> -f 2.45G --tx-gain=<gain>
     ./run_usrp_rx_gui.sh --tx-hostname=<hostname or ip> -f 2.45G --sinr-est
 
+Literature
+----------
+**Skript for the undergraduate lab**
+
+https://www.ti.rwth-aachen.de/teaching/laboratory/ofdm/data/SkriptWS1516.pdf
+
+**Papers**
+
+Zivkovic, Milan, Johannes Schmitz, and Rudolf Mathar
+[**SDR in teaching: An OFDM communication primer**](https://www.ti.rwth-aachen.de/publications/abstract.php?q=db&table=proceeding&id=956)
+8th Karlsruhe Workshop on Software Radios, Karlsruhe, Germany, March 2014.
+
+Johannes Schmitz and Milan Zivkovic and Rudolf Mathar
+[**Extended Cyclostationary Signatures for OFDM-Based Cognitive Radio**](https://www.ti.rwth-aachen.de/publications/abstract.php?q=db&table=proceeding&id=868)
+7th Karlsruhe Workshop on Software Radios, Karlsruhe, Germany, March 2012
+
+M. Zivkovic, R. Mathar
+[**Preamble-based SNR Estimation in Frequency Selective Channels for Wireless OFDM Systems**](https://www.ti.rwth-aachen.de/publications/abstract.php?q=db&table=proceeding&id=668)
+IEEE VTC Spring 2009, Barcelona, Spain, April 2009.
 
 Copyright information
 ------------------

@@ -6,7 +6,7 @@ parameters. Includes Python Qt based GUI for visualization.
 
 Images
 ----------
-![alt text](https://github.com/rwth-ti/gr-ofdm/blob/master/screenshot_reciever.png "Screenshot from the reciever window")
+![alt text](https://github.com/rwth-ti/gr-ofdm/blob/master/screenshot_rx_gui.png "Screenshot from the receiver window")
 
 
 Build requirements

@@ -201,6 +201,12 @@
     </item>
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -220,11 +226,11 @@
           </item>
           <item row="0" column="1">
            <widget class="QSlider" name="horizontalSliderAmplitude">
-            <property name="maximum">
-             <number>12720</number>
-            </property>
             <property name="minimum">
              <number>-1</number>
+            </property>
+            <property name="maximum">
+             <number>12720</number>
             </property>
             <property name="singleStep">
              <number>1</number>
@@ -725,7 +731,7 @@
              <number>-1</number>
             </property>
             <property name="maximum">
-                <number>13495</number>
+             <number>13495</number>
             </property>
             <property name="singleStep">
              <number>1</number>
@@ -872,7 +878,7 @@
      <x>0</x>
      <y>0</y>
      <width>1173</width>
-     <height>27</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

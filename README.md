@@ -4,10 +4,7 @@ Provides blocks and Python classes to build an OFDM transmitter and receiver
 for research and teaching purposes with dynamically configurable transmission
 parameters. Includes Python Qt based GUI for visualization.
 
-Images
-----------
-![alt text](https://github.com/rwth-ti/gr-ofdm/blob/master/screenshot_rx_gui.png "Screenshot from the receiver window")
-
+![alt text](https://github.com/rwth-ti/gr-ofdm/blob/master/screenshot_rx_gui.png "Screenshot of the receiver GUI")
 
 Build requirements
 ------------------

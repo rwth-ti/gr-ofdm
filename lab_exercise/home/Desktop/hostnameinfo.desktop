@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=ti-icon
+Name=What is my Hostname?
+Exec=shell_scripts/lab_env.sh "zenity --info --title=Hostname: --text=$HOSTNAME "
+

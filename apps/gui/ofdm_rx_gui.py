@@ -217,7 +217,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
         avg_snr = float(sum(self.snr_y))/len(self.snr_y)
         avg_ber = float(sum(self.ber_y))/len(self.ber_y)
         self.gui.labelSNRAverage.setText(QtCore.QString.number(avg_snr,'f',3))
-        self.gui.labelAverage.setText(QtCore.QString.number(avg_ber,'e',3))
+        self.gui.labelBERAverage.setText(QtCore.QString.number(avg_ber,'e',3))
 
     def update_modulation(self):
         modulation_str = str(self.gui.comboBoxModulation.currentText())

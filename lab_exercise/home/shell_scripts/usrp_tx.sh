@@ -27,4 +27,4 @@ fi
 
 
 
-$GROFDM_DIR/bin/run_usrp_tx_gui.sh -f $CARRIER
+$GROFDM_DIR/bin/run_usrp_tx_gui.sh -f $CARRIER --lo-offset=4M

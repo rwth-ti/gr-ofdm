@@ -32,8 +32,8 @@ end
  %plot3 = plot (x_bpsk,y_bpsk,'--s', x_4qam,y_4qam,'--s',x_16qam,y_16qam,'--s',x_64qam,y_64qam,'--s''LineWidth',1);
  figure10 = figure (5);
  plot2 = semilogy(x_em2, y_em2, x_em3, y_em3);%, x_em4, y_em4);%,x_16qam,y_16qam,x_64qam,y_64qam,'LineWidth',1);
- set(plot2(1),'Color','r','LineStyle','-','DisplayName','BER = 1e-2');
- set(plot2(2),'Color','g','LineStyle','-','DisplayName','BER = 1e-3');
+ set(plot2(1),'Color','r','LineStyle','-','DisplayName','BER = 5e-2');
+ set(plot2(2),'Color','g','LineStyle','-','DisplayName','BER = 5e-3');
  %set(plot2(3),'Color','b','LineStyle','-','DisplayName','BER = 1e-4');
  legend1 = legend('toggle');
  legend('show');

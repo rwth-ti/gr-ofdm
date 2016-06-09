@@ -1,5 +1,5 @@
 title: gr-ofdm
-brief: complete OFDM implementation including GUI for reasearch and teaching
+brief: A complete OFDM implementation including GUI for reasearch and teaching
 tags:
  - ofdm
 author:
@@ -17,7 +17,7 @@ repo: https://github.com/rwth-ti/gr-ofdm
 license: Unless otherwise stated, all files are distributed under GPL v3 license
 website: https://www.ti.rwth-aachen.de/
 stable_release: HEAD
-icon: https://avatars0.githubusercontent.com/u/9364813?v=3&s=200i
+icon: https://github.com/rwth-ti/gr-ofdm/blob/master/screenshot_rx_gui.png
 ---
 
 Provides blocks and Python classes to build an OFDM transmitter and receiver
@@ -116,9 +116,3 @@ M. Zivkovic, R. Mathar
 [**Preamble-based SNR Estimation in Frequency Selective Channels for Wireless OFDM Systems**](https://www.ti.rwth-aachen.de/publications/abstract.php?q=db&table=proceeding&id=668)
 IEEE VTC Spring 2009, Barcelona, Spain, April 2009.
 
-Copyright information
-------------------
-Copyright © 2015 Institute for Theoretical Information Technology,
-                 RWTH Aachen University <https://www.ti.rwth-aachen.de/>
-
-Unless otherwise stated, all files are distributed under GPL v3 license.

@@ -4,7 +4,7 @@
   <key>ofdm_encoder_bb</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.encoder_bb($&FSM, $ST)</make>
+  <make>ofdm.encoder_bb($&amp;FSM, $ST)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

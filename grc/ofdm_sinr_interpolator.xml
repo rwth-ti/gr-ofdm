@@ -4,7 +4,7 @@
   <key>ofdm_sinr_interpolator</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.sinr_interpolator($vlen, $skip, $&load_index)</make>
+  <make>ofdm.sinr_interpolator($vlen, $skip, $&amp;load_index)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

@@ -4,7 +4,7 @@
   <key>ofdm_static_mux_v</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.static_mux_v($streamsize, $&mux_ctrl)</make>
+  <make>ofdm.static_mux_v($streamsize, $&amp;mux_ctrl)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

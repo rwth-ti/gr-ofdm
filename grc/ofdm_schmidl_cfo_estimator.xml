@@ -4,7 +4,7 @@
   <key>ofdm_schmidl_cfo_estimator</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.schmidl_cfo_estimator($fft_length, $carriers, $estimation_range, $&differential_pn_seq)</make>
+  <make>ofdm.schmidl_cfo_estimator($fft_length, $carriers, $estimation_range, $&amp;differential_pn_seq)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

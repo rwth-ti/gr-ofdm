@@ -14,7 +14,7 @@ end
 
 figure1 = figure (6);
 semilogx1 = semilogx (eps,outfinal(1,:),'-r', eps,outfinal(2,:),'-g',eps,outfinal(3,:),'-b',eps,outfinal(4,:),'-m','LineWidth',1);
-ylim([0 8]);
+ylim([0 13]);
 xlim([0.01 0.4]);
 set(semilogx1(1),'Color',[1 0 0],'DisplayName','E_s/N_0 = 20 dB');
 set(semilogx1(2),'Color',[0 1 0],'DisplayName','E_s/N_0 = 15 dB');

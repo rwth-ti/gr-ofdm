@@ -36,8 +36,7 @@ for x = 1:length(x_em2)
 end
 
 if ~numel(x_em2)
-    fprintf(2,'ERROR: No values found. Did you save the document as task_2_results.xls?\n')
-    break
+    error('ERROR: No values found. Did you save the document as task_2_results.xls?\n')
 end
 
 bpsk_x =[0 x_em2(1)];

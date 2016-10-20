@@ -185,7 +185,7 @@ class ofdm_inner_receiver( gr.hier_block2 ):
     if options.ideal is False and options.ideal2 is False:
         ## Extract preamble, feed to Morelli & Mengali frequency offset estimator
         assert( block_header.mm_preamble_pos == 0 )
-        morelli_foe = ofdm.mm_frequency_estimator( fft_length, L,1,0 )
+        morelli_foe = ofdm.mm_frequency_estimator( fft_length, L,1,False )
         sampler_preamble = ofdm.vector_sampler( gr.sizeof_gr_complex * fft_length,
                                             1 )
         self.connect( ofdm_blocks, ( sampler_preamble, 0 ) )

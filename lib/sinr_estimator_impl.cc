@@ -33,96 +33,84 @@
 #define DEBUG 0
 
 namespace gr {
-  namespace ofdm {
+    namespace ofdm {
 
-    sinr_estimator::sptr
-    sinr_estimator::make(int vlen, int skip, int dc_null)
-    {
-      return gnuradio::get_initial_sptr
-        (new sinr_estimator_impl(vlen, skip, dc_null));
-    }
+        sinr_estimator::sptr
+        sinr_estimator::make(int vlen, int skip, int dc_null)
+        {
+            return gnuradio::get_initial_sptr
+                (new sinr_estimator_impl(vlen, skip, dc_null));
+        }
 
-    /*
-     * The private constructor
-     */
-    sinr_estimator_impl::sinr_estimator_impl(int vlen, int skip, int dc_null)
-      : gr::sync_block("sinr_estimator",
-              gr::io_signature::make(2, 2, sizeof(gr_complex) * vlen),
-              gr::io_signature::make(1, 1, sizeof( float )*vlen*(skip-1)/ skip))
-    	, d_vlen( vlen )
-    	, d_skip( skip )
-        , d_dc_null (dc_null)
-    {
-    	  assert( d_vlen > 0 );
-    	  d_taps.reset(new float[vlen]);
-    	  d_taps1.reset(new float[vlen]);
-    	   for(int i = 0; i < vlen; ++i){
-    	     d_taps[i] = 1.0;
-    	     d_taps1[i] = 1.0;
-    	   }
+        /*
+         * The private constructor
+         */
+        sinr_estimator_impl::sinr_estimator_impl(int vlen, int skip, int dc_null)
+            : gr::sync_block("sinr_estimator",
+                    gr::io_signature::make(2, 2, sizeof(gr_complex) * vlen),
+                    gr::io_signature::make(1, 1, sizeof( float )*vlen*(skip-1)/ skip))
+              , d_vlen( vlen )
+              , d_skip( skip )
+              , d_dc_null (dc_null)
+        {
+            assert( d_vlen > 0 );
+            d_taps.reset(new float[vlen]);
+            d_taps1.reset(new float[vlen]);
+            for(int i = 0; i < vlen; ++i){
+                d_taps[i] = 1.0;
+                d_taps1[i] = 1.0;
+            }
 
-    }
+        }
 
-    /*
-     * Our virtual destructor.
-     */
-    sinr_estimator_impl::~sinr_estimator_impl()
-    {
-    }
+        /*
+         * Our virtual destructor.
+         */
+        sinr_estimator_impl::~sinr_estimator_impl()
+        {
+        }
 
-    int
-    sinr_estimator_impl::work(int noutput_items,
-			  gr_vector_const_void_star &input_items,
-			  gr_vector_void_star &output_items)
-    {
-    	  const gr_complex *in = static_cast< const gr_complex* >( input_items[0] );
-    	  const gr_complex *in1 = static_cast< const gr_complex* >( input_items[1] );
-    	  float *out = static_cast< float* >( output_items[0] );
+        int
+        sinr_estimator_impl::work(int noutput_items,
+                gr_vector_const_void_star &input_items,
+                gr_vector_void_star &output_items)
+        {
+            const gr_complex *in = static_cast< const gr_complex* >( input_items[0] );
+            const gr_complex *in1 = static_cast< const gr_complex* >( input_items[1] );
+            float *out = static_cast< float* >( output_items[0] );
 
+            float estim;
+            int in_idx;
 
-    	  for( int j = 0; j < noutput_items; ++j)
-    	  {
+            for( int j = 0; j < noutput_items; ++j) {
+                estim = 0;
 
-    		//float null_0=0;
-    		//float null_1=0;
-    		float estim = 0.0;
-    		//float square = 0.0;
-
-    	    for( int i = 0; i < d_vlen ; ++i )
-    	    {
-                if (i< (d_vlen)/2)
-                {
-                    if ( i % d_skip != 4 + d_dc_null/2 )
-                    {
-                            d_taps[i] = 0.005*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.995*d_taps[i];
-                            d_taps1[i] = 0.005*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.995*d_taps1[i];
+                for( int i = 0; i < d_vlen ; ++i ) {
+                    in_idx = j*d_vlen+i;
+                    if (i< (d_vlen)/2) {
+                        if ( (i - (d_skip/2 + d_dc_null/2)) % d_skip != 0 ) {
+                            d_taps[i] = 0.005*(in[in_idx].real()*in[in_idx].real() + in[in_idx].imag()*in[in_idx].imag()) + 0.995*d_taps[i];
+                            d_taps1[i] = 0.005*(in1[in_idx].real()*in1[in_idx].real() + in1[in_idx].imag()*in1[in_idx].imag()) + 0.995*d_taps1[i];
                             estim = d_taps1[i]/d_taps[i] - 1;
 
                             *out = (estim);
                             out += 1;
-
+                        }
                     }
-                }
-                else
-                {
-                    if ( i % d_skip != 4 - d_dc_null/2 )
-                    {
-                            d_taps[i] = 0.005*(in[i].real()*in[i].real() + in[i].imag()*in[i].imag()) + 0.995*d_taps[i];
-                            d_taps1[i] = 0.005*(in1[i].real()*in1[i].real() + in1[i].imag()*in1[i].imag()) + 0.995*d_taps1[i];
+                    else {
+                        if ( (i + (d_skip/2 + d_dc_null/2)) % d_skip != 0 ) {
+                            d_taps[i] = 0.005*(in[in_idx].real()*in[in_idx].real() + in[in_idx].imag()*in[in_idx].imag()) + 0.995*d_taps[i];
+                            d_taps1[i] = 0.005*(in1[in_idx].real()*in1[in_idx].real() + in1[in_idx].imag()*in1[in_idx].imag()) + 0.995*d_taps1[i];
                             estim = d_taps1[i]/d_taps[i] - 1;
 
                             *out = (estim);
                             out += 1;
-
+                        }
                     }
                 }
             }
-
-    	  }
-
-    	  return noutput_items;
-    }
-
-  } /* namespace ofdm */
+            return noutput_items;
+        }
+    } /* namespace ofdm */
 } /* namespace gr */
 

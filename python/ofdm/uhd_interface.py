@@ -45,7 +45,14 @@ class uhd_interface:
     def __init__(self, istx, ismimo, args, bandwidth, freq=None, lo_offset=None,
                  gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
 
+        # check the USRP model name
+        self._usrp_model = uhd.usrp_source(device_addr='', stream_args=uhd.stream_args('fc32')).get_usrp_info().get("mboard_id")
+        print "Running USRP model:", self._usrp_model
+
         if(istx):
+            if self._usrp_model == 'USRP1':
+                # load special FPGA bitstream to get a flat frequency response
+                args ='fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
             if(ismimo):
@@ -53,9 +60,6 @@ class uhd_interface:
             else:
                 self.u = uhd.usrp_source(device_addr=args, stream_args=uhd.stream_args('fc32'))
 
-        # check the USRP model name
-        self._usrp_model = self.u.get_usrp_info().get("mboard_id")
-        print "Running USRP model:", self._usrp_model
 
         #Make adjustments for USRP1 halfband filters
         if istx and self._usrp_model == 'USRP1':
@@ -114,6 +118,7 @@ class uhd_interface:
                 print "No gain specified."
                 print "Setting gain to %f (from [%f, %f])" % \
                 (gain_abs, gain_range.start(), gain_range.stop())
+            	self.u.set_gain(gain_abs, 0)
         else:
             gain_delta = gain_range.stop() - gain_range.start()
             gain_abs_delta = gain_rel * gain_delta

@@ -26,6 +26,7 @@ from gnuradio.eng_option import eng_option
 from optparse import OptionParser
 
 import sys
+import os
 
 def add_freq_option(parser):
     """
@@ -52,7 +53,11 @@ class uhd_interface:
         if(istx):
             if self._usrp_model == 'USRP1':
                 # load special FPGA bitstream to get a flat frequency response
-                args ='fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
+                UHD_IMAGES_DIR = os.environ.get("UHD_IMAGES_DIR")
+                if UHD_IMAGES_DIR != None and UHD_IMAGES_DIR != "":
+                    args = 'fpga=' + UHD_IMAGES_DIR + '/std_1rxhb_1txhb.rbf'
+                else:
+                    args = 'fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
             if(ismimo):

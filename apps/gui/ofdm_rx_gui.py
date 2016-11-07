@@ -447,7 +447,6 @@ class OFDMRxGUI(QtGui.QMainWindow):
     def edit_data_rate(self):
         data_rate = self.lineEditDataRate.text().toFloat()[0]
         bit_data_rate = (data_rate)*(self.frame_length)*self.symbol_time/(self.frame_length-3)
-        print "bit_data_rate", bit_data_rate
         bit_data_rate = min(data_rate,1600)
         bit_data_rate = max(data_rate,0)
         # bit rate should be integer -> explicit cast

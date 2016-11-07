@@ -440,15 +440,18 @@ class OFDMRxGUI(QtGui.QMainWindow):
         self.update_tx_params()
 
     def slide_data_rate(self, data_rate):
-        bit_data_rate = (int) ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3))
+        bit_data_rate = int( ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3)) )
         self.gui.lineEditDataRate.setText(QtCore.QString("%1").number(data_rate/100.))
         self.rpc_mgr_tx.request("set_data_rate",[bit_data_rate])
 
     def edit_data_rate(self):
-        data_rate = self.lineEditDataRate.text().toInt()[0]
-        bit_data_rate = (int) ((data_rate/100.)*(self.frame_length)*self.symbol_time/(self.frame_length-3))
+        data_rate = self.lineEditDataRate.text().toFloat()[0]
+        bit_data_rate = (data_rate)*(self.frame_length)*self.symbol_time/(self.frame_length-3)
+        print "bit_data_rate", bit_data_rate
         bit_data_rate = min(data_rate,1600)
         bit_data_rate = max(data_rate,0)
+        # bit rate should be integer -> explicit cast
+        bit_data_rate = int(bit_data_rate)
         self.gui.lineEditDataRate.setText(QtCore.QString("%1").arg(data_rate))
         # block signals to avoid feedback loop
         self.gui.horizontalSliderDataRate.blockSignals(True)

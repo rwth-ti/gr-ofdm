@@ -1,5 +1,11 @@
-export PATH=/opt/gr-ofdm/bin/:/opt/uhd/bin:/opt/gnuradio-3.7.8/bin:$PATH
-export LD_LIBRARY_PATH=/opt/gr-ofdm/lib/:/opt/uhd/lib/:/opt/gnuradio-3.7.8/lib:$LD_LIBRARY_PATH
-export PYTHONPATH=/opt/gr-ofdm/lib/python2.7/dist-packages/:/opt/gnuradio-3.7.8/lib/python2.7/dist-packages/:$PYTHONPATH
-export PKG_CONFIG_PATH=/opt/gnuradio-3.7.8/lib/pkgconfig:$PKG_CONFIG_PATH
+#Gnuradio
+export GNURADIO_DIR=/opt/gnuradio-3.7.7/
+export UHD_DIR=/opt/gnuradio-3.7.7/uhd_030901/
+export GROFDM_DIR=/opt/gr-ofdm/
+
+export PATH=$GROFDM_DIR/bin/:$UHD_DIR/bin:$GNURADIO_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$GROFDM_DIR/lib/:$UHD_DIR/lib/:$GNURADIO_DIR/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$GROFDM_DIR/lib/python2.7/dist-packages/:$GNURADIO_DIR/lib/python2.7/dist-packages/:$PYTHONPATH
+export PKG_CONFIG_PATH=$GNURADIO_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+
 

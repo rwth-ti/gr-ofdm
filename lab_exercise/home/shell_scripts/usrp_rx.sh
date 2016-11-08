@@ -12,14 +12,25 @@ else
     TXHOSTNAME="TXHOSTNAME"
 fi
 CARRIER=$(zenity --entry --title "Carrier frequency" --text "Enter transmitter's carrier frequency:" --entry-text "$CARRIER")
-TXHOSTNAME=$(zenity --entry --title "Tx hostname" --text "Enter transmitter's hostname:" --entry-text "$TXHOSTNAME")
 echo $CARRIER > carrier
+
+if [[ $CARRIER == *","* ]];
+then
+    zenity --error --text="Please use a dot as decimal mark!"
+    exit
+fi
+
+if [[ $CARRIER  != *"G"* ]] && [[  $CARRIER != *"M"* ]] && [  ${#CARRIER} -le  9 ];
+then
+    zenity --warning --text="Your choosen frequency is "$CARRIER"(Hz). This seems to be very small\! \nThe frequency should rather be 2.4___G(Hz)"
+    exit
+fi
+
+TXHOSTNAME=$(zenity --entry --title "tx hostname" --text "Enter transmitter's hostname:" --entry-text "$TXHOSTNAME")
 echo $TXHOSTNAME > txhostname
-
-while [ "$TXHOSTNAME" == "TXHOSTNAME" ]
+while [ "$TXHOSTNAME" == "TXHOSTNAME" ] || [ "$TXHOSTNAME" == "" ]
 do
-
-	zenity --info --text="Please enter the hostname of the transmitter. You find it on the sticker of the transmitter PC"
+	zenity --error --text="Please enter the hostname of the TRANSMITTER. You find it on the sticker or in the command line of the Tx PC"
 	TXHOSTNAME=$(zenity --entry --title "tx hostname" --text "Enter transmitter's hostname:" --entry-text "$TXHOSTNAME")
 echo $TXHOSTNAME > txhostname
 done
@@ -50,4 +61,4 @@ else
 
 fi
 
-$GROFDM_DIR/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --gui-frame-rate=950
+$GROFDM_DIR/bin/run_usrp_rx_gui.sh --tx-hostname=$TXHOSTNAME -f $CARRIER --gui-frame-rate=950 --lo-offset=4M

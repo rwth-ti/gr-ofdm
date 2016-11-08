@@ -14,17 +14,16 @@ echo $CARRIER > carrier
 
 echo "Hostname: $HOSTNAME"
 
-if   [[ $CARRIER  != *"G"* ]] && [[  $CARRIER != *"M"* ]] && [  ${#CARRIER} -le  9 ];
-then
-    zenity --info --text="Your choosen frequency is "$CARRIER"Hz. This seems to be too small\! \nThe frequency should be ratther 2._____Ghz"
-fi
-
 if [[ $CARRIER == *","* ]];
 then
-    zenity --info --text="Please use a dot as decimal mark!"
+    zenity --error --text="Please use a dot as decimal mark!"
     exit
 fi
 
-
+if   [[ $CARRIER  != *"G"* ]] && [[  $CARRIER != *"M"* ]] && [  ${#CARRIER} -le  9 ];
+then
+    zenity --warning --text="Your choosen frequency is "$CARRIER"(Hz). This seems to be very small\! \nThe frequency should rather be 2.4___G(Hz)"
+    exit
+fi
 
 $GROFDM_DIR/bin/run_usrp_tx_gui.sh -f $CARRIER --lo-offset=4M

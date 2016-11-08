@@ -47,17 +47,21 @@ class uhd_interface:
                  gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
 
         # check the USRP model name
-        self._usrp_model = uhd.usrp_source(device_addr='', stream_args=uhd.stream_args('fc32')).get_usrp_info().get("mboard_id")
-        print "Running USRP model:", self._usrp_model
+        print "Checking USRP model..."
+        usrp = uhd.usrp_source(device_addr=uhd.device_addr_t(''), stream_args=uhd.stream_args('fc32'))
+        self._usrp_model = usrp.get_usrp_info().get("mboard_id")
+        print "Using USRP model:", self._usrp_model
+        del(usrp)
 
         if(istx):
             if self._usrp_model == 'USRP1':
                 # load special FPGA bitstream to get a flat frequency response
-                UHD_IMAGES_DIR = os.environ.get("UHD_IMAGES_DIR")
-                if UHD_IMAGES_DIR != None and UHD_IMAGES_DIR != "":
-                    args = 'fpga=' + UHD_IMAGES_DIR + '/std_1rxhb_1txhb.rbf'
+                print "Loading special FPGA bitstream for USRP1 Tx to obtain flat frequency response"
+                UHD_DIR = os.environ.get("UHD_DIR")
+                if UHD_DIR != None and UHD_DIR != "":
+                    args = uhd.device_addr_t('fpga=' + UHD_DIR + 'share/uhd/images/std_1rxhb_1txhb.rbf')
                 else:
-                    args = 'fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf'
+                    args = uhd.device_addr_t('fpga=/usr/share/uhd/images/std_1rxhb_1txhb.rbf')
             self.u = uhd.usrp_sink(device_addr=args, stream_args=uhd.stream_args('fc32'))
         else:
             if(ismimo):

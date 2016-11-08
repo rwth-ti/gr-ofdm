@@ -17,8 +17,8 @@ In order to build the gr-ofdm module you will need to install the following prer
 - python-scipy
 
 
-How to build
-------------
+How to build and install
+------------------------
 In the gr-ofdm folder do
 
     mkdir build
@@ -26,9 +26,15 @@ In the gr-ofdm folder do
     cmake ../
     make
 
-optional
+Installation is optional
 
     make install
+
+for USRP1 devices copy the special FPGA image
+
+    usrp/images/std_1rxhb_1txhb.rbf
+
+to the uhd images directory. This is necessary to obtain a flat frequency response.
 
 
 How to run the apps
@@ -50,7 +56,7 @@ And
 
 
 to run the rf transmission.
-Then to oberserve everything in th graphical user interface:
+Then to observe everything in th graphical user interface:
 
     ./run_app.sh gui/ofdm_tx_gui.py
 

@@ -117,9 +117,9 @@ class uhd_interface:
     def set_gain(self, gain_rel=None):
         gain_range = self.u.get_gain_range()
         if gain_rel is None:
-            if (self._istx and (self._usrp_model == 'B210')):
+            if (self._istx and ((self._usrp_model == 'B210') or (self._usrp_model == 'USRP1'))):
                 self.u.set_gain(gain_range.stop())
-                print 'Running a B210, needs high gain, set gain to', gain_range.stop()
+                print 'Running a B210 or USRP1, needs high gain, set gain to', gain_range.stop()
                 gain_abs=gain_range.stop()
             else:
                 # if no gain was specified, use the mid-point in dB

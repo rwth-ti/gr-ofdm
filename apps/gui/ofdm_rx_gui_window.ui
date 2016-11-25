@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1173</width>
-    <height>699</height>
+    <width>1235</width>
+    <height>775</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -168,23 +174,90 @@
        </layout>
       </item>
       <item>
-       <widget class="QwtPlot" name="qwtPlotSNR"/>
+       <widget class="QwtPlot" name="qwtPlotSNR">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>180</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QwtPlot" name="qwtPlotBER"/>
+       <widget class="QwtPlot" name="qwtPlotBER">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>180</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QwtPlot" name="qwtPlotFreqoffset"/>
+       <widget class="QwtPlot" name="qwtPlotFreqoffset">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>180</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QwtPlot" name="qwtPlotRate"/>
+       <widget class="QwtPlot" name="qwtPlotRate">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>180</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="5,3">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="5,2">
       <item>
        <widget class="QwtPlot" name="qwtPlotCSI">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>330</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>select subcarrier</string>
         </property>
@@ -194,6 +267,18 @@
        <widget class="QwtPlot" name="qwtPlotScatter">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>330</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -233,7 +318,7 @@
              </size>
             </property>
             <property name="text">
-             <string>0.2000</string>
+             <string>0.1</string>
             </property>
            </widget>
           </item>
@@ -336,10 +421,10 @@
           <item row="0" column="1">
            <widget class="QSlider" name="horizontalSliderAmplitude">
             <property name="minimum">
-             <number>4225</number>
+             <number>-5000</number>
             </property>
             <property name="maximum">
-             <number>15000</number>
+             <number>20000</number>
             </property>
             <property name="singleStep">
              <number>10</number>
@@ -348,10 +433,10 @@
              <number>10</number>
             </property>
             <property name="value">
-             <number>11506</number>
+             <number>10000</number>
             </property>
             <property name="sliderPosition">
-             <number>11506</number>
+             <number>10000</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -877,7 +962,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1173</width>
+     <width>1235</width>
      <height>27</height>
     </rect>
    </property>

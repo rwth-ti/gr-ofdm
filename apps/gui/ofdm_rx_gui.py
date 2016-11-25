@@ -235,7 +235,7 @@ class OFDMRxGUI(QtGui.QMainWindow):
 
     def slide_amplitude(self, amplitude):
         # slider should go from 0.001 to 1.0
-        displayed_amplitude = pow(10,amplitude/5000.-3)
+        displayed_amplitude = pow(10,amplitude/10000.-2)
         self.gui.lineEditAmplitude.setText(QtCore.QString.number(displayed_amplitude,'f',4))
         self.amplitude = amplitude
         self.rpc_mgr_tx.request("set_amplitude",[displayed_amplitude])
@@ -244,13 +244,13 @@ class OFDMRxGUI(QtGui.QMainWindow):
     def edit_amplitude(self):
         amplitude = self.lineEditAmplitude.text().toFloat()[0]
         amplitude = min(amplitude,1.0)
-        amplitude = max(amplitude,1e-6)
+        amplitude = max(amplitude,0.0)
         self.gui.lineEditAmplitude.setText(QtCore.QString("%1").arg(amplitude))
         self.amplitude = amplitude
         # block signals to avoid feedback loop
         self.gui.horizontalSliderAmplitude.blockSignals(True)
         # note slider positions are int (!)
-        self.gui.horizontalSliderAmplitude.setValue((math.log(amplitude,10)+3)*5000.0)
+        self.gui.horizontalSliderAmplitude.setValue((math.log(amplitude,10)+2)*10000.0)
         self.gui.horizontalSliderAmplitude.blockSignals(False)
         self.rpc_mgr_tx.request("set_amplitude",[self.amplitude])
         self.rpc_mgr_tx.request("set_amplitude_ideal",[self.amplitude])

@@ -402,13 +402,14 @@ class transmit_path(gr.hier_block2):
   def set_rms_amplitude(self, ampl):
     """
     Sets the rms amplitude sent to the USRP
-    @param: ampl 0 <= ampl < 32768
+    @param: ampl 0 <= ampl < 1
     """
     # The standard output amplitude depends on the subcarrier number. E.g.
     # if non amplified, the amplitude is sqrt(subcarriers).
 
     self.rms = max(0.0, min(ampl, 1.0))
-    scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
+#    scaled_ampl = ampl/math.sqrt(self.config.subcarriers)
+    scaled_ampl = ampl/self.config.subcarriers
     self._amplification = scaled_ampl
     self._amplifier.set_k(self._amplification)
 

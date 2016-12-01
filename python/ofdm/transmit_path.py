@@ -425,7 +425,7 @@ class transmit_path(gr.hier_block2):
     """
     common_options.add_options(normal,expert)
 
-    normal.add_option("-a", "--rms-amplitude", type="eng_float", default=0.2, metavar="AMPL",
+    normal.add_option("-a", "--rms-amplitude", type="eng_float", default=0.75, metavar="AMPL",
                       help="set transmitter digital rms amplitude: 0.0 "+"<= AMPL < 1.0 [default=%default]")
     normal.add_option("", "--img", type="string", default="ratatouille.bmp",
                       help="The Bitmapfile which is tranferred[default=%default]")

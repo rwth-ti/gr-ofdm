@@ -155,8 +155,8 @@ class ofdm_benchmark (gr.top_block):
 
     if options.snr is not None:
       if options.berm is not None:
-          noise_sigma = 380/32767.0 #empirically given, gives the received SNR range of (1:28) for tx amp. range of (500:10000) which is set in rm_ber_measurement.py
-          #check for fading channel
+          # empirically determined to reach 30db SNR max in simulation mode
+          noise_sigma = 0.0035
       else:
           snr_db = options.snr
           snr = 10.0**(snr_db/10.0)

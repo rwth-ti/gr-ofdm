@@ -355,7 +355,7 @@
              </size>
             </property>
             <property name="text">
-             <string>0.1</string>
+             <string>0.75</string>
             </property>
            </widget>
           </item>
@@ -410,7 +410,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
-             <string>Modulation:</string>
+             <string>Modulation (uniform):</string>
             </property>
            </widget>
           </item>
@@ -470,7 +470,7 @@
           <item row="0" column="1">
            <widget class="QSlider" name="horizontalSliderAmplitude">
             <property name="minimum">
-             <number>-5000</number>
+             <number>-2000</number>
             </property>
             <property name="maximum">
              <number>20000</number>
@@ -482,10 +482,10 @@
              <number>10</number>
             </property>
             <property name="value">
-             <number>10000</number>
+             <number>18750</number>
             </property>
             <property name="sliderPosition">
-             <number>10000</number>
+             <number>18750</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

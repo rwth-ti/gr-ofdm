@@ -328,7 +328,7 @@ namespace gr {
         {
             level = (d_resource_blocks.power_limit + std::accumulate( inv_snr.begin(), inv_snr.end(), 0.))/counter;
             // break if too many subcarriers nulled
-            if(counter < (0.75 * d_resource_blocks.number))
+            if(counter < (0.25 * d_resource_blocks.number))
             {
                 break;
             }
@@ -343,7 +343,7 @@ namespace gr {
             else break;
         }
 
-        if(counter < (0.75 * d_resource_blocks.number))
+        if(counter < (0.25 * d_resource_blocks.number))
         {
             // default data modulation scheme is BPSK
             d_resource_blocks.bitloading.clear();
@@ -435,8 +435,8 @@ namespace gr {
             if(level > (d_gap /d_resource_blocks.snr[i] ))
                 d_amplitude_abs += level - d_gap/d_resource_blocks.snr[i];
         }
-        //Set minimum to 0.1 possibility for improvement
-        d_amplitude_abs = std::max(0.1, sqrt(d_amplitude_abs/d_resource_blocks.number));
+        //Set minimum to 0.01 possibility for improvement
+        d_amplitude_abs = std::max(0.01, sqrt(d_amplitude_abs/d_resource_blocks.number));
 
         //Allocate
         for(int i = 0; i < d_resource_blocks.number; i++)
@@ -480,7 +480,7 @@ namespace gr {
                 count++;
         }
 
-        if(count > (0.25 * d_resource_blocks.number))
+        if(count > (0.75 * d_resource_blocks.number))
         {
             // default data modulation scheme is BPSK
             d_resource_blocks.bitloading.clear();

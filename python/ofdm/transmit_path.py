@@ -168,7 +168,7 @@ class transmit_path(gr.hier_block2):
         self.connect(modul_bitcount_src,mux_ctrl)
         
         #Initial allocation
-        self.allocation_src.set_allocation([2]*config.data_subcarriers,[1]*config.data_subcarriers)   
+        self.allocation_src.set_allocation([1]*config.data_subcarriers,[1]*config.data_subcarriers)   
         self.allocation_src.set_allocation_scheme(0)
         if options.benchmarking:
             self.allocation_src.set_allocation([4]*config.data_subcarriers,[1]*config.data_subcarriers)        

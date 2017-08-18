@@ -4,4 +4,4 @@ Type=Application
 Terminal=true
 Icon=ti-icon
 Name=usrp_fft
-Exec=env LD_LIBRARY_PATH=/opt/gr-ofdm/lib/:/opt/uhd/lib/:/opt/gnuradio-3.7.8/lib uhd_fft
+Exec=shell_scripts/lab_env.sh uhd_fft -f 2.45G

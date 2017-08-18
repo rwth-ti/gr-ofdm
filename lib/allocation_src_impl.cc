@@ -198,7 +198,7 @@ namespace gr {
     void
     allocation_src_impl::recv_snr()
     {
-        zmq::pollitem_t items[] = { { *d_socket_feedback, 0, ZMQ_POLLIN, 0 } };
+        zmq::pollitem_t items[] = { { static_cast<void *>(*d_socket_feedback), 0, ZMQ_POLLIN, 0 } };
         bool msg_received = true;
         while(msg_received) {
             // poll with timeout 0

@@ -77,10 +77,6 @@ namespace gr {
     	  gr_complex acc1 = d_acc1;
     	  float      acc2 = d_acc2;
 
-    	  // use references for simpler access
-    	  float & x = acc1.real();
-    	  float & y = acc1.imag();
-
     	  // NOTE: GCC performs better if we use temporary constants for
     	  // every expression
 
@@ -101,8 +97,8 @@ namespace gr {
     	    }
 
     	    float const acc2_sq = acc2 * acc2;
-    	    float const x2 = x*x; // squared real part of acc1
-    	    float const y2 = y*y; // same for imaginary part
+    	    float const x2 = acc1.real()*acc1.real(); // squared real part of acc1
+    	    float const y2 = acc1.imag()*acc1.imag(); // same for imaginary part
     	    float const x2y2 = x2 + y2;
     	    out[i] = x2y2 / acc2_sq;
 

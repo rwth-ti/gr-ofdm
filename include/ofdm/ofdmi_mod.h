@@ -207,10 +207,10 @@ private:
   const generic_modulation_scheme<3> mod;
 
 
-  static const float d_pi_8 = M_PI / 8.0;
-  static const float d_7pi_8 = 7.0 * M_PI / 8.0;
-  static const float d_3pi_8 = 3.0 * M_PI / 8.0;
-  static const float d_5pi_8 = 5.0 * M_PI / 8.0;
+  static constexpr float d_pi_8 = M_PI / 8.0;
+  static constexpr float d_7pi_8 = 7.0 * M_PI / 8.0;
+  static constexpr float d_3pi_8 = 3.0 * M_PI / 8.0;
+  static constexpr float d_5pi_8 = 5.0 * M_PI / 8.0;
 
 public:
   inline m8psk_scheme() : modulation_scheme(3) {};
@@ -250,7 +250,7 @@ class m16qam_scheme : public modulation_scheme
 private:
   const generic_modulation_scheme<4> mod;
 
-  static const float level_0 = 0.6325;
+  static constexpr float level_0 = 0.6325;
 
 public:
   inline m16qam_scheme() : modulation_scheme(4) {};
@@ -350,9 +350,9 @@ class m64qam_scheme : public modulation_scheme
 private:
   const generic_modulation_scheme<6> mod;
 
-  static const float level = 0.3086;
-  static const float level2 = 0.3086*2.0;
-  static const float level3 = 0.3086*3.0;
+  static constexpr float level = 0.3086;
+  static constexpr float level2 = 0.3086*2.0;
+  static constexpr float level3 = 0.3086*3.0;
 
 public:
   inline m64qam_scheme() : modulation_scheme(6) {};

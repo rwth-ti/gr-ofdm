@@ -46,12 +46,12 @@ namespace gr {
         : gr::sync_block("allocation_buffer",
                          gr::io_signature::make(1, 1, sizeof(short)),
                          gr::io_signature::make(0, 0, 0))
-    	,d_bitcount_out(2000)
+        ,d_bitcount_out(2000)
         ,d_subcarriers(subcarriers)
-    	, d_data_symbols(data_symbols)
-    	, d_allocation_buffer(256) //TODO: id size hardcoded
-		,d_coding( coding )
-		,d_bitspermode( {1,2,3,4,6,8,9,10,12})
+        ,d_data_symbols(data_symbols)
+        ,d_allocation_buffer(256) //TODO: id size hardcoded
+        ,d_coding( coding )
+        ,d_bitspermode( {1,2,3,4,6,8,9,10,12})
     {
         std::vector<int> out_sig(3);
         out_sig[0] = sizeof(int);                               // bitcount
@@ -106,7 +106,7 @@ namespace gr {
     void
     allocation_buffer_impl::recv_allocation()
     {
-        zmq::pollitem_t items[] = { { *d_socket, 0, ZMQ_POLLIN, 0 } };
+        zmq::pollitem_t items[] = { { static_cast<void *>(*d_socket), 0, ZMQ_POLLIN, 0 } };
         bool msg_received = true;
         while(msg_received) {
             // poll with timeout 0

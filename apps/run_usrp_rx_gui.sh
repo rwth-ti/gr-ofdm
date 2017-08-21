@@ -20,4 +20,4 @@ echo $TXHOSTNAME
 
 ofdm_rx_gui.py $TXHOSTNAME &
 
-rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 --freq=2.45G $*
+rx.py --disable-ctf-enhancer --bandwidth=1M --subcarriers=200 --fft-length=256 --scatterplot --ber-window=50000 --freq=2.45G --lo-offset=4M $*

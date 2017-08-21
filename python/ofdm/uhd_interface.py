@@ -47,7 +47,7 @@ class uhd_interface:
                  gain=None, spec=None, antenna=None, clock_source=None, time_source=None):
 
         # check the USRP model name
-        print "Checking USRP model..."
+        print "Assuming only one type of USRP. Checking USRP model..."
         usrp = uhd.usrp_source(device_addr=uhd.device_addr_t(''), stream_args=uhd.stream_args('fc32'))
         self._usrp_model = usrp.get_usrp_info().get("mboard_id")
         print "Using USRP model:", self._usrp_model
@@ -82,8 +82,8 @@ class uhd_interface:
         self._spec = spec
         self._gain = self.set_gain(gain)
         self._lo_offset = lo_offset
-        self._freq = self.set_freq(freq, lo_offset)
         self._rate = self.set_sample_rate(bandwidth)
+        self._freq = self.set_freq(freq, lo_offset)
         self._clock_source = clock_source
         self._time_source = time_source
 
@@ -146,7 +146,6 @@ class uhd_interface:
         r = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),0)
         if(self._ismimo):
             s = self.u.set_center_freq(uhd.tune_request(freq, lo_offset),1)
-
         if  r:
             return "FREQ", freq
         else:

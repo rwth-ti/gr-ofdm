@@ -10,5 +10,5 @@ fi
 
 ofdm_tx_gui.py &
 
-tx.py --freq=2.45G --bandwidth=1M --fft-length=256 --subcarriers=200 $*
+tx.py --freq=2.45G --bandwidth=1M --fft-length=256 --subcarriers=200 --lo-offset=4M $*
 

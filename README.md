@@ -12,7 +12,7 @@ In order to build the gr-ofdm module you will need to install the following prer
 - ZeroMQ including the C++ and Python bindings (http://zeromq.org/)
 - UHD Driver for USRP hardware
 - GNU Radio (http://gnuradio.org/)
-- ITPP (http://itpp.sourceforge.net/)
+- ITPP (https://sourceforge.net/projects/itpp/)
 - python-qwt5-qt4
 - python-scipy
 

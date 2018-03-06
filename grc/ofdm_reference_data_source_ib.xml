@@ -4,7 +4,7 @@
   <key>ofdm_reference_data_source_ib</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.reference_data_source_ib($&ref_data)</make>
+  <make>ofdm.reference_data_source_ib($&amp;ref_data)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

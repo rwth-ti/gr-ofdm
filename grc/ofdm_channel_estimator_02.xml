@@ -4,7 +4,7 @@
   <key>ofdm_channel_estimator_02</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.channel_estimator_02($vlen, $&pilot_tones, $&nondata_block)</make>
+  <make>ofdm.channel_estimator_02($vlen, $&amp;pilot_tones, $&amp;nondata_block)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

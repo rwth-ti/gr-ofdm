@@ -4,7 +4,7 @@
   <key>ofdm_stc_encoder</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.stc_encoder($vlen, $num_symbols, $&pilot_subcarriers)</make>
+  <make>ofdm.stc_encoder($vlen, $num_symbols, $&amp;pilot_subcarriers)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

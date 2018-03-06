@@ -4,7 +4,7 @@
   <key>ofdm_lms_phase_tracking</key>
   <category>ofdm</category>
   <import>import ofdm</import>
-  <make>ofdm.lms_phase_tracking($vlen, $&pilot_tones, $&data_symbols)</make>
+  <make>ofdm.lms_phase_tracking($vlen, $&amp;pilot_tones, $&amp;data_symbols)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

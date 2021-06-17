@@ -1,3 +1,5 @@
+> ⚠️ **THIS REPOSITORY IS UNMAINTAINED** ⚠️
+
 gr-ofdm GNU Radio module
 =============================
 Provides blocks and Python classes to build an OFDM transmitter and receiver
